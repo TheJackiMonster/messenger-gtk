@@ -23,16 +23,6 @@ Author: Tobias Frisch
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <requires lib="libhandy" version="1.2"/>
-  <object class="GtkSizeGroup">
-    <widgets>
-      <widget name="new-group-label"/>
-      <widget name="new-platform-label"/>
-      <widget name="contacts-label"/>
-      <widget name="calls-label"/>
-      <widget name="settings-label"/>
-      <widget name="night-mode-label"/>
-    </widgets>
-  </object>
   <object class="GtkApplicationWindow" id="main_window">
     <property name="can-focus">False</property>
     <child>
@@ -866,7 +856,7 @@ Author: Tobias Frisch
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="receives-default">True</property>
-                            <property name="valign">end</property>
+                            <property name="valign">center</property>
                             <property name="relief">none</property>
                             <child>
                               <object class="GtkImage">
@@ -884,7 +874,8 @@ Author: Tobias Frisch
                         </child>
                         <child>
                           <object class="GtkTextView">
-                            <property name="width-request">250</property>
+                            <property name="width-request">210</property>
+                            <property name="height-request">48</property>
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="valign">end</property>
@@ -906,7 +897,7 @@ Author: Tobias Frisch
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="receives-default">True</property>
-                            <property name="valign">end</property>
+                            <property name="valign">center</property>
                             <property name="relief">none</property>
                             <child>
                               <object class="GtkImage">
@@ -927,7 +918,7 @@ Author: Tobias Frisch
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="receives-default">True</property>
-                            <property name="valign">end</property>
+                            <property name="valign">center</property>
                             <property name="relief">none</property>
                             <child>
                               <object class="GtkImage">
@@ -1101,6 +1092,16 @@ Author: Tobias Frisch
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkSizeGroup">
+    <widgets>
+      <widget name="new-group-label"/>
+      <widget name="new-platform-label"/>
+      <widget name="contacts-label"/>
+      <widget name="calls-label"/>
+      <widget name="settings-label"/>
+      <widget name="night-mode-label"/>
+    </widgets>
   </object>
   <object class="GtkSizeGroup">
     <property name="mode">vertical</property>
