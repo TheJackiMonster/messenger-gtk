@@ -1011,12 +1011,41 @@ Author: Tobias Frisch
                                                 <property name="label-xalign">0</property>
                                                 <property name="shadow-type">none</property>
                                                 <child>
-                                                  <object class="GtkLabel">
+                                                  <object class="GtkBox">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="label" translatable="yes">My evil comment text is awesome! This is coming to the Pinephone which will be extremely awesome and this text may only cut some borders in certain areas!!!</property>
-                                                    <property name="wrap">True</property>
-                                                    <property name="max-width-chars">64</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">My evil comment text is awesome! This is coming to the Pinephone which will be extremely awesome and this text may only cut some borders in certain areas!!!</property>
+                                                        <property name="wrap">True</property>
+                                                        <property name="max-width-chars">64</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">5h</property>
+                                                        <property name="justify">right</property>
+                                                        <property name="xalign">1</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="light"/>
+                                                        </attributes>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
                                                   </object>
                                                 </child>
                                                 <child type="label">
@@ -1057,11 +1086,39 @@ Author: Tobias Frisch
                                                 <property name="label-xalign">0</property>
                                                 <property name="shadow-type">none</property>
                                                 <child>
-                                                  <object class="GtkLabel">
+                                                  <object class="GtkBox">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="label" translatable="yes">Great stuff to write</property>
-                                                    <property name="max-width-chars">64</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">Great stuff to write</property>
+                                                        <property name="max-width-chars">64</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">4h</property>
+                                                        <property name="xalign">0</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="light"/>
+                                                        </attributes>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
                                                   </object>
                                                 </child>
                                                 <child type="label">
@@ -1100,12 +1157,41 @@ Author: Tobias Frisch
                                                 <property name="label-xalign">0</property>
                                                 <property name="shadow-type">none</property>
                                                 <child>
-                                                  <object class="GtkLabel">
+                                                  <object class="GtkBox">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="label" translatable="yes">My evil comment text is awesome! This is coming to the Pinephone which will be extremely awesome and this text may only cut some borders in certain areas!!!</property>
-                                                    <property name="wrap">True</property>
-                                                    <property name="max-width-chars">64</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">My evil comment text is awesome! This is coming to the Pinephone which will be extremely awesome and this text may only cut some borders in certain areas!!!</property>
+                                                        <property name="wrap">True</property>
+                                                        <property name="max-width-chars">64</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">2h</property>
+                                                        <property name="justify">right</property>
+                                                        <property name="xalign">1</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="light"/>
+                                                        </attributes>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
                                                   </object>
                                                 </child>
                                                 <child type="label">
@@ -1146,12 +1232,40 @@ Author: Tobias Frisch
                                                 <property name="label-xalign">0</property>
                                                 <property name="shadow-type">none</property>
                                                 <child>
-                                                  <object class="GtkLabel">
+                                                  <object class="GtkBox">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="label" translatable="yes">If people would know that you spam here like this...</property>
-                                                    <property name="wrap">True</property>
-                                                    <property name="max-width-chars">64</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">If people would know that you spam here like this...</property>
+                                                        <property name="wrap">True</property>
+                                                        <property name="max-width-chars">64</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">1h</property>
+                                                        <property name="xalign">0</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="light"/>
+                                                        </attributes>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
                                                   </object>
                                                 </child>
                                                 <child type="label">
@@ -1190,12 +1304,40 @@ Author: Tobias Frisch
                                                 <property name="label-xalign">0</property>
                                                 <property name="shadow-type">none</property>
                                                 <child>
-                                                  <object class="GtkLabel">
+                                                  <object class="GtkBox">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="label" translatable="yes">Existence is a crisis my friends. You will only get releaf by open-sourcing your hard work because profit is temporary. Forks remain forever!</property>
-                                                    <property name="wrap">True</property>
-                                                    <property name="max-width-chars">64</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">Existence is a crisis my friends. You will only get releaf by open-sourcing your hard work because profit is temporary. Forks remain forever!</property>
+                                                        <property name="wrap">True</property>
+                                                        <property name="max-width-chars">64</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">30min</property>
+                                                        <property name="xalign">0</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="light"/>
+                                                        </attributes>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
                                                   </object>
                                                 </child>
                                                 <child type="label">
@@ -1234,12 +1376,41 @@ Author: Tobias Frisch
                                                 <property name="label-xalign">0</property>
                                                 <property name="shadow-type">none</property>
                                                 <child>
-                                                  <object class="GtkLabel">
+                                                  <object class="GtkBox">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="label" translatable="yes">My evil comment text is awesome! This is coming to the Pinephone which will be extremely awesome and this text may only cut some borders in certain areas!!!</property>
-                                                    <property name="wrap">True</property>
-                                                    <property name="max-width-chars">64</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">My evil comment text is awesome! This is coming to the Pinephone which will be extremely awesome and this text may only cut some borders in certain areas!!!</property>
+                                                        <property name="wrap">True</property>
+                                                        <property name="max-width-chars">64</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">12min</property>
+                                                        <property name="justify">right</property>
+                                                        <property name="xalign">1</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="light"/>
+                                                        </attributes>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
                                                   </object>
                                                 </child>
                                                 <child type="label">
@@ -1288,9 +1459,9 @@ Author: Tobias Frisch
                         <property name="can-focus">False</property>
                         <property name="margin-start">8</property>
                         <property name="margin-end">8</property>
-                        <property name="margin-top">8</property>
-                        <property name="margin-bottom">8</property>
-                        <property name="spacing">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkButton">
                             <property name="visible">True</property>
