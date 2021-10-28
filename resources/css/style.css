@@ -3,6 +3,10 @@
 	background-color: @theme_bg_color;
 }
 
+.profile-entry {
+	padding: 4px 20px;
+}
+
 .chat-entry {
 	padding: 4px;
 }
