@@ -3,3 +3,25 @@
 	background-color: @theme_bg_color;
 }
 
+.chat-entry {
+	padding: 4px;
+}
+
+.message-box {
+	border-radius: 12px;
+	padding: 8px 12px;
+	margin: 4px;
+	font-size: small;
+}
+
+.message-box:not(.own) {
+	background-color: mix(@theme_bg_color, @theme_fg_color, 0.1);
+	color: @theme_fg_color;
+	margin-right: 20px;
+}
+
+.message-box.own {
+	background-color: @theme_selected_bg_color;
+	color: @theme_selected_fg_color;
+	margin-left: 20px;
+}

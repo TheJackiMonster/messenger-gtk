@@ -27,8 +27,8 @@
 
 #include <gnunet/gnunet_chat_lib.h>
 
-G_MODULE_EXPORT void handle_user_details_button_click(GtkButton* button,
-						      gpointer user_data)
+void handle_user_details_button_click(GtkButton* button,
+				      gpointer user_data)
 {
   HdyFlap* flap = HDY_FLAP(user_data);
 
@@ -39,8 +39,8 @@ G_MODULE_EXPORT void handle_user_details_button_click(GtkButton* button,
   }
 }
 
-G_MODULE_EXPORT void handle_account_details_button_click(GtkButton* button,
-							 gpointer user_data)
+void handle_account_details_button_click(GtkButton* button,
+					 gpointer user_data)
 {
   GtkRevealer* revealer = GTK_REVEALER(user_data);
 
@@ -48,6 +48,31 @@ G_MODULE_EXPORT void handle_account_details_button_click(GtkButton* button,
     gtk_revealer_set_reveal_child(revealer, FALSE);
   } else {
     gtk_revealer_set_reveal_child(revealer, TRUE);
+  }
+}
+
+void handle_chats_listbox_row_activated(GtkListBox* listbox,
+					GtkListBoxRow* row,
+					gpointer user_data)
+{
+  HdyLeaflet* leaflet = HDY_LEAFLET(user_data);
+
+  GList* children = gtk_container_get_children(GTK_CONTAINER(leaflet));
+
+  if ((children) && (children->next)) {
+    hdy_leaflet_set_visible_child(leaflet, GTK_WIDGET(children->next->data));
+  }
+}
+
+void handle_back_button_click(GtkButton* button,
+			      gpointer user_data)
+{
+  HdyLeaflet* leaflet = HDY_LEAFLET(user_data);
+
+  GList* children = gtk_container_get_children(GTK_CONTAINER(leaflet));
+
+  if (children) {
+    hdy_leaflet_set_visible_child(leaflet, GTK_WIDGET(children->data));
   }
 }
 
@@ -82,6 +107,23 @@ int main(int argc, char** argv) {
 
   HdyHeaderBar* title_bar = HDY_HEADER_BAR(
       gtk_builder_get_object(builder, "title_bar")
+  );
+
+  HdyLeaflet* leaflet_chat = HDY_LEAFLET(
+      gtk_builder_get_object(builder, "leaflet_chat")
+  );
+
+  hdy_leaflet_set_homogeneous(leaflet_chat, FALSE, GTK_ORIENTATION_HORIZONTAL, FALSE);
+
+  GtkListBox* chats_listbox = GTK_LIST_BOX(
+      gtk_builder_get_object(builder, "chats_listbox")
+  );
+
+  g_signal_connect(
+      chats_listbox,
+      "row-activated",
+      G_CALLBACK(handle_chats_listbox_row_activated),
+      leaflet_chat
   );
 
   GtkButton* user_details_button = GTK_BUTTON(
@@ -123,6 +165,33 @@ int main(int argc, char** argv) {
       "clicked",
       G_CALLBACK(handle_account_details_button_click),
       account_details_revealer
+  );
+
+  GtkButton* back_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "back_button")
+  );
+
+  g_signal_connect(
+      back_button,
+      "clicked",
+      G_CALLBACK(handle_back_button_click),
+      leaflet_chat
+  );
+
+  g_object_bind_property(
+      leaflet_chat,
+      "folded",
+      back_button,
+      "visible",
+      G_BINDING_SYNC_CREATE
+  );
+
+  g_object_bind_property(
+      leaflet_chat,
+      "folded",
+      title_bar,
+      "show-close-button",
+      G_BINDING_INVERT_BOOLEAN
   );
 
   gtk_widget_show(GTK_WIDGET(window));
