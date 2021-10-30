@@ -3,7 +3,10 @@ SOURCE_DIR  = src/
 INSTALL_DIR ?= /usr/local/
 
 BINARY  = messenger-gtk
-SOURCES = messenger_gtk.c
+SOURCES = messenger_gtk.c\
+		  chat/messenger.c\
+		  ui/messenger.c
+		  
 HEADERS = 
 
 LIBRARIES = gnunetutil gnunetchat
@@ -14,7 +17,7 @@ LD ?= gcc
 RM ?= rm
 
 CFLAGS  += -pedantic -Wall -Wextra -march=native -ggdb3
-LDFLAGS += -pthread
+LDFLAGS += 
 
 DEBUGFLAGS   = -O0 -D _DEBUG
 RELEASEFLAGS = -O2 -D NDEBUG -fwhole-program
