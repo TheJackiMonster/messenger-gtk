@@ -12,9 +12,9 @@ HEADERS =
 LIBRARIES = gnunetutil gnunetchat
 PACKAGES  = libhandy-1 gtk+-3.0 libnotify
 
-CC ?= gcc
-LD ?= gcc
-RM ?= rm
+GNU_CC ?= gcc
+GNU_LD ?= gcc
+GNU_RM ?= rm
 
 CFLAGS  += -pedantic -Wall -Wextra -march=native -ggdb3
 LDFLAGS += 
@@ -37,10 +37,10 @@ release: CFLAGS += $(RELEASEFLAGS)
 release: $(BINARY)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@ $(LIBRARY_FLAGS) $(PACKAGE_FLAGS)
+	$(GNU_CC) $(CFLAGS) -c $< -o $@ $(LIBRARY_FLAGS) $(PACKAGE_FLAGS)
 
 $(BINARY): $(OBJECT_FILES)
-	$(LD) $(LDFLAGS) $^ -o $@ $(LIBRARY_FLAGS) $(PACKAGE_FLAGS)
+	$(GNU_LD) $(LDFLAGS) $^ -o $@ $(LIBRARY_FLAGS) $(PACKAGE_FLAGS)
 
 .PHONY: install
 
@@ -50,10 +50,10 @@ install:
 .PHONY: uninstall
 
 uninstall:
-	$(RM) -f $(addsuffix $(BINARY), $(addprefix $(INSTALL_DIR), bin/))
+	$(GNU_RM) -f $(addsuffix $(BINARY), $(addprefix $(INSTALL_DIR), bin/))
 
 .PHONY: clean
 
 clean:
-	$(RM) -f $(BINARY)
-	$(RM) -f $(OBJECT_FILES)
+	$(GNU_RM) -f $(BINARY)
+	$(GNU_RM) -f $(OBJECT_FILES)
