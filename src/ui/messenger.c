@@ -80,7 +80,8 @@ handle_back_button_click(UNUSED GtkButton* button,
 }
 
 static void
-handle_main_window_destroy(gpointer user_data)
+handle_main_window_destroy(UNUSED GtkWidget *window,
+			   gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
