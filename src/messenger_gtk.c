@@ -22,9 +22,15 @@
  * @file messenger_gtk.c
  */
 
+#include <stdbool.h>
+#include <stdio.h>
+
+#include <pthread.h>
+
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
 
+#include <gnunet/gnunet_program_lib.h>
 #include <gnunet/gnunet_chat_lib.h>
 
 void handle_user_details_button_click(GtkButton* button,
@@ -76,7 +82,123 @@ void handle_back_button_click(GtkButton* button,
   }
 }
 
-int main(int argc, char** argv) {
+struct main_program
+{
+  int argc;
+  char** argv;
+
+  bool exit;
+
+  struct GNUNET_CHAT_Handle *chat;
+
+  HdyAvatar *profile_avatar;
+  GtkLabel *profile_label;
+
+  struct GNUNET_SCHEDULER_Task *idle;
+};
+
+gboolean gtk_set_profile_name(gpointer user_data)
+{
+  struct main_program *program = (struct main_program*) user_data;
+
+  const char *name = GNUNET_CHAT_get_name(program->chat);
+
+  if (name)
+  {
+    hdy_avatar_set_text(program->profile_avatar, name);
+    gtk_label_set_text(program->profile_label, name);
+  }
+
+  return FALSE;
+}
+
+int gnunet_chat_message(void *cls,
+			struct GNUNET_CHAT_Context *context,
+			const struct GNUNET_CHAT_Message *message)
+{
+  struct main_program *program = (struct main_program*) cls;
+
+  printf("Hello world\n");
+
+  if (GNUNET_CHAT_KIND_LOGIN == GNUNET_CHAT_message_get_kind(message))
+    g_idle_add(gtk_set_profile_name, program);
+
+  return GNUNET_YES;
+}
+
+void gnunet_idle(void *cls)
+{
+  struct main_program *program = (struct main_program*) cls;
+
+  if (program->exit)
+  {
+    GNUNET_CHAT_stop(program->chat);
+    program->chat = NULL;
+
+    GNUNET_SCHEDULER_shutdown();
+    return;
+  }
+
+  program->idle = GNUNET_SCHEDULER_add_delayed_with_priority(
+      GNUNET_TIME_relative_get_second_(),
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      gnunet_idle,
+      program
+  );
+}
+
+void gnunet_task(void *cls,
+		 char *const *args,
+		 const char *cfgfile,
+		 const struct GNUNET_CONFIGURATION_Handle *cfg)
+{
+  struct main_program *program = (struct main_program*) cls;
+
+  program->chat = GNUNET_CHAT_start(
+      cfg,
+      "messenger-gtk",
+      "test",
+      &gnunet_chat_message,
+      program
+  );
+
+  program->idle = GNUNET_SCHEDULER_add_delayed_with_priority(
+      GNUNET_TIME_relative_get_zero_(),
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      gnunet_idle,
+      program
+  );
+}
+
+void *gnunet_thread(void *args)
+{
+  struct main_program *program = (struct main_program*) args;
+
+  struct GNUNET_GETOPT_CommandLineOption options[] = {
+      GNUNET_GETOPT_OPTION_END
+  };
+
+  GNUNET_PROGRAM_run(
+      program->argc,
+      program->argv,
+      "messenger-gtk",
+      gettext_noop("A GTK based GUI for the Messenger service of GNUnet."),
+      options,
+      &gnunet_task,
+      program
+  );
+
+  return NULL;
+}
+
+int main(int argc, char **argv) {
+  struct main_program program;
+  program.argc = argc;
+  program.argv = argv;
+
+  program.exit = FALSE;
+
+  pthread_t gnunet_tid;
   gtk_init(&argc, &argv);
 
   GtkBuilder* builder = gtk_builder_new();
@@ -88,6 +210,14 @@ int main(int argc, char** argv) {
 
   GtkApplicationWindow* window = GTK_APPLICATION_WINDOW(
       gtk_builder_get_object(builder, "main_window")
+  );
+
+  program.profile_avatar = HDY_AVATAR(
+      gtk_builder_get_object(builder, "profile_avatar")
+  );
+
+  program.profile_label = GTK_LABEL(
+      gtk_builder_get_object(builder, "profile_label")
   );
 
   GdkScreen* screen = gdk_screen_get_default();
@@ -198,6 +328,12 @@ int main(int argc, char** argv) {
 
   g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
+  pthread_create(&gnunet_tid, NULL, gnunet_thread, &program);
+
   gtk_main();
+
+  program.exit = TRUE;
+
+  pthread_join(gnunet_tid, NULL);
   return 0;
 }

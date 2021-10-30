@@ -254,7 +254,7 @@ Author: Tobias Frisch
                             <property name="orientation">vertical</property>
                             <property name="spacing">16</property>
                             <child>
-                              <object class="HdyAvatar">
+                              <object class="HdyAvatar" id="profile_avatar">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="halign">start</property>
@@ -267,7 +267,7 @@ Author: Tobias Frisch
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkLabel">
+                              <object class="GtkLabel" id="profile_label">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label" translatable="yes">Profile name</property>
