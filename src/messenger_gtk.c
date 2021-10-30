@@ -61,8 +61,6 @@ int gnunet_chat_message(void *cls,
 {
   struct main_program *program = (struct main_program*) cls;
 
-  printf("Hello world\n");
-
   if (GNUNET_CHAT_KIND_LOGIN == GNUNET_CHAT_message_get_kind(message))
     g_idle_add(gtk_set_profile_name, program);
 

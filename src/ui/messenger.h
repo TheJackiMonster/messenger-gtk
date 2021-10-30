@@ -64,6 +64,9 @@ struct UI_MESSENGER_Handle
 
   GtkLabel *chat_title;
   GtkLabel *chat_subtitle;
+  GtkButton *chat_details_button;
+
+  GtkButton *hide_chat_details_button;
 };
 
 void

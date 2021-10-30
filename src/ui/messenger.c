@@ -24,8 +24,8 @@
 
 #include "messenger.h"
 
-void handle_user_details_button_click(UI_UNUSED GtkButton* button,
-				      gpointer user_data)
+void handle_flap_via_button_click(UI_UNUSED GtkButton* button,
+				  gpointer user_data)
 {
   HdyFlap* flap = HDY_FLAP(user_data);
 
@@ -131,14 +131,14 @@ ui_messenger_init(struct UI_MESSENGER_Handle *handle)
   g_signal_connect(
       handle->user_details_button,
       "clicked",
-      G_CALLBACK(handle_user_details_button_click),
+      G_CALLBACK(handle_flap_via_button_click),
       handle->flap_user_details
   );
 
   g_signal_connect(
       handle->hide_user_details_button,
       "clicked",
-      G_CALLBACK(handle_user_details_button_click),
+      G_CALLBACK(handle_flap_via_button_click),
       handle->flap_user_details
   );
 
@@ -182,6 +182,40 @@ ui_messenger_init(struct UI_MESSENGER_Handle *handle)
       handle->title_bar,
       "show-close-button",
       G_BINDING_INVERT_BOOLEAN
+  );
+
+  handle->flap_chat_details = HDY_FLAP(
+      gtk_builder_get_object(builder, "flap_chat_details")
+  );
+
+  handle->chat_title = GTK_LABEL(
+      gtk_builder_get_object(builder, "chat_title")
+  );
+
+  handle->chat_subtitle = GTK_LABEL(
+      gtk_builder_get_object(builder, "chat_subtitle")
+  );
+
+  handle->chat_details_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "chat_details_button")
+  );
+
+  handle->hide_chat_details_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "hide_chat_details_button")
+  );
+
+  g_signal_connect(
+      handle->chat_details_button,
+      "clicked",
+      G_CALLBACK(handle_flap_via_button_click),
+      handle->flap_chat_details
+  );
+
+  g_signal_connect(
+      handle->hide_chat_details_button,
+      "clicked",
+      G_CALLBACK(handle_flap_via_button_click),
+      handle->flap_chat_details
   );
 
   gtk_widget_show(GTK_WIDGET(handle->main_window));
