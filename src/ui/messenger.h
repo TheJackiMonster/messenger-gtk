@@ -28,9 +28,9 @@
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
 
-#define UI_UNUSED __attribute__((unused))
+typedef struct MESSENGER_Application MESSENGER_Application;
 
-struct UI_MESSENGER_Handle
+typedef struct UI_MESSENGER_Handle
 {
   GtkApplicationWindow *main_window;
 
@@ -67,9 +67,13 @@ struct UI_MESSENGER_Handle
   GtkButton *chat_details_button;
 
   GtkButton *hide_chat_details_button;
-};
+} UI_MESSENGER_Handle;
 
 void
-ui_messenger_init(struct UI_MESSENGER_Handle *handle);
+ui_messenger_init(MESSENGER_Application *app,
+		  UI_MESSENGER_Handle *handle);
+
+void
+ui_messenger_update_profile(MESSENGER_Application *app);
 
 #endif /* UI_MESSENGER_H_ */

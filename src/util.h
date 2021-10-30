@@ -19,29 +19,12 @@
  */
 /*
  * @author Tobias Frisch
- * @file chat/messenger.h
+ * @file util.h
  */
 
-#ifndef CHAT_MESSENGER_H_
-#define CHAT_MESSENGER_H_
+#ifndef UTIL_H_
+#define UTIL_H_
 
-#include <gnunet/platform.h>
-#include <gnunet/gnunet_chat_lib.h>
-#include <gnunet/gnunet_common.h>
-#include <gnunet/gnunet_program_lib.h>
+#define UNUSED __attribute__((unused))
 
-typedef struct MESSENGER_Application MESSENGER_Application;
-
-typedef struct CHAT_MESSENGER_Handle
-{
-  struct GNUNET_CHAT_Handle *handle;
-  struct GNUNET_SCHEDULER_Task *idle;
-} CHAT_MESSENGER_Handle;
-
-void
-chat_messenger_run(void *cls,
-		   char *const *args,
-		   const char *cfgfile,
-		   const struct GNUNET_CONFIGURATION_Handle *cfg);
-
-#endif /* CHAT_MESSENGER_H_ */
+#endif /* UTIL_H_ */

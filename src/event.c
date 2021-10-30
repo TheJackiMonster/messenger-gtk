@@ -19,29 +19,23 @@
  */
 /*
  * @author Tobias Frisch
- * @file chat/messenger.h
+ * @file event.c
  */
 
-#ifndef CHAT_MESSENGER_H_
-#define CHAT_MESSENGER_H_
-
-#include <gnunet/platform.h>
-#include <gnunet/gnunet_chat_lib.h>
-#include <gnunet/gnunet_common.h>
-#include <gnunet/gnunet_program_lib.h>
-
-typedef struct MESSENGER_Application MESSENGER_Application;
-
-typedef struct CHAT_MESSENGER_Handle
-{
-  struct GNUNET_CHAT_Handle *handle;
-  struct GNUNET_SCHEDULER_Task *idle;
-} CHAT_MESSENGER_Handle;
+#include "event.h"
 
 void
-chat_messenger_run(void *cls,
-		   char *const *args,
-		   const char *cfgfile,
-		   const struct GNUNET_CONFIGURATION_Handle *cfg);
+event_update_profile(MESSENGER_Application *app)
+{
+  //printf("event_update_profile\n");
 
-#endif /* CHAT_MESSENGER_H_ */
+  const char *name = GNUNET_CHAT_get_name(app->chat.messenger.handle);
+
+  //printf("A: %s\n", name);
+
+  if (name)
+  {
+    hdy_avatar_set_text(app->ui.messenger.profile_avatar, name);
+    gtk_label_set_text(app->ui.messenger.profile_label, name);
+  }
+}

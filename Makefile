@@ -4,6 +4,8 @@ INSTALL_DIR ?= /usr/local/
 
 BINARY  = messenger-gtk
 SOURCES = messenger_gtk.c\
+		  application.c\
+		  event.c\
 		  chat/messenger.c\
 		  ui/messenger.c
 		  

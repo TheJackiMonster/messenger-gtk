@@ -24,8 +24,11 @@
 
 #include "messenger.h"
 
-void handle_flap_via_button_click(UI_UNUSED GtkButton* button,
-				  gpointer user_data)
+#include "../application.h"
+
+static void
+handle_flap_via_button_click(UNUSED GtkButton* button,
+			     gpointer user_data)
 {
   HdyFlap* flap = HDY_FLAP(user_data);
 
@@ -36,8 +39,9 @@ void handle_flap_via_button_click(UI_UNUSED GtkButton* button,
   }
 }
 
-void handle_account_details_button_click(UI_UNUSED GtkButton* button,
-					 gpointer user_data)
+static void
+handle_account_details_button_click(UNUSED GtkButton* button,
+				    gpointer user_data)
 {
   GtkRevealer* revealer = GTK_REVEALER(user_data);
 
@@ -48,9 +52,10 @@ void handle_account_details_button_click(UI_UNUSED GtkButton* button,
   }
 }
 
-void handle_chats_listbox_row_activated(UI_UNUSED GtkListBox* listbox,
-					UI_UNUSED GtkListBoxRow* row,
-					gpointer user_data)
+static void
+handle_chats_listbox_row_activated(UNUSED GtkListBox* listbox,
+				   UNUSED GtkListBoxRow* row,
+				   gpointer user_data)
 {
   HdyLeaflet* leaflet = HDY_LEAFLET(user_data);
 
@@ -61,8 +66,9 @@ void handle_chats_listbox_row_activated(UI_UNUSED GtkListBox* listbox,
   }
 }
 
-void handle_back_button_click(UI_UNUSED GtkButton* button,
-			      gpointer user_data)
+static void
+handle_back_button_click(UNUSED GtkButton* button,
+			 gpointer user_data)
 {
   HdyLeaflet* leaflet = HDY_LEAFLET(user_data);
 
@@ -73,8 +79,17 @@ void handle_back_button_click(UI_UNUSED GtkButton* button,
   }
 }
 
+static void
+handle_main_window_destroy(gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  application_exit(app, MESSENGER_QUIT);
+}
+
 void
-ui_messenger_init(struct UI_MESSENGER_Handle *handle)
+ui_messenger_init(MESSENGER_Application *app,
+		  UI_MESSENGER_Handle *handle)
 {
   GtkBuilder* builder = gtk_builder_new();
   gtk_builder_add_from_file(
@@ -220,5 +235,10 @@ ui_messenger_init(struct UI_MESSENGER_Handle *handle)
 
   gtk_widget_show(GTK_WIDGET(handle->main_window));
 
-  g_signal_connect(handle->main_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+  g_signal_connect(
+      handle->main_window,
+      "destroy",
+      G_CALLBACK(handle_main_window_destroy),
+      app
+  );
 }

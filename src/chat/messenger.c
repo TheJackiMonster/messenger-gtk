@@ -24,4 +24,65 @@
 
 #include "messenger.h"
 
+#include "../event.h"
 
+static void
+_chat_messenger_idle(void *cls)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  if (MESSENGER_NONE == app->chat.signal)
+  {
+    app->chat.messenger.idle = GNUNET_SCHEDULER_add_delayed_with_priority(
+	GNUNET_TIME_relative_get_second_(),
+	GNUNET_SCHEDULER_PRIORITY_IDLE,
+	&_chat_messenger_idle,
+	app
+    );
+
+    return;
+  }
+
+  GNUNET_CHAT_stop(app->chat.messenger.handle);
+  app->chat.messenger.handle = NULL;
+
+  if (MESSENGER_QUIT != app->chat.signal)
+    GNUNET_SCHEDULER_shutdown();
+}
+
+static int
+_chat_messenger_message(void *cls,
+			UNUSED struct GNUNET_CHAT_Context *context,
+			const struct GNUNET_CHAT_Message *message)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  if (GNUNET_CHAT_KIND_LOGIN == GNUNET_CHAT_message_get_kind(message))
+    application_call_event(app, event_update_profile);
+
+  return GNUNET_YES;
+}
+
+void
+chat_messenger_run(void *cls,
+		   UNUSED char *const *args,
+		   UNUSED const char *cfgfile,
+		   const struct GNUNET_CONFIGURATION_Handle *cfg)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  app->chat.messenger.handle = GNUNET_CHAT_start(
+      cfg,
+      "messenger-gtk",
+      "test",
+      &_chat_messenger_message,
+      app
+  );
+
+  app->chat.messenger.idle = GNUNET_SCHEDULER_add_delayed_with_priority(
+      GNUNET_TIME_relative_get_zero_(),
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      &_chat_messenger_idle,
+      app
+  );
+}
