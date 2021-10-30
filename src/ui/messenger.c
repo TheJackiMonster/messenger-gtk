@@ -118,6 +118,18 @@ ui_messenger_init(MESSENGER_Application *app,
       gtk_builder_get_object(builder, "leaflet_chat")
   );
 
+  if (app->ui.mobile)
+  {
+    g_object_bind_property(
+	handle->leaflet_chat,
+	"folded",
+	handle->title_bar,
+	"visible",
+	G_BINDING_SYNC_CREATE |
+	G_BINDING_INVERT_BOOLEAN
+    );
+  }
+
   hdy_leaflet_set_homogeneous(handle->leaflet_chat, FALSE, GTK_ORIENTATION_HORIZONTAL, FALSE);
 
   handle->chats_listbox = GTK_LIST_BOX(

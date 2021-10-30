@@ -58,6 +58,16 @@ application_init(MESSENGER_Application *app,
   app->chat.tid = 0;
   app->chat.signal = MESSENGER_NONE;
 
+  app->ui.mobile = FALSE;
+
+  for (int i = 0; i < app->argc; i++) {
+    if (0 == strcmp("--mobile", app->argv[i]))
+    {
+      app->ui.mobile = TRUE;
+      break;
+    }
+  }
+
   ui_messenger_init(app, &(app->ui.messenger));
 }
 
@@ -102,8 +112,6 @@ typedef struct MESSENGER_ApplicationEventCall
 static gboolean
 _application_event_call(gpointer user_data)
 {
-  //printf("_application_event_call\n");
-
   MESSENGER_ApplicationEventCall *call;
 
   call = (MESSENGER_ApplicationEventCall*) user_data;
@@ -117,8 +125,6 @@ void
 application_call_event(MESSENGER_Application *app,
 		       MESSENGER_ApplicationEvent event)
 {
-  //printf("application_call_event\n");
-
   MESSENGER_ApplicationEventCall *call;
 
   call = (MESSENGER_ApplicationEventCall*) GNUNET_malloc(

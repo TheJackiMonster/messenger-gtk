@@ -55,6 +55,8 @@ typedef struct MESSENGER_Application
   } chat;
 
   struct {
+    gboolean mobile;
+
     UI_MESSENGER_Handle messenger;
   } ui;
 } MESSENGER_Application;

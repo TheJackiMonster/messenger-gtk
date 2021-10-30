@@ -27,15 +27,13 @@
 void
 event_update_profile(MESSENGER_Application *app)
 {
-  //printf("event_update_profile\n");
+  UI_MESSENGER_Handle* ui = &(app->ui.messenger);
 
   const char *name = GNUNET_CHAT_get_name(app->chat.messenger.handle);
 
-  //printf("A: %s\n", name);
-
   if (name)
   {
-    hdy_avatar_set_text(app->ui.messenger.profile_avatar, name);
-    gtk_label_set_text(app->ui.messenger.profile_label, name);
+    hdy_avatar_set_text(ui->profile_avatar, name);
+    gtk_label_set_text(ui->profile_label, name);
   }
 }
