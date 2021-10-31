@@ -254,8 +254,6 @@ ui_messenger_init(MESSENGER_Application *app,
       G_CALLBACK(handle_main_window_destroy),
       app
   );
-
-  g_object_unref(builder);
 }
 
 void

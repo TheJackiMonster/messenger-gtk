@@ -51,6 +51,5 @@ ui_chat_entry_new(void)
       gtk_builder_get_object(builder, "text")
   );
 
-  g_object_unref(builder);
   return handle;
 }
