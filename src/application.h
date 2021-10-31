@@ -45,6 +45,8 @@ typedef struct MESSENGER_Application
   char** argv;
   int argc;
 
+  GtkApplication* application;
+
   struct {
     int status;
     pthread_t tid;
@@ -55,6 +57,7 @@ typedef struct MESSENGER_Application
   } chat;
 
   struct {
+    int status;
     gboolean mobile;
 
     UI_MESSENGER_Handle messenger;
@@ -67,7 +70,7 @@ application_init(MESSENGER_Application *app,
 		 char **argv);
 
 void
-application_start(MESSENGER_Application *app);
+application_run(MESSENGER_Application *app);
 
 typedef void (*MESSENGER_ApplicationEvent) (MESSENGER_Application *app);
 

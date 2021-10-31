@@ -27,6 +27,7 @@
 
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
+#include <libnotify/notify.h>
 
 typedef struct MESSENGER_Application MESSENGER_Application;
 
@@ -74,6 +75,6 @@ ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle);
 
 void
-ui_messenger_update_profile(MESSENGER_Application *app);
+ui_messenger_run(MESSENGER_Application *app);
 
 #endif /* UI_MESSENGER_H_ */

@@ -98,6 +98,11 @@ ui_messenger_init(MESSENGER_Application *app,
       gtk_builder_get_object(builder, "main_window")
   );
 
+  gtk_application_add_window(
+      app->application,
+      GTK_WINDOW(handle->main_window)
+  );
+
   handle->profile_avatar = HDY_AVATAR(
       gtk_builder_get_object(builder, "profile_avatar")
   );
@@ -249,4 +254,12 @@ ui_messenger_init(MESSENGER_Application *app,
       G_CALLBACK(handle_main_window_destroy),
       app
   );
+
+  g_object_unref(builder);
+}
+
+void
+ui_messenger_run(MESSENGER_Application *app)
+{
+  ui_messenger_init(app, &(app->ui.messenger));
 }

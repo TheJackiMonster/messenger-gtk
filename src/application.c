@@ -42,6 +42,15 @@ _load_ui_stylesheets(void)
   );
 }
 
+static void
+_application_activate(UNUSED GtkApplication* application,
+		      gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  ui_messenger_run(app);
+}
+
 void
 application_init(MESSENGER_Application *app,
 		 int argc,
@@ -52,6 +61,13 @@ application_init(MESSENGER_Application *app,
 
   gtk_init(&argc, &argv);
 
+  app->application = gtk_application_new(
+      "org.gnunet.MESSENGER-GTK",
+      G_APPLICATION_NON_UNIQUE
+  );
+
+  notify_init("Messenger-GTK");
+
   _load_ui_stylesheets();
 
   app->chat.status = EXIT_FAILURE;
@@ -60,15 +76,22 @@ application_init(MESSENGER_Application *app,
 
   app->ui.mobile = FALSE;
 
-  for (int i = 0; i < app->argc; i++) {
-    if (0 == strcmp("--mobile", app->argv[i]))
-    {
-      app->ui.mobile = TRUE;
-      break;
-    }
-  }
+  g_application_add_main_option(
+      G_APPLICATION(app->application),
+      "mobile",
+      'm',
+      G_OPTION_FLAG_NONE,
+      G_OPTION_ARG_NONE,
+      "Optimize UI spacing for mobile devices",
+      NULL
+  );
 
-  ui_messenger_init(app, &(app->ui.messenger));
+  g_signal_connect(
+      app->application,
+      "activate",
+      G_CALLBACK(_application_activate),
+      app
+  );
 }
 
 static void*
@@ -77,6 +100,12 @@ _application_chat_thread(void *args)
   MESSENGER_Application *app = (MESSENGER_Application*) args;
 
   struct GNUNET_GETOPT_CommandLineOption options[] = {
+      GNUNET_GETOPT_option_flag (
+	  'm',
+	  "mobile",
+	  "Optimize UI spacing for mobile devices",
+	  &(app->ui.mobile)
+      ),
       GNUNET_GETOPT_OPTION_END
   };
 
@@ -94,13 +123,21 @@ _application_chat_thread(void *args)
 }
 
 void
-application_start(MESSENGER_Application *app)
+application_run(MESSENGER_Application *app)
 {
   pthread_create(&(app->chat.tid), NULL, _application_chat_thread, app);
 
-  gtk_main();
+  app->ui.status = g_application_run(
+      G_APPLICATION(app->application),
+      app->argc,
+      app->argv
+  );
 
   pthread_join(app->chat.tid, NULL);
+
+  notify_uninit();
+
+  g_object_unref(app->application);
 }
 
 typedef struct MESSENGER_ApplicationEventCall
@@ -142,12 +179,13 @@ application_exit(MESSENGER_Application *app,
 		 MESSENGER_ApplicationSignal signal)
 {
   app->chat.signal = signal;
-
-  gtk_main_quit();
 }
 
 int
 application_status(MESSENGER_Application *app)
 {
-  return app->chat.status;
+  if (EXIT_SUCCESS != app->chat.status)
+    return app->chat.status;
+
+  return app->ui.status;
 }

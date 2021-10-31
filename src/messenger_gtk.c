@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
   MESSENGER_Application app;
 
   application_init(&app, argc, argv);
-  application_start(&app);
+  application_run(&app);
 
   return application_status(&app);
 }
