@@ -56,6 +56,8 @@ application_init(MESSENGER_Application *app,
 		 int argc,
 		 char **argv)
 {
+  memset(app, 0, sizeof(*app));
+
   app->argc = argc;
   app->argv = argv;
 

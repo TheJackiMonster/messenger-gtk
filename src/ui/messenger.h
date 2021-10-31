@@ -52,12 +52,11 @@ typedef struct UI_MESSENGER_Handle
   GtkRevealer *account_details_revealer;
   GtkListBox *accounts_listbox;
 
+  GtkButton *new_contact_button;
   GtkButton *new_group_button;
   GtkButton *new_platform_button;
   GtkButton *contacts_button;
-  GtkButton *calls_button;
   GtkButton *settings_button;
-  GtkButton *night_mode_button;
 
   GtkButton *user_details_button;
   GtkSearchEntry *chats_search;

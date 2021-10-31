@@ -103,6 +103,64 @@ ui_messenger_init(MESSENGER_Application *app,
       GTK_WINDOW(handle->main_window)
   );
 
+  gtk_window_set_default_size(
+      GTK_WINDOW(handle->main_window),
+      1100, 700
+  );
+
+  handle->leaflet_chat = HDY_LEAFLET(
+      gtk_builder_get_object(builder, "leaflet_chat")
+  );
+
+  handle->flap_user_details = HDY_FLAP(
+      gtk_builder_get_object(builder, "flap_user_details")
+  );
+
+  handle->flap_chat_details = HDY_FLAP(
+      gtk_builder_get_object(builder, "flap_chat_details")
+  );
+
+  handle->title_bar = HDY_HEADER_BAR(
+      gtk_builder_get_object(builder, "title_bar")
+  );
+
+  g_object_bind_property(
+      handle->leaflet_chat,
+      "folded",
+      handle->title_bar,
+      "show-close-button",
+      G_BINDING_INVERT_BOOLEAN
+  );
+
+  if (app->ui.mobile)
+    g_object_bind_property(
+      handle->leaflet_chat,
+      "folded",
+      handle->title_bar,
+      "visible",
+      G_BINDING_SYNC_CREATE |
+      G_BINDING_INVERT_BOOLEAN
+    );
+
+  handle->back_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "back_button")
+  );
+
+  g_object_bind_property(
+      handle->leaflet_chat,
+      "folded",
+      handle->back_button,
+      "visible",
+      G_BINDING_SYNC_CREATE
+  );
+
+  g_signal_connect(
+      handle->back_button,
+      "clicked",
+      G_CALLBACK(handle_back_button_click),
+      handle->leaflet_chat
+  );
+
   handle->profile_avatar = HDY_AVATAR(
       gtk_builder_get_object(builder, "profile_avatar")
   );
@@ -111,56 +169,8 @@ ui_messenger_init(MESSENGER_Application *app,
       gtk_builder_get_object(builder, "profile_label")
   );
 
-  handle->title_bar = HDY_HEADER_BAR(
-      gtk_builder_get_object(builder, "title_bar")
-  );
-
-  handle->leaflet_chat = HDY_LEAFLET(
-      gtk_builder_get_object(builder, "leaflet_chat")
-  );
-
-  if (app->ui.mobile)
-  {
-    g_object_bind_property(
-	handle->leaflet_chat,
-	"folded",
-	handle->title_bar,
-	"visible",
-	G_BINDING_SYNC_CREATE |
-	G_BINDING_INVERT_BOOLEAN
-    );
-  }
-
-  hdy_leaflet_set_homogeneous(handle->leaflet_chat, FALSE, GTK_ORIENTATION_HORIZONTAL, FALSE);
-
-  handle->chats_listbox = GTK_LIST_BOX(
-      gtk_builder_get_object(builder, "chats_listbox")
-  );
-
-  g_signal_connect(
-      handle->chats_listbox,
-      "row-activated",
-      G_CALLBACK(handle_chats_listbox_row_activated),
-      handle->leaflet_chat
-  );
-
-  handle->user_details_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "user_details_button")
-  );
-
   handle->hide_user_details_button = GTK_BUTTON(
       gtk_builder_get_object(builder, "hide_user_details_button")
-  );
-
-  handle->flap_user_details = HDY_FLAP(
-      gtk_builder_get_object(builder, "flap_user_details")
-  );
-
-  g_signal_connect(
-      handle->user_details_button,
-      "clicked",
-      G_CALLBACK(handle_flap_via_button_click),
-      handle->flap_user_details
   );
 
   g_signal_connect(
@@ -168,6 +178,10 @@ ui_messenger_init(MESSENGER_Application *app,
       "clicked",
       G_CALLBACK(handle_flap_via_button_click),
       handle->flap_user_details
+  );
+
+  handle->favourites_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "favourites_button")
   );
 
   handle->account_details_button = GTK_BUTTON(
@@ -185,35 +199,54 @@ ui_messenger_init(MESSENGER_Application *app,
       handle->account_details_revealer
   );
 
-  handle->back_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "back_button")
+  handle->accounts_listbox = GTK_LIST_BOX(
+      gtk_builder_get_object(builder, "accounts_listbox")
+  );
+
+  handle->new_contact_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "new_contact_button")
+  );
+
+  handle->new_group_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "new_group_button")
+  );
+
+  handle->new_platform_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "new_platform_button")
+  );
+
+  handle->contacts_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "contacts_button")
+  );
+
+  handle->settings_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "settings_button")
+  );
+
+  handle->user_details_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "user_details_button")
   );
 
   g_signal_connect(
-      handle->back_button,
+      handle->user_details_button,
       "clicked",
-      G_CALLBACK(handle_back_button_click),
+      G_CALLBACK(handle_flap_via_button_click),
+      handle->flap_user_details
+  );
+
+  handle->chats_search = GTK_SEARCH_ENTRY(
+      gtk_builder_get_object(builder, "chats_search")
+  );
+
+  handle->chats_listbox = GTK_LIST_BOX(
+      gtk_builder_get_object(builder, "chats_listbox")
+  );
+
+  g_signal_connect(
+      handle->chats_listbox,
+      "row-activated",
+      G_CALLBACK(handle_chats_listbox_row_activated),
       handle->leaflet_chat
-  );
-
-  g_object_bind_property(
-      handle->leaflet_chat,
-      "folded",
-      handle->back_button,
-      "visible",
-      G_BINDING_SYNC_CREATE
-  );
-
-  g_object_bind_property(
-      handle->leaflet_chat,
-      "folded",
-      handle->title_bar,
-      "show-close-button",
-      G_BINDING_INVERT_BOOLEAN
-  );
-
-  handle->flap_chat_details = HDY_FLAP(
-      gtk_builder_get_object(builder, "flap_chat_details")
   );
 
   handle->chat_title = GTK_LABEL(
@@ -228,15 +261,15 @@ ui_messenger_init(MESSENGER_Application *app,
       gtk_builder_get_object(builder, "chat_details_button")
   );
 
-  handle->hide_chat_details_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "hide_chat_details_button")
-  );
-
   g_signal_connect(
       handle->chat_details_button,
       "clicked",
       G_CALLBACK(handle_flap_via_button_click),
       handle->flap_chat_details
+  );
+
+  handle->hide_chat_details_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "hide_chat_details_button")
   );
 
   g_signal_connect(
