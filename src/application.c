@@ -62,6 +62,7 @@ application_init(MESSENGER_Application *app,
   app->argv = argv;
 
   gtk_init(&argc, &argv);
+  hdy_init();
 
   app->application = gtk_application_new(
       "org.gnunet.MESSENGER-GTK",
