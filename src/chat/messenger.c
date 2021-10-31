@@ -59,6 +59,8 @@ _chat_messenger_message(void *cls,
 
   if (GNUNET_CHAT_KIND_LOGIN == GNUNET_CHAT_message_get_kind(message))
     application_call_event(app, event_update_profile);
+  else if (GNUNET_CHAT_KIND_TEXT == GNUNET_CHAT_message_get_kind(message))
+    printf("%s\n", GNUNET_CHAT_message_get_text(message));
 
   return GNUNET_YES;
 }

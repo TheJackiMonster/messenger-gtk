@@ -92,12 +92,7 @@ void
 ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle)
 {
-  GtkBuilder* builder = gtk_builder_new();
-  gtk_builder_add_from_file(
-      builder,
-      "resources/ui/messenger.ui",
-      NULL
-  );
+  GtkBuilder* builder = gtk_builder_new_from_file("resources/ui/messenger.ui");
 
   handle->main_window = GTK_APPLICATION_WINDOW(
       gtk_builder_get_object(builder, "main_window")

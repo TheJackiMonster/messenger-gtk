@@ -24,16 +24,73 @@
 
 #include "event.h"
 
+#include "ui/chat_entry.h"
+
+static int
+_iterate_profile_contacts(void *cls,
+			  UNUSED struct GNUNET_CHAT_Handle *handle,
+			  UNUSED struct GNUNET_CHAT_Contact *contact)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+
+  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new();
+
+  gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
+
+  g_free(entry); //TODO: add to a list or similar?
+
+  return GNUNET_YES;
+}
+
+static int
+_iterate_profile_groups(void *cls,
+			UNUSED struct GNUNET_CHAT_Handle *handle,
+			UNUSED struct GNUNET_CHAT_Group *group)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+
+  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new();
+
+  gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
+
+  g_free(entry); //TODO: add to a list or similar?
+
+  return GNUNET_YES;
+}
+
+static void
+_clear_each_widget(GtkWidget *widget,
+		   gpointer user_data)
+{
+  GtkContainer *container = GTK_CONTAINER(user_data);
+
+  gtk_container_remove(container, widget);
+}
+
 void
 event_update_profile(MESSENGER_Application *app)
 {
-  UI_MESSENGER_Handle* ui = &(app->ui.messenger);
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+  CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
 
-  const char *name = GNUNET_CHAT_get_name(app->chat.messenger.handle);
+  const char *name = GNUNET_CHAT_get_name(chat->handle);
 
   if (name)
   {
     hdy_avatar_set_text(ui->profile_avatar, name);
     gtk_label_set_text(ui->profile_label, name);
   }
+
+  gtk_container_foreach(
+      GTK_CONTAINER(ui->chats_listbox),
+      _clear_each_widget,
+      ui->chats_listbox
+  );
+
+  GNUNET_CHAT_iterate_contacts(chat->handle, _iterate_profile_contacts, app);
+  GNUNET_CHAT_iterate_groups(chat->handle, _iterate_profile_groups, app);
 }
