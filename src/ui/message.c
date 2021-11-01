@@ -19,36 +19,51 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/chat_entry.c
+ * @file ui/message.c
  */
 
-#include "chat_entry.h"
+#include "message.h"
 
-UI_CHAT_ENTRY_Handle*
-ui_chat_entry_new(void)
+#include "../application.h"
+
+UI_MESSAGE_Handle*
+ui_message_new(MESSENGER_Application *app,
+	       bool sent)
 {
-  UI_CHAT_ENTRY_Handle* handle = g_malloc(sizeof(UI_CHAT_ENTRY_Handle));
+  UI_MESSAGE_Handle* handle = g_malloc(sizeof(UI_MESSAGE_Handle));
+  GtkBuilder* builder;
 
-  GtkBuilder* builder = gtk_builder_new_from_file("resources/ui/chat_entry.ui");
+  if (sent)
+    builder = gtk_builder_new_from_file("resources/ui/message-sent.ui");
+  else
+    builder = gtk_builder_new_from_file("resources/ui/message.ui");
 
-  handle->entry_box = GTK_WIDGET(
-      gtk_builder_get_object(builder, "entry_box")
+  handle->message_box = GTK_WIDGET(
+      gtk_builder_get_object(builder, "message_box")
   );
 
-  handle->entry_avatar = HDY_AVATAR(
-      gtk_builder_get_object(builder, "entry_avatar")
+  handle->sender_avatar = HDY_AVATAR(
+      gtk_builder_get_object(builder, "sender_avatar")
   );
 
-  handle->title_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "title_label")
+  handle->sender_label = GTK_LABEL(
+      gtk_builder_get_object(builder, "sender_label")
+  );
+
+  if (sent)
+  {
+    const char *sender = GNUNET_CHAT_get_name(app->chat.messenger.handle);
+
+    hdy_avatar_set_text(handle->sender_avatar, sender);
+    gtk_label_set_text(handle->sender_label, sender);
+  }
+
+  handle->text_label = GTK_LABEL(
+      gtk_builder_get_object(builder, "text_label")
   );
 
   handle->timestamp_label = GTK_LABEL(
       gtk_builder_get_object(builder, "timestamp_label")
-  );
-
-  handle->text_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "text_label")
   );
 
   handle->read_receipt_image = GTK_IMAGE(

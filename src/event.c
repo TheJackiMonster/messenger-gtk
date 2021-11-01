@@ -25,6 +25,7 @@
 #include "event.h"
 
 #include "ui/chat_entry.h"
+#include "ui/message.h"
 
 static int
 _iterate_profile_contacts(void *cls,
@@ -93,4 +94,14 @@ event_update_profile(MESSENGER_Application *app)
 
   GNUNET_CHAT_iterate_contacts(chat->handle, _iterate_profile_contacts, app);
   GNUNET_CHAT_iterate_groups(chat->handle, _iterate_profile_groups, app);
+
+  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new();
+  gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
+  g_free(entry);
+
+  for (int i = 0; i < 8; i++) {
+    UI_MESSAGE_Handle *message = ui_message_new(app, i % 2 == 0);
+    gtk_container_add(GTK_CONTAINER(ui->messages_listbox), message->message_box);
+    g_free(message);
+  }
 }

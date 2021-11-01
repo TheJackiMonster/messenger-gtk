@@ -279,6 +279,10 @@ ui_messenger_init(MESSENGER_Application *app,
       handle->flap_chat_details
   );
 
+  handle->messages_listbox = GTK_LIST_BOX(
+      gtk_builder_get_object(builder, "messages_listbox")
+  );
+
   gtk_widget_show(GTK_WIDGET(handle->main_window));
 
   g_signal_connect(

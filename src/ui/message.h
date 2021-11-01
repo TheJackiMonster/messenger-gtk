@@ -19,31 +19,34 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/chat_entry.h
+ * @file ui/message.h
  */
 
-#ifndef UI_CHAT_ENTRY_H_
-#define UI_CHAT_ENTRY_H_
+#ifndef UI_MESSAGE_H_
+#define UI_MESSAGE_H_
+
+#include <stdbool.h>
 
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
 
 typedef struct MESSENGER_Application MESSENGER_Application;
 
-typedef struct UI_CHAT_ENTRY_Handle
+typedef struct UI_MESSAGE_Handle
 {
-  GtkWidget* entry_box;
+  GtkWidget* message_box;
 
-  HdyAvatar* entry_avatar;
-
-  GtkLabel* title_label;
-  GtkLabel* timestamp_label;
+  HdyAvatar* sender_avatar;
+  GtkLabel* sender_label;
 
   GtkLabel* text_label;
+
+  GtkLabel* timestamp_label;
   GtkImage* read_receipt_image;
-} UI_CHAT_ENTRY_Handle;
+} UI_MESSAGE_Handle;
 
-UI_CHAT_ENTRY_Handle*
-ui_chat_entry_new(void);
+UI_MESSAGE_Handle*
+ui_message_new(MESSENGER_Application *app,
+	       bool sent);
 
-#endif /* UI_CHAT_ENTRY_H_ */
+#endif /* UI_MESSAGE_H_ */

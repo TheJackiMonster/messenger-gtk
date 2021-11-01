@@ -67,6 +67,8 @@ typedef struct UI_MESSENGER_Handle
   GtkButton *chat_details_button;
 
   GtkButton *hide_chat_details_button;
+
+  GtkListBox *messages_listbox;
 } UI_MESSENGER_Handle;
 
 void
