@@ -24,6 +24,7 @@
 
 #include "messenger.h"
 
+#include "new_platform.h"
 #include "../application.h"
 
 static void
@@ -50,6 +51,19 @@ handle_account_details_button_click(UNUSED GtkButton* button,
   } else {
     gtk_revealer_set_reveal_child(revealer, TRUE);
   }
+}
+
+static void
+handle_new_platform_button_click(UNUSED GtkButton* button,
+				 gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
+
+  ui_new_platform_dialog_init(app, &(app->ui.new_platform));
+
+  gtk_widget_show(GTK_WIDGET(app->ui.new_platform.platform_dialog));
 }
 
 static void
@@ -213,6 +227,13 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->new_platform_button = GTK_BUTTON(
       gtk_builder_get_object(builder, "new_platform_button")
+  );
+
+  g_signal_connect(
+      handle->new_platform_button,
+      "clicked",
+      G_CALLBACK(handle_new_platform_button_click),
+      app
   );
 
   handle->contacts_button = GTK_BUTTON(

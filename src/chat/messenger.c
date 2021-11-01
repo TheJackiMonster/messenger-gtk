@@ -57,10 +57,34 @@ _chat_messenger_message(void *cls,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
-  if (GNUNET_CHAT_KIND_LOGIN == GNUNET_CHAT_message_get_kind(message))
-    application_call_event(app, event_update_profile);
-  else if (GNUNET_CHAT_KIND_TEXT == GNUNET_CHAT_message_get_kind(message))
-    printf("%s\n", GNUNET_CHAT_message_get_text(message));
+  const enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(message);
+  const struct GNUNET_CHAT_Contact* sender = GNUNET_CHAT_message_get_sender(message);
+
+  struct GNUNET_TIME_Absolute time = GNUNET_CHAT_message_get_timestamp(message);
+
+  printf("- %d, %lu", kind, time.abs_value_us);
+
+  if (sender)
+    printf(", %s\n", GNUNET_CHAT_contact_get_name(sender));
+  else
+    printf("\n");
+
+  switch (kind)
+  {
+    case GNUNET_CHAT_KIND_LOGIN:
+      application_call_event(app, event_update_profile, NULL);
+      break;
+    case GNUNET_CHAT_KIND_TEXT:
+      printf("text: %s\n", GNUNET_CHAT_message_get_text(message));
+      break;
+    case GNUNET_CHAT_KIND_JOIN:
+      if (GNUNET_YES == GNUNET_CHAT_message_is_sent(message))
+	application_call_event(app, event_update_chats, context);
+
+      break;
+    default:
+      break;
+  }
 
   return GNUNET_YES;
 }

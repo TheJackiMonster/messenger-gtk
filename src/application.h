@@ -30,6 +30,7 @@
 #include "chat/messenger.h"
 
 #include "ui/messenger.h"
+#include "ui/new_platform.h"
 
 #include "util.h"
 
@@ -61,6 +62,8 @@ typedef struct MESSENGER_Application
     gboolean mobile;
 
     UI_MESSENGER_Handle messenger;
+
+    UI_NEW_PLATFORM_Handle new_platform;
   } ui;
 } MESSENGER_Application;
 
@@ -72,11 +75,13 @@ application_init(MESSENGER_Application *app,
 void
 application_run(MESSENGER_Application *app);
 
-typedef void (*MESSENGER_ApplicationEvent) (MESSENGER_Application *app);
+typedef void (*MESSENGER_ApplicationEvent) (MESSENGER_Application *app,
+					    void *cls);
 
 void
 application_call_event(MESSENGER_Application *app,
-		       MESSENGER_ApplicationEvent event);
+		       MESSENGER_ApplicationEvent event,
+		       void *cls);
 
 void
 application_exit(MESSENGER_Application *app,

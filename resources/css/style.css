@@ -33,3 +33,8 @@
 	color: @theme_selected_fg_color;
 	margin-left: 20px;
 }
+
+.message-content {
+	padding-top: 4px;
+}
+

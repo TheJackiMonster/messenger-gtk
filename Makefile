@@ -9,7 +9,8 @@ SOURCES = messenger_gtk.c\
 		  chat/messenger.c\
 		  ui/chat_entry.c\
 		  ui/message.c\
-		  ui/messenger.c
+		  ui/messenger.c\
+		  ui/new_platform.c
 		  
 HEADERS = 
 

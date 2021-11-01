@@ -147,6 +147,7 @@ typedef struct MESSENGER_ApplicationEventCall
 {
   MESSENGER_Application *app;
   MESSENGER_ApplicationEvent event;
+  void *cls;
 } MESSENGER_ApplicationEventCall;
 
 static gboolean
@@ -155,7 +156,7 @@ _application_event_call(gpointer user_data)
   MESSENGER_ApplicationEventCall *call;
 
   call = (MESSENGER_ApplicationEventCall*) user_data;
-  call->event(call->app);
+  call->event(call->app, call->cls);
 
   GNUNET_free(call);
   return FALSE;
@@ -163,7 +164,8 @@ _application_event_call(gpointer user_data)
 
 void
 application_call_event(MESSENGER_Application *app,
-		       MESSENGER_ApplicationEvent event)
+		       MESSENGER_ApplicationEvent event,
+		       void *cls)
 {
   MESSENGER_ApplicationEventCall *call;
 
@@ -173,6 +175,7 @@ application_call_event(MESSENGER_Application *app,
 
   call->app = app;
   call->event = event;
+  call->cls = cls;
 
   g_idle_add(_application_event_call, call);
 }

@@ -19,20 +19,29 @@
  */
 /*
  * @author Tobias Frisch
- * @file event.h
+ * @file ui/new_platform.h
  */
 
-#ifndef EVENT_H_
-#define EVENT_H_
+#ifndef UI_NEW_PLATFORM_H_
+#define UI_NEW_PLATFORM_H_
 
-#include "application.h"
+#include "messenger.h"
+
+typedef struct UI_NEW_PLATFORM_Handle
+{
+  GtkDialog* platform_dialog;
+
+  HdyAvatar* platform_avatar;
+  GtkFileChooserButton* platform_avatar_file;
+
+  GtkEntry* platform_entry;
+
+  GtkButton* cancel_button;
+  GtkButton* confirm_button;
+} UI_NEW_PLATFORM_Handle;
 
 void
-event_update_profile(MESSENGER_Application *app,
-		     void *cls);
+ui_new_platform_dialog_init(MESSENGER_Application *app,
+			    UI_NEW_PLATFORM_Handle *handle);
 
-void
-event_update_chats(MESSENGER_Application *app,
-		   void *cls);
-
-#endif /* EVENT_H_ */
+#endif /* UI_NEW_PLATFORM_H_ */

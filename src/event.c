@@ -73,7 +73,8 @@ _clear_each_widget(GtkWidget *widget,
 }
 
 void
-event_update_profile(MESSENGER_Application *app)
+event_update_profile(MESSENGER_Application *app,
+		     UNUSED void *cls)
 {
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
@@ -95,13 +96,28 @@ event_update_profile(MESSENGER_Application *app)
   GNUNET_CHAT_iterate_contacts(chat->handle, _iterate_profile_contacts, app);
   GNUNET_CHAT_iterate_groups(chat->handle, _iterate_profile_groups, app);
 
-  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new();
-  gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
-  g_free(entry);
-
   for (int i = 0; i < 8; i++) {
     UI_MESSAGE_Handle *message = ui_message_new(app, i % 2 == 0);
     gtk_container_add(GTK_CONTAINER(ui->messages_listbox), message->message_box);
-    g_free(message);
+    g_free(message); // TODO: this is just a test!
   }
+}
+
+void
+event_update_chats(MESSENGER_Application *app,
+		   void *cls)
+{
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) cls;
+
+  if (GNUNET_CHAT_context_get_user_pointer(context))
+    return;
+
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+
+  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new();
+  gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
+  g_free(entry); // TODO: free already?
+
+  // TODO: put something better here to attach it!
+  GNUNET_CHAT_context_set_user_pointer(context, ui);
 }
