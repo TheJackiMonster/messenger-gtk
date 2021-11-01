@@ -46,6 +46,11 @@ release: $(BINARY)
 $(BINARY): $(OBJECT_FILES)
 	$(GNU_LD) $(LDFLAGS) $^ -o $@ $(LIBRARY_FLAGS) $(PACKAGE_FLAGS)
 
+.PHONY: mobile
+
+mobile: $(BINARY)
+	./$(BINARY) --mobile
+
 .PHONY: install
 
 install:
