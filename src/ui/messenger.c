@@ -24,6 +24,7 @@
 
 #include "messenger.h"
 
+#include "message.h"
 #include "new_platform.h"
 #include "../application.h"
 
@@ -44,13 +45,22 @@ static void
 handle_account_details_button_click(UNUSED GtkButton* button,
 				    gpointer user_data)
 {
-  GtkRevealer* revealer = GTK_REVEALER(user_data);
+  UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
 
-  if (TRUE == gtk_revealer_get_reveal_child(revealer)) {
-    gtk_revealer_set_reveal_child(revealer, FALSE);
-  } else {
-    gtk_revealer_set_reveal_child(revealer, TRUE);
-  }
+  GtkRevealer *revealer = handle->account_details_revealer;
+  GtkImage *symbol = handle->account_details_symbol;
+
+  gboolean old_state = gtk_revealer_get_reveal_child(revealer);
+
+  gtk_revealer_set_reveal_child(revealer, !old_state);
+
+  gtk_image_set_from_icon_name(
+      symbol,
+      old_state?
+      "go-down-symbolic" :
+      "go-up-symbolic",
+      GTK_ICON_SIZE_BUTTON
+  );
 }
 
 static void
@@ -91,6 +101,62 @@ handle_back_button_click(UNUSED GtkButton* button,
   if (children) {
     hdy_leaflet_set_visible_child(leaflet, GTK_WIDGET(children->data));
   }
+}
+
+static void
+handle_send_text_buffer_changed(GtkTextBuffer *buffer,
+				gpointer user_data)
+{
+  GtkImage *symbol = GTK_IMAGE(user_data);
+
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(buffer, &start);
+  gtk_text_buffer_get_end_iter(buffer, &end);
+
+  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+
+  gtk_image_set_from_icon_name(
+      symbol,
+      0 < g_utf8_strlen(text, 1)?
+      "mail-send-symbolic" :
+      "audio-input-microphone-symbolic",
+      GTK_ICON_SIZE_BUTTON
+  );
+}
+
+static void
+handle_send_record_button_click(UNUSED GtkButton *button,
+				gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(
+      app->ui.messenger.send_text_view
+  );
+
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(buffer, &start);
+  gtk_text_buffer_get_end_iter(buffer, &end);
+
+  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+
+  if (0 < g_utf8_strlen(text, 1))
+  {
+    // TODO: Actually send the message with current chat context!
+
+    UI_MESSAGE_Handle *message = ui_message_new(app, TRUE);
+
+    gtk_label_set_text(message->text_label, text);
+
+    gtk_container_add(GTK_CONTAINER(app->ui.messenger.messages_listbox), message->message_box);
+    g_free(message); // TODO: this is just a test!
+  }
+  else
+  {
+    // TODO: record audio and attach as file?
+  }
+
+  gtk_text_buffer_delete(buffer, &start, &end);
 }
 
 static void
@@ -202,6 +268,10 @@ ui_messenger_init(MESSENGER_Application *app,
       gtk_builder_get_object(builder, "account_details_button")
   );
 
+  handle->account_details_symbol = GTK_IMAGE(
+      gtk_builder_get_object(builder, "account_details_symbol")
+  );
+
   handle->account_details_revealer = GTK_REVEALER(
       gtk_builder_get_object(builder, "account_details_revealer")
   );
@@ -210,7 +280,7 @@ ui_messenger_init(MESSENGER_Application *app,
       handle->account_details_button,
       "clicked",
       G_CALLBACK(handle_account_details_button_click),
-      handle->account_details_revealer
+      handle
   );
 
   handle->accounts_listbox = GTK_LIST_BOX(
@@ -302,6 +372,44 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->messages_listbox = GTK_LIST_BOX(
       gtk_builder_get_object(builder, "messages_listbox")
+  );
+
+  handle->attach_file_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "attach_file_button")
+  );
+
+  handle->send_text_view = GTK_TEXT_VIEW(
+      gtk_builder_get_object(builder, "send_text_view")
+  );
+
+  handle->emoji_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "emoji_button")
+  );
+
+  handle->send_record_button = GTK_BUTTON(
+      gtk_builder_get_object(builder, "send_record_button")
+  );
+
+  handle->send_record_symbol = GTK_IMAGE(
+      gtk_builder_get_object(builder, "send_record_symbol")
+  );
+
+  GtkTextBuffer *send_text_buffer = gtk_text_view_get_buffer(
+      handle->send_text_view
+  );
+
+  g_signal_connect(
+      send_text_buffer,
+      "changed",
+      G_CALLBACK(handle_send_text_buffer_changed),
+      handle->send_record_symbol
+  );
+
+  g_signal_connect(
+      handle->send_record_button,
+      "clicked",
+      G_CALLBACK(handle_send_record_button_click),
+      app
   );
 
   gtk_widget_show(GTK_WIDGET(handle->main_window));

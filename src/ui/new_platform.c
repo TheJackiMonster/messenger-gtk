@@ -50,9 +50,20 @@ handle_confirm_button_click(UNUSED GtkButton *button,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  const char *topic = gtk_entry_get_text(app->ui.new_platform.platform_entry);
+  const gchar *topic = gtk_entry_get_text(app->ui.new_platform.platform_entry);
 
-  GNUNET_CHAT_group_create(app->chat.messenger.handle, topic);
+  GString *topic_string = g_string_new(topic);
+
+  struct GNUNET_CHAT_Group *group = GNUNET_CHAT_group_create(
+      app->chat.messenger.handle,
+      topic_string->str
+  );
+
+  g_string_prepend_c(topic_string, '#');
+
+  GNUNET_CHAT_group_set_name(group, topic_string->str);
+
+  g_string_free(topic_string, TRUE);
 
   gtk_window_close(GTK_WINDOW(app->ui.new_platform.platform_dialog));
 }

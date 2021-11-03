@@ -48,6 +48,7 @@ typedef struct UI_MESSENGER_Handle
   GtkButton *hide_user_details_button;
   GtkButton *favourites_button;
   GtkButton *account_details_button;
+  GtkImage *account_details_symbol;
 
   GtkRevealer *account_details_revealer;
   GtkListBox *accounts_listbox;
@@ -69,6 +70,12 @@ typedef struct UI_MESSENGER_Handle
   GtkButton *hide_chat_details_button;
 
   GtkListBox *messages_listbox;
+
+  GtkButton *attach_file_button;
+  GtkTextView *send_text_view;
+  GtkButton *emoji_button;
+  GtkButton *send_record_button;
+  GtkImage *send_record_symbol;
 } UI_MESSENGER_Handle;
 
 void
