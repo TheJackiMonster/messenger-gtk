@@ -61,6 +61,7 @@ Author: Tobias Frisch
                 <property name="label" translatable="yes">My evil comment text is awesome! This is coming to the Pinephone which will be extremely awesome and this text may only cut some borders in certain areas!!!</property>
                 <property name="wrap">True</property>
                 <property name="max-width-chars">64</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="expand">True</property>

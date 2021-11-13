@@ -61,6 +61,8 @@ typedef struct MESSENGER_Application
     int status;
     gboolean mobile;
 
+    GHashTable *bindings;
+
     UI_MESSENGER_Handle messenger;
 
     UI_NEW_PLATFORM_Handle new_platform;
@@ -76,12 +78,14 @@ void
 application_run(MESSENGER_Application *app);
 
 typedef void (*MESSENGER_ApplicationEvent) (MESSENGER_Application *app,
-					    void *cls);
+                                            int argc,
+                                            void **argv);
 
 void
 application_call_event(MESSENGER_Application *app,
 		       MESSENGER_ApplicationEvent event,
-		       void *cls);
+		       int argc,
+		       void **argv);
 
 void
 application_exit(MESSENGER_Application *app,

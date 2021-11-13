@@ -74,7 +74,8 @@ _clear_each_widget(GtkWidget *widget,
 
 void
 event_update_profile(MESSENGER_Application *app,
-		     UNUSED void *cls)
+		     UNUSED int argc,
+		     UNUSED void **argv)
 {
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
@@ -105,9 +106,13 @@ event_update_profile(MESSENGER_Application *app,
 
 void
 event_update_chats(MESSENGER_Application *app,
-		   void *cls)
+		   int argc,
+		   void **argv)
 {
-  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) cls;
+  if (argc < 1)
+    return;
+
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) argv[0];
 
   if (GNUNET_CHAT_context_get_user_pointer(context))
     return;
@@ -120,4 +125,69 @@ event_update_chats(MESSENGER_Application *app,
 
   // TODO: put something better here to attach it!
   GNUNET_CHAT_context_set_user_pointer(context, ui);
+
+  g_hash_table_insert(
+      app->ui.bindings,
+      app->ui.messenger.send_record_button,
+      context
+  );
+
+  g_hash_table_insert(
+      app->ui.bindings,
+      app->ui.messenger.send_text_view,
+      context
+  );
+}
+
+void
+event_receive_message(MESSENGER_Application *app,
+		      int argc,
+		      void **argv)
+{
+  if (argc < 2)
+    return;
+
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) argv[0];
+
+  if (!GNUNET_CHAT_context_get_user_pointer(context))
+    return;
+
+  const struct GNUNET_CHAT_Message *msg;
+  msg = *((const struct GNUNET_CHAT_Message**) argv[1]);
+
+  const int sent = GNUNET_CHAT_message_is_sent(msg);
+
+  UI_MESSAGE_Handle *message = ui_message_new(app, GNUNET_YES == sent);
+
+  if (GNUNET_YES != sent)
+  {
+    const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
+	msg
+    );
+
+    const char *sender = GNUNET_CHAT_contact_get_name(contact);
+
+    hdy_avatar_set_text(message->sender_avatar, sender? sender : "");
+    gtk_label_set_text(message->sender_label, sender? sender : "");
+  }
+
+  struct GNUNET_TIME_Absolute timestamp = GNUNET_CHAT_message_get_timestamp(
+      msg
+  );
+
+  const char *text = GNUNET_CHAT_message_get_text(msg);
+  const char *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
+
+  gtk_label_set_text(message->text_label, text? text : "");
+  gtk_label_set_text(message->timestamp_label, time? time : "");
+
+  if (message->read_receipt_image)
+    // TODO: check read receipt
+
+  gtk_container_add(
+      GTK_CONTAINER(app->ui.messenger.messages_listbox),
+      message->message_box
+  );
+
+  g_free(message); // TODO: this is just a test!
 }

@@ -24,6 +24,8 @@
 
 #include "messenger.h"
 
+#include <gtk-3.0/gdk/gdkkeys.h>
+
 #include "message.h"
 #include "new_platform.h"
 #include "../application.h"
@@ -125,7 +127,7 @@ handle_send_text_buffer_changed(GtkTextBuffer *buffer,
 }
 
 static void
-handle_send_record_button_click(UNUSED GtkButton *button,
+handle_send_record_button_click(GtkButton *button,
 				gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
@@ -142,14 +144,12 @@ handle_send_record_button_click(UNUSED GtkButton *button,
 
   if (0 < g_utf8_strlen(text, 1))
   {
-    // TODO: Actually send the message with current chat context!
+    struct GNUNET_CHAT_Context *context = g_hash_table_lookup(
+	app->ui.bindings, button
+    );
 
-    UI_MESSAGE_Handle *message = ui_message_new(app, TRUE);
-
-    gtk_label_set_text(message->text_label, text);
-
-    gtk_container_add(GTK_CONTAINER(app->ui.messenger.messages_listbox), message->message_box);
-    g_free(message); // TODO: this is just a test!
+    if (context)
+      GNUNET_CHAT_context_send_text(context, text);
   }
   else
   {
@@ -157,6 +157,40 @@ handle_send_record_button_click(UNUSED GtkButton *button,
   }
 
   gtk_text_buffer_delete(buffer, &start, &end);
+}
+
+static gboolean
+handle_send_text_key_press (GtkWidget *widget,
+                            GdkEventKey *event,
+			    gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  if ((event->state & GDK_SHIFT_MASK) ||
+      ((event->keyval != GDK_KEY_Return) &&
+       (event->keyval != GDK_KEY_KP_Enter)))
+    return FALSE;
+
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (widget));
+
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(buffer, &start);
+  gtk_text_buffer_get_end_iter(buffer, &end);
+
+  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+
+  if (0 == g_utf8_strlen(text, 1))
+    return FALSE;
+
+  struct GNUNET_CHAT_Context *context = g_hash_table_lookup(
+    app->ui.bindings, widget
+  );
+
+  if (context)
+    GNUNET_CHAT_context_send_text(context, text);
+
+  gtk_text_buffer_delete(buffer, &start, &end);
+  return TRUE;
 }
 
 static void
@@ -409,6 +443,13 @@ ui_messenger_init(MESSENGER_Application *app,
       handle->send_record_button,
       "clicked",
       G_CALLBACK(handle_send_record_button_click),
+      app
+  );
+
+  g_signal_connect(
+      handle->send_text_view,
+      "key-press-event",
+      G_CALLBACK(handle_send_text_key_press),
       app
   );
 

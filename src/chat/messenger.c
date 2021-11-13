@@ -52,7 +52,7 @@ _chat_messenger_idle(void *cls)
 
 static int
 _chat_messenger_message(void *cls,
-			UNUSED struct GNUNET_CHAT_Context *context,
+			struct GNUNET_CHAT_Context *context,
 			const struct GNUNET_CHAT_Message *message)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
@@ -72,16 +72,23 @@ _chat_messenger_message(void *cls,
   switch (kind)
   {
     case GNUNET_CHAT_KIND_LOGIN:
-      application_call_event(app, event_update_profile, NULL);
+    {
+      application_call_event(app, event_update_profile, 0, NULL);
       break;
-    case GNUNET_CHAT_KIND_TEXT:
-      printf("text: %s\n", GNUNET_CHAT_message_get_text(message));
-      break;
+    }
     case GNUNET_CHAT_KIND_JOIN:
+    {
       if (GNUNET_YES == GNUNET_CHAT_message_is_sent(message))
-	application_call_event(app, event_update_chats, context);
+	application_call_event(app, event_update_chats, 1, (void**) &context);
 
       break;
+    }
+    case GNUNET_CHAT_KIND_TEXT:
+    {
+      void* event_data [2] = { context, &message };
+      application_call_event(app, event_receive_message, 2, event_data);
+      break;
+    }
     default:
       break;
   }

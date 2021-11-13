@@ -29,10 +29,17 @@
 
 void
 event_update_profile(MESSENGER_Application *app,
-		     void *cls);
+		     int argc,
+		     void **argv);
 
 void
 event_update_chats(MESSENGER_Application *app,
-		   void *cls);
+		   int argc,
+		   void **argv);
+
+void
+event_receive_message(MESSENGER_Application *app,
+		      int argc,
+		      void **argv);
 
 #endif /* EVENT_H_ */

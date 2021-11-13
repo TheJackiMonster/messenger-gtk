@@ -79,6 +79,8 @@ application_init(MESSENGER_Application *app,
 
   app->ui.mobile = FALSE;
 
+  app->ui.bindings = g_hash_table_new(g_direct_hash, g_direct_equal);
+
   g_application_add_main_option(
       G_APPLICATION(app->application),
       "mobile",
@@ -138,6 +140,8 @@ application_run(MESSENGER_Application *app)
 
   pthread_join(app->chat.tid, NULL);
 
+  g_hash_table_destroy(app->ui.bindings);
+
   notify_uninit();
 
   g_object_unref(app->application);
@@ -147,7 +151,8 @@ typedef struct MESSENGER_ApplicationEventCall
 {
   MESSENGER_Application *app;
   MESSENGER_ApplicationEvent event;
-  void *cls;
+  int argc;
+  void **argv;
 } MESSENGER_ApplicationEventCall;
 
 static gboolean
@@ -156,7 +161,10 @@ _application_event_call(gpointer user_data)
   MESSENGER_ApplicationEventCall *call;
 
   call = (MESSENGER_ApplicationEventCall*) user_data;
-  call->event(call->app, call->cls);
+  call->event(call->app, call->argc, call->argv);
+
+  if (call->argc > 0)
+    GNUNET_free(call->argv);
 
   GNUNET_free(call);
   return FALSE;
@@ -165,7 +173,8 @@ _application_event_call(gpointer user_data)
 void
 application_call_event(MESSENGER_Application *app,
 		       MESSENGER_ApplicationEvent event,
-		       void *cls)
+		       int argc,
+		       void **argv)
 {
   MESSENGER_ApplicationEventCall *call;
 
@@ -175,7 +184,17 @@ application_call_event(MESSENGER_Application *app,
 
   call->app = app;
   call->event = event;
-  call->cls = cls;
+  call->argc = argc;
+  call->argv = NULL;
+
+  if (call->argc > 0)
+  {
+    call->argv = GNUNET_new_array(call->argc, void*);
+
+    for (int i = 0; i < call->argc; i++) {
+      call->argv[i] = argv[i];
+    }
+  }
 
   g_idle_add(_application_event_call, call);
 }
