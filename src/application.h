@@ -30,6 +30,7 @@
 #include "chat/messenger.h"
 
 #include "ui/messenger.h"
+#include "ui/new_contact.h"
 #include "ui/new_platform.h"
 
 #include "util.h"
@@ -65,6 +66,7 @@ typedef struct MESSENGER_Application
 
     UI_MESSENGER_Handle messenger;
 
+    UI_NEW_CONTACT_Handle new_contact;
     UI_NEW_PLATFORM_Handle new_platform;
   } ui;
 } MESSENGER_Application;

@@ -19,29 +19,41 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/new_platform.h
+ * @file ui/new_contact.h
  */
 
-#ifndef UI_NEW_PLATFORM_H_
-#define UI_NEW_PLATFORM_H_
+#ifndef UI_NEW_CONTACT_H_
+#define UI_NEW_CONTACT_H_
 
 #include "messenger.h"
 
-typedef struct UI_NEW_PLATFORM_Handle
+#include <gdk/gdkpixbuf.h>
+#include <pthread.h>
+#include <zbar.h>
+
+typedef struct UI_NEW_CONTACT_Handle
 {
+  zbar_video_t *video;
+  zbar_image_t *image;
+  zbar_image_scanner_t *scanner;
+
   GtkDialog* dialog;
 
-  HdyAvatar* platform_avatar;
-  GtkFileChooserButton* platform_avatar_file;
-
-  GtkEntry* platform_entry;
+  GtkDrawingArea* id_drawing_area;
+  GtkEntry* id_entry;
 
   GtkButton* cancel_button;
   GtkButton* confirm_button;
-} UI_NEW_PLATFORM_Handle;
+
+  pthread_t video_tid;
+  guint idle_processing;
+} UI_NEW_CONTACT_Handle;
 
 void
-ui_new_platform_dialog_init(MESSENGER_Application *app,
-			    UI_NEW_PLATFORM_Handle *handle);
+ui_new_contact_dialog_init(MESSENGER_Application *app,
+			   UI_NEW_CONTACT_Handle *handle);
 
-#endif /* UI_NEW_PLATFORM_H_ */
+void
+ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle);
+
+#endif /* UI_NEW_CONTACT_H_ */

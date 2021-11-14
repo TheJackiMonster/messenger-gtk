@@ -11,11 +11,12 @@ SOURCES = messenger_gtk.c\
 		  ui/chat_entry.c\
 		  ui/message.c\
 		  ui/messenger.c\
+		  ui/new_contact.c\
 		  ui/new_platform.c
 		  
 HEADERS = 
 
-LIBRARIES = gnunetchat
+LIBRARIES = gnunetchat zbargtk
 PACKAGES  = gnunetutil libhandy-1 gtk+-3.0 libnotify zbar libqrencode
 
 GNU_CC ?= gcc

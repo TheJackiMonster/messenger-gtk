@@ -67,7 +67,7 @@ handle_platform_entry_activate(GtkEntry *entry,
 
   _open_new_platform(entry, app);
 
-  gtk_window_close(GTK_WINDOW(app->ui.new_platform.platform_dialog));
+  gtk_window_close(GTK_WINDOW(app->ui.new_platform.dialog));
 }
 
 static void
@@ -86,7 +86,7 @@ handle_confirm_button_click(UNUSED GtkButton *button,
 
   _open_new_platform(app->ui.new_platform.platform_entry, app);
 
-  gtk_window_close(GTK_WINDOW(app->ui.new_platform.platform_dialog));
+  gtk_window_close(GTK_WINDOW(app->ui.new_platform.dialog));
 }
 
 void
@@ -95,21 +95,19 @@ ui_new_platform_dialog_init(MESSENGER_Application *app,
 {
   GtkBuilder* builder = gtk_builder_new_from_file("resources/ui/new_platform.ui");
 
-  handle->platform_dialog = GTK_DIALOG(
-      gtk_builder_get_object(builder, "platform_dialog")
+  handle->dialog = GTK_DIALOG(
+      gtk_builder_get_object(builder, "new_platform_dialog")
   );
 
   gtk_window_set_title(
-      GTK_WINDOW(handle->platform_dialog),
+      GTK_WINDOW(handle->dialog),
       "New Platform"
   );
 
   gtk_window_set_transient_for(
-      GTK_WINDOW(handle->platform_dialog),
+      GTK_WINDOW(handle->dialog),
       GTK_WINDOW(app->ui.messenger.main_window)
   );
-
-  gtk_window_set_modal(GTK_WINDOW(handle->platform_dialog), TRUE);
 
   handle->platform_avatar = HDY_AVATAR(
       gtk_builder_get_object(builder, "platform_avatar")
@@ -145,7 +143,7 @@ ui_new_platform_dialog_init(MESSENGER_Application *app,
       handle->cancel_button,
       "clicked",
       G_CALLBACK(handle_cancel_button_click),
-      handle->platform_dialog
+      handle->dialog
   );
 
   handle->confirm_button = GTK_BUTTON(

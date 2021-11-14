@@ -28,6 +28,7 @@
 
 #include "chat_entry.h"
 #include "message.h"
+#include "new_contact.h"
 #include "new_platform.h"
 #include "../application.h"
 
@@ -67,6 +68,19 @@ handle_account_details_button_click(UNUSED GtkButton* button,
 }
 
 static void
+handle_new_contact_button_click(UNUSED GtkButton* button,
+				 gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
+
+  ui_new_contact_dialog_init(app, &(app->ui.new_contact));
+
+  gtk_widget_show(GTK_WIDGET(app->ui.new_contact.dialog));
+}
+
+static void
 handle_new_platform_button_click(UNUSED GtkButton* button,
 				 gpointer user_data)
 {
@@ -76,7 +90,7 @@ handle_new_platform_button_click(UNUSED GtkButton* button,
 
   ui_new_platform_dialog_init(app, &(app->ui.new_platform));
 
-  gtk_widget_show(GTK_WIDGET(app->ui.new_platform.platform_dialog));
+  gtk_widget_show(GTK_WIDGET(app->ui.new_platform.dialog));
 }
 
 static void
@@ -223,6 +237,13 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->new_platform_button = GTK_BUTTON(
       gtk_builder_get_object(builder, "new_platform_button")
+  );
+
+  g_signal_connect(
+      handle->new_contact_button,
+      "clicked",
+      G_CALLBACK(handle_new_contact_button_click),
+      app
   );
 
   g_signal_connect(
