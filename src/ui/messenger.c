@@ -166,7 +166,8 @@ handle_send_text_key_press (GtkWidget *widget,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  if ((event->state & GDK_SHIFT_MASK) ||
+  if ((app->ui.mobile) ||
+      (event->state & GDK_SHIFT_MASK) ||
       ((event->keyval != GDK_KEY_Return) &&
        (event->keyval != GDK_KEY_KP_Enter)))
     return FALSE;
