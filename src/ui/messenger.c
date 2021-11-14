@@ -26,6 +26,7 @@
 
 #include <gtk-3.0/gdk/gdkkeys.h>
 
+#include "chat_entry.h"
 #include "message.h"
 #include "new_platform.h"
 #include "../application.h"
@@ -80,118 +81,25 @@ handle_new_platform_button_click(UNUSED GtkButton* button,
 
 static void
 handle_chats_listbox_row_activated(UNUSED GtkListBox* listbox,
-				   UNUSED GtkListBoxRow* row,
+				   GtkListBoxRow* row,
 				   gpointer user_data)
 {
-  HdyLeaflet* leaflet = HDY_LEAFLET(user_data);
+  UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
 
-  GList* children = gtk_container_get_children(GTK_CONTAINER(leaflet));
+  GtkStack *stack = handle->chats_stack;
+  HdyLeaflet *leaflet = handle->leaflet_chat;
+
+  GList *children = gtk_container_get_children(GTK_CONTAINER(leaflet));
 
   if ((children) && (children->next)) {
     hdy_leaflet_set_visible_child(leaflet, GTK_WIDGET(children->next->data));
   }
-}
 
-static void
-handle_back_button_click(UNUSED GtkButton* button,
-			 gpointer user_data)
-{
-  HdyLeaflet* leaflet = HDY_LEAFLET(user_data);
-
-  GList* children = gtk_container_get_children(GTK_CONTAINER(leaflet));
-
-  if (children) {
-    hdy_leaflet_set_visible_child(leaflet, GTK_WIDGET(children->data));
-  }
-}
-
-static void
-handle_send_text_buffer_changed(GtkTextBuffer *buffer,
-				gpointer user_data)
-{
-  GtkImage *symbol = GTK_IMAGE(user_data);
-
-  GtkTextIter start, end;
-  gtk_text_buffer_get_start_iter(buffer, &start);
-  gtk_text_buffer_get_end_iter(buffer, &end);
-
-  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
-
-  gtk_image_set_from_icon_name(
-      symbol,
-      0 < g_utf8_strlen(text, 1)?
-      "mail-send-symbolic" :
-      "audio-input-microphone-symbolic",
-      GTK_ICON_SIZE_BUTTON
-  );
-}
-
-static void
-handle_send_record_button_click(GtkButton *button,
-				gpointer user_data)
-{
-  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
-
-  GtkTextBuffer *buffer = gtk_text_view_get_buffer(
-      app->ui.messenger.send_text_view
+  GtkWidget *entry = GTK_WIDGET(
+      gtk_container_get_children(GTK_CONTAINER(row))->data
   );
 
-  GtkTextIter start, end;
-  gtk_text_buffer_get_start_iter(buffer, &start);
-  gtk_text_buffer_get_end_iter(buffer, &end);
-
-  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
-
-  if (0 < g_utf8_strlen(text, 1))
-  {
-    struct GNUNET_CHAT_Context *context = g_hash_table_lookup(
-	app->ui.bindings, button
-    );
-
-    if (context)
-      GNUNET_CHAT_context_send_text(context, text);
-  }
-  else
-  {
-    // TODO: record audio and attach as file?
-  }
-
-  gtk_text_buffer_delete(buffer, &start, &end);
-}
-
-static gboolean
-handle_send_text_key_press (GtkWidget *widget,
-                            GdkEventKey *event,
-			    gpointer user_data)
-{
-  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
-
-  if ((app->ui.mobile) ||
-      (event->state & GDK_SHIFT_MASK) ||
-      ((event->keyval != GDK_KEY_Return) &&
-       (event->keyval != GDK_KEY_KP_Enter)))
-    return FALSE;
-
-  GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (widget));
-
-  GtkTextIter start, end;
-  gtk_text_buffer_get_start_iter(buffer, &start);
-  gtk_text_buffer_get_end_iter(buffer, &end);
-
-  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
-
-  if (0 == g_utf8_strlen(text, 1))
-    return FALSE;
-
-  struct GNUNET_CHAT_Context *context = g_hash_table_lookup(
-    app->ui.bindings, widget
-  );
-
-  if (context)
-    GNUNET_CHAT_context_send_text(context, text);
-
-  gtk_text_buffer_delete(buffer, &start, &end);
-  return TRUE;
+  gtk_stack_set_visible_child_name(stack, gtk_widget_get_name(entry));
 }
 
 static void
@@ -207,6 +115,8 @@ void
 ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle)
 {
+  handle->chat_entries = g_list_alloc();
+
   GtkBuilder* builder = gtk_builder_new_from_file("resources/ui/messenger.ui");
 
   handle->main_window = GTK_APPLICATION_WINDOW(
@@ -256,25 +166,6 @@ ui_messenger_init(MESSENGER_Application *app,
       G_BINDING_SYNC_CREATE |
       G_BINDING_INVERT_BOOLEAN
     );
-
-  handle->back_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "back_button")
-  );
-
-  g_object_bind_property(
-      handle->leaflet_chat,
-      "folded",
-      handle->back_button,
-      "visible",
-      G_BINDING_SYNC_CREATE
-  );
-
-  g_signal_connect(
-      handle->back_button,
-      "clicked",
-      G_CALLBACK(handle_back_button_click),
-      handle->leaflet_chat
-  );
 
   handle->profile_avatar = HDY_AVATAR(
       gtk_builder_get_object(builder, "profile_avatar")
@@ -372,26 +263,11 @@ ui_messenger_init(MESSENGER_Application *app,
       handle->chats_listbox,
       "row-activated",
       G_CALLBACK(handle_chats_listbox_row_activated),
-      handle->leaflet_chat
+      handle
   );
 
-  handle->chat_title = GTK_LABEL(
-      gtk_builder_get_object(builder, "chat_title")
-  );
-
-  handle->chat_subtitle = GTK_LABEL(
-      gtk_builder_get_object(builder, "chat_subtitle")
-  );
-
-  handle->chat_details_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "chat_details_button")
-  );
-
-  g_signal_connect(
-      handle->chat_details_button,
-      "clicked",
-      G_CALLBACK(handle_flap_via_button_click),
-      handle->flap_chat_details
+  handle->chats_stack = GTK_STACK(
+      gtk_builder_get_object(builder, "chats_stack")
   );
 
   handle->hide_chat_details_button = GTK_BUTTON(
@@ -405,55 +281,6 @@ ui_messenger_init(MESSENGER_Application *app,
       handle->flap_chat_details
   );
 
-  handle->messages_listbox = GTK_LIST_BOX(
-      gtk_builder_get_object(builder, "messages_listbox")
-  );
-
-  handle->attach_file_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "attach_file_button")
-  );
-
-  handle->send_text_view = GTK_TEXT_VIEW(
-      gtk_builder_get_object(builder, "send_text_view")
-  );
-
-  handle->emoji_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "emoji_button")
-  );
-
-  handle->send_record_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "send_record_button")
-  );
-
-  handle->send_record_symbol = GTK_IMAGE(
-      gtk_builder_get_object(builder, "send_record_symbol")
-  );
-
-  GtkTextBuffer *send_text_buffer = gtk_text_view_get_buffer(
-      handle->send_text_view
-  );
-
-  g_signal_connect(
-      send_text_buffer,
-      "changed",
-      G_CALLBACK(handle_send_text_buffer_changed),
-      handle->send_record_symbol
-  );
-
-  g_signal_connect(
-      handle->send_record_button,
-      "clicked",
-      G_CALLBACK(handle_send_record_button_click),
-      app
-  );
-
-  g_signal_connect(
-      handle->send_text_view,
-      "key-press-event",
-      G_CALLBACK(handle_send_text_key_press),
-      app
-  );
-
   gtk_widget_show(GTK_WIDGET(handle->main_window));
 
   g_signal_connect(
@@ -464,8 +291,16 @@ ui_messenger_init(MESSENGER_Application *app,
   );
 }
 
-void
-ui_messenger_run(MESSENGER_Application *app)
+static void
+_free_ui_chat_entry (gpointer user_data)
 {
-  ui_messenger_init(app, &(app->ui.messenger));
+  UI_CHAT_ENTRY_Handle* handle = (UI_CHAT_ENTRY_Handle*) user_data;
+
+  ui_chat_entry_delete(handle);
+}
+
+void
+ui_messenger_cleanup(UI_MESSENGER_Handle *handle)
+{
+  g_list_free_full(handle->chat_entries, _free_ui_chat_entry);
 }

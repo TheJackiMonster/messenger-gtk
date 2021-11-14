@@ -27,21 +27,43 @@
 #include "ui/chat_entry.h"
 #include "ui/message.h"
 
+static void
+_add_new_chat_entry(MESSENGER_Application *app,
+		    struct GNUNET_CHAT_Context *context)
+{
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+
+  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new(app);
+  gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
+  GNUNET_CHAT_context_set_user_pointer(context, entry);
+
+  char context_id [9];
+  g_snprintf(context_id, sizeof(context_id), "%08lx", (gulong) context);
+
+  gtk_widget_set_name(entry->entry_box, context_id);
+
+  gtk_stack_add_named(
+      ui->chats_stack,
+      entry->chat->chat_box,
+      context_id
+  );
+
+  g_hash_table_insert(
+      app->ui.bindings,
+      entry->chat->send_text_view,
+      context
+  );
+
+  ui->chat_entries = g_list_append(ui->chat_entries, entry);
+}
+
 static int
 _iterate_profile_contacts(void *cls,
 			  UNUSED struct GNUNET_CHAT_Handle *handle,
 			  UNUSED struct GNUNET_CHAT_Contact *contact)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
-
-  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
-
-  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new();
-
-  gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
-
-  g_free(entry); //TODO: add to a list or similar?
-
+  _add_new_chat_entry(app, GNUNET_CHAT_contact_get_context(contact));
   return GNUNET_YES;
 }
 
@@ -51,15 +73,7 @@ _iterate_profile_groups(void *cls,
 			UNUSED struct GNUNET_CHAT_Group *group)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
-
-  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
-
-  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new();
-
-  gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
-
-  g_free(entry); //TODO: add to a list or similar?
-
+  _add_new_chat_entry(app, GNUNET_CHAT_group_get_context(group));
   return GNUNET_YES;
 }
 
@@ -96,12 +110,6 @@ event_update_profile(MESSENGER_Application *app,
 
   GNUNET_CHAT_iterate_contacts(chat->handle, _iterate_profile_contacts, app);
   GNUNET_CHAT_iterate_groups(chat->handle, _iterate_profile_groups, app);
-
-  for (int i = 0; i < 8; i++) {
-    UI_MESSAGE_Handle *message = ui_message_new(app, i % 2 == 0);
-    gtk_container_add(GTK_CONTAINER(ui->messages_listbox), message->message_box);
-    g_free(message); // TODO: this is just a test!
-  }
 }
 
 void
@@ -117,26 +125,7 @@ event_update_chats(MESSENGER_Application *app,
   if (GNUNET_CHAT_context_get_user_pointer(context))
     return;
 
-  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
-
-  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new();
-  gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
-  g_free(entry); // TODO: free already?
-
-  // TODO: put something better here to attach it!
-  GNUNET_CHAT_context_set_user_pointer(context, ui);
-
-  g_hash_table_insert(
-      app->ui.bindings,
-      app->ui.messenger.send_record_button,
-      context
-  );
-
-  g_hash_table_insert(
-      app->ui.bindings,
-      app->ui.messenger.send_text_view,
-      context
-  );
+  _add_new_chat_entry(app, context);
 }
 
 void
@@ -149,7 +138,9 @@ event_receive_message(MESSENGER_Application *app,
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) argv[0];
 
-  if (!GNUNET_CHAT_context_get_user_pointer(context))
+  UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
+
+  if (!handle)
     return;
 
   const struct GNUNET_CHAT_Message *msg;
@@ -185,9 +176,12 @@ event_receive_message(MESSENGER_Application *app,
     // TODO: check read receipt
 
   gtk_container_add(
-      GTK_CONTAINER(app->ui.messenger.messages_listbox),
+      GTK_CONTAINER(handle->chat->messages_listbox),
       message->message_box
   );
 
   g_free(message); // TODO: this is just a test!
+
+  gtk_label_set_text(handle->text_label, text? text : "");
+  gtk_label_set_text(handle->timestamp_label, time? time : "");
 }

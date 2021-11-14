@@ -7,6 +7,7 @@ SOURCES = messenger_gtk.c\
 		  application.c\
 		  event.c\
 		  chat/messenger.c\
+		  ui/chat.c\
 		  ui/chat_entry.c\
 		  ui/message.c\
 		  ui/messenger.c\

@@ -33,6 +33,8 @@ typedef struct MESSENGER_Application MESSENGER_Application;
 
 typedef struct UI_MESSENGER_Handle
 {
+  GList *chat_entries;
+
   GtkApplicationWindow *main_window;
 
   HdyLeaflet *leaflet_chat;
@@ -40,7 +42,6 @@ typedef struct UI_MESSENGER_Handle
   HdyFlap *flap_chat_details;
 
   HdyHeaderBar *title_bar;
-  GtkButton *back_button;
 
   HdyAvatar *profile_avatar;
   GtkLabel *profile_label;
@@ -63,19 +64,9 @@ typedef struct UI_MESSENGER_Handle
   GtkSearchEntry *chats_search;
   GtkListBox *chats_listbox;
 
-  GtkLabel *chat_title;
-  GtkLabel *chat_subtitle;
-  GtkButton *chat_details_button;
+  GtkStack *chats_stack;
 
   GtkButton *hide_chat_details_button;
-
-  GtkListBox *messages_listbox;
-
-  GtkButton *attach_file_button;
-  GtkTextView *send_text_view;
-  GtkButton *emoji_button;
-  GtkButton *send_record_button;
-  GtkImage *send_record_symbol;
 } UI_MESSENGER_Handle;
 
 void
@@ -83,6 +74,6 @@ ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle);
 
 void
-ui_messenger_run(MESSENGER_Application *app);
+ui_messenger_cleanup(UI_MESSENGER_Handle *handle);
 
 #endif /* UI_MESSENGER_H_ */

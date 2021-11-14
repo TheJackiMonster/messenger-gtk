@@ -48,7 +48,7 @@ _application_activate(UNUSED GtkApplication* application,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  ui_messenger_run(app);
+  ui_messenger_init(app, &(app->ui.messenger));
 }
 
 void
@@ -139,6 +139,8 @@ application_run(MESSENGER_Application *app)
   );
 
   pthread_join(app->chat.tid, NULL);
+
+  ui_messenger_cleanup(&(app->ui.messenger));
 
   g_hash_table_destroy(app->ui.bindings);
 

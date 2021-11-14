@@ -24,10 +24,14 @@
 
 #include "chat_entry.h"
 
+#include "../application.h"
+
 UI_CHAT_ENTRY_Handle*
-ui_chat_entry_new(void)
+ui_chat_entry_new(MESSENGER_Application *app)
 {
   UI_CHAT_ENTRY_Handle* handle = g_malloc(sizeof(UI_CHAT_ENTRY_Handle));
+
+  handle->chat = ui_chat_new(app);
 
   GtkBuilder* builder = gtk_builder_new_from_file("resources/ui/chat_entry.ui");
 
@@ -56,4 +60,12 @@ ui_chat_entry_new(void)
   );
 
   return handle;
+}
+
+void
+ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle)
+{
+  ui_chat_delete(handle->chat);
+
+  g_free(handle);
 }

@@ -19,33 +19,41 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/chat_entry.h
+ * @file ui/chat.h
  */
 
-#ifndef UI_CHAT_ENTRY_H_
-#define UI_CHAT_ENTRY_H_
+#ifndef UI_CHAT_H_
+#define UI_CHAT_H_
 
-#include "chat.h"
+#include <gtk-3.0/gtk/gtk.h>
+#include <libhandy-1/handy.h>
+#include <libnotify/notify.h>
 
-typedef struct UI_CHAT_ENTRY_Handle
+typedef struct MESSENGER_Application MESSENGER_Application;
+
+typedef struct UI_CHAT_Handle
 {
-  UI_CHAT_Handle *chat;
+  GtkWidget *chat_box;
 
-  GtkWidget* entry_box;
+  GtkButton *back_button;
 
-  HdyAvatar* entry_avatar;
+  GtkLabel *chat_title;
+  GtkLabel *chat_subtitle;
+  GtkButton *chat_details_button;
 
-  GtkLabel* title_label;
-  GtkLabel* timestamp_label;
+  GtkListBox *messages_listbox;
 
-  GtkLabel* text_label;
-  GtkImage* read_receipt_image;
-} UI_CHAT_ENTRY_Handle;
+  GtkButton *attach_file_button;
+  GtkTextView *send_text_view;
+  GtkButton *emoji_button;
+  GtkButton *send_record_button;
+  GtkImage *send_record_symbol;
+} UI_CHAT_Handle;
 
-UI_CHAT_ENTRY_Handle*
-ui_chat_entry_new(MESSENGER_Application *app);
+UI_CHAT_Handle*
+ui_chat_new(MESSENGER_Application *app);
 
 void
-ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle);
+ui_chat_delete(UI_CHAT_Handle *handle);
 
-#endif /* UI_CHAT_ENTRY_H_ */
+#endif /* UI_CHAT_H_ */
