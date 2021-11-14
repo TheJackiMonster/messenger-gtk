@@ -39,7 +39,6 @@ _open_new_platform(GtkEntry *entry, MESSENGER_Application *app)
   );
 
   g_string_prepend_c(topic_string, '#');
-
   GNUNET_CHAT_group_set_name(group, topic_string->str);
 
   g_string_free(topic_string, TRUE);
@@ -52,7 +51,12 @@ handle_platform_entry_changed(GtkEditable *editable,
   HdyAvatar *avatar = HDY_AVATAR(user_data);
   GtkEntry *entry = GTK_ENTRY(editable);
 
-  hdy_avatar_set_text(avatar, gtk_entry_get_text(entry));
+  GString *topic_string = g_string_new(gtk_entry_get_text(entry));
+
+  g_string_prepend_c(topic_string, '#');
+  hdy_avatar_set_text(avatar, topic_string->str);
+
+  g_string_free(topic_string, TRUE);
 }
 
 static void

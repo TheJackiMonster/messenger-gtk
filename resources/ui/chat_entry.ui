@@ -54,7 +54,6 @@ Author: Tobias Frisch
               <object class="GtkLabel" id="title_label">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Chat title</property>
                 <property name="wrap">True</property>
                 <property name="wrap-mode">word-char</property>
                 <property name="ellipsize">end</property>
@@ -70,7 +69,6 @@ Author: Tobias Frisch
               <object class="GtkLabel" id="timestamp_label">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">11.12.13</property>
                 <property name="justify">right</property>
               </object>
               <packing>
@@ -96,7 +94,6 @@ Author: Tobias Frisch
               <object class="GtkLabel" id="text_label">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">My evil comment text is awesome! This is coming to the Pinephone which will be extremely awesome and this text may only cut some borders in certain areas!!!</property>
                 <property name="wrap">True</property>
                 <property name="wrap-mode">word-char</property>
                 <property name="ellipsize">end</property>
@@ -111,7 +108,6 @@ Author: Tobias Frisch
             </child>
             <child>
               <object class="GtkImage" id="read_receipt_image">
-                <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="icon-name">emblem-default-symbolic</property>
               </object>
