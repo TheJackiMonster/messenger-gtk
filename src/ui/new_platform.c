@@ -27,6 +27,25 @@
 #include "../application.h"
 
 static void
+_open_new_platform(GtkEntry *entry, MESSENGER_Application *app)
+{
+  const gchar *topic = gtk_entry_get_text(entry);
+
+  GString *topic_string = g_string_new(topic);
+
+  struct GNUNET_CHAT_Group *group = GNUNET_CHAT_group_create(
+      app->chat.messenger.handle,
+      topic_string->str
+  );
+
+  g_string_prepend_c(topic_string, '#');
+
+  GNUNET_CHAT_group_set_name(group, topic_string->str);
+
+  g_string_free(topic_string, TRUE);
+}
+
+static void
 handle_platform_entry_changed(GtkEditable *editable,
 			      gpointer user_data)
 {
@@ -34,6 +53,17 @@ handle_platform_entry_changed(GtkEditable *editable,
   GtkEntry *entry = GTK_ENTRY(editable);
 
   hdy_avatar_set_text(avatar, gtk_entry_get_text(entry));
+}
+
+static void
+handle_platform_entry_activate(GtkEntry *entry,
+			       gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  _open_new_platform(entry, app);
+
+  gtk_window_close(GTK_WINDOW(app->ui.new_platform.platform_dialog));
 }
 
 static void
@@ -50,20 +80,7 @@ handle_confirm_button_click(UNUSED GtkButton *button,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  const gchar *topic = gtk_entry_get_text(app->ui.new_platform.platform_entry);
-
-  GString *topic_string = g_string_new(topic);
-
-  struct GNUNET_CHAT_Group *group = GNUNET_CHAT_group_create(
-      app->chat.messenger.handle,
-      topic_string->str
-  );
-
-  g_string_prepend_c(topic_string, '#');
-
-  GNUNET_CHAT_group_set_name(group, topic_string->str);
-
-  g_string_free(topic_string, TRUE);
+  _open_new_platform(app->ui.new_platform.platform_entry, app);
 
   gtk_window_close(GTK_WINDOW(app->ui.new_platform.platform_dialog));
 }
@@ -107,6 +124,13 @@ ui_new_platform_dialog_init(MESSENGER_Application *app,
       "changed",
       G_CALLBACK(handle_platform_entry_changed),
       handle->platform_avatar
+  );
+
+  g_signal_connect(
+      handle->platform_entry,
+      "activate",
+      G_CALLBACK(handle_platform_entry_activate),
+      app
   );
 
   handle->cancel_button = GTK_BUTTON(

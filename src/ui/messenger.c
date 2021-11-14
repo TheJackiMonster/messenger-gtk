@@ -291,16 +291,17 @@ ui_messenger_init(MESSENGER_Application *app,
   );
 }
 
-static void
-_free_ui_chat_entry (gpointer user_data)
-{
-  UI_CHAT_ENTRY_Handle* handle = (UI_CHAT_ENTRY_Handle*) user_data;
-
-  ui_chat_entry_delete(handle);
-}
-
 void
 ui_messenger_cleanup(UI_MESSENGER_Handle *handle)
 {
-  g_list_free_full(handle->chat_entries, _free_ui_chat_entry);
+  GList *list = handle->chat_entries;
+
+  while (list) {
+    if (list->data)
+      ui_chat_entry_delete((UI_CHAT_ENTRY_Handle*) list->data);
+
+    list = list->next;
+  }
+
+  g_list_free(handle->chat_entries);
 }
