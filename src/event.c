@@ -201,7 +201,7 @@ event_receive_message(MESSENGER_Application *app,
       message->message_box
   );
 
-  g_free(message); // TODO: this is just a test!
+  ui_message_delete(message);
 
   gtk_label_set_text(handle->text_label, text? text : "");
   gtk_label_set_text(handle->timestamp_label, time? time : "");

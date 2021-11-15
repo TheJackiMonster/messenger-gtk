@@ -138,16 +138,16 @@ ui_chat_new(MESSENGER_Application *app)
   UI_CHAT_Handle *handle = g_malloc(sizeof(UI_CHAT_Handle));
   UI_MESSENGER_Handle *messenger = &(app->ui.messenger);
 
-  GtkBuilder* builder = gtk_builder_new_from_file(
+  handle->builder = gtk_builder_new_from_file(
       "resources/ui/chat.ui"
   );
 
   handle->chat_box = GTK_WIDGET(
-      gtk_builder_get_object(builder, "chat_box")
+      gtk_builder_get_object(handle->builder, "chat_box")
   );
 
   handle->back_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "back_button")
+      gtk_builder_get_object(handle->builder, "back_button")
   );
 
   g_object_bind_property(
@@ -166,15 +166,15 @@ ui_chat_new(MESSENGER_Application *app)
   );
 
   handle->chat_title = GTK_LABEL(
-      gtk_builder_get_object(builder, "chat_title")
+      gtk_builder_get_object(handle->builder, "chat_title")
   );
 
   handle->chat_subtitle = GTK_LABEL(
-      gtk_builder_get_object(builder, "chat_subtitle")
+      gtk_builder_get_object(handle->builder, "chat_subtitle")
   );
 
   handle->chat_details_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "chat_details_button")
+      gtk_builder_get_object(handle->builder, "chat_details_button")
   );
 
   g_signal_connect(
@@ -185,27 +185,27 @@ ui_chat_new(MESSENGER_Application *app)
   );
 
   handle->messages_listbox = GTK_LIST_BOX(
-      gtk_builder_get_object(builder, "messages_listbox")
+      gtk_builder_get_object(handle->builder, "messages_listbox")
   );
 
   handle->attach_file_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "attach_file_button")
+      gtk_builder_get_object(handle->builder, "attach_file_button")
   );
 
   handle->send_text_view = GTK_TEXT_VIEW(
-      gtk_builder_get_object(builder, "send_text_view")
+      gtk_builder_get_object(handle->builder, "send_text_view")
   );
 
   handle->emoji_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "emoji_button")
+      gtk_builder_get_object(handle->builder, "emoji_button")
   );
 
   handle->send_record_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "send_record_button")
+      gtk_builder_get_object(handle->builder, "send_record_button")
   );
 
   handle->send_record_symbol = GTK_IMAGE(
-      gtk_builder_get_object(builder, "send_record_symbol")
+      gtk_builder_get_object(handle->builder, "send_record_symbol")
   );
 
   GtkTextBuffer *send_text_buffer = gtk_text_view_get_buffer(
@@ -245,5 +245,7 @@ ui_chat_new(MESSENGER_Application *app)
 void
 ui_chat_delete(UI_CHAT_Handle *handle)
 {
+  g_object_unref(handle->builder);
+
   g_free(handle);
 }

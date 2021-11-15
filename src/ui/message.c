@@ -31,23 +31,22 @@ ui_message_new(MESSENGER_Application *app,
 	       bool sent)
 {
   UI_MESSAGE_Handle* handle = g_malloc(sizeof(UI_MESSAGE_Handle));
-  GtkBuilder* builder;
 
   if (sent)
-    builder = gtk_builder_new_from_file("resources/ui/message-sent.ui");
+    handle->builder = gtk_builder_new_from_file("resources/ui/message-sent.ui");
   else
-    builder = gtk_builder_new_from_file("resources/ui/message.ui");
+    handle->builder = gtk_builder_new_from_file("resources/ui/message.ui");
 
   handle->message_box = GTK_WIDGET(
-      gtk_builder_get_object(builder, "message_box")
+      gtk_builder_get_object(handle->builder, "message_box")
   );
 
   handle->sender_avatar = HDY_AVATAR(
-      gtk_builder_get_object(builder, "sender_avatar")
+      gtk_builder_get_object(handle->builder, "sender_avatar")
   );
 
   handle->sender_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "sender_label")
+      gtk_builder_get_object(handle->builder, "sender_label")
   );
 
   if (sent)
@@ -59,16 +58,24 @@ ui_message_new(MESSENGER_Application *app,
   }
 
   handle->text_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "text_label")
+      gtk_builder_get_object(handle->builder, "text_label")
   );
 
   handle->timestamp_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "timestamp_label")
+      gtk_builder_get_object(handle->builder, "timestamp_label")
   );
 
   handle->read_receipt_image = GTK_IMAGE(
-      gtk_builder_get_object(builder, "read_receipt_image")
+      gtk_builder_get_object(handle->builder, "read_receipt_image")
   );
 
   return handle;
+}
+
+void
+ui_message_delete(UI_MESSAGE_Handle *handle)
+{
+  g_object_unref(handle->builder);
+
+  g_free(handle);
 }

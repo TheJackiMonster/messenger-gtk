@@ -35,6 +35,7 @@ typedef struct UI_MESSENGER_Handle
 {
   GList *chat_entries;
 
+  GtkBuilder *builder;
   GtkApplicationWindow *main_window;
 
   HdyLeaflet *leaflet_chat;

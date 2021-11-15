@@ -34,19 +34,23 @@ typedef struct MESSENGER_Application MESSENGER_Application;
 
 typedef struct UI_MESSAGE_Handle
 {
-  GtkWidget* message_box;
+  GtkBuilder *builder;
+  GtkWidget *message_box;
 
-  HdyAvatar* sender_avatar;
-  GtkLabel* sender_label;
+  HdyAvatar *sender_avatar;
+  GtkLabel *sender_label;
 
-  GtkLabel* text_label;
+  GtkLabel *text_label;
 
-  GtkLabel* timestamp_label;
-  GtkImage* read_receipt_image;
+  GtkLabel *timestamp_label;
+  GtkImage *read_receipt_image;
 } UI_MESSAGE_Handle;
 
 UI_MESSAGE_Handle*
 ui_message_new(MESSENGER_Application *app,
 	       bool sent);
+
+void
+ui_message_delete(UI_MESSAGE_Handle *handle);
 
 #endif /* UI_MESSAGE_H_ */

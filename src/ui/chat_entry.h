@@ -30,16 +30,17 @@
 typedef struct UI_CHAT_ENTRY_Handle
 {
   UI_CHAT_Handle *chat;
+  GtkBuilder *builder;
 
-  GtkWidget* entry_box;
+  GtkWidget *entry_box;
 
-  HdyAvatar* entry_avatar;
+  HdyAvatar *entry_avatar;
 
-  GtkLabel* title_label;
-  GtkLabel* timestamp_label;
+  GtkLabel *title_label;
+  GtkLabel *timestamp_label;
 
-  GtkLabel* text_label;
-  GtkImage* read_receipt_image;
+  GtkLabel *text_label;
+  GtkImage *read_receipt_image;
 } UI_CHAT_ENTRY_Handle;
 
 UI_CHAT_ENTRY_Handle*

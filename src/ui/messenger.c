@@ -131,10 +131,10 @@ ui_messenger_init(MESSENGER_Application *app,
 {
   handle->chat_entries = g_list_alloc();
 
-  GtkBuilder* builder = gtk_builder_new_from_file("resources/ui/messenger.ui");
+  handle->builder = gtk_builder_new_from_file("resources/ui/messenger.ui");
 
   handle->main_window = GTK_APPLICATION_WINDOW(
-      gtk_builder_get_object(builder, "main_window")
+      gtk_builder_get_object(handle->builder, "main_window")
   );
 
   gtk_application_add_window(
@@ -148,19 +148,19 @@ ui_messenger_init(MESSENGER_Application *app,
   );
 
   handle->leaflet_chat = HDY_LEAFLET(
-      gtk_builder_get_object(builder, "leaflet_chat")
+      gtk_builder_get_object(handle->builder, "leaflet_chat")
   );
 
   handle->flap_user_details = HDY_FLAP(
-      gtk_builder_get_object(builder, "flap_user_details")
+      gtk_builder_get_object(handle->builder, "flap_user_details")
   );
 
   handle->flap_chat_details = HDY_FLAP(
-      gtk_builder_get_object(builder, "flap_chat_details")
+      gtk_builder_get_object(handle->builder, "flap_chat_details")
   );
 
   handle->title_bar = HDY_HEADER_BAR(
-      gtk_builder_get_object(builder, "title_bar")
+      gtk_builder_get_object(handle->builder, "title_bar")
   );
 
   g_object_bind_property(
@@ -182,15 +182,15 @@ ui_messenger_init(MESSENGER_Application *app,
     );
 
   handle->profile_avatar = HDY_AVATAR(
-      gtk_builder_get_object(builder, "profile_avatar")
+      gtk_builder_get_object(handle->builder, "profile_avatar")
   );
 
   handle->profile_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "profile_label")
+      gtk_builder_get_object(handle->builder, "profile_label")
   );
 
   handle->hide_user_details_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "hide_user_details_button")
+      gtk_builder_get_object(handle->builder, "hide_user_details_button")
   );
 
   g_signal_connect(
@@ -201,19 +201,19 @@ ui_messenger_init(MESSENGER_Application *app,
   );
 
   handle->favourites_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "favourites_button")
+      gtk_builder_get_object(handle->builder, "favourites_button")
   );
 
   handle->account_details_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "account_details_button")
+      gtk_builder_get_object(handle->builder, "account_details_button")
   );
 
   handle->account_details_symbol = GTK_IMAGE(
-      gtk_builder_get_object(builder, "account_details_symbol")
+      gtk_builder_get_object(handle->builder, "account_details_symbol")
   );
 
   handle->account_details_revealer = GTK_REVEALER(
-      gtk_builder_get_object(builder, "account_details_revealer")
+      gtk_builder_get_object(handle->builder, "account_details_revealer")
   );
 
   g_signal_connect(
@@ -224,19 +224,19 @@ ui_messenger_init(MESSENGER_Application *app,
   );
 
   handle->accounts_listbox = GTK_LIST_BOX(
-      gtk_builder_get_object(builder, "accounts_listbox")
+      gtk_builder_get_object(handle->builder, "accounts_listbox")
   );
 
   handle->new_contact_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "new_contact_button")
+      gtk_builder_get_object(handle->builder, "new_contact_button")
   );
 
   handle->new_group_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "new_group_button")
+      gtk_builder_get_object(handle->builder, "new_group_button")
   );
 
   handle->new_platform_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "new_platform_button")
+      gtk_builder_get_object(handle->builder, "new_platform_button")
   );
 
   g_signal_connect(
@@ -254,15 +254,15 @@ ui_messenger_init(MESSENGER_Application *app,
   );
 
   handle->contacts_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "contacts_button")
+      gtk_builder_get_object(handle->builder, "contacts_button")
   );
 
   handle->settings_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "settings_button")
+      gtk_builder_get_object(handle->builder, "settings_button")
   );
 
   handle->user_details_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "user_details_button")
+      gtk_builder_get_object(handle->builder, "user_details_button")
   );
 
   g_signal_connect(
@@ -273,11 +273,11 @@ ui_messenger_init(MESSENGER_Application *app,
   );
 
   handle->chats_search = GTK_SEARCH_ENTRY(
-      gtk_builder_get_object(builder, "chats_search")
+      gtk_builder_get_object(handle->builder, "chats_search")
   );
 
   handle->chats_listbox = GTK_LIST_BOX(
-      gtk_builder_get_object(builder, "chats_listbox")
+      gtk_builder_get_object(handle->builder, "chats_listbox")
   );
 
   g_signal_connect(
@@ -288,11 +288,11 @@ ui_messenger_init(MESSENGER_Application *app,
   );
 
   handle->chats_stack = GTK_STACK(
-      gtk_builder_get_object(builder, "chats_stack")
+      gtk_builder_get_object(handle->builder, "chats_stack")
   );
 
   handle->hide_chat_details_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "hide_chat_details_button")
+      gtk_builder_get_object(handle->builder, "hide_chat_details_button")
   );
 
   g_signal_connect(
@@ -315,6 +315,8 @@ ui_messenger_init(MESSENGER_Application *app,
 void
 ui_messenger_cleanup(UI_MESSENGER_Handle *handle)
 {
+  g_object_unref(handle->builder);
+
   GList *list = handle->chat_entries;
 
   while (list) {

@@ -29,19 +29,23 @@
 
 typedef struct UI_NEW_PLATFORM_Handle
 {
-  GtkDialog* dialog;
+  GtkBuilder *builder;
+  GtkDialog *dialog;
 
-  HdyAvatar* platform_avatar;
-  GtkFileChooserButton* platform_avatar_file;
+  HdyAvatar *platform_avatar;
+  GtkFileChooserButton *platform_avatar_file;
 
-  GtkEntry* platform_entry;
+  GtkEntry *platform_entry;
 
-  GtkButton* cancel_button;
-  GtkButton* confirm_button;
+  GtkButton *cancel_button;
+  GtkButton *confirm_button;
 } UI_NEW_PLATFORM_Handle;
 
 void
 ui_new_platform_dialog_init(MESSENGER_Application *app,
 			    UI_NEW_PLATFORM_Handle *handle);
+
+void
+ui_new_platform_dialog_cleanup(UI_NEW_PLATFORM_Handle *handle);
 
 #endif /* UI_NEW_PLATFORM_H_ */

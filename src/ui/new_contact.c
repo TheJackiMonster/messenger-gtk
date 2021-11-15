@@ -188,10 +188,10 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
 
   pthread_create(&(handle->video_tid), NULL, _ui_new_contact_video_thread, handle);
 
-  GtkBuilder* builder = gtk_builder_new_from_file("resources/ui/new_contact.ui");
+  handle->builder = gtk_builder_new_from_file("resources/ui/new_contact.ui");
 
   handle->dialog = GTK_DIALOG(
-      gtk_builder_get_object(builder, "new_contact_dialog")
+      gtk_builder_get_object(handle->builder, "new_contact_dialog")
   );
 
   gtk_window_set_title(
@@ -205,7 +205,7 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
   );
 
   handle->id_drawing_area = GTK_DRAWING_AREA(
-      gtk_builder_get_object(builder, "id_drawing_area")
+      gtk_builder_get_object(handle->builder, "id_drawing_area")
   );
 
   g_signal_connect(
@@ -216,11 +216,11 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
   );
 
   handle->id_entry = GTK_ENTRY(
-      gtk_builder_get_object(builder, "platform_entry")
+      gtk_builder_get_object(handle->builder, "platform_entry")
   );
 
   handle->cancel_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "cancel_button")
+      gtk_builder_get_object(handle->builder, "cancel_button")
   );
 
   g_signal_connect(
@@ -231,7 +231,7 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
   );
 
   handle->confirm_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "confirm_button")
+      gtk_builder_get_object(handle->builder, "confirm_button")
   );
 
   g_signal_connect(
@@ -260,6 +260,8 @@ ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle)
     g_source_remove(handle->idle_processing);
 
   handle->idle_processing = 0;
+
+  g_object_unref(handle->builder);
 
   zbar_image_scanner_destroy(handle->scanner);
   zbar_video_destroy(handle->video);

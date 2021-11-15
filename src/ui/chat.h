@@ -33,6 +33,7 @@ typedef struct MESSENGER_Application MESSENGER_Application;
 
 typedef struct UI_CHAT_Handle
 {
+  GtkBuilder *builder;
   GtkWidget *chat_box;
 
   GtkButton *back_button;

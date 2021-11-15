@@ -37,13 +37,14 @@ typedef struct UI_NEW_CONTACT_Handle
   zbar_image_t *image;
   zbar_image_scanner_t *scanner;
 
-  GtkDialog* dialog;
+  GtkBuilder *builder;
+  GtkDialog *dialog;
 
-  GtkDrawingArea* id_drawing_area;
-  GtkEntry* id_entry;
+  GtkDrawingArea *id_drawing_area;
+  GtkEntry *id_entry;
 
-  GtkButton* cancel_button;
-  GtkButton* confirm_button;
+  GtkButton *cancel_button;
+  GtkButton *confirm_button;
 
   pthread_t video_tid;
   guint idle_processing;

@@ -32,31 +32,30 @@ ui_chat_entry_new(MESSENGER_Application *app)
   UI_CHAT_ENTRY_Handle* handle = g_malloc(sizeof(UI_CHAT_ENTRY_Handle));
 
   handle->chat = ui_chat_new(app);
-
-  GtkBuilder* builder = gtk_builder_new_from_file("resources/ui/chat_entry.ui");
+  handle->builder = gtk_builder_new_from_file("resources/ui/chat_entry.ui");
 
   handle->entry_box = GTK_WIDGET(
-      gtk_builder_get_object(builder, "entry_box")
+      gtk_builder_get_object(handle->builder, "entry_box")
   );
 
   handle->entry_avatar = HDY_AVATAR(
-      gtk_builder_get_object(builder, "entry_avatar")
+      gtk_builder_get_object(handle->builder, "entry_avatar")
   );
 
   handle->title_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "title_label")
+      gtk_builder_get_object(handle->builder, "title_label")
   );
 
   handle->timestamp_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "timestamp_label")
+      gtk_builder_get_object(handle->builder, "timestamp_label")
   );
 
   handle->text_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "text_label")
+      gtk_builder_get_object(handle->builder, "text_label")
   );
 
   handle->read_receipt_image = GTK_IMAGE(
-      gtk_builder_get_object(builder, "read_receipt_image")
+      gtk_builder_get_object(handle->builder, "read_receipt_image")
   );
 
   return handle;
@@ -66,6 +65,8 @@ void
 ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle)
 {
   ui_chat_delete(handle->chat);
+
+  g_object_unref(handle->builder);
 
   g_free(handle);
 }

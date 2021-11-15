@@ -89,14 +89,21 @@ handle_confirm_button_click(UNUSED GtkButton *button,
   gtk_window_close(GTK_WINDOW(app->ui.new_platform.dialog));
 }
 
+static void
+handle_dialog_destroy(UNUSED GtkWidget *window,
+		      gpointer user_data)
+{
+  ui_new_platform_dialog_cleanup((UI_NEW_PLATFORM_Handle*) user_data);
+}
+
 void
 ui_new_platform_dialog_init(MESSENGER_Application *app,
 			    UI_NEW_PLATFORM_Handle *handle)
 {
-  GtkBuilder* builder = gtk_builder_new_from_file("resources/ui/new_platform.ui");
+  handle->builder = gtk_builder_new_from_file("resources/ui/new_platform.ui");
 
   handle->dialog = GTK_DIALOG(
-      gtk_builder_get_object(builder, "new_platform_dialog")
+      gtk_builder_get_object(handle->builder, "new_platform_dialog")
   );
 
   gtk_window_set_title(
@@ -110,15 +117,15 @@ ui_new_platform_dialog_init(MESSENGER_Application *app,
   );
 
   handle->platform_avatar = HDY_AVATAR(
-      gtk_builder_get_object(builder, "platform_avatar")
+      gtk_builder_get_object(handle->builder, "platform_avatar")
   );
 
   handle->platform_avatar_file = GTK_FILE_CHOOSER_BUTTON(
-      gtk_builder_get_object(builder, "platform_avatar_file")
+      gtk_builder_get_object(handle->builder, "platform_avatar_file")
   );
 
   handle->platform_entry = GTK_ENTRY(
-      gtk_builder_get_object(builder, "platform_entry")
+      gtk_builder_get_object(handle->builder, "platform_entry")
   );
 
   g_signal_connect(
@@ -136,7 +143,7 @@ ui_new_platform_dialog_init(MESSENGER_Application *app,
   );
 
   handle->cancel_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "cancel_button")
+      gtk_builder_get_object(handle->builder, "cancel_button")
   );
 
   g_signal_connect(
@@ -147,7 +154,7 @@ ui_new_platform_dialog_init(MESSENGER_Application *app,
   );
 
   handle->confirm_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "confirm_button")
+      gtk_builder_get_object(handle->builder, "confirm_button")
   );
 
   g_signal_connect(
@@ -156,4 +163,17 @@ ui_new_platform_dialog_init(MESSENGER_Application *app,
       G_CALLBACK(handle_confirm_button_click),
       app
   );
+
+  g_signal_connect(
+      handle->dialog,
+      "destroy",
+      G_CALLBACK(handle_dialog_destroy),
+      handle
+  );
+}
+
+void
+ui_new_platform_dialog_cleanup(UI_NEW_PLATFORM_Handle *handle)
+{
+  g_object_unref(handle->builder);
 }
