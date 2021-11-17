@@ -68,26 +68,43 @@ handle_id_drawing_area_draw(GtkWidget* drawing_area,
 
   GdkPixbuf *image = NULL;
 
-  if (handle->image)
-  {
-    uint w, h;
-    zbar_image_get_size(handle->image, &w, &h);
+  if (!handle->image)
+    goto render_image;
 
-    const void* data = zbar_image_get_data(handle->image);
+  uint w, h;
+  zbar_image_get_size(handle->image, &w, &h);
 
-    image = gdk_pixbuf_new_from_data(
-      data,
-      GDK_COLORSPACE_RGB,
-      FALSE,
-      8,
-      w,
-      h,
-      w * 3,
-      NULL,
-      NULL
-    );
-  }
+  uint x, y, min_size;
+  min_size = (w < h? w : h);
+  x = (w - min_size) / 2;
+  y = (h - min_size) / 2;
 
+  const void* data = (const void*) (
+      (const char*) zbar_image_get_data(handle->image) +
+      (x + y * w) * 3
+  );
+
+  image = gdk_pixbuf_new_from_data(
+    data,
+    GDK_COLORSPACE_RGB,
+    FALSE,
+    8,
+    min_size,
+    min_size,
+    w * 3,
+    NULL,
+    NULL
+  );
+
+  GString *scan_result = (GString*) zbar_image_get_userdata(handle->image);
+
+  if (!scan_result)
+    goto render_image;
+
+  gtk_entry_set_text(handle->id_entry, scan_result->str);
+  g_string_free(scan_result, TRUE);
+
+render_image:
   if (!image)
     return FALSE;
 
@@ -143,6 +160,43 @@ idle_video_processing(gpointer user_data)
   if (!image)
     return TRUE;
 
+  GString *scan_result = NULL;
+
+  zbar_image_t *y8 = zbar_image_convert(
+      image,
+      zbar_fourcc('Y', '8', '0', '0')
+  );
+
+  if (zbar_scan_image(handle->scanner, y8) <= 0)
+    goto cleanup_scan;
+
+  const zbar_symbol_set_t* set = zbar_image_scanner_get_results(
+      handle->scanner
+  );
+
+  const zbar_symbol_t* symbol = zbar_symbol_set_first_symbol(set);
+
+  if (!symbol)
+    goto cleanup_scan;
+
+  uint data_len = 0;
+  const char *data = NULL;
+
+  for (; symbol; symbol = zbar_symbol_next(symbol))
+  {
+    if (zbar_symbol_get_count(symbol))
+      continue;
+
+    data_len = zbar_symbol_get_data_length(symbol);
+    data = zbar_symbol_get_data(symbol);
+  }
+
+  if ((data_len > 0) && (data))
+    scan_result = g_string_new_len(data, data_len);
+
+cleanup_scan:
+  zbar_image_destroy(y8);
+
   zbar_image_t *rgb = zbar_image_convert(
       image,
       zbar_fourcc('R', 'G', 'B', '3')
@@ -150,6 +204,8 @@ idle_video_processing(gpointer user_data)
 
   if (!rgb)
     goto cleanup_image;
+
+  zbar_image_set_userdata(rgb, scan_result);
 
   if (handle->image)
     zbar_image_destroy(handle->image);
@@ -169,11 +225,18 @@ _ui_new_contact_video_thread(void *args)
 {
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) args;
 
-  if (0 != zbar_video_open(handle->video, "/dev/video0"))
+  if (0 != zbar_video_open(handle->video, ""))
     return NULL;
 
   if (0 != zbar_video_enable(handle->video, 1))
     return NULL;
+
+  zbar_image_scanner_set_config(
+      handle->scanner,
+      ZBAR_QRCODE,
+      ZBAR_CFG_ENABLE,
+      TRUE
+  );
 
   handle->idle_processing = g_idle_add(idle_video_processing, handle);
   return NULL;
@@ -216,7 +279,7 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
   );
 
   handle->id_entry = GTK_ENTRY(
-      gtk_builder_get_object(handle->builder, "platform_entry")
+      gtk_builder_get_object(handle->builder, "id_entry")
   );
 
   handle->cancel_button = GTK_BUTTON(
@@ -262,6 +325,11 @@ ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle)
   handle->idle_processing = 0;
 
   g_object_unref(handle->builder);
+
+  if (handle->image)
+    zbar_image_destroy(handle->image);
+
+  handle->image = NULL;
 
   zbar_image_scanner_destroy(handle->scanner);
   zbar_video_destroy(handle->video);
