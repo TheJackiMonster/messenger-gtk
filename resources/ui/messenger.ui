@@ -113,7 +113,6 @@ Author: Tobias Frisch
                               <object class="GtkListBox" id="chats_listbox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="selection-mode">none</property>
                               </object>
                             </child>
                           </object>

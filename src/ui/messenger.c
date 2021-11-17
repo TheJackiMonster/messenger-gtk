@@ -27,6 +27,7 @@
 #include <gtk-3.0/gdk/gdkkeys.h>
 
 #include "chat_entry.h"
+#include "contacts.h"
 #include "message.h"
 #include "new_contact.h"
 #include "new_platform.h"
@@ -91,6 +92,19 @@ handle_new_platform_button_click(UNUSED GtkButton* button,
   ui_new_platform_dialog_init(app, &(app->ui.new_platform));
 
   gtk_widget_show(GTK_WIDGET(app->ui.new_platform.dialog));
+}
+
+static void
+handle_contacts_button_click(UNUSED GtkButton* button,
+			     gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
+
+  ui_contacts_dialog_init(app, &(app->ui.contacts));
+
+  gtk_widget_show(GTK_WIDGET(app->ui.contacts.dialog));
 }
 
 static void
@@ -259,6 +273,13 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->settings_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "settings_button")
+  );
+
+  g_signal_connect(
+      handle->contacts_button,
+      "clicked",
+      G_CALLBACK(handle_contacts_button_click),
+      app
   );
 
   handle->user_details_button = GTK_BUTTON(
