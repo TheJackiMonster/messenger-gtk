@@ -77,6 +77,13 @@ _add_new_chat_entry(MESSENGER_Application *app,
   );
 
   ui->chat_entries = g_list_append(ui->chat_entries, entry);
+
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
+      gtk_widget_get_parent(entry->entry_box)
+  );
+
+  gtk_list_box_select_row(ui->chats_listbox, row);
+  gtk_widget_activate(GTK_WIDGET(row));
 }
 
 static int
