@@ -19,33 +19,30 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/contacts.h
+ * @file ui/contact_entry.h
  */
 
-#ifndef UI_CONTACTS_H_
-#define UI_CONTACTS_H_
+#ifndef UI_CONTACT_ENTRY_H_
+#define UI_CONTACT_ENTRY_H_
 
 #include "messenger.h"
 
-typedef struct UI_CONTACTS_Handle
+typedef struct UI_CONTACT_ENTRY_Handle
 {
-  GList *contact_entries;
-
   GtkBuilder *builder;
-  GtkDialog *dialog;
 
-  GtkSearchEntry *contact_search_entry;
+  GtkWidget *entry_box;
 
-  GtkListBox *contacts_listbox;
+  HdyAvatar *entry_avatar;
 
-  GtkButton *close_button;
-} UI_CONTACTS_Handle;
+  GtkLabel *title_label;
+  GtkLabel *subtitle_label;
+} UI_CONTACT_ENTRY_Handle;
+
+UI_CONTACT_ENTRY_Handle*
+ui_contact_entry_new(void);
 
 void
-ui_contacts_dialog_init(MESSENGER_Application *app,
-			UI_CONTACTS_Handle *handle);
+ui_contact_entry_delete(UI_CONTACT_ENTRY_Handle *handle);
 
-void
-ui_contacts_dialog_cleanup(UI_CONTACTS_Handle *handle);
-
-#endif /* UI_CONTACTS_H_ */
+#endif /* UI_CONTACT_ENTRY_H_ */

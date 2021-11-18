@@ -25,6 +25,7 @@
 #include "event.h"
 
 #include "ui/chat_entry.h"
+#include "ui/contact_entry.h"
 #include "ui/message.h"
 
 static void
@@ -81,7 +82,7 @@ _add_new_chat_entry(MESSENGER_Application *app,
 static int
 _iterate_profile_contacts(void *cls,
 			  UNUSED struct GNUNET_CHAT_Handle *handle,
-			  UNUSED struct GNUNET_CHAT_Contact *contact)
+			  struct GNUNET_CHAT_Contact *contact)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
   _add_new_chat_entry(app, GNUNET_CHAT_contact_get_context(contact));

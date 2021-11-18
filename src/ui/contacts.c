@@ -24,7 +24,10 @@
 
 #include "contacts.h"
 
+#include "contact_entry.h"
 #include "../application.h"
+
+#include <gnunet/gnunet_identity_service.h>
 
 static void
 handle_close_button_click(UNUSED GtkButton *button,
@@ -41,10 +44,66 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
   ui_contacts_dialog_cleanup((UI_CONTACTS_Handle*) user_data);
 }
 
+static int
+_iterate_clear_contacts(UNUSED void *cls,
+			UNUSED struct GNUNET_CHAT_Handle *handle,
+			struct GNUNET_CHAT_Contact *contact)
+{
+  GNUNET_CHAT_contact_set_user_pointer(contact, NULL);
+  return GNUNET_YES;
+}
+
+static int
+_iterate_contacts(void *cls,
+		  UNUSED struct GNUNET_CHAT_Handle *handle,
+		  struct GNUNET_CHAT_Contact *contact)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  if (GNUNET_CHAT_contact_get_user_pointer(contact))
+    return GNUNET_YES;
+
+  const char *title;
+  title = GNUNET_CHAT_contact_get_name(contact);
+
+  const struct GNUNET_IDENTITY_PublicKey *key;
+  key = GNUNET_CHAT_contact_get_key(contact);
+
+  UI_CONTACT_ENTRY_Handle *entry = ui_contact_entry_new();
+  gtk_container_add(
+      GTK_CONTAINER(app->ui.contacts.contacts_listbox),
+      entry->entry_box
+  );
+
+  GNUNET_CHAT_contact_set_user_pointer(contact, entry);
+
+  if (title)
+  {
+    gtk_label_set_text(entry->title_label, title);
+    hdy_avatar_set_text(entry->entry_avatar, title);
+  }
+
+  if (key)
+  {
+    char *key_string = GNUNET_IDENTITY_public_key_to_string(key);
+    gtk_label_set_text(entry->subtitle_label, key_string);
+    GNUNET_free(key_string);
+  }
+
+  app->ui.contacts.contact_entries = g_list_append(
+      app->ui.contacts.contact_entries,
+      entry
+  );
+
+  return GNUNET_YES;
+}
+
 void
 ui_contacts_dialog_init(MESSENGER_Application *app,
 			UI_CONTACTS_Handle *handle)
 {
+  handle->contact_entries = g_list_alloc();
+
   handle->builder = gtk_builder_new_from_file("resources/ui/contacts.ui");
 
   handle->dialog = GTK_DIALOG(
@@ -65,6 +124,10 @@ ui_contacts_dialog_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "contact_search_entry")
   );
 
+  handle->contacts_listbox = GTK_LIST_BOX(
+      gtk_builder_get_object(handle->builder, "contacts_listbox")
+  );
+
   handle->close_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "close_button")
   );
@@ -82,10 +145,33 @@ ui_contacts_dialog_init(MESSENGER_Application *app,
       G_CALLBACK(handle_dialog_destroy),
       handle
   );
+
+  GNUNET_CHAT_iterate_contacts(
+      app->chat.messenger.handle,
+      _iterate_clear_contacts,
+      NULL
+  );
+
+  GNUNET_CHAT_iterate_contacts(
+      app->chat.messenger.handle,
+      _iterate_contacts,
+      app
+  );
 }
 
 void
 ui_contacts_dialog_cleanup(UI_CONTACTS_Handle *handle)
 {
   g_object_unref(handle->builder);
+
+  GList *list = handle->contact_entries;
+
+  while (list) {
+    if (list->data)
+      ui_contact_entry_delete((UI_CONTACT_ENTRY_Handle*) list->data);
+
+    list = list->next;
+  }
+
+  g_list_free(handle->contact_entries);
 }
