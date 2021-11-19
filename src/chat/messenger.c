@@ -64,7 +64,9 @@ _chat_messenger_message(void *cls,
 
   printf("- %d, %lu", kind, time.abs_value_us);
 
-  if (sender)
+  if (GNUNET_YES == GNUNET_CHAT_message_is_sent(message))
+    printf(", [!]\n");
+  else if (sender)
     printf(", %s\n", GNUNET_CHAT_contact_get_name(sender));
   else
     printf("\n");

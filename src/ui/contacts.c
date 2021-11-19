@@ -24,6 +24,7 @@
 
 #include "contacts.h"
 
+#include "chat_entry.h"
 #include "contact_entry.h"
 #include "../application.h"
 
@@ -35,6 +36,73 @@ handle_close_button_click(UNUSED GtkButton *button,
 {
   GtkDialog *dialog = GTK_DIALOG(user_data);
   gtk_window_close(GTK_WINDOW(dialog));
+}
+
+static void
+handle_contacts_listbox_row_activated(UNUSED GtkListBox* listbox,
+				      GtkListBoxRow* row,
+				      gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
+      g_hash_table_lookup(app->ui.bindings, row)
+  );
+
+  if ((!contact) || (!GNUNET_CHAT_contact_get_key(contact)))
+    goto close_dialog;
+
+  struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
+      contact
+  );
+
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+
+  char context_id [9];
+  g_snprintf(context_id, sizeof(context_id), "%08lx", (gulong) context);
+
+  if (gtk_stack_get_child_by_name(ui->chats_stack, context_id))
+    goto close_dialog;
+
+  const char *title = GNUNET_CHAT_contact_get_name(contact);
+
+  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new(app);
+  gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
+  GNUNET_CHAT_context_set_user_pointer(context, entry);
+
+  if (title)
+  {
+    gtk_label_set_text(entry->title_label, title);
+    hdy_avatar_set_text(entry->entry_avatar, title);
+
+    gtk_label_set_text(entry->chat->chat_title, title);
+  }
+
+  gtk_widget_set_name(entry->entry_box, context_id);
+
+  gtk_stack_add_named(
+      ui->chats_stack,
+      entry->chat->chat_box,
+      context_id
+  );
+
+  g_hash_table_insert(
+      app->ui.bindings,
+      entry->chat->send_text_view,
+      context
+  );
+
+  ui->chat_entries = g_list_append(ui->chat_entries, entry);
+
+  GtkListBoxRow *entry_row = GTK_LIST_BOX_ROW(
+      gtk_widget_get_parent(entry->entry_box)
+  );
+
+  gtk_list_box_select_row(ui->chats_listbox, entry_row);
+  gtk_widget_activate(GTK_WIDGET(entry_row));
+
+close_dialog:
+  gtk_window_close(GTK_WINDOW(app->ui.contacts.dialog));
 }
 
 static void
@@ -90,6 +158,12 @@ _iterate_contacts(void *cls,
     GNUNET_free(key_string);
   }
 
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
+      gtk_widget_get_parent(entry->entry_box)
+  );
+
+  g_hash_table_insert(app->ui.bindings, row, contact);
+
   app->ui.contacts.contact_entries = g_list_append(
       app->ui.contacts.contact_entries,
       entry
@@ -126,6 +200,13 @@ ui_contacts_dialog_init(MESSENGER_Application *app,
 
   handle->contacts_listbox = GTK_LIST_BOX(
       gtk_builder_get_object(handle->builder, "contacts_listbox")
+  );
+
+  g_signal_connect(
+      handle->contacts_listbox,
+      "row-activated",
+      G_CALLBACK(handle_contacts_listbox_row_activated),
+      app
   );
 
   handle->close_button = GTK_BUTTON(
