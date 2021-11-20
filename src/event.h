@@ -38,6 +38,11 @@ event_update_chats(MESSENGER_Application *app,
 		   void **argv);
 
 void
+event_joining_contact(MESSENGER_Application *app,
+		      int argc,
+		      void **argv);
+
+void
 event_receive_message(MESSENGER_Application *app,
 		      int argc,
 		      void **argv);

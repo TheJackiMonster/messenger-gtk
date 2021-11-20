@@ -28,8 +28,6 @@
 #include "contact_entry.h"
 #include "../application.h"
 
-#include <gnunet/gnunet_identity_service.h>
-
 static void
 handle_close_button_click(UNUSED GtkButton *button,
 			  gpointer user_data)
@@ -134,8 +132,7 @@ _iterate_contacts(void *cls,
   const char *title;
   title = GNUNET_CHAT_contact_get_name(contact);
 
-  const struct GNUNET_IDENTITY_PublicKey *key;
-  key = GNUNET_CHAT_contact_get_key(contact);
+  const char *key = GNUNET_CHAT_contact_get_key(contact);
 
   UI_CONTACT_ENTRY_Handle *entry = ui_contact_entry_new();
   gtk_container_add(
@@ -152,11 +149,7 @@ _iterate_contacts(void *cls,
   }
 
   if (key)
-  {
-    char *key_string = GNUNET_IDENTITY_public_key_to_string(key);
-    gtk_label_set_text(entry->subtitle_label, key_string);
-    GNUNET_free(key_string);
-  }
+    gtk_label_set_text(entry->subtitle_label, key);
 
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
       gtk_widget_get_parent(entry->entry_box)

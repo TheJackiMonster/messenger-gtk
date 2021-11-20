@@ -31,10 +31,17 @@
 .message-box.sent {
 	background-color: @theme_selected_bg_color;
 	color: @theme_selected_fg_color;
+}
+
+.message-box.sent, .message-box.status {
 	margin-left: 20px;
 }
 
-.message-content {
+.message-content:not(.status) {
 	padding-top: 4px;
+}
+
+.message-box.status > .message-content {
+	padding: 2px 12px;
 }
 

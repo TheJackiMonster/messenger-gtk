@@ -18,8 +18,8 @@ SOURCES = messenger_gtk.c\
 		  
 HEADERS = 
 
-LIBRARIES = gnunetchat zbargtk
-PACKAGES  = gnunetutil libhandy-1 gtk+-3.0 libnotify zbar libqrencode gnunetidentity
+LIBRARIES = gnunetchat
+PACKAGES  = gnunetutil libhandy-1 gtk+-3.0 libnotify zbar libqrencode
 
 GNU_CC ?= gcc
 GNU_LD ?= gcc

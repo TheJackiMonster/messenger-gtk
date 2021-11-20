@@ -158,6 +158,27 @@ event_update_chats(MESSENGER_Application *app,
 }
 
 void
+event_joining_contact(MESSENGER_Application *app,
+		      int argc,
+		      void **argv)
+{
+  if (argc < 2)
+    return;
+
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) argv[0];
+
+  UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
+
+  if (!handle)
+    return;
+
+  const struct GNUNET_CHAT_Message *msg;
+  msg = *((const struct GNUNET_CHAT_Message**) argv[1]);
+
+  //
+}
+
+void
 event_receive_message(MESSENGER_Application *app,
 		      int argc,
 		      void **argv)

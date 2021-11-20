@@ -82,6 +82,16 @@ _chat_messenger_message(void *cls,
     {
       if (GNUNET_YES == GNUNET_CHAT_message_is_sent(message))
 	application_call_event(app, event_update_chats, 1, (void**) &context);
+      else
+      {
+	void* event_data [2] = { context, &message };
+	application_call_event(app, event_joining_contact, 2, event_data);
+      }
+
+      break;
+    }
+    case GNUNET_CHAT_KIND_CONTACT:
+    {
 
       break;
     }
