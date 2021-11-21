@@ -31,6 +31,8 @@
 #include "message.h"
 #include "new_contact.h"
 #include "new_platform.h"
+#include "settings.h"
+
 #include "../application.h"
 
 static void
@@ -105,6 +107,19 @@ handle_contacts_button_click(UNUSED GtkButton* button,
   ui_contacts_dialog_init(app, &(app->ui.contacts));
 
   gtk_widget_show(GTK_WIDGET(app->ui.contacts.dialog));
+}
+
+static void
+handle_settings_button_click(UNUSED GtkButton* button,
+			     gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
+
+  ui_settings_dialog_init(app, &(app->ui.settings));
+
+  gtk_widget_show(GTK_WIDGET(app->ui.settings.dialog));
 }
 
 static void
@@ -279,6 +294,13 @@ ui_messenger_init(MESSENGER_Application *app,
       handle->contacts_button,
       "clicked",
       G_CALLBACK(handle_contacts_button_click),
+      app
+  );
+
+  g_signal_connect(
+      handle->settings_button,
+      "clicked",
+      G_CALLBACK(handle_settings_button_click),
       app
   );
 
