@@ -26,7 +26,7 @@ GNU_CC ?= gcc
 GNU_LD ?= gcc
 GNU_RM ?= rm
 
-CFLAGS  += -pedantic -Wall -Wextra -march=native -ggdb3
+CFLAGS  += -pedantic -Wall -Wextra -ggdb3
 LDFLAGS += 
 
 DEBUGFLAGS   = -O0 -D _DEBUG
