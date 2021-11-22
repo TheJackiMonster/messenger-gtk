@@ -27,13 +27,10 @@ Author: Tobias Frisch
     <property name="can-focus">False</property>
     <property name="orientation">vertical</property>
     <child>
-      <object class="GtkBox" id="chat-header-box">
+      <object class="GtkBox">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="margin-start">8</property>
-        <property name="margin-end">8</property>
-        <property name="margin-top">8</property>
-        <property name="margin-bottom">8</property>
+        <property name="border-width">8</property>
         <property name="spacing">8</property>
         <child>
           <object class="GtkButton" id="back_button">
@@ -88,6 +85,9 @@ Author: Tobias Frisch
                 <attributes>
                   <attribute name="weight" value="light"/>
                 </attributes>
+                <style>
+                  <class name="header-subtitle"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -123,6 +123,9 @@ Author: Tobias Frisch
             <property name="position">1</property>
           </packing>
         </child>
+        <style>
+          <class name=".header-box"/>
+        </style>
       </object>
       <packing>
         <property name="expand">False</property>
@@ -169,10 +172,9 @@ Author: Tobias Frisch
       <object class="GtkBox">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="margin-start">8</property>
-        <property name="margin-end">8</property>
-        <property name="margin-top">4</property>
-        <property name="margin-bottom">4</property>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+        <property name="border-width">4</property>
         <property name="spacing">4</property>
         <child>
           <object class="GtkButton" id="attach_file_button">

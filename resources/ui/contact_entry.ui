@@ -54,12 +54,13 @@ Author: Tobias Frisch
             <property name="wrap-mode">word-char</property>
             <property name="ellipsize">end</property>
             <property name="xalign">0</property>
+            <property name="yalign">1</property>
             <attributes>
               <attribute name="weight" value="bold"/>
             </attributes>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
@@ -76,10 +77,14 @@ Author: Tobias Frisch
             <attributes>
               <attribute name="weight" value="semilight"/>
             </attributes>
+            <style>
+              <class name="profile-key"/>
+            </style>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">True</property>
+            <property name="pack-type">end</property>
             <property name="position">1</property>
           </packing>
         </child>
@@ -92,7 +97,7 @@ Author: Tobias Frisch
       </packing>
     </child>
     <style>
-      <class name="chat-entry"/>
+      <class name="contact-entry"/>
     </style>
   </object>
 </interface>

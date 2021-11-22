@@ -3,8 +3,24 @@
 	background-color: @theme_bg_color;
 }
 
+.header-box {
+	min-height: 36px;
+}
+
+.header-subtitle {
+	font-size: small;
+}
+
+.profile-key {
+	font-size: xx-small;
+}
+
 .profile-entry {
 	padding: 4px 20px;
+}
+
+.contact-entry {
+	padding: 2px;
 }
 
 .chat-entry {

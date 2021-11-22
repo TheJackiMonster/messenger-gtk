@@ -60,7 +60,6 @@ handle_account_details_button_click(UNUSED GtkButton* button,
   gboolean old_state = gtk_revealer_get_reveal_child(revealer);
 
   gtk_revealer_set_reveal_child(revealer, !old_state);
-
   gtk_image_set_from_icon_name(
       symbol,
       old_state?
@@ -216,6 +215,10 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->profile_label = GTK_LABEL(
       gtk_builder_get_object(handle->builder, "profile_label")
+  );
+
+  handle->profile_key_label = GTK_LABEL(
+      gtk_builder_get_object(handle->builder, "profile_key_label")
   );
 
   handle->hide_user_details_button = GTK_BUTTON(

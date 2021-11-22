@@ -50,13 +50,10 @@ Author: Tobias Frisch
                     <property name="can-focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkBox" id="chats-header-box">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="margin-start">8</property>
-                        <property name="margin-end">8</property>
-                        <property name="margin-top">8</property>
-                        <property name="margin-bottom">8</property>
+                        <property name="border-width">8</property>
                         <property name="spacing">8</property>
                         <child>
                           <object class="GtkButton" id="user_details_button">
@@ -93,6 +90,9 @@ Author: Tobias Frisch
                             <property name="position">1</property>
                           </packing>
                         </child>
+                        <style>
+                          <class name="header-box"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -146,10 +146,7 @@ Author: Tobias Frisch
                           <object class="GtkBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="margin-start">16</property>
-                            <property name="margin-end">16</property>
-                            <property name="margin-top">16</property>
-                            <property name="margin-bottom">16</property>
+                            <property name="border-width">16</property>
                             <property name="orientation">vertical</property>
                             <property name="spacing">16</property>
                             <child>
@@ -166,11 +163,44 @@ Author: Tobias Frisch
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkLabel" id="profile_label">
+                              <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="label" translatable="yes">Profile name</property>
-                                <property name="xalign">0</property>
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">2</property>
+                                <child>
+                                  <object class="GtkLabel" id="profile_label">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="ellipsize">end</property>
+                                    <property name="xalign">0</property>
+                                    <attributes>
+                                      <attribute name="weight" value="bold"/>
+                                    </attributes>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="profile_key_label">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="ellipsize">end</property>
+                                    <property name="max-width-chars">30</property>
+                                    <property name="xalign">0</property>
+                                    <style>
+                                      <class name="profile-key"/>
+                                    </style>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -189,10 +219,7 @@ Author: Tobias Frisch
                           <object class="GtkBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="margin-start">8</property>
-                            <property name="margin-end">8</property>
-                            <property name="margin-top">8</property>
-                            <property name="margin-bottom">8</property>
+                            <property name="border-width">8</property>
                             <property name="orientation">vertical</property>
                             <property name="spacing">8</property>
                             <property name="homogeneous">True</property>
@@ -306,21 +333,24 @@ Author: Tobias Frisch
                                               <object class="GtkListBox" id="accounts_listbox">
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">False</property>
-                                                <property name="selection-mode">none</property>
                                                 <child>
                                                   <object class="GtkListBoxRow">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">True</property>
+                                                    <property name="selectable">False</property>
                                                     <child>
                                                       <object class="GtkBox">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
                                                         <property name="spacing">8</property>
                                                         <child>
-                                                          <object class="HdyAvatar">
+                                                          <object class="GtkImage">
+                                                            <property name="width-request">36</property>
+                                                            <property name="height-request">36</property>
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
-                                                            <property name="size">36</property>
+                                                            <property name="icon-name">list-add-symbolic</property>
+                                                            <property name="icon_size">3</property>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">False</property>
@@ -332,14 +362,10 @@ Author: Tobias Frisch
                                                           <object class="GtkLabel">
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
-                                                            <property name="label" translatable="yes">Name</property>
-                                                            <property name="wrap">True</property>
-                                                            <property name="wrap-mode">word-char</property>
-                                                            <property name="ellipsize">end</property>
-                                                            <property name="xalign">0</property>
+                                                            <property name="label" translatable="yes">Add Account</property>
                                                           </object>
                                                           <packing>
-                                                            <property name="expand">True</property>
+                                                            <property name="expand">False</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">1</property>
                                                           </packing>
@@ -380,10 +406,7 @@ Author: Tobias Frisch
                                           <object class="GtkBox">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="margin-start">4</property>
-                                            <property name="margin-end">4</property>
-                                            <property name="margin-top">4</property>
-                                            <property name="margin-bottom">4</property>
+                                            <property name="border-width">4</property>
                                             <property name="spacing">16</property>
                                             <child>
                                               <object class="GtkImage">
@@ -431,10 +454,7 @@ Author: Tobias Frisch
                                           <object class="GtkBox">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="margin-start">4</property>
-                                            <property name="margin-end">4</property>
-                                            <property name="margin-top">4</property>
-                                            <property name="margin-bottom">4</property>
+                                            <property name="border-width">4</property>
                                             <property name="spacing">16</property>
                                             <child>
                                               <object class="GtkImage">
@@ -482,10 +502,7 @@ Author: Tobias Frisch
                                           <object class="GtkBox">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="margin-start">4</property>
-                                            <property name="margin-end">4</property>
-                                            <property name="margin-top">4</property>
-                                            <property name="margin-bottom">4</property>
+                                            <property name="border-width">4</property>
                                             <property name="spacing">16</property>
                                             <child>
                                               <object class="GtkImage">
@@ -533,10 +550,7 @@ Author: Tobias Frisch
                                           <object class="GtkBox">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="margin-start">4</property>
-                                            <property name="margin-end">4</property>
-                                            <property name="margin-top">4</property>
-                                            <property name="margin-bottom">4</property>
+                                            <property name="border-width">4</property>
                                             <property name="spacing">16</property>
                                             <child>
                                               <object class="GtkImage">
@@ -584,10 +598,7 @@ Author: Tobias Frisch
                                           <object class="GtkBox">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="margin-start">4</property>
-                                            <property name="margin-end">4</property>
-                                            <property name="margin-top">4</property>
-                                            <property name="margin-bottom">4</property>
+                                            <property name="border-width">4</property>
                                             <property name="spacing">16</property>
                                             <child>
                                               <object class="GtkImage">
@@ -635,10 +646,7 @@ Author: Tobias Frisch
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="margin-start">16</property>
-                                    <property name="margin-end">16</property>
-                                    <property name="margin-top">16</property>
-                                    <property name="margin-bottom">16</property>
+                                    <property name="border-width">16</property>
                                     <property name="orientation">vertical</property>
                                     <child>
                                       <object class="GtkLabel">
@@ -721,7 +729,33 @@ Author: Tobias Frisch
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
-                      <placeholder/>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="halign">center</property>
+                            <property name="valign">center</property>
+                            <property name="label" translatable="yes">Select a chat to start messaging...</property>
+                            <style>
+                              <class name="message-box"/>
+                              <class name="status"/>
+                            </style>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="name">page0</property>
+                        <property name="title" translatable="yes">page0</property>
+                      </packing>
                     </child>
                   </object>
                 </child>
@@ -741,10 +775,7 @@ Author: Tobias Frisch
                         <property name="width-request">250</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="margin-start">8</property>
-                        <property name="margin-end">8</property>
-                        <property name="margin-top">8</property>
-                        <property name="margin-bottom">8</property>
+                        <property name="border-width">8</property>
                         <child>
                           <object class="GtkStack">
                             <property name="visible">True</property>

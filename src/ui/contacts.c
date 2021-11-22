@@ -36,12 +36,29 @@ handle_close_button_click(UNUSED GtkButton *button,
   gtk_window_close(GTK_WINDOW(dialog));
 }
 
+static gboolean
+_open_new_contact_dialog(gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  ui_new_contact_dialog_init(app, &(app->ui.new_contact));
+
+  gtk_widget_show(GTK_WIDGET(app->ui.new_contact.dialog));
+  return FALSE;
+}
+
 static void
 handle_contacts_listbox_row_activated(UNUSED GtkListBox* listbox,
 				      GtkListBoxRow* row,
 				      gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  if (!gtk_list_box_row_get_selectable(row))
+  {
+    g_idle_add(G_SOURCE_FUNC(_open_new_contact_dialog), app);
+    goto close_dialog;
+  }
 
   struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
       g_hash_table_lookup(app->ui.bindings, row)
@@ -135,8 +152,8 @@ _iterate_contacts(void *cls,
   const char *key = GNUNET_CHAT_contact_get_key(contact);
 
   UI_CONTACT_ENTRY_Handle *entry = ui_contact_entry_new();
-  gtk_container_add(
-      GTK_CONTAINER(app->ui.contacts.contacts_listbox),
+  gtk_list_box_prepend(
+      app->ui.contacts.contacts_listbox,
       entry->entry_box
   );
 

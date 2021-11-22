@@ -91,6 +91,16 @@ application_init(MESSENGER_Application *app,
       NULL
   );
 
+  g_application_add_main_option(
+      G_APPLICATION(app->application),
+      "ego",
+      'e',
+      G_OPTION_FLAG_NONE,
+      G_OPTION_ARG_STRING,
+      "Identity to select for messaging",
+      "IDENTITY"
+  );
+
   g_signal_connect(
       app->application,
       "activate",
@@ -110,6 +120,13 @@ _application_chat_thread(void *args)
 	  "mobile",
 	  "Optimize UI spacing for mobile devices",
 	  &(app->ui.mobile)
+      ),
+      GNUNET_GETOPT_option_string (
+	  'e',
+      	  "ego",
+	  "IDENTITY",
+	  "Identity to select for messaging",
+      	  &(app->chat.identity)
       ),
       GNUNET_GETOPT_OPTION_END
   };
@@ -198,7 +215,7 @@ application_call_event(MESSENGER_Application *app,
     }
   }
 
-  g_idle_add(_application_event_call, call);
+  g_idle_add(G_SOURCE_FUNC(_application_event_call), call);
 }
 
 void

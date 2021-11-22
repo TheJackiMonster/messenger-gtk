@@ -27,6 +27,7 @@
 #include "ui/chat_entry.h"
 #include "ui/contact_entry.h"
 #include "ui/message.h"
+#include "ui/profile_entry.h"
 
 static void
 _add_new_chat_entry(MESSENGER_Application *app,
@@ -129,7 +130,27 @@ event_update_profile(MESSENGER_Application *app,
   {
     hdy_avatar_set_text(ui->profile_avatar, name);
     gtk_label_set_text(ui->profile_label, name);
+
+    UI_PROFILE_ENTRY_Handle *profile = ui_profile_entry_new();
+
+    hdy_avatar_set_text(profile->entry_avatar, name);
+    gtk_label_set_text(profile->entry_label, name);
+
+    gtk_list_box_prepend(ui->accounts_listbox, profile->entry_box);
+
+    GtkListBoxRow *row = GTK_LIST_BOX_ROW(
+	gtk_widget_get_parent(profile->entry_box)
+    );
+
+    gtk_list_box_select_row(ui->accounts_listbox, row);
+
+    ui_profile_entry_delete(profile);
   }
+
+  const char *key = GNUNET_CHAT_get_key(chat->handle);
+
+  if (key)
+    gtk_label_set_text(ui->profile_key_label, key);
 
   gtk_container_foreach(
       GTK_CONTAINER(ui->chats_listbox),

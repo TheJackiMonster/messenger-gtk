@@ -119,7 +119,7 @@ chat_messenger_run(void *cls,
   app->chat.messenger.handle = GNUNET_CHAT_start(
       cfg,
       "messenger-gtk",
-      "test",
+      app->chat.identity,
       &_chat_messenger_message,
       app
   );

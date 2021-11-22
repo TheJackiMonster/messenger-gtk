@@ -15,6 +15,7 @@ SOURCES = messenger_gtk.c\
 		  ui/messenger.c\
 		  ui/new_contact.c\
 		  ui/new_platform.c\
+		  ui/profile_entry.c\
 		  ui/settings.c
 		  
 HEADERS = 

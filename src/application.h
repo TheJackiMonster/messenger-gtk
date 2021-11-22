@@ -54,6 +54,7 @@ typedef struct MESSENGER_Application
   struct {
     int status;
     pthread_t tid;
+    char *identity;
 
     MESSENGER_ApplicationSignal signal;
 
