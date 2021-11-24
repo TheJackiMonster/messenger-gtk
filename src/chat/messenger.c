@@ -75,30 +75,51 @@ _chat_messenger_message(void *cls,
   {
     case GNUNET_CHAT_KIND_LOGIN:
     {
-      application_call_event(app, event_update_profile, 0, NULL);
+      application_call_event(app, event_update_profile);
       break;
     }
     case GNUNET_CHAT_KIND_JOIN:
     {
-      if (GNUNET_YES == GNUNET_CHAT_message_is_sent(message))
-	application_call_event(app, event_update_chats, 1, (void**) &context);
-      else
-      {
-	void* event_data [2] = { context, &message };
-	application_call_event(app, event_joining_contact, 2, event_data);
-      }
-
+      application_call_message_event(
+	  app,
+	  (GNUNET_YES == GNUNET_CHAT_message_is_sent(message)?
+	      event_update_chats :
+	      event_joining_contact
+	  ),
+	  context,
+	  message
+      );
+      break;
+    }
+    case GNUNET_CHAT_KIND_LEAVE:
+    {
+      // TODO: add status message
       break;
     }
     case GNUNET_CHAT_KIND_CONTACT:
     {
-
+      // TODO: update messages and content related to a contacts information
+      //       (name and key)
+      break;
+    }
+    case GNUNET_CHAT_KIND_INVITATION:
+    {
+      application_call_message_event(
+	  app,
+	  event_invitation,
+	  context,
+	  message
+      );
       break;
     }
     case GNUNET_CHAT_KIND_TEXT:
     {
-      void* event_data [2] = { context, &message };
-      application_call_event(app, event_receive_message, 2, event_data);
+      application_call_message_event(
+	  app,
+	  event_receive_message,
+	  context,
+	  message
+      );
       break;
     }
     default:

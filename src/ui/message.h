@@ -32,8 +32,17 @@
 
 typedef struct MESSENGER_Application MESSENGER_Application;
 
+typedef enum UI_MESSAGE_Type
+{
+  UI_MESSAGE_DEFAULT 	= 0,
+  UI_MESSAGE_SENT 	= 1,
+  UI_MESSAGE_STATUS 	= 2
+} UI_MESSAGE_Type;
+
 typedef struct UI_MESSAGE_Handle
 {
+  UI_MESSAGE_Type type;
+
   GtkBuilder *builder;
   GtkWidget *message_box;
 
@@ -42,13 +51,16 @@ typedef struct UI_MESSAGE_Handle
 
   GtkLabel *text_label;
 
+  GtkButton *deny_button;
+  GtkButton *accept_button;
+
   GtkLabel *timestamp_label;
   GtkImage *read_receipt_image;
 } UI_MESSAGE_Handle;
 
 UI_MESSAGE_Handle*
 ui_message_new(MESSENGER_Application *app,
-	       bool sent);
+	       UI_MESSAGE_Type type);
 
 void
 ui_message_delete(UI_MESSAGE_Handle *handle);

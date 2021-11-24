@@ -28,23 +28,26 @@
 #include "application.h"
 
 void
-event_update_profile(MESSENGER_Application *app,
-		     int argc,
-		     void **argv);
+event_update_profile(MESSENGER_Application *app);
 
 void
 event_update_chats(MESSENGER_Application *app,
-		   int argc,
-		   void **argv);
+		   struct GNUNET_CHAT_Context *context,
+		   const struct GNUNET_CHAT_Message *msg);
 
 void
 event_joining_contact(MESSENGER_Application *app,
-		      int argc,
-		      void **argv);
+		      struct GNUNET_CHAT_Context *context,
+		      const struct GNUNET_CHAT_Message *msg);
+
+void
+event_invitation(MESSENGER_Application *app,
+		 struct GNUNET_CHAT_Context *context,
+		 const struct GNUNET_CHAT_Message *msg);
 
 void
 event_receive_message(MESSENGER_Application *app,
-		      int argc,
-		      void **argv);
+		      struct GNUNET_CHAT_Context *context,
+		      const struct GNUNET_CHAT_Message *msg);
 
 #endif /* EVENT_H_ */

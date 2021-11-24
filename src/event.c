@@ -117,9 +117,7 @@ _clear_each_widget(GtkWidget *widget,
 }
 
 void
-event_update_profile(MESSENGER_Application *app,
-		     UNUSED int argc,
-		     UNUSED void **argv)
+event_update_profile(MESSENGER_Application *app)
 {
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
@@ -164,14 +162,9 @@ event_update_profile(MESSENGER_Application *app,
 
 void
 event_update_chats(MESSENGER_Application *app,
-		   int argc,
-		   void **argv)
+		   struct GNUNET_CHAT_Context *context,
+		   UNUSED const struct GNUNET_CHAT_Message *msg)
 {
-  if (argc < 1)
-    return;
-
-  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) argv[0];
-
   if (GNUNET_CHAT_context_get_user_pointer(context))
     return;
 
@@ -180,46 +173,109 @@ event_update_chats(MESSENGER_Application *app,
 
 void
 event_joining_contact(MESSENGER_Application *app,
-		      int argc,
-		      void **argv)
+		      struct GNUNET_CHAT_Context *context,
+		      const struct GNUNET_CHAT_Message *msg)
 {
-  if (argc < 2)
-    return;
-
-  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) argv[0];
-
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 
   if (!handle)
     return;
 
-  const struct GNUNET_CHAT_Message *msg;
-  msg = *((const struct GNUNET_CHAT_Message**) argv[1]);
+  UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
 
-  //
+  const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
+    msg
+  );
+
+  const char *sender = GNUNET_CHAT_contact_get_name(contact);
+
+  hdy_avatar_set_text(message->sender_avatar, sender? sender : "");
+  gtk_label_set_text(message->sender_label, sender? sender : "");
+
+  gtk_label_set_text(message->text_label, "joined the chat");
+
+  gtk_container_add(
+      GTK_CONTAINER(handle->chat->messages_listbox),
+      message->message_box
+  );
+
+  ui_message_delete(message);
+}
+
+static void
+_event_invitation_accept_click(UNUSED GtkButton *button,
+			       gpointer user_data)
+{
+  struct GNUNET_CHAT_Invitation *invitation = (
+      (struct GNUNET_CHAT_Invitation*) user_data
+  );
+
+  GNUNET_CHAT_invitation_accept(invitation);
+}
+
+void
+event_invitation(MESSENGER_Application *app,
+		 struct GNUNET_CHAT_Context *context,
+		 const struct GNUNET_CHAT_Message *msg)
+{
+  UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
+
+  if (!handle)
+    return;
+
+  struct GNUNET_CHAT_Invitation *invitation;
+  invitation = GNUNET_CHAT_message_get_invitation(msg);
+
+  if (!invitation)
+    return;
+
+  UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
+
+  const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
+    msg
+  );
+
+  const char *sender = GNUNET_CHAT_contact_get_name(contact);
+
+  hdy_avatar_set_text(message->sender_avatar, sender? sender : "");
+  gtk_label_set_text(message->sender_label, sender? sender : "");
+
+  gtk_label_set_text(message->text_label, "invited you to a chat");
+
+  g_signal_connect(
+      message->accept_button,
+      "clicked",
+      G_CALLBACK(_event_invitation_accept_click),
+      invitation
+  );
+
+  gtk_widget_show(GTK_WIDGET(message->deny_button));
+  gtk_widget_show(GTK_WIDGET(message->accept_button));
+
+  gtk_container_add(
+      GTK_CONTAINER(handle->chat->messages_listbox),
+      message->message_box
+  );
+
+  ui_message_delete(message);
 }
 
 void
 event_receive_message(MESSENGER_Application *app,
-		      int argc,
-		      void **argv)
+		      struct GNUNET_CHAT_Context *context,
+		      const struct GNUNET_CHAT_Message *msg)
 {
-  if (argc < 2)
-    return;
-
-  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) argv[0];
-
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 
   if (!handle)
     return;
 
-  const struct GNUNET_CHAT_Message *msg;
-  msg = *((const struct GNUNET_CHAT_Message**) argv[1]);
-
   const int sent = GNUNET_CHAT_message_is_sent(msg);
 
-  UI_MESSAGE_Handle *message = ui_message_new(app, GNUNET_YES == sent);
+  UI_MESSAGE_Handle *message = ui_message_new(
+      app,
+      GNUNET_YES == sent? UI_MESSAGE_SENT : UI_MESSAGE_DEFAULT
+  );
 
   if (GNUNET_YES != sent)
   {

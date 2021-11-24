@@ -26,6 +26,7 @@
 #define APPLICATION_H_
 
 #include <pthread.h>
+#include <gnunet/gnunet_chat_lib.h>
 
 #include "chat/messenger.h"
 
@@ -84,15 +85,25 @@ application_init(MESSENGER_Application *app,
 void
 application_run(MESSENGER_Application *app);
 
-typedef void (*MESSENGER_ApplicationEvent) (MESSENGER_Application *app,
-                                            int argc,
-                                            void **argv);
+typedef void (*MESSENGER_ApplicationEvent) (
+    MESSENGER_Application *app
+);
+
+typedef void (*MESSENGER_ApplicationMessageEvent) (
+    MESSENGER_Application *app,
+    struct GNUNET_CHAT_Context *context,
+    const struct GNUNET_CHAT_Message *msg
+);
 
 void
 application_call_event(MESSENGER_Application *app,
-		       MESSENGER_ApplicationEvent event,
-		       int argc,
-		       void **argv);
+		       MESSENGER_ApplicationEvent event);
+
+void
+application_call_message_event(MESSENGER_Application *app,
+			       MESSENGER_ApplicationMessageEvent event,
+			       struct GNUNET_CHAT_Context *context,
+                               const struct GNUNET_CHAT_Message *message);
 
 void
 application_exit(MESSENGER_Application *app,

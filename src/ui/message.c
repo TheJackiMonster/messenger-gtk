@@ -28,14 +28,28 @@
 
 UI_MESSAGE_Handle*
 ui_message_new(MESSENGER_Application *app,
-	       bool sent)
+	       UI_MESSAGE_Type type)
 {
   UI_MESSAGE_Handle* handle = g_malloc(sizeof(UI_MESSAGE_Handle));
 
-  if (sent)
-    handle->builder = gtk_builder_new_from_file("resources/ui/message-sent.ui");
-  else
-    handle->builder = gtk_builder_new_from_file("resources/ui/message.ui");
+  handle->type = type;
+
+  const char *ui_builder_file;
+
+  switch (handle->type)
+  {
+    case UI_MESSAGE_SENT:
+      ui_builder_file = "resources/ui/message-sent.ui";
+      break;
+    case UI_MESSAGE_STATUS:
+      ui_builder_file = "resources/ui/message-status.ui";
+      break;
+    default:
+      ui_builder_file = "resources/ui/message.ui";
+      break;
+  }
+
+  handle->builder = gtk_builder_new_from_file(ui_builder_file);
 
   handle->message_box = GTK_WIDGET(
       gtk_builder_get_object(handle->builder, "message_box")
@@ -49,7 +63,7 @@ ui_message_new(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "sender_label")
   );
 
-  if (sent)
+  if (UI_MESSAGE_SENT == handle->type)
   {
     const char *sender = GNUNET_CHAT_get_name(app->chat.messenger.handle);
 
@@ -60,6 +74,22 @@ ui_message_new(MESSENGER_Application *app,
   handle->text_label = GTK_LABEL(
       gtk_builder_get_object(handle->builder, "text_label")
   );
+
+  if (UI_MESSAGE_STATUS == handle->type)
+  {
+    handle->deny_button = GTK_BUTTON(
+	gtk_builder_get_object(handle->builder, "deny_button")
+    );
+
+    handle->accept_button = GTK_BUTTON(
+	gtk_builder_get_object(handle->builder, "accept_button")
+    );
+  }
+  else
+  {
+    handle->deny_button = NULL;
+    handle->accept_button = NULL;
+  }
 
   handle->timestamp_label = GTK_LABEL(
       gtk_builder_get_object(handle->builder, "timestamp_label")

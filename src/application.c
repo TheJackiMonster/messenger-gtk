@@ -170,8 +170,6 @@ typedef struct MESSENGER_ApplicationEventCall
 {
   MESSENGER_Application *app;
   MESSENGER_ApplicationEvent event;
-  int argc;
-  void **argv;
 } MESSENGER_ApplicationEventCall;
 
 static gboolean
@@ -180,10 +178,7 @@ _application_event_call(gpointer user_data)
   MESSENGER_ApplicationEventCall *call;
 
   call = (MESSENGER_ApplicationEventCall*) user_data;
-  call->event(call->app, call->argc, call->argv);
-
-  if (call->argc > 0)
-    GNUNET_free(call->argv);
+  call->event(call->app);
 
   GNUNET_free(call);
   return FALSE;
@@ -191,9 +186,7 @@ _application_event_call(gpointer user_data)
 
 void
 application_call_event(MESSENGER_Application *app,
-		       MESSENGER_ApplicationEvent event,
-		       int argc,
-		       void **argv)
+		       MESSENGER_ApplicationEvent event)
 {
   MESSENGER_ApplicationEventCall *call;
 
@@ -203,19 +196,50 @@ application_call_event(MESSENGER_Application *app,
 
   call->app = app;
   call->event = event;
-  call->argc = argc;
-  call->argv = NULL;
-
-  if (call->argc > 0)
-  {
-    call->argv = GNUNET_new_array(call->argc, void*);
-
-    for (int i = 0; i < call->argc; i++) {
-      call->argv[i] = argv[i];
-    }
-  }
 
   g_idle_add(G_SOURCE_FUNC(_application_event_call), call);
+}
+
+typedef struct MESSENGER_ApplicationMessageEventCall
+{
+  MESSENGER_Application *app;
+  MESSENGER_ApplicationMessageEvent event;
+
+  struct GNUNET_CHAT_Context *context;
+  const struct GNUNET_CHAT_Message *message;
+} MESSENGER_ApplicationMessageEventCall;
+
+static gboolean
+_application_message_event_call(gpointer user_data)
+{
+  MESSENGER_ApplicationMessageEventCall *call;
+
+  call = (MESSENGER_ApplicationMessageEventCall*) user_data;
+  call->event(call->app, call->context, call->message);
+
+  GNUNET_free(call);
+  return FALSE;
+}
+
+void
+application_call_message_event(MESSENGER_Application *app,
+			       MESSENGER_ApplicationMessageEvent event,
+			       struct GNUNET_CHAT_Context *context,
+                               const struct GNUNET_CHAT_Message *message)
+{
+  MESSENGER_ApplicationMessageEventCall *call;
+
+  call = (MESSENGER_ApplicationMessageEventCall*) GNUNET_malloc(
+      sizeof(MESSENGER_ApplicationMessageEventCall)
+  );
+
+  call->app = app;
+  call->event = event;
+
+  call->context = context;
+  call->message = message;
+
+  g_idle_add(G_SOURCE_FUNC(_application_message_event_call), call);
 }
 
 void

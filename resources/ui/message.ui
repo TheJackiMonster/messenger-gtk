@@ -58,7 +58,6 @@ Author: Tobias Frisch
               <object class="GtkLabel" id="text_label">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">My evil comment text is awesome! This is coming to the Pinephone which will be extremely awesome and this text may only cut some borders in certain areas!!!</property>
                 <property name="wrap">True</property>
                 <property name="max-width-chars">64</property>
                 <property name="xalign">0</property>
@@ -90,7 +89,6 @@ Author: Tobias Frisch
                   <object class="GtkLabel" id="timestamp_label">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">0min</property>
                     <attributes>
                       <attribute name="weight" value="light"/>
                     </attributes>
@@ -118,7 +116,6 @@ Author: Tobias Frisch
           <object class="GtkLabel" id="sender_label">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="label" translatable="yes">User</property>
             <attributes>
               <attribute name="weight" value="semibold"/>
             </attributes>
