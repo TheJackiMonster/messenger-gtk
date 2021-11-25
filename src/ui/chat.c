@@ -25,6 +25,7 @@
 #include "chat.h"
 
 #include "messenger.h"
+#include "picker.h"
 #include "../application.h"
 
 static void
@@ -67,7 +68,7 @@ handle_send_text_buffer_changed(GtkTextBuffer *buffer,
 
   gtk_image_set_from_icon_name(
       symbol,
-      0 < g_utf8_strlen(text, 1)?
+      0 < strlen(text)?
       "mail-send-symbolic" :
       "audio-input-microphone-symbolic",
       GTK_ICON_SIZE_BUTTON
@@ -86,7 +87,7 @@ _send_text_from_view(MESSENGER_Application *app,
 
   const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
 
-  if (0 == g_utf8_strlen(text, 1))
+  if (0 == strlen(text))
     return FALSE;
 
   struct GNUNET_CHAT_Context *context = g_hash_table_lookup(
@@ -130,6 +131,16 @@ handle_send_text_key_press (GtkWidget *widget,
     return FALSE;
 
   return _send_text_from_view(app, GTK_TEXT_VIEW(widget));
+}
+
+static void
+handle_picker_button_click(UNUSED GtkButton *button,
+			   gpointer user_data)
+{
+  GtkRevealer *revealer = GTK_REVEALER(user_data);
+  gboolean reveal = !gtk_revealer_get_child_revealed(revealer);
+
+  gtk_revealer_set_reveal_child(revealer, reveal);
 }
 
 UI_CHAT_Handle*
@@ -239,12 +250,32 @@ ui_chat_new(MESSENGER_Application *app)
       handle->send_text_view
   );
 
+  handle->picker_revealer = GTK_REVEALER(
+      gtk_builder_get_object(handle->builder, "picker_revealer")
+  );
+
+  handle->picker = ui_picker_new(app, handle);
+
+  gtk_container_add(
+      GTK_CONTAINER(handle->picker_revealer),
+      handle->picker->picker_box
+  );
+
+  g_signal_connect(
+      handle->emoji_button,
+      "clicked",
+      G_CALLBACK(handle_picker_button_click),
+      handle->picker_revealer
+  );
+
   return handle;
 }
 
 void
 ui_chat_delete(UI_CHAT_Handle *handle)
 {
+  ui_picker_delete(handle->picker);
+
   g_object_unref(handle->builder);
 
   g_free(handle);

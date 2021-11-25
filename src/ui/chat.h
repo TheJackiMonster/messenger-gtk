@@ -30,6 +30,7 @@
 #include <libnotify/notify.h>
 
 typedef struct MESSENGER_Application MESSENGER_Application;
+typedef struct UI_PICKER_Handle UI_PICKER_Handle;
 
 typedef struct UI_CHAT_Handle
 {
@@ -49,6 +50,10 @@ typedef struct UI_CHAT_Handle
   GtkButton *emoji_button;
   GtkButton *send_record_button;
   GtkImage *send_record_symbol;
+
+  GtkRevealer *picker_revealer;
+
+  UI_PICKER_Handle *picker;
 } UI_CHAT_Handle;
 
 UI_CHAT_Handle*

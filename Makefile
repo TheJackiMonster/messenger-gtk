@@ -15,6 +15,7 @@ SOURCES = messenger_gtk.c\
 		  ui/messenger.c\
 		  ui/new_contact.c\
 		  ui/new_platform.c\
+		  ui/picker.c\
 		  ui/profile_entry.c\
 		  ui/settings.c
 		  
@@ -22,6 +23,7 @@ HEADERS =
 
 LIBRARIES = gnunetchat
 PACKAGES  = gnunetutil libhandy-1 gtk+-3.0 libnotify zbar libqrencode
+INCLUDES  = submodules/gnome-characters/lib
 
 GNU_CC ?= gcc
 GNU_LD ?= gcc
@@ -38,6 +40,7 @@ OBJECT_FILES  = $(SOURCE_FILES:%.c=%.o)
 HEADER_FILES  = $(addprefix $(SOURCE_DIR), $(HEADERS))
 LIBRARY_FLAGS = $(addprefix -l, $(LIBRARIES))
 PACKAGE_FLAGS = $(shell pkg-config --cflags --libs $(PACKAGES))
+INCLUDE_FLAGS = $(addprefix -I, $(INCLUDES))
 
 all: $(BINARY)
 
@@ -48,7 +51,7 @@ release: CFLAGS += $(RELEASEFLAGS)
 release: $(BINARY)
 
 %.o: %.c
-	$(GNU_CC) $(CFLAGS) -c $< -o $@ $(LIBRARY_FLAGS) $(PACKAGE_FLAGS)
+	$(GNU_CC) $(CFLAGS) -c $< -o $@ $(LIBRARY_FLAGS) $(PACKAGE_FLAGS) $(INCLUDE_FLAGS)
 
 $(BINARY): $(OBJECT_FILES)
 	$(GNU_LD) $(LDFLAGS) $^ -o $@ $(LIBRARY_FLAGS) $(PACKAGE_FLAGS)

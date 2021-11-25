@@ -61,6 +61,14 @@
 	padding: 2px 4px;
 }
 
+.picker-switcher-box {
+	padding: 0px 8px;
+}
+
+.emoji-flow-box {
+	font-size: large;
+}
+
 .settings-entry {
 	margin: 8px;
 }

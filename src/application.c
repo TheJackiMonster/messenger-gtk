@@ -157,8 +157,6 @@ application_run(MESSENGER_Application *app)
 
   pthread_join(app->chat.tid, NULL);
 
-  ui_messenger_cleanup(&(app->ui.messenger));
-
   g_hash_table_destroy(app->ui.bindings);
 
   notify_uninit();
