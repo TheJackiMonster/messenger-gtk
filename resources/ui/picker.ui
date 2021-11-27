@@ -42,11 +42,11 @@ Author: Tobias Frisch
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="vscrollbar-policy">never</property>
-                <property name="shadow-type">in</property>
                 <child>
                   <object class="GtkViewport">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="shadow-type">none</property>
                     <child>
                       <object class="HdyViewSwitcherBar" id="emoji_switcher_bar">
                         <property name="visible">True</property>
