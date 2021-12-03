@@ -83,6 +83,19 @@ handle_new_contact_button_click(UNUSED GtkButton* button,
 }
 
 static void
+handle_new_group_button_click(UNUSED GtkButton* button,
+			      gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
+
+  ui_new_group_dialog_init(app, &(app->ui.new_group));
+
+  gtk_widget_show(GTK_WIDGET(app->ui.new_group.dialog));
+}
+
+static void
 handle_new_platform_button_click(UNUSED GtkButton* button,
 				 gpointer user_data)
 {
@@ -277,6 +290,13 @@ ui_messenger_init(MESSENGER_Application *app,
       handle->new_contact_button,
       "clicked",
       G_CALLBACK(handle_new_contact_button_click),
+      app
+  );
+
+  g_signal_connect(
+      handle->new_group_button,
+      "clicked",
+      G_CALLBACK(handle_new_group_button_click),
       app
   );
 

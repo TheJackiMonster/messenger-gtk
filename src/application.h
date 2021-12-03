@@ -33,6 +33,7 @@
 #include "ui/contacts.h"
 #include "ui/messenger.h"
 #include "ui/new_contact.h"
+#include "ui/new_group.h"
 #include "ui/new_platform.h"
 #include "ui/settings.h"
 
@@ -71,6 +72,7 @@ typedef struct MESSENGER_Application
     UI_MESSENGER_Handle messenger;
 
     UI_NEW_CONTACT_Handle new_contact;
+    UI_NEW_GROUP_Handle new_group;
     UI_NEW_PLATFORM_Handle new_platform;
     UI_CONTACTS_Handle contacts;
     UI_SETTINGS_Handle settings;
