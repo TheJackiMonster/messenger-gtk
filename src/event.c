@@ -181,6 +181,11 @@ event_joining_contact(MESSENGER_Application *app,
   if (!handle)
     return;
 
+  int status = GNUNET_CHAT_context_get_status(context);
+
+  if (GNUNET_OK == status)
+    ui_chat_entry_activate(handle);
+
   UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
 
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(

@@ -195,6 +195,7 @@ Author: Tobias Frisch
         <child>
           <object class="GtkButton" id="attach_file_button">
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
             <property name="valign">center</property>
@@ -218,8 +219,10 @@ Author: Tobias Frisch
             <property name="width-request">210</property>
             <property name="height-request">48</property>
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <property name="can-focus">True</property>
             <property name="valign">end</property>
+            <property name="editable">False</property>
             <property name="wrap-mode">word-char</property>
             <property name="left-margin">8</property>
             <property name="right-margin">8</property>
@@ -236,6 +239,7 @@ Author: Tobias Frisch
         <child>
           <object class="GtkButton" id="emoji_button">
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
             <property name="valign">center</property>
@@ -257,6 +261,7 @@ Author: Tobias Frisch
         <child>
           <object class="GtkButton" id="send_record_button">
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
             <property name="valign">center</property>

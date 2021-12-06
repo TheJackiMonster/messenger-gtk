@@ -71,50 +71,11 @@ handle_contacts_listbox_row_activated(UNUSED GtkListBox* listbox,
       contact
   );
 
-  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
-
-  char context_id [9];
-  g_snprintf(context_id, sizeof(context_id), "%08lx", (gulong) context);
-
-  if (gtk_stack_get_child_by_name(ui->chats_stack, context_id))
+  if (!context)
     goto close_dialog;
 
-  const char *title = GNUNET_CHAT_contact_get_name(contact);
-
-  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new(app);
-  gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
-  GNUNET_CHAT_context_set_user_pointer(context, entry);
-
-  if (title)
-  {
-    gtk_label_set_text(entry->title_label, title);
-    hdy_avatar_set_text(entry->entry_avatar, title);
-
-    gtk_label_set_text(entry->chat->chat_title, title);
-  }
-
-  gtk_widget_set_name(entry->entry_box, context_id);
-
-  gtk_stack_add_named(
-      ui->chats_stack,
-      entry->chat->chat_box,
-      context_id
-  );
-
-  g_hash_table_insert(
-      app->ui.bindings,
-      entry->chat->send_text_view,
-      context
-  );
-
-  ui->chat_entries = g_list_append(ui->chat_entries, entry);
-
-  GtkListBoxRow *entry_row = GTK_LIST_BOX_ROW(
-      gtk_widget_get_parent(entry->entry_box)
-  );
-
-  gtk_list_box_select_row(ui->chats_listbox, entry_row);
-  gtk_widget_activate(GTK_WIDGET(entry_row));
+  if (GNUNET_SYSERR == GNUNET_CHAT_context_get_status(context))
+    GNUNET_CHAT_context_request(context);
 
 close_dialog:
   gtk_window_close(GTK_WINDOW(app->ui.contacts.dialog));

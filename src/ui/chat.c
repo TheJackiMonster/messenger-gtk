@@ -272,6 +272,17 @@ ui_chat_new(MESSENGER_Application *app)
 }
 
 void
+ui_chat_activate(UI_CHAT_Handle *handle)
+{
+  gtk_text_view_set_editable(handle->send_text_view, TRUE);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->send_text_view), TRUE);
+
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->attach_file_button), TRUE);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->emoji_button), TRUE);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->send_record_button), TRUE);
+}
+
+void
 ui_chat_delete(UI_CHAT_Handle *handle)
 {
   ui_picker_delete(handle->picker);

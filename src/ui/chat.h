@@ -60,6 +60,9 @@ UI_CHAT_Handle*
 ui_chat_new(MESSENGER_Application *app);
 
 void
+ui_chat_activate(UI_CHAT_Handle *handle);
+
+void
 ui_chat_delete(UI_CHAT_Handle *handle);
 
 #endif /* UI_CHAT_H_ */

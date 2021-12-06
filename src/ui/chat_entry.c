@@ -62,6 +62,12 @@ ui_chat_entry_new(MESSENGER_Application *app)
 }
 
 void
+ui_chat_entry_activate(UI_CHAT_ENTRY_Handle *handle)
+{
+  ui_chat_activate(handle->chat);
+}
+
+void
 ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle)
 {
   ui_chat_delete(handle->chat);
