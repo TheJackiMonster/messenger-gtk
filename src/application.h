@@ -35,6 +35,7 @@
 #include "ui/new_contact.h"
 #include "ui/new_group.h"
 #include "ui/new_platform.h"
+#include "ui/new_profile.h"
 #include "ui/settings.h"
 
 #include "util.h"
@@ -74,6 +75,7 @@ typedef struct MESSENGER_Application
     UI_NEW_CONTACT_Handle new_contact;
     UI_NEW_GROUP_Handle new_group;
     UI_NEW_PLATFORM_Handle new_platform;
+    UI_NEW_PROFILE_Handle new_profile;
     UI_CONTACTS_Handle contacts;
     UI_SETTINGS_Handle settings;
   } ui;

@@ -55,6 +55,7 @@ typedef struct UI_MESSENGER_Handle
 
   GtkRevealer *account_details_revealer;
   GtkListBox *accounts_listbox;
+  GtkListBoxRow *add_account_listbox_row;
 
   GtkButton *new_contact_button;
   GtkButton *new_group_button;

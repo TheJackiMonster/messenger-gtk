@@ -334,7 +334,7 @@ Author: Tobias Frisch
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">False</property>
                                                 <child>
-                                                  <object class="GtkListBoxRow">
+                                                  <object class="GtkListBoxRow" id="add_account_listbox_row">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">True</property>
                                                     <property name="selectable">False</property>

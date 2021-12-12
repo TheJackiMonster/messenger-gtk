@@ -19,55 +19,32 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/new_platform.c
+ * @file ui/new_profile.c
  */
 
-#include "new_platform.h"
+#include "new_profile.h"
 
 #include "../application.h"
 
 static void
-_open_new_platform(GtkEntry *entry, MESSENGER_Application *app)
-{
-  const gchar *topic = gtk_entry_get_text(entry);
-
-  GString *topic_string = g_string_new(topic);
-
-  struct GNUNET_CHAT_Group *group = GNUNET_CHAT_group_create(
-      app->chat.messenger.handle,
-      topic_string->str
-  );
-
-  g_string_prepend_c(topic_string, '#');
-  GNUNET_CHAT_group_set_name(group, topic_string->str);
-
-  g_string_free(topic_string, TRUE);
-}
-
-static void
-handle_platform_entry_changed(GtkEditable *editable,
+handle_profile_entry_changed(GtkEditable *editable,
 			      gpointer user_data)
 {
   HdyAvatar *avatar = HDY_AVATAR(user_data);
   GtkEntry *entry = GTK_ENTRY(editable);
 
-  GString *topic_string = g_string_new(gtk_entry_get_text(entry));
-
-  g_string_prepend_c(topic_string, '#');
-  hdy_avatar_set_text(avatar, topic_string->str);
-
-  g_string_free(topic_string, TRUE);
+  hdy_avatar_set_text(avatar, gtk_entry_get_text(entry));
 }
 
 static void
-handle_platform_entry_activate(GtkEntry *entry,
+handle_profile_entry_activate(UNUSED GtkEntry *entry,
 			       gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  _open_new_platform(entry, app);
+  // TODO: create new profile and switch to it
 
-  gtk_window_close(GTK_WINDOW(app->ui.new_platform.dialog));
+  gtk_window_close(GTK_WINDOW(app->ui.new_profile.dialog));
 }
 
 static void
@@ -84,31 +61,31 @@ handle_confirm_button_click(UNUSED GtkButton *button,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  _open_new_platform(app->ui.new_platform.platform_entry, app);
+  // TODO: create new profile and switch to it
 
-  gtk_window_close(GTK_WINDOW(app->ui.new_platform.dialog));
+  gtk_window_close(GTK_WINDOW(app->ui.new_profile.dialog));
 }
 
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
 		      gpointer user_data)
 {
-  ui_new_platform_dialog_cleanup((UI_NEW_PLATFORM_Handle*) user_data);
+  ui_new_profile_dialog_cleanup((UI_NEW_PROFILE_Handle*) user_data);
 }
 
 void
-ui_new_platform_dialog_init(MESSENGER_Application *app,
-			    UI_NEW_PLATFORM_Handle *handle)
+ui_new_profile_dialog_init(MESSENGER_Application *app,
+			   UI_NEW_PROFILE_Handle *handle)
 {
-  handle->builder = gtk_builder_new_from_file("resources/ui/new_platform.ui");
+  handle->builder = gtk_builder_new_from_file("resources/ui/new_profile.ui");
 
   handle->dialog = GTK_DIALOG(
-      gtk_builder_get_object(handle->builder, "new_platform_dialog")
+      gtk_builder_get_object(handle->builder, "new_profile_dialog")
   );
 
   gtk_window_set_title(
       GTK_WINDOW(handle->dialog),
-      "New Platform"
+      "New Profile"
   );
 
   gtk_window_set_transient_for(
@@ -116,29 +93,29 @@ ui_new_platform_dialog_init(MESSENGER_Application *app,
       GTK_WINDOW(app->ui.messenger.main_window)
   );
 
-  handle->platform_avatar = HDY_AVATAR(
-      gtk_builder_get_object(handle->builder, "platform_avatar")
+  handle->profile_avatar = HDY_AVATAR(
+      gtk_builder_get_object(handle->builder, "profile_avatar")
   );
 
-  handle->platform_avatar_file = GTK_FILE_CHOOSER_BUTTON(
-      gtk_builder_get_object(handle->builder, "platform_avatar_file")
+  handle->profile_avatar_file = GTK_FILE_CHOOSER_BUTTON(
+      gtk_builder_get_object(handle->builder, "profile_avatar_file")
   );
 
-  handle->platform_entry = GTK_ENTRY(
-      gtk_builder_get_object(handle->builder, "platform_entry")
+  handle->profile_entry = GTK_ENTRY(
+      gtk_builder_get_object(handle->builder, "profile_entry")
   );
 
   g_signal_connect(
-      handle->platform_entry,
+      handle->profile_entry,
       "changed",
-      G_CALLBACK(handle_platform_entry_changed),
-      handle->platform_avatar
+      G_CALLBACK(handle_profile_entry_changed),
+      handle->profile_avatar
   );
 
   g_signal_connect(
-      handle->platform_entry,
+      handle->profile_entry,
       "activate",
-      G_CALLBACK(handle_platform_entry_activate),
+      G_CALLBACK(handle_profile_entry_activate),
       app
   );
 
@@ -173,7 +150,7 @@ ui_new_platform_dialog_init(MESSENGER_Application *app,
 }
 
 void
-ui_new_platform_dialog_cleanup(UI_NEW_PLATFORM_Handle *handle)
+ui_new_profile_dialog_cleanup(UI_NEW_PROFILE_Handle *handle)
 {
   g_object_unref(handle->builder);
 }

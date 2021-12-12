@@ -16,6 +16,7 @@ SOURCES = messenger_gtk.c\
 		  ui/new_contact.c\
 		  ui/new_group.c\
 		  ui/new_platform.c\
+		  ui/new_profile.c\
 		  ui/picker.c\
 		  ui/profile_entry.c\
 		  ui/settings.c

@@ -70,6 +70,26 @@ handle_account_details_button_click(UNUSED GtkButton* button,
 }
 
 static void
+handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
+				      GtkListBoxRow* row,
+				      gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  if (row == app->ui.messenger.add_account_listbox_row)
+  {
+    hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
+
+    ui_new_profile_dialog_init(app, &(app->ui.new_profile));
+
+    gtk_widget_show(GTK_WIDGET(app->ui.new_profile.dialog));
+    return;
+  }
+
+  // TODO: switch to selected profile
+}
+
+static void
 handle_new_contact_button_click(UNUSED GtkButton* button,
 				 gpointer user_data)
 {
@@ -272,6 +292,17 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->accounts_listbox = GTK_LIST_BOX(
       gtk_builder_get_object(handle->builder, "accounts_listbox")
+  );
+
+  handle->add_account_listbox_row = GTK_LIST_BOX_ROW(
+      gtk_builder_get_object(handle->builder, "add_account_listbox_row")
+  );
+
+  g_signal_connect(
+      handle->accounts_listbox,
+      "row-activated",
+      G_CALLBACK(handle_accounts_listbox_row_activated),
+      app
   );
 
   handle->new_contact_button = GTK_BUTTON(
