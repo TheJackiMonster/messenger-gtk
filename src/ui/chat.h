@@ -29,6 +29,8 @@
 #include <libhandy-1/handy.h>
 #include <libnotify/notify.h>
 
+#include <gnunet/gnunet_chat_lib.h>
+
 typedef struct MESSENGER_Application MESSENGER_Application;
 typedef struct UI_PICKER_Handle UI_PICKER_Handle;
 
@@ -39,10 +41,17 @@ typedef struct UI_CHAT_Handle
 
   GtkButton *back_button;
 
+  HdyFlap *flap_chat_details;
+
   GtkLabel *chat_title;
   GtkLabel *chat_subtitle;
   GtkButton *chat_details_button;
 
+  GtkLabel *chat_details_label;
+  GtkButton *hide_chat_details_button;
+  GtkBox *chat_details_contacts_box;
+
+  GtkListBox *chat_contacts_listbox;
   GtkListBox *messages_listbox;
 
   GtkButton *attach_file_button;
@@ -60,7 +69,8 @@ UI_CHAT_Handle*
 ui_chat_new(MESSENGER_Application *app);
 
 void
-ui_chat_activate(UI_CHAT_Handle *handle);
+ui_chat_update(UI_CHAT_Handle *handle,
+	       const struct GNUNET_CHAT_Context* context);
 
 void
 ui_chat_delete(UI_CHAT_Handle *handle);

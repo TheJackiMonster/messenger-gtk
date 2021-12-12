@@ -26,6 +26,7 @@
 
 #include "messenger.h"
 #include "picker.h"
+#include "profile_entry.h"
 #include "../application.h"
 
 static void
@@ -176,6 +177,10 @@ ui_chat_new(MESSENGER_Application *app)
       messenger->leaflet_chat
   );
 
+  handle->flap_chat_details = HDY_FLAP(
+      gtk_builder_get_object(handle->builder, "flap_chat_details")
+  );
+
   handle->chat_title = GTK_LABEL(
       gtk_builder_get_object(handle->builder, "chat_title")
   );
@@ -192,7 +197,30 @@ ui_chat_new(MESSENGER_Application *app)
       handle->chat_details_button,
       "clicked",
       G_CALLBACK(handle_flap_via_button_click),
-      messenger->flap_chat_details
+      handle->flap_chat_details
+  );
+
+  handle->chat_details_label = GTK_LABEL(
+      gtk_builder_get_object(handle->builder, "chat_details_label")
+  );
+
+  handle->hide_chat_details_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "hide_chat_details_button")
+  );
+
+  g_signal_connect(
+      handle->hide_chat_details_button,
+      "clicked",
+      G_CALLBACK(handle_flap_via_button_click),
+      handle->flap_chat_details
+  );
+
+  handle->chat_details_contacts_box = GTK_BOX(
+      gtk_builder_get_object(handle->builder, "chat_details_contacts_box")
+  );
+
+  handle->chat_contacts_listbox = GTK_LIST_BOX(
+      gtk_builder_get_object(handle->builder, "chat_contacts_listbox")
   );
 
   handle->messages_listbox = GTK_LIST_BOX(
@@ -271,15 +299,86 @@ ui_chat_new(MESSENGER_Application *app)
   return handle;
 }
 
-void
-ui_chat_activate(UI_CHAT_Handle *handle)
+static int
+iterate_ui_chat_update_group_contacts(void *cls,
+				      UNUSED const struct GNUNET_CHAT_Group *group,
+				      struct GNUNET_CHAT_Contact *contact)
 {
-  gtk_text_view_set_editable(handle->send_text_view, TRUE);
-  gtk_widget_set_sensitive(GTK_WIDGET(handle->send_text_view), TRUE);
+  GtkListBox *listbox = GTK_LIST_BOX(cls);
+  UI_PROFILE_ENTRY_Handle* entry = ui_profile_entry_new();
 
-  gtk_widget_set_sensitive(GTK_WIDGET(handle->attach_file_button), TRUE);
-  gtk_widget_set_sensitive(GTK_WIDGET(handle->emoji_button), TRUE);
-  gtk_widget_set_sensitive(GTK_WIDGET(handle->send_record_button), TRUE);
+  const char *name = GNUNET_CHAT_contact_get_name(contact);
+
+  if (name)
+  {
+    gtk_label_set_text(entry->entry_label, name);
+    hdy_avatar_set_text(entry->entry_avatar, name);
+  }
+
+  gtk_list_box_prepend(listbox, entry->entry_box);
+
+  ui_profile_entry_delete(entry);
+  return GNUNET_YES;
+}
+
+void
+ui_chat_update(UI_CHAT_Handle *handle,
+	       const struct GNUNET_CHAT_Context* context)
+{
+  const struct GNUNET_CHAT_Contact* contact;
+  const struct GNUNET_CHAT_Group* group;
+
+  contact = GNUNET_CHAT_context_get_contact(context);
+  group = GNUNET_CHAT_context_get_group(context);
+
+  const char *title = NULL;
+
+  if (contact)
+    title = GNUNET_CHAT_contact_get_name(contact);
+  else if (group)
+    title = GNUNET_CHAT_group_get_name(group);
+
+  if (title)
+  {
+    gtk_label_set_text(handle->chat_title, title);
+    gtk_label_set_text(handle->chat_details_label, title);
+  }
+
+  GList* children = gtk_container_get_children(
+      GTK_CONTAINER(handle->chat_contacts_listbox)
+  );
+
+  while ((children) && (children->next)) {
+    GtkWidget *widget = GTK_WIDGET(children->data);
+    children = children->next;
+
+    gtk_container_remove(
+	GTK_CONTAINER(handle->chat_contacts_listbox),
+	widget
+    );
+  }
+
+  if (group)
+    GNUNET_CHAT_group_iterate_contacts(
+	group,
+	iterate_ui_chat_update_group_contacts,
+	handle->chat_contacts_listbox
+    );
+
+  gtk_widget_set_visible(
+      GTK_WIDGET(handle->chat_details_contacts_box),
+      group? TRUE : FALSE
+  );
+
+  const int status = GNUNET_CHAT_context_get_status(context);
+  const gboolean activated = (GNUNET_OK == status? TRUE : FALSE);
+
+  gtk_text_view_set_editable(handle->send_text_view, activated);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->send_text_view), activated);
+
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->attach_file_button), activated);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->emoji_button), activated);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->send_record_button), activated);
 }
 
 void

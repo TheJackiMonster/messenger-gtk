@@ -69,7 +69,17 @@
 	font-size: large;
 }
 
-.settings-entry {
+.settings-entry, .details-entry {
 	margin: 8px;
+}
+
+.details-group {
+	margin-top: 16px;
+}
+
+.details-group-title {
+	margin-left: 8px;
+	margin-right: 8px;
+	margin-bottom: 4px;
 }
 

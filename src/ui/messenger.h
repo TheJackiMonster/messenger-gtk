@@ -40,7 +40,6 @@ typedef struct UI_MESSENGER_Handle
 
   HdyLeaflet *leaflet_chat;
   HdyFlap *flap_user_details;
-  HdyFlap *flap_chat_details;
 
   HdyHeaderBar *title_bar;
 
@@ -68,8 +67,6 @@ typedef struct UI_MESSENGER_Handle
   GtkListBox *chats_listbox;
 
   GtkStack *chats_stack;
-
-  GtkButton *hide_chat_details_button;
 } UI_MESSENGER_Handle;
 
 void

@@ -47,7 +47,8 @@ UI_CHAT_ENTRY_Handle*
 ui_chat_entry_new(MESSENGER_Application *app);
 
 void
-ui_chat_entry_activate(UI_CHAT_ENTRY_Handle *handle);
+ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
+		     const struct GNUNET_CHAT_Context *context);
 
 void
 ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle);

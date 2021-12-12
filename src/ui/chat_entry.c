@@ -62,9 +62,30 @@ ui_chat_entry_new(MESSENGER_Application *app)
 }
 
 void
-ui_chat_entry_activate(UI_CHAT_ENTRY_Handle *handle)
+ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
+		     const struct GNUNET_CHAT_Context *context)
 {
-  ui_chat_activate(handle->chat);
+  const struct GNUNET_CHAT_Contact* contact;
+  const struct GNUNET_CHAT_Group* group;
+
+  contact = GNUNET_CHAT_context_get_contact(context);
+  group = GNUNET_CHAT_context_get_group(context);
+
+  const char *title = NULL;
+
+  if (contact)
+    title = GNUNET_CHAT_contact_get_name(contact);
+  else if (group)
+    title = GNUNET_CHAT_group_get_name(group);
+
+  if (title)
+  {
+    gtk_label_set_text(handle->title_label, title);
+    hdy_avatar_set_text(handle->entry_avatar, title);
+  }
+
+  if (handle->chat)
+    ui_chat_update(handle->chat, context);
 }
 
 void

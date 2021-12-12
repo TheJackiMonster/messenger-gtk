@@ -35,30 +35,12 @@ _add_new_chat_entry(MESSENGER_Application *app,
 {
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
 
-  const struct GNUNET_CHAT_Contact* contact;
-  const struct GNUNET_CHAT_Group* group;
-
-  contact = GNUNET_CHAT_context_get_contact(context);
-  group = GNUNET_CHAT_context_get_group(context);
-
-  const char *title = NULL;
-
-  if (contact)
-    title = GNUNET_CHAT_contact_get_name(contact);
-  else if (group)
-    title = GNUNET_CHAT_group_get_name(group);
-
   UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new(app);
+
+  ui_chat_entry_update(entry, context);
+
   gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
   GNUNET_CHAT_context_set_user_pointer(context, entry);
-
-  if (title)
-  {
-    gtk_label_set_text(entry->title_label, title);
-    hdy_avatar_set_text(entry->entry_avatar, title);
-
-    gtk_label_set_text(entry->chat->chat_title, title);
-  }
 
   char context_id [9];
   g_snprintf(context_id, sizeof(context_id), "%08lx", (gulong) context);
@@ -181,10 +163,7 @@ event_joining_contact(MESSENGER_Application *app,
   if (!handle)
     return;
 
-  int status = GNUNET_CHAT_context_get_status(context);
-
-  if (GNUNET_OK == status)
-    ui_chat_entry_activate(handle);
+  ui_chat_entry_update(handle, context);
 
   UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
 

@@ -218,10 +218,6 @@ ui_messenger_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "flap_user_details")
   );
 
-  handle->flap_chat_details = HDY_FLAP(
-      gtk_builder_get_object(handle->builder, "flap_chat_details")
-  );
-
   handle->title_bar = HDY_HEADER_BAR(
       gtk_builder_get_object(handle->builder, "title_bar")
   );
@@ -388,17 +384,6 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->chats_stack = GTK_STACK(
       gtk_builder_get_object(handle->builder, "chats_stack")
-  );
-
-  handle->hide_chat_details_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "hide_chat_details_button")
-  );
-
-  g_signal_connect(
-      handle->hide_chat_details_button,
-      "clicked",
-      G_CALLBACK(handle_flap_via_button_click),
-      handle->flap_chat_details
   );
 
   gtk_widget_show(GTK_WIDGET(handle->main_window));
