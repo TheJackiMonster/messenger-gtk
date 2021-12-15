@@ -192,7 +192,7 @@ void
 ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle)
 {
-  handle->chat_entries = g_list_alloc();
+  handle->chat_entries = NULL;
 
   handle->builder = gtk_builder_new_from_file("resources/ui/messenger.ui");
 
@@ -401,14 +401,9 @@ ui_messenger_cleanup(UI_MESSENGER_Handle *handle)
 {
   g_object_unref(handle->builder);
 
-  GList *list = handle->chat_entries;
+  for (GList *list = handle->chat_entries; list; list = list->next)
+    ui_chat_entry_delete((UI_CHAT_ENTRY_Handle*) list->data);
 
-  while (list) {
-    if (list->data)
-      ui_chat_entry_delete((UI_CHAT_ENTRY_Handle*) list->data);
-
-    list = list->next;
-  }
-
-  g_list_free(handle->chat_entries);
+  if (handle->chat_entries)
+    g_list_free(handle->chat_entries);
 }

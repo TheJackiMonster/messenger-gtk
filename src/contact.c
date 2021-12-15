@@ -32,7 +32,8 @@ contact_create_info(struct GNUNET_CHAT_Contact *contact)
 
   MESSENGER_ContactInfo* info = g_malloc(sizeof(MESSENGER_ContactInfo));
 
-  info->name_labels = g_list_alloc();
+  info->name_labels = NULL;
+  info->name_avatars = NULL;
 
   GNUNET_CHAT_contact_set_user_pointer(contact, info);
 }
@@ -45,7 +46,12 @@ contact_destroy_info(struct GNUNET_CHAT_Contact *contact)
   if (!info)
     return;
 
-  g_list_free(info->name_labels);
+  if (info->name_labels)
+    g_list_free(info->name_labels);
+
+  if (info->name_avatars)
+    g_list_free(info->name_avatars);
+
   g_free(info);
 
   GNUNET_CHAT_contact_set_user_pointer(contact, NULL);
@@ -57,10 +63,28 @@ contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
 {
   MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
 
-  if (!info)
+  if ((!info) || (!label))
     return;
 
+  const char *name = GNUNET_CHAT_contact_get_name(contact);
+  gtk_label_set_text(label, name? name : "");
+
   info->name_labels = g_list_append(info->name_labels, label);
+}
+
+void
+contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
+				HdyAvatar *avatar)
+{
+  MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
+
+  if ((!info) || (!avatar))
+   return;
+
+  const char *name = GNUNET_CHAT_contact_get_name(contact);
+  hdy_avatar_set_text(avatar, name? name : "");
+
+  info->name_avatars = g_list_append(info->name_avatars, avatar);
 }
 
 void
@@ -71,17 +95,15 @@ contact_update_info(const struct GNUNET_CHAT_Contact *contact)
   if (!info)
     return;
 
+  GList* list;
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
-  GList* name_label = info->name_labels;
+  for (list = info->name_labels; list; list = list->next)
+    gtk_label_set_text(GTK_LABEL(list->data), name? name : "");
 
-  while (name_label)
-  {
-    GtkLabel *label = GTK_LABEL(name_label->data);
+  if (!name)
+    return;
 
-    if (label)
-      gtk_label_set_text(label, name? name : "");
-
-    name_label = name_label->next;
-  }
+  for (list = info->name_avatars; list; list = list->next)
+    hdy_avatar_set_text(HDY_AVATAR(list->data), name);
 }

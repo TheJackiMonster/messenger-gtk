@@ -59,8 +59,7 @@ typedef struct UI_MESSAGE_Handle
 } UI_MESSAGE_Handle;
 
 UI_MESSAGE_Handle*
-ui_message_new(MESSENGER_Application *app,
-	       UI_MESSAGE_Type type);
+ui_message_new(UI_MESSAGE_Type type);
 
 void
 ui_message_delete(UI_MESSAGE_Handle *handle);

@@ -207,7 +207,7 @@ void
 ui_new_group_dialog_init(MESSENGER_Application *app,
 			 UI_NEW_GROUP_Handle *handle)
 {
-  handle->contact_entries = g_list_alloc();
+  handle->contact_entries = NULL;
 
   handle->builder = gtk_builder_new_from_file("resources/ui/new_group.ui");
 
@@ -340,14 +340,9 @@ ui_new_group_dialog_cleanup(UI_NEW_GROUP_Handle *handle)
 {
   g_object_unref(handle->builder);
 
-  GList *list = handle->contact_entries;
+  for (GList *list = handle->contact_entries; list; list = list->next)
+    ui_contact_entry_delete((UI_CONTACT_ENTRY_Handle*) list->data);
 
-  while (list) {
-    if (list->data)
-      ui_contact_entry_delete((UI_CONTACT_ENTRY_Handle*) list->data);
-
-    list = list->next;
-  }
-
-  g_list_free(handle->contact_entries);
+  if (handle->contact_entries)
+    g_list_free(handle->contact_entries);
 }

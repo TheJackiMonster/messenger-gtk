@@ -358,11 +358,8 @@ iterate_ui_chat_update_group_contacts(void *cls,
 
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
-  if (name)
-  {
-    gtk_label_set_text(entry->entry_label, name);
-    hdy_avatar_set_text(entry->entry_avatar, name);
-  }
+  gtk_label_set_text(entry->entry_label, name? name : "");
+  hdy_avatar_set_text(entry->entry_avatar, name? name : "");
 
   gtk_list_box_prepend(listbox, entry->entry_box);
 
@@ -388,17 +385,31 @@ ui_chat_update(UI_CHAT_Handle *handle,
   group = GNUNET_CHAT_context_get_group(context);
 
   const char *title = NULL;
+  GString *subtitle = g_string_new("");
 
   if (contact)
     title = GNUNET_CHAT_contact_get_name(contact);
   else if (group)
+  {
     title = GNUNET_CHAT_group_get_name(group);
+
+    g_string_append_printf(
+	subtitle,
+	"%d members",
+	GNUNET_CHAT_group_iterate_contacts(group, NULL, NULL)
+    );
+  }
 
   if (title)
   {
     gtk_label_set_text(handle->chat_title, title);
     gtk_label_set_text(handle->chat_details_label, title);
   }
+
+  if (subtitle->len > 0)
+    gtk_label_set_text(handle->chat_subtitle, subtitle->str);
+
+  g_string_free(subtitle, TRUE);
 
   GList* children = gtk_container_get_children(
       GTK_CONTAINER(handle->chat_contacts_listbox)
@@ -407,6 +418,9 @@ ui_chat_update(UI_CHAT_Handle *handle,
   while ((children) && (children->next)) {
     GtkWidget *widget = GTK_WIDGET(children->data);
     children = children->next;
+
+    if (g_hash_table_contains(app->ui.bindings, widget))
+      g_hash_table_remove(app->ui.bindings, widget);
 
     gtk_container_remove(
 	GTK_CONTAINER(handle->chat_contacts_listbox),

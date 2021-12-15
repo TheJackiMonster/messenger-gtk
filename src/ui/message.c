@@ -27,8 +27,7 @@
 #include "../application.h"
 
 UI_MESSAGE_Handle*
-ui_message_new(MESSENGER_Application *app,
-	       UI_MESSAGE_Type type)
+ui_message_new(UI_MESSAGE_Type type)
 {
   UI_MESSAGE_Handle* handle = g_malloc(sizeof(UI_MESSAGE_Handle));
 
@@ -62,14 +61,6 @@ ui_message_new(MESSENGER_Application *app,
   handle->sender_label = GTK_LABEL(
       gtk_builder_get_object(handle->builder, "sender_label")
   );
-
-  if (UI_MESSAGE_SENT == handle->type)
-  {
-    const char *sender = GNUNET_CHAT_get_name(app->chat.messenger.handle);
-
-    hdy_avatar_set_text(handle->sender_avatar, sender);
-    gtk_label_set_text(handle->sender_label, sender);
-  }
 
   handle->text_label = GTK_LABEL(
       gtk_builder_get_object(handle->builder, "text_label")

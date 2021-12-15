@@ -147,7 +147,7 @@ void
 ui_contacts_dialog_init(MESSENGER_Application *app,
 			UI_CONTACTS_Handle *handle)
 {
-  handle->contact_entries = g_list_alloc();
+  handle->contact_entries = NULL;
 
   handle->builder = gtk_builder_new_from_file("resources/ui/contacts.ui");
 
@@ -225,5 +225,6 @@ ui_contacts_dialog_cleanup(UI_CONTACTS_Handle *handle)
     list = list->next;
   }
 
-  g_list_free(handle->contact_entries);
+  if (handle->contact_entries)
+    g_list_free(handle->contact_entries);
 }

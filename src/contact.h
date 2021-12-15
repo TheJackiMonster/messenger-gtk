@@ -30,6 +30,7 @@
 typedef struct MESSENGER_ContactInfo
 {
   GList *name_labels;
+  GList *name_avatars;
 } MESSENGER_ContactInfo;
 
 void
@@ -41,6 +42,10 @@ contact_destroy_info(struct GNUNET_CHAT_Contact *contact);
 void
 contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
 			       GtkLabel *label);
+
+void
+contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
+				HdyAvatar *avatar);
 
 void
 contact_update_info(const struct GNUNET_CHAT_Contact *contact);

@@ -186,7 +186,7 @@ event_joining_contact(MESSENGER_Application *app,
 
   ui_chat_entry_update(handle, app, context);
 
-  UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
+  UI_MESSAGE_Handle *message = ui_message_new(UI_MESSAGE_STATUS);
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
       msg
@@ -195,11 +195,7 @@ event_joining_contact(MESSENGER_Application *app,
   contact_create_info(contact);
   _update_contact_context(app, contact);
 
-  const char *sender = GNUNET_CHAT_contact_get_name(contact);
-
-  hdy_avatar_set_text(message->sender_avatar, sender? sender : "");
-  gtk_label_set_text(message->sender_label, sender? sender : "");
-
+  contact_add_name_avatar_to_info(contact, message->sender_avatar);
   contact_add_name_label_to_info(contact, message->sender_label);
 
   gtk_label_set_text(message->text_label, "joined the chat");
@@ -213,8 +209,8 @@ event_joining_contact(MESSENGER_Application *app,
 }
 
 void
-event_update_contacts(UNUSED MESSENGER_Application *app,
-		      UNUSED struct GNUNET_CHAT_Context *context,
+event_update_contacts(MESSENGER_Application *app,
+		      struct GNUNET_CHAT_Context *context,
 		      const struct GNUNET_CHAT_Message *msg)
 {
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
@@ -223,6 +219,13 @@ event_update_contacts(UNUSED MESSENGER_Application *app,
 
   contact_update_info(contact);
   _update_contact_context(app, contact);
+
+  UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
+
+  if (!handle)
+    return;
+
+  ui_chat_entry_update(handle, app, context);
 }
 
 static void
@@ -237,7 +240,7 @@ _event_invitation_accept_click(UNUSED GtkButton *button,
 }
 
 void
-event_invitation(MESSENGER_Application *app,
+event_invitation(UNUSED MESSENGER_Application *app,
 		 struct GNUNET_CHAT_Context *context,
 		 const struct GNUNET_CHAT_Message *msg)
 {
@@ -252,16 +255,14 @@ event_invitation(MESSENGER_Application *app,
   if (!invitation)
     return;
 
-  UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
+  UI_MESSAGE_Handle *message = ui_message_new(UI_MESSAGE_STATUS);
 
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
     msg
   );
 
-  const char *sender = GNUNET_CHAT_contact_get_name(contact);
-
-  hdy_avatar_set_text(message->sender_avatar, sender? sender : "");
-  gtk_label_set_text(message->sender_label, sender? sender : "");
+  contact_add_name_avatar_to_info(contact, message->sender_avatar);
+  contact_add_name_label_to_info(contact, message->sender_label);
 
   gtk_label_set_text(message->text_label, "invited you to a chat");
 
@@ -284,7 +285,7 @@ event_invitation(MESSENGER_Application *app,
 }
 
 void
-event_receive_message(MESSENGER_Application *app,
+event_receive_message(UNUSED MESSENGER_Application *app,
 		      struct GNUNET_CHAT_Context *context,
 		      const struct GNUNET_CHAT_Message *msg)
 {
@@ -296,21 +297,15 @@ event_receive_message(MESSENGER_Application *app,
   const int sent = GNUNET_CHAT_message_is_sent(msg);
 
   UI_MESSAGE_Handle *message = ui_message_new(
-      app,
       GNUNET_YES == sent? UI_MESSAGE_SENT : UI_MESSAGE_DEFAULT
   );
 
-  if (GNUNET_YES != sent)
-  {
-    const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
-	msg
-    );
+  const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
+      msg
+  );
 
-    const char *sender = GNUNET_CHAT_contact_get_name(contact);
-
-    hdy_avatar_set_text(message->sender_avatar, sender? sender : "");
-    gtk_label_set_text(message->sender_label, sender? sender : "");
-  }
+  contact_add_name_avatar_to_info(contact, message->sender_avatar);
+  contact_add_name_label_to_info(contact, message->sender_label);
 
   struct GNUNET_TIME_Absolute timestamp = GNUNET_CHAT_message_get_timestamp(
       msg
