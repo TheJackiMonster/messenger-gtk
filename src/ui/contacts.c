@@ -64,7 +64,8 @@ handle_contacts_listbox_row_activated(UNUSED GtkListBox* listbox,
       g_hash_table_lookup(app->ui.bindings, row)
   );
 
-  if ((!contact) || (!GNUNET_CHAT_contact_get_key(contact)))
+  if ((!contact) || (!GNUNET_CHAT_contact_get_key(contact)) ||
+      (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact)))
     goto close_dialog;
 
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(

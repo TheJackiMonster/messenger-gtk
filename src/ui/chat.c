@@ -24,6 +24,8 @@
 
 #include "chat.h"
 
+#include <gdk/gdkkeysyms.h>
+
 #include "messenger.h"
 #include "picker.h"
 #include "profile_entry.h"
@@ -61,7 +63,8 @@ handle_chat_contacts_listbox_row_activated(UNUSED GtkListBox* listbox,
       g_hash_table_lookup(app->ui.bindings, row)
   );
 
-  if ((!contact) || (!GNUNET_CHAT_contact_get_key(contact)))
+  if ((!contact) || (!GNUNET_CHAT_contact_get_key(contact)) ||
+      (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact)))
     return;
 
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
