@@ -27,7 +27,9 @@
 #include "messenger.h"
 #include "picker.h"
 #include "profile_entry.h"
+
 #include "../application.h"
+#include "../contact.h"
 
 static void
 handle_flap_via_button_click(UNUSED GtkButton* button,
@@ -40,6 +42,37 @@ handle_flap_via_button_click(UNUSED GtkButton* button,
   } else {
     hdy_flap_set_reveal_flap(flap, TRUE);
   }
+}
+
+static void
+handle_chat_contacts_listbox_row_activated(UNUSED GtkListBox* listbox,
+					   GtkListBoxRow* row,
+					   gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  if (!gtk_list_box_row_get_selectable(row))
+  {
+    //g_idle_add(G_SOURCE_FUNC(_open_new_contact_dialog), app);
+    return;
+  }
+
+  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
+      g_hash_table_lookup(app->ui.bindings, row)
+  );
+
+  if ((!contact) || (!GNUNET_CHAT_contact_get_key(contact)))
+    return;
+
+  struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
+      contact
+  );
+
+  if (!context)
+    return;
+
+  if (GNUNET_SYSERR == GNUNET_CHAT_context_get_status(context))
+    GNUNET_CHAT_context_request(context);
 }
 
 static void
@@ -223,6 +256,13 @@ ui_chat_new(MESSENGER_Application *app)
       gtk_builder_get_object(handle->builder, "chat_contacts_listbox")
   );
 
+  g_signal_connect(
+      handle->chat_contacts_listbox,
+      "row-activated",
+      G_CALLBACK(handle_chat_contacts_listbox_row_activated),
+      app
+  );
+
   handle->messages_listbox = GTK_LIST_BOX(
       gtk_builder_get_object(handle->builder, "messages_listbox")
   );
@@ -299,12 +339,21 @@ ui_chat_new(MESSENGER_Application *app)
   return handle;
 }
 
+struct IterateChatGroupClosure {
+  GHashTable *bindings;
+  GtkListBox *listbox;
+};
+
 static int
 iterate_ui_chat_update_group_contacts(void *cls,
 				      UNUSED const struct GNUNET_CHAT_Group *group,
 				      struct GNUNET_CHAT_Contact *contact)
 {
-  GtkListBox *listbox = GTK_LIST_BOX(cls);
+  struct IterateChatGroupClosure *closure = (
+      (struct IterateChatGroupClosure*) cls
+  );
+
+  GtkListBox *listbox = closure->listbox;
   UI_PROFILE_ENTRY_Handle* entry = ui_profile_entry_new();
 
   const char *name = GNUNET_CHAT_contact_get_name(contact);
@@ -317,12 +366,19 @@ iterate_ui_chat_update_group_contacts(void *cls,
 
   gtk_list_box_prepend(listbox, entry->entry_box);
 
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
+      gtk_widget_get_parent(entry->entry_box)
+  );
+
+  g_hash_table_insert(closure->bindings, row, contact);
+
   ui_profile_entry_delete(entry);
   return GNUNET_YES;
 }
 
 void
 ui_chat_update(UI_CHAT_Handle *handle,
+	       MESSENGER_Application *app,
 	       const struct GNUNET_CHAT_Context* context)
 {
   const struct GNUNET_CHAT_Contact* contact;
@@ -359,11 +415,17 @@ ui_chat_update(UI_CHAT_Handle *handle,
   }
 
   if (group)
+  {
+    struct IterateChatGroupClosure closure;
+    closure.bindings = app->ui.bindings;
+    closure.listbox = handle->chat_contacts_listbox;
+
     GNUNET_CHAT_group_iterate_contacts(
 	group,
 	iterate_ui_chat_update_group_contacts,
-	handle->chat_contacts_listbox
+	&closure
     );
+  }
 
   gtk_widget_set_visible(
       GTK_WIDGET(handle->chat_details_contacts_box),

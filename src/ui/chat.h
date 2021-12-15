@@ -70,6 +70,7 @@ ui_chat_new(MESSENGER_Application *app);
 
 void
 ui_chat_update(UI_CHAT_Handle *handle,
+	       MESSENGER_Application *app,
 	       const struct GNUNET_CHAT_Context* context);
 
 void

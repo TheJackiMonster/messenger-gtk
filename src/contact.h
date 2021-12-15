@@ -19,40 +19,30 @@
  */
 /*
  * @author Tobias Frisch
- * @file event.h
+ * @file contact.h
  */
 
-#ifndef EVENT_H_
-#define EVENT_H_
+#ifndef CONTACT_H_
+#define CONTACT_H_
 
 #include "application.h"
 
-void
-event_update_profile(MESSENGER_Application *app);
+typedef struct MESSENGER_ContactInfo
+{
+  GList *name_labels;
+} MESSENGER_ContactInfo;
 
 void
-event_update_chats(MESSENGER_Application *app,
-		   struct GNUNET_CHAT_Context *context,
-		   const struct GNUNET_CHAT_Message *msg);
+contact_create_info(struct GNUNET_CHAT_Contact *contact);
 
 void
-event_joining_contact(MESSENGER_Application *app,
-		      struct GNUNET_CHAT_Context *context,
-		      const struct GNUNET_CHAT_Message *msg);
+contact_destroy_info(struct GNUNET_CHAT_Contact *contact);
 
 void
-event_update_contacts(MESSENGER_Application *app,
-		      struct GNUNET_CHAT_Context *context,
-		      const struct GNUNET_CHAT_Message *msg);
+contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
+			       GtkLabel *label);
 
 void
-event_invitation(MESSENGER_Application *app,
-		 struct GNUNET_CHAT_Context *context,
-		 const struct GNUNET_CHAT_Message *msg);
+contact_update_info(const struct GNUNET_CHAT_Contact *contact);
 
-void
-event_receive_message(MESSENGER_Application *app,
-		      struct GNUNET_CHAT_Context *context,
-		      const struct GNUNET_CHAT_Message *msg);
-
-#endif /* EVENT_H_ */
+#endif /* CONTACT_H_ */

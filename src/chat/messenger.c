@@ -24,7 +24,18 @@
 
 #include "messenger.h"
 
+#include "../contact.h"
 #include "../event.h"
+
+int
+_chat_messenger_iterate_contacts(UNUSED void *cls,
+				 UNUSED struct GNUNET_CHAT_Handle *handle,
+				 struct GNUNET_CHAT_Contact *contact)
+{
+  if (contact)
+    contact_destroy_info(contact);
+  return GNUNET_YES;
+}
 
 static void
 _chat_messenger_idle(void *cls)
@@ -42,6 +53,12 @@ _chat_messenger_idle(void *cls)
 
     return;
   }
+
+  GNUNET_CHAT_iterate_contacts(
+      app->chat.messenger.handle,
+      _chat_messenger_iterate_contacts,
+      NULL
+  );
 
   GNUNET_CHAT_stop(app->chat.messenger.handle);
   app->chat.messenger.handle = NULL;
@@ -98,8 +115,12 @@ _chat_messenger_message(void *cls,
     }
     case GNUNET_CHAT_KIND_CONTACT:
     {
-      // TODO: update messages and content related to a contacts information
-      //       (name and key)
+      application_call_message_event(
+      	  app,
+      	  event_update_contacts,
+      	  context,
+      	  message
+      );
       break;
     }
     case GNUNET_CHAT_KIND_INVITATION:

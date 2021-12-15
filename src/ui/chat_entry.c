@@ -25,6 +25,7 @@
 #include "chat_entry.h"
 
 #include "../application.h"
+#include "../contact.h"
 
 UI_CHAT_ENTRY_Handle*
 ui_chat_entry_new(MESSENGER_Application *app)
@@ -63,6 +64,7 @@ ui_chat_entry_new(MESSENGER_Application *app)
 
 void
 ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
+		     MESSENGER_Application *app,
 		     const struct GNUNET_CHAT_Context *context)
 {
   const struct GNUNET_CHAT_Contact* contact;
@@ -85,7 +87,7 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
   }
 
   if (handle->chat)
-    ui_chat_update(handle->chat, context);
+    ui_chat_update(handle->chat, app, context);
 }
 
 void

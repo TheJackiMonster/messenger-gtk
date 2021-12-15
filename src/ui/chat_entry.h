@@ -48,6 +48,7 @@ ui_chat_entry_new(MESSENGER_Application *app);
 
 void
 ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
+		     MESSENGER_Application *app,
 		     const struct GNUNET_CHAT_Context *context);
 
 void

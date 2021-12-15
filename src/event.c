@@ -24,6 +24,8 @@
 
 #include "event.h"
 
+#include "contact.h"
+
 #include "ui/chat_entry.h"
 #include "ui/contact_entry.h"
 #include "ui/message.h"
@@ -37,7 +39,7 @@ _add_new_chat_entry(MESSENGER_Application *app,
 
   UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new(app);
 
-  ui_chat_entry_update(entry, context);
+  ui_chat_entry_update(entry, app, context);
 
   gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
   GNUNET_CHAT_context_set_user_pointer(context, entry);
@@ -153,6 +155,25 @@ event_update_chats(MESSENGER_Application *app,
   _add_new_chat_entry(app, context);
 }
 
+static void
+_update_contact_context(MESSENGER_Application *app,
+			struct GNUNET_CHAT_Contact *contact)
+{
+  struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
+      contact
+  );
+
+  if (!context)
+    return;
+
+  UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
+
+  if (!handle)
+    return;
+
+  ui_chat_entry_update(handle, app, context);
+}
+
 void
 event_joining_contact(MESSENGER_Application *app,
 		      struct GNUNET_CHAT_Context *context,
@@ -163,18 +184,23 @@ event_joining_contact(MESSENGER_Application *app,
   if (!handle)
     return;
 
-  ui_chat_entry_update(handle, context);
+  ui_chat_entry_update(handle, app, context);
 
   UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
 
-  const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
-    msg
+  struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
+      msg
   );
+
+  contact_create_info(contact);
+  _update_contact_context(app, contact);
 
   const char *sender = GNUNET_CHAT_contact_get_name(contact);
 
   hdy_avatar_set_text(message->sender_avatar, sender? sender : "");
   gtk_label_set_text(message->sender_label, sender? sender : "");
+
+  contact_add_name_label_to_info(contact, message->sender_label);
 
   gtk_label_set_text(message->text_label, "joined the chat");
 
@@ -184,6 +210,19 @@ event_joining_contact(MESSENGER_Application *app,
   );
 
   ui_message_delete(message);
+}
+
+void
+event_update_contacts(UNUSED MESSENGER_Application *app,
+		      UNUSED struct GNUNET_CHAT_Context *context,
+		      const struct GNUNET_CHAT_Message *msg)
+{
+  struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
+      msg
+  );
+
+  contact_update_info(contact);
+  _update_contact_context(app, contact);
 }
 
 static void
