@@ -147,10 +147,12 @@ event_update_profile(MESSENGER_Application *app)
 void
 event_update_chats(MESSENGER_Application *app,
 		   struct GNUNET_CHAT_Context *context,
-		   UNUSED const struct GNUNET_CHAT_Message *msg)
+		   const struct GNUNET_CHAT_Message *msg)
 {
   if (GNUNET_CHAT_context_get_user_pointer(context))
     return;
+
+  contact_create_info(GNUNET_CHAT_message_get_sender(msg));
 
   _add_new_chat_entry(app, context);
 }

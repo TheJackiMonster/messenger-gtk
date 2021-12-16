@@ -90,23 +90,14 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
 }
 
 static int
-_iterate_clear_contacts(UNUSED void *cls,
-			UNUSED struct GNUNET_CHAT_Handle *handle,
-			struct GNUNET_CHAT_Contact *contact)
-{
-  GNUNET_CHAT_contact_set_user_pointer(contact, NULL);
-  return GNUNET_YES;
-}
-
-static int
 _iterate_contacts(void *cls,
 		  UNUSED struct GNUNET_CHAT_Handle *handle,
 		  struct GNUNET_CHAT_Contact *contact)
 {
-  MESSENGER_Application *app = (MESSENGER_Application*) cls;
-
-  if (GNUNET_CHAT_contact_get_user_pointer(contact))
+  if (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
     return GNUNET_YES;
+
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
   const char *title;
   title = GNUNET_CHAT_contact_get_name(contact);
@@ -118,8 +109,6 @@ _iterate_contacts(void *cls,
       app->ui.contacts.contacts_listbox,
       entry->entry_box
   );
-
-  GNUNET_CHAT_contact_set_user_pointer(contact, entry);
 
   if (title)
   {
@@ -197,12 +186,6 @@ ui_contacts_dialog_init(MESSENGER_Application *app,
       "destroy",
       G_CALLBACK(handle_dialog_destroy),
       handle
-  );
-
-  GNUNET_CHAT_iterate_contacts(
-      app->chat.messenger.handle,
-      _iterate_clear_contacts,
-      NULL
   );
 
   GNUNET_CHAT_iterate_contacts(
