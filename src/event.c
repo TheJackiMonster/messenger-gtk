@@ -200,7 +200,7 @@ event_joining_contact(MESSENGER_Application *app,
   contact_add_name_avatar_to_info(contact, message->sender_avatar);
   contact_add_name_label_to_info(contact, message->sender_label);
 
-  gtk_label_set_text(message->text_label, "joined the chat");
+  gtk_label_set_text(message->text_label, _("joined the chat"));
 
   gtk_container_add(
       GTK_CONTAINER(handle->chat->messages_listbox),
@@ -266,7 +266,7 @@ event_invitation(UNUSED MESSENGER_Application *app,
   contact_add_name_avatar_to_info(contact, message->sender_avatar);
   contact_add_name_label_to_info(contact, message->sender_label);
 
-  gtk_label_set_text(message->text_label, "invited you to a chat");
+  gtk_label_set_text(message->text_label, _("invited you to a chat"));
 
   g_signal_connect(
       message->accept_button,

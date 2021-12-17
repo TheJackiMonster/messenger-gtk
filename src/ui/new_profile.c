@@ -85,7 +85,7 @@ ui_new_profile_dialog_init(MESSENGER_Application *app,
 
   gtk_window_set_title(
       GTK_WINDOW(handle->dialog),
-      "New Profile"
+      _("New Profile")
   );
 
   gtk_window_set_transient_for(

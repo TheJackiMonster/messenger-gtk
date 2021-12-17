@@ -206,7 +206,7 @@ ui_new_group_dialog_init(MESSENGER_Application *app,
 
   gtk_window_set_title(
       GTK_WINDOW(handle->dialog),
-      "New Group"
+      _("New Group")
   );
 
   gtk_window_set_transient_for(

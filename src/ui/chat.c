@@ -34,10 +34,10 @@
 #include "../contact.h"
 
 static void
-handle_flap_via_button_click(UNUSED GtkButton* button,
+handle_flap_via_button_click(UNUSED GtkButton *button,
 			     gpointer user_data)
 {
-  HdyFlap* flap = HDY_FLAP(user_data);
+  HdyFlap *flap = HDY_FLAP(user_data);
 
   if (TRUE == hdy_flap_get_reveal_flap(flap)) {
     hdy_flap_set_reveal_flap(flap, FALSE);
@@ -47,8 +47,8 @@ handle_flap_via_button_click(UNUSED GtkButton* button,
 }
 
 static void
-handle_chat_contacts_listbox_row_activated(UNUSED GtkListBox* listbox,
-					   GtkListBoxRow* row,
+handle_chat_contacts_listbox_row_activated(UNUSED GtkListBox *listbox,
+					   GtkListBoxRow *row,
 					   gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
@@ -79,16 +79,67 @@ handle_chat_contacts_listbox_row_activated(UNUSED GtkListBox* listbox,
 }
 
 static void
-handle_back_button_click(UNUSED GtkButton* button,
+handle_back_button_click(UNUSED GtkButton *button,
 			 gpointer user_data)
 {
-  HdyLeaflet* leaflet = HDY_LEAFLET(user_data);
+  HdyLeaflet *leaflet = HDY_LEAFLET(user_data);
 
-  GList* children = gtk_container_get_children(GTK_CONTAINER(leaflet));
+  GList *children = gtk_container_get_children(GTK_CONTAINER(leaflet));
 
   if (children) {
     hdy_leaflet_set_visible_child(leaflet, GTK_WIDGET(children->data));
   }
+}
+
+static void
+handle_attach_file_button_click(GtkButton *button,
+				gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  GtkTextView *text_view = GTK_TEXT_VIEW(
+      g_hash_table_lookup(app->ui.bindings, button)
+  );
+
+  if (!text_view)
+    return;
+
+  GtkWidget *dialog = gtk_file_chooser_dialog_new(
+      _("Select file"),
+      GTK_WINDOW(app->ui.messenger.main_window),
+      GTK_FILE_CHOOSER_ACTION_OPEN,
+      _("Cancel"),
+      GTK_RESPONSE_CANCEL,
+      _("Confirm"),
+      GTK_RESPONSE_ACCEPT,
+      NULL
+  );
+
+  if (GTK_RESPONSE_ACCEPT != gtk_dialog_run(GTK_DIALOG(dialog)))
+    goto close_dialog;
+
+  gchar *filename = gtk_file_chooser_get_filename(
+      GTK_FILE_CHOOSER(dialog)
+  );
+
+  if (!filename)
+    return;
+
+  ui_send_file_dialog_init(app, &(app->ui.send_file));
+  ui_send_file_dialog_update(&(app->ui.send_file), filename);
+
+  g_free(filename);
+
+  g_hash_table_insert(
+      app->ui.bindings,
+      app->ui.send_file.send_button,
+      text_view
+  );
+
+  gtk_widget_show(GTK_WIDGET(app->ui.send_file.dialog));
+
+close_dialog:
+  gtk_widget_destroy(dialog);
 }
 
 static void
@@ -128,7 +179,7 @@ _send_text_from_view(MESSENGER_Application *app,
     return FALSE;
 
   struct GNUNET_CHAT_Context *context = g_hash_table_lookup(
-    app->ui.bindings, text_view
+      app->ui.bindings, text_view
   );
 
   if (context)
@@ -274,6 +325,13 @@ ui_chat_new(MESSENGER_Application *app)
       gtk_builder_get_object(handle->builder, "attach_file_button")
   );
 
+  g_signal_connect(
+      handle->attach_file_button,
+      "clicked",
+      G_CALLBACK(handle_attach_file_button_click),
+      app
+  );
+
   handle->send_text_view = GTK_TEXT_VIEW(
       gtk_builder_get_object(handle->builder, "send_text_view")
   );
@@ -313,6 +371,12 @@ ui_chat_new(MESSENGER_Application *app)
       "key-press-event",
       G_CALLBACK(handle_send_text_key_press),
       app
+  );
+
+  g_hash_table_insert(
+      app->ui.bindings,
+      handle->attach_file_button,
+      handle->send_text_view
   );
 
   g_hash_table_insert(
@@ -398,7 +462,7 @@ ui_chat_update(UI_CHAT_Handle *handle,
 
     g_string_append_printf(
 	subtitle,
-	"%d members",
+	_("%d members"),
 	GNUNET_CHAT_group_iterate_contacts(group, NULL, NULL)
     );
   }

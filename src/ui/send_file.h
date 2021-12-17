@@ -19,45 +19,37 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/new_group.h
+ * @file ui/send_file.h
  */
 
-#ifndef UI_NEW_GROUP_H_
-#define UI_NEW_GROUP_H_
+#ifndef UI_SEND_FILE_H_
+#define UI_SEND_FILE_H_
 
 #include "messenger.h"
 
-typedef struct UI_NEW_GROUP_Handle
+typedef struct UI_SEND_FILE_Handle
 {
   GList *contact_entries;
 
   GtkBuilder *builder;
   GtkDialog *dialog;
 
-  GtkStack *stack;
-  GtkWidget *details_box;
-  GtkWidget *contacts_box;
-
-  HdyAvatar *group_avatar;
-  GtkFileChooserButton *group_avatar_file;
-
-  GtkEntry *group_entry;
-
-  GtkSearchEntry *contact_search_entry;
-
-  GtkListBox *contacts_listbox;
+  GtkDrawingArea *file_drawing_area;
+  GtkFileChooserButton *file_chooser_button;
 
   GtkButton *cancel_button;
-  GtkButton *previous_button;
-  GtkButton *next_button;
-  GtkButton *confirm_button;
-} UI_NEW_GROUP_Handle;
+  GtkButton *send_button;
+} UI_SEND_FILE_Handle;
 
 void
-ui_new_group_dialog_init(MESSENGER_Application *app,
-			 UI_NEW_GROUP_Handle *handle);
+ui_send_file_dialog_init(MESSENGER_Application *app,
+			 UI_SEND_FILE_Handle *handle);
 
 void
-ui_new_group_dialog_cleanup(UI_NEW_GROUP_Handle *handle);
+ui_send_file_dialog_update(UI_SEND_FILE_Handle *handle,
+			   const gchar *filename);
 
-#endif /* UI_NEW_GROUP_H_ */
+void
+ui_send_file_dialog_cleanup(UI_SEND_FILE_Handle *handle);
+
+#endif /* UI_SEND_FILE_H_ */

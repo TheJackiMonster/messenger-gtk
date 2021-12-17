@@ -20,6 +20,7 @@ SOURCES = messenger_gtk.c\
 		  ui/new_profile.c\
 		  ui/picker.c\
 		  ui/profile_entry.c\
+		  ui/send_file.c\
 		  ui/settings.c
 		  
 HEADERS = 
