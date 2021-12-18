@@ -27,6 +27,7 @@
 
 #include "messenger.h"
 
+#include <cairo/cairo.h>
 #include <gdk/gdkpixbuf.h>
 #include <pthread.h>
 #include <zbar.h>

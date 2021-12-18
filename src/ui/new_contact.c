@@ -147,6 +147,28 @@ render_image:
   return FALSE;
 }
 
+static void
+_disable_video_processing(UI_NEW_CONTACT_Handle *handle)
+{
+  if (!(handle->video))
+    return;
+
+  const zbar_error_t error_code = zbar_video_get_error_code(handle->video);
+
+  if (ZBAR_OK != error_code)
+  {
+    const char *error_msg = zbar_video_error_string(handle->video, 0);
+
+    if (error_msg)
+      fprintf(stderr, "%s", error_msg);
+    else
+      fprintf(stderr, "ERROR: Unknown error with zbar (%d)\n",
+	      (int) error_code);
+  }
+
+  handle->idle_processing = 0;
+}
+
 static gboolean
 idle_video_processing(gpointer user_data)
 {
@@ -158,7 +180,10 @@ idle_video_processing(gpointer user_data)
   zbar_image_t *image = zbar_video_next_image(handle->video);
 
   if (!image)
-    return TRUE;
+  {
+    _disable_video_processing(handle);
+    return FALSE;
+  }
 
   GString *scan_result = NULL;
 
@@ -226,10 +251,16 @@ _ui_new_contact_video_thread(void *args)
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) args;
 
   if (0 != zbar_video_open(handle->video, ""))
+  {
+    _disable_video_processing(handle);
     return NULL;
+  }
 
   if (0 != zbar_video_enable(handle->video, 1))
+  {
+    _disable_video_processing(handle);
     return NULL;
+  }
 
   zbar_image_scanner_set_config(
       handle->scanner,
