@@ -150,6 +150,8 @@ render_image:
 static void
 _disable_video_processing(UI_NEW_CONTACT_Handle *handle)
 {
+  gtk_stack_set_visible_child(handle->preview_stack, handle->fail_box);
+
   if (!(handle->video))
     return;
 
@@ -269,6 +271,11 @@ _ui_new_contact_video_thread(void *args)
       TRUE
   );
 
+  gtk_stack_set_visible_child(
+      handle->preview_stack,
+      GTK_WIDGET(handle->id_drawing_area)
+  );
+
   handle->idle_processing = g_idle_add(idle_video_processing, handle);
   return NULL;
 }
@@ -279,8 +286,6 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
 {
   handle->video = zbar_video_create();
   handle->scanner = zbar_image_scanner_create();
-
-  pthread_create(&(handle->video_tid), NULL, _ui_new_contact_video_thread, handle);
 
   handle->builder = gtk_builder_new_from_file("resources/ui/new_contact.ui");
 
@@ -298,8 +303,23 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
       GTK_WINDOW(app->ui.messenger.main_window)
   );
 
+  handle->preview_stack = GTK_STACK(
+      gtk_builder_get_object(handle->builder, "preview_stack")
+  );
+
+  handle->fail_box = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder, "fail_box")
+  );
+
   handle->id_drawing_area = GTK_DRAWING_AREA(
       gtk_builder_get_object(handle->builder, "id_drawing_area")
+  );
+
+  pthread_create(
+      &(handle->video_tid),
+      NULL,
+      _ui_new_contact_video_thread,
+      handle
   );
 
   g_signal_connect(

@@ -41,6 +41,9 @@ typedef struct UI_NEW_CONTACT_Handle
   GtkBuilder *builder;
   GtkDialog *dialog;
 
+  GtkStack *preview_stack;
+  GtkWidget *fail_box;
+
   GtkDrawingArea *id_drawing_area;
   GtkEntry *id_entry;
 
