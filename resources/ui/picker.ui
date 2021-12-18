@@ -69,8 +69,7 @@ Author: Tobias Frisch
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
-                  <object class="GtkScrolledWindow">
-                    <property name="visible">True</property>
+                  <object class="GtkScrolledWindow" id="recent_emoji_page">
                     <property name="can-focus">True</property>
                     <property name="shadow-type">in</property>
                     <child>
@@ -384,7 +383,6 @@ Author: Tobias Frisch
         </child>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="orientation">vertical</property>
             <child>
@@ -406,7 +404,6 @@ Author: Tobias Frisch
         </child>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="orientation">vertical</property>
             <child>

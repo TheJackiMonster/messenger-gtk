@@ -113,6 +113,10 @@ ui_picker_new(UNUSED MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "emoji_stack")
   );
 
+  handle->recent_emoji_page = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder, "recent_emoji_page")
+  );
+
   handle->picker_switcher_bar = HDY_VIEW_SWITCHER_BAR(
       gtk_builder_get_object(handle->builder, "picker_switcher_bar")
   );

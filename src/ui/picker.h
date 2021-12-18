@@ -35,6 +35,8 @@ typedef struct UI_PICKER_Handle
   GtkStack *picker_stack;
   GtkStack *emoji_stack;
 
+  GtkWidget *recent_emoji_page;
+
   HdyViewSwitcherBar *picker_switcher_bar;
   HdyViewSwitcherBar *emoji_switcher_bar;
 
