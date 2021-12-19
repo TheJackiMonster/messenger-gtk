@@ -12,6 +12,7 @@ SOURCES = messenger_gtk.c\
 		  ui/chat_entry.c\
 		  ui/contact_entry.c\
 		  ui/contacts.c\
+		  ui/invite_contact.c\
 		  ui/message.c\
 		  ui/messenger.c\
 		  ui/new_contact.c\

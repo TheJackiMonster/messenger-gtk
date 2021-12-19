@@ -47,15 +47,30 @@ handle_flap_via_button_click(UNUSED GtkButton *button,
 }
 
 static void
-handle_chat_contacts_listbox_row_activated(UNUSED GtkListBox *listbox,
+handle_chat_contacts_listbox_row_activated(GtkListBox *listbox,
 					   GtkListBoxRow *row,
 					   gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
+  GtkTextView *text_view = GTK_TEXT_VIEW(
+      g_hash_table_lookup(app->ui.bindings, listbox)
+  );
+
+  if (!text_view)
+    return;
+
   if (!gtk_list_box_row_get_selectable(row))
   {
-    //g_idle_add(G_SOURCE_FUNC(_open_new_contact_dialog), app);
+    ui_invite_contact_dialog_init(app, &(app->ui.invite_contact));
+
+    g_hash_table_insert(
+	app->ui.bindings,
+	app->ui.invite_contact.contacts_listbox,
+	text_view
+    );
+
+    gtk_widget_show(GTK_WIDGET(app->ui.invite_contact.dialog));
     return;
   }
 
@@ -371,6 +386,12 @@ ui_chat_new(MESSENGER_Application *app)
       "key-press-event",
       G_CALLBACK(handle_send_text_key_press),
       app
+  );
+
+  g_hash_table_insert(
+      app->ui.bindings,
+      handle->chat_contacts_listbox,
+      handle->send_text_view
   );
 
   g_hash_table_insert(

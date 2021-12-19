@@ -31,6 +31,7 @@
 #include "chat/messenger.h"
 
 #include "ui/contacts.h"
+#include "ui/invite_contact.h"
 #include "ui/messenger.h"
 #include "ui/new_contact.h"
 #include "ui/new_group.h"
@@ -73,6 +74,7 @@ typedef struct MESSENGER_Application
 
     UI_MESSENGER_Handle messenger;
 
+    UI_INVITE_CONTACT_Handle invite_contact;
     UI_SEND_FILE_Handle send_file;
 
     UI_NEW_CONTACT_Handle new_contact;
