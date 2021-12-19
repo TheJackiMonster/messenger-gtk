@@ -95,6 +95,16 @@ _chat_messenger_message(void *cls,
       application_call_event(app, event_update_profile);
       break;
     }
+    case GNUNET_CHAT_KIND_UPDATE:
+    {
+      application_call_message_event(
+	  app,
+	  event_update_chats,
+	  context,
+	  message
+      );
+      break;
+    }
     case GNUNET_CHAT_KIND_JOIN:
     {
       application_call_message_event(
@@ -160,7 +170,7 @@ chat_messenger_run(void *cls,
 
   app->chat.messenger.handle = GNUNET_CHAT_start(
       cfg,
-      "messenger-gtk",
+      ".messenger",
       app->chat.identity,
       &_chat_messenger_message,
       app

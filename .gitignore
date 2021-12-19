@@ -9,5 +9,8 @@
 # Application file:
 messenger-gtk
 
-# UI quicksave files
+# UI quicksave files:
 *.ui~
+
+# Application configuration files:
+.messenger/
