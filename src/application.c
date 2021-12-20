@@ -77,6 +77,8 @@ application_init(MESSENGER_Application *app,
   app->chat.tid = 0;
   app->chat.signal = MESSENGER_NONE;
 
+  pthread_mutex_init(&(app->chat.mutex), NULL);
+
   app->ui.mobile = FALSE;
 
   app->ui.bindings = g_hash_table_new(g_direct_hash, g_direct_equal);
@@ -159,6 +161,8 @@ application_run(MESSENGER_Application *app)
 
   g_hash_table_destroy(app->ui.bindings);
 
+  pthread_mutex_destroy(&(app->chat.mutex));
+
   notify_uninit();
 
   g_object_unref(app->application);
@@ -213,7 +217,10 @@ _application_message_event_call(gpointer user_data)
   MESSENGER_ApplicationMessageEventCall *call;
 
   call = (MESSENGER_ApplicationMessageEventCall*) user_data;
+
+  pthread_mutex_lock(&(call->app->chat.mutex));
   call->event(call->app, call->context, call->message);
+  pthread_mutex_unlock(&(call->app->chat.mutex));
 
   GNUNET_free(call);
   return FALSE;
@@ -226,6 +233,9 @@ application_call_message_event(MESSENGER_Application *app,
                                const struct GNUNET_CHAT_Message *message)
 {
   MESSENGER_ApplicationMessageEventCall *call;
+
+  if (!event)
+    return;
 
   call = (MESSENGER_ApplicationMessageEventCall*) GNUNET_malloc(
       sizeof(MESSENGER_ApplicationMessageEventCall)

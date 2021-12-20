@@ -62,6 +62,7 @@ typedef struct MESSENGER_Application
     char *identity;
 
     MESSENGER_ApplicationSignal signal;
+    pthread_mutex_t mutex;
 
     CHAT_MESSENGER_Handle messenger;
   } chat;

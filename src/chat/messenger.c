@@ -74,6 +74,8 @@ _chat_messenger_message(void *cls,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
+  pthread_mutex_lock(&(app->chat.mutex));
+
   const enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(message);
   const struct GNUNET_CHAT_Contact* sender = GNUNET_CHAT_message_get_sender(message);
 
@@ -156,6 +158,8 @@ _chat_messenger_message(void *cls,
     default:
       break;
   }
+
+  pthread_mutex_unlock(&(app->chat.mutex));
 
   return GNUNET_YES;
 }
