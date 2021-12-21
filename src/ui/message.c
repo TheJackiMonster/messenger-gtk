@@ -174,7 +174,12 @@ ui_message_update(UI_MESSAGE_Handle *handle,
   if (!file)
     return;
 
-  // TODO
+  gtk_stack_set_visible_child(
+      handle->content_stack,
+      GTK_WIDGET(handle->file_revealer)
+  );
+
+  gtk_revealer_set_reveal_child(handle->file_revealer, TRUE);
 }
 
 void

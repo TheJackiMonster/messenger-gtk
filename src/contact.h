@@ -31,6 +31,7 @@ typedef struct MESSENGER_ContactInfo
 {
   GList *name_labels;
   GList *name_avatars;
+  GList *name_notifications;
 } MESSENGER_ContactInfo;
 
 void

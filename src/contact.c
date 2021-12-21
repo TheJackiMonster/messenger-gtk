@@ -52,6 +52,9 @@ contact_destroy_info(struct GNUNET_CHAT_Contact *contact)
   if (info->name_avatars)
     g_list_free(info->name_avatars);
 
+  if (info->name_notifications)
+    g_list_free(info->name_notifications);
+
   g_free(info);
 
   GNUNET_CHAT_contact_set_user_pointer(contact, NULL);

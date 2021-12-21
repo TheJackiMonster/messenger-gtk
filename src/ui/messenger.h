@@ -29,6 +29,8 @@
 #include <libhandy-1/handy.h>
 #include <libnotify/notify.h>
 
+#include <gnunet/gnunet_chat_lib.h>
+
 typedef struct MESSENGER_Application MESSENGER_Application;
 
 typedef struct UI_MESSENGER_Handle
@@ -72,6 +74,10 @@ typedef struct UI_MESSENGER_Handle
 void
 ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle);
+
+gboolean
+ui_messenger_is_context_active(UI_MESSENGER_Handle *handle,
+			       struct GNUNET_CHAT_Context *context);
 
 void
 ui_messenger_cleanup(UI_MESSENGER_Handle *handle);

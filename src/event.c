@@ -32,6 +32,44 @@
 #include "ui/profile_entry.h"
 
 static void
+_close_notification(NotifyNotification* notification,
+		    UNUSED gpointer user_data)
+{
+  notify_notification_clear_actions(notification);
+  notify_notification_clear_hints(notification);
+
+  g_object_unref(notification);
+}
+
+static void
+_show_notification(UNUSED MESSENGER_Application *app,
+		   UNUSED struct GNUNET_CHAT_Context *context,
+		   const struct GNUNET_CHAT_Contact *contact,
+		   const gchar *text,
+		   const gchar *icon)
+{
+  const char *sender = GNUNET_CHAT_contact_get_name(contact);
+
+  NotifyNotification *notification = notify_notification_new(
+      sender? sender : "(unknown)", text, icon
+  );
+
+  if (0 == g_strcmp0(icon, "avatar-default-symbolic"))
+    notify_notification_set_category(notification, "presence.online");
+  else
+    notify_notification_set_category(notification, "im.received");
+
+  g_signal_connect(
+      notification,
+      "closed",
+      G_CALLBACK(_close_notification),
+      NULL
+  );
+
+  notify_notification_show(notification, NULL);
+}
+
+static void
 _add_new_chat_entry(MESSENGER_Application *app,
 		    struct GNUNET_CHAT_Context *context)
 {
@@ -205,7 +243,18 @@ event_joining_contact(MESSENGER_Application *app,
   contact_add_name_avatar_to_info(contact, message->sender_avatar);
   contact_add_name_label_to_info(contact, message->sender_label);
 
-  gtk_label_set_text(message->text_label, _("joined the chat"));
+  const gchar *join_message = _("joined the chat");
+
+  if (!ui_messenger_is_context_active(&(app->ui.messenger), context))
+    _show_notification(
+	app,
+	context,
+	contact,
+	join_message,
+	"avatar-default-symbolic"
+    );
+
+  gtk_label_set_text(message->text_label, join_message);
 
   gtk_container_add(
       GTK_CONTAINER(handle->chat->messages_listbox),
@@ -274,7 +323,18 @@ event_invitation(UNUSED MESSENGER_Application *app,
   contact_add_name_avatar_to_info(contact, message->sender_avatar);
   contact_add_name_label_to_info(contact, message->sender_label);
 
-  gtk_label_set_text(message->text_label, _("invited you to a chat"));
+  const gchar *invite_message = _("invited you to a chat");
+
+  if (!ui_messenger_is_context_active(&(app->ui.messenger), context))
+    _show_notification(
+	app,
+	context,
+	contact,
+	invite_message,
+	"mail-message-new-symbolic"
+    );
+
+  gtk_label_set_text(message->text_label, invite_message);
 
   g_signal_connect(
       message->accept_button,
@@ -326,6 +386,16 @@ event_receive_message(UNUSED MESSENGER_Application *app,
 
   const char *text = GNUNET_CHAT_message_get_text(msg);
   const char *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
+
+  if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
+      (GNUNET_YES != sent))
+    _show_notification(
+	app,
+	context,
+	contact,
+	text,
+	"mail-unread-symbolic"
+    );
 
   gtk_label_set_text(message->text_label, text? text : "");
   gtk_label_set_text(message->timestamp_label, time? time : "");

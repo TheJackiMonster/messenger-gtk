@@ -396,6 +396,25 @@ ui_messenger_init(MESSENGER_Application *app,
   );
 }
 
+gboolean
+ui_messenger_is_context_active(UI_MESSENGER_Handle *handle,
+			       struct GNUNET_CHAT_Context *context)
+{
+  if (!gtk_window_is_active(GTK_WINDOW(handle->main_window)))
+    return FALSE;
+
+  UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(context);
+
+  if (!entry)
+    return FALSE;
+
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
+      gtk_widget_get_parent(entry->entry_box)
+  );
+
+  return gtk_list_box_row_is_selected(row);
+}
+
 void
 ui_messenger_cleanup(UI_MESSENGER_Handle *handle)
 {
