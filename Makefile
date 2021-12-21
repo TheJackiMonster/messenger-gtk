@@ -38,7 +38,7 @@ CFLAGS  += -pedantic -Wall -Wextra -ggdb3
 LDFLAGS += 
 
 DEBUGFLAGS   = -O0 -D _DEBUG
-RELEASEFLAGS = -O2 -D NDEBUG -fwhole-program
+RELEASEFLAGS = -O2 -D NDEBUG
 
 SOURCE_FILES  = $(addprefix $(SOURCE_DIR), $(SOURCES))
 OBJECT_FILES  = $(SOURCE_FILES:%.c=%.o)
