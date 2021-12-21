@@ -190,7 +190,10 @@ event_joining_contact(MESSENGER_Application *app,
 
   ui_chat_entry_update(handle, app, context);
 
-  UI_MESSAGE_Handle *message = ui_message_new(UI_MESSAGE_STATUS);
+  UI_MESSAGE_Handle *message = ui_message_new(
+      UI_MESSAGE_STATUS,
+      UI_MESSAGE_CONTENT_TEXT
+  );
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
       msg
@@ -209,7 +212,7 @@ event_joining_contact(MESSENGER_Application *app,
       message->message_box
   );
 
-  ui_message_delete(message);
+  handle->chat->messages = g_list_append(handle->chat->messages, message);
 }
 
 void
@@ -259,7 +262,10 @@ event_invitation(UNUSED MESSENGER_Application *app,
   if (!invitation)
     return;
 
-  UI_MESSAGE_Handle *message = ui_message_new(UI_MESSAGE_STATUS);
+  UI_MESSAGE_Handle *message = ui_message_new(
+      UI_MESSAGE_STATUS,
+      UI_MESSAGE_CONTENT_TEXT
+  );
 
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
     msg
@@ -285,7 +291,7 @@ event_invitation(UNUSED MESSENGER_Application *app,
       message->message_box
   );
 
-  ui_message_delete(message);
+  handle->chat->messages = g_list_append(handle->chat->messages, message);
 }
 
 void
@@ -301,7 +307,8 @@ event_receive_message(UNUSED MESSENGER_Application *app,
   const int sent = GNUNET_CHAT_message_is_sent(msg);
 
   UI_MESSAGE_Handle *message = ui_message_new(
-      GNUNET_YES == sent? UI_MESSAGE_SENT : UI_MESSAGE_DEFAULT
+      GNUNET_YES == sent? UI_MESSAGE_SENT : UI_MESSAGE_DEFAULT,
+      UI_MESSAGE_CONTENT_TEXT
   );
 
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
@@ -329,7 +336,7 @@ event_receive_message(UNUSED MESSENGER_Application *app,
       message->message_box
   );
 
-  ui_message_delete(message);
+  handle->chat->messages = g_list_append(handle->chat->messages, message);
 
   gtk_label_set_text(handle->text_label, text? text : "");
   gtk_label_set_text(handle->timestamp_label, time? time : "");

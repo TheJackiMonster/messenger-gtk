@@ -69,7 +69,7 @@ handle_id_drawing_area_draw(GtkWidget* drawing_area,
   GdkPixbuf *image = NULL;
 
   if (!handle->image)
-    goto render_image;
+    return FALSE;
 
   uint w, h;
   zbar_image_get_size(handle->image, &w, &h);

@@ -36,6 +36,8 @@ typedef struct UI_PICKER_Handle UI_PICKER_Handle;
 
 typedef struct UI_CHAT_Handle
 {
+  GList *messages;
+
   GtkBuilder *builder;
   GtkWidget *chat_box;
 

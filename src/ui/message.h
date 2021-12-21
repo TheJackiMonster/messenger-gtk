@@ -39,6 +39,13 @@ typedef enum UI_MESSAGE_Type
   UI_MESSAGE_STATUS 	= 2
 } UI_MESSAGE_Type;
 
+typedef enum UI_MESSAGE_ContentType
+{
+  UI_MESSAGE_CONTENT_TEXT 	= 0,
+  UI_MESSAGE_CONTENT_FILE 	= 1,
+  UI_MESSAGE_CONTENT_PREVIEW 	= 2
+} UI_MESSAGE_ContentType;
+
 typedef struct UI_MESSAGE_Handle
 {
   UI_MESSAGE_Type type;
@@ -49,17 +56,23 @@ typedef struct UI_MESSAGE_Handle
   HdyAvatar *sender_avatar;
   GtkLabel *sender_label;
 
-  GtkLabel *text_label;
+  GtkRevealer *deny_revealer;
+  GtkRevealer *accept_revealer;
 
   GtkButton *deny_button;
   GtkButton *accept_button;
 
   GtkLabel *timestamp_label;
   GtkImage *read_receipt_image;
+
+  GtkLabel *text_label;
+  GtkRevealer *file_revealer;
+  GtkDrawingArea *preview_drawing_area;
 } UI_MESSAGE_Handle;
 
 UI_MESSAGE_Handle*
-ui_message_new(UI_MESSAGE_Type type);
+ui_message_new(UI_MESSAGE_Type type,
+	       UI_MESSAGE_ContentType content_type);
 
 void
 ui_message_delete(UI_MESSAGE_Handle *handle);

@@ -27,7 +27,8 @@
 #include "../application.h"
 
 UI_MESSAGE_Handle*
-ui_message_new(UI_MESSAGE_Type type)
+ui_message_new(UI_MESSAGE_Type type,
+	       UI_MESSAGE_ContentType content_type)
 {
   UI_MESSAGE_Handle* handle = g_malloc(sizeof(UI_MESSAGE_Handle));
 
@@ -62,12 +63,16 @@ ui_message_new(UI_MESSAGE_Type type)
       gtk_builder_get_object(handle->builder, "sender_label")
   );
 
-  handle->text_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder, "text_label")
-  );
-
   if (UI_MESSAGE_STATUS == handle->type)
   {
+    handle->deny_revealer = GTK_REVEALER(
+	gtk_builder_get_object(handle->builder, "deny_revealer")
+    );
+
+    handle->accept_revealer = GTK_REVEALER(
+    	gtk_builder_get_object(handle->builder, "accept_revealer")
+    );
+
     handle->deny_button = GTK_BUTTON(
 	gtk_builder_get_object(handle->builder, "deny_button")
     );
@@ -78,18 +83,64 @@ ui_message_new(UI_MESSAGE_Type type)
   }
   else
   {
+    handle->deny_revealer = NULL;
+    handle->accept_revealer = NULL;
+
     handle->deny_button = NULL;
     handle->accept_button = NULL;
   }
 
+  GtkContainer *content_box = GTK_CONTAINER(
+      gtk_builder_get_object(handle->builder, "content_box")
+  );
+
+  GtkBuilder *builder = gtk_builder_new_from_file(
+      "resources/ui/message_content.ui"
+  );
+
   handle->timestamp_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder, "timestamp_label")
+      gtk_builder_get_object(builder, "timestamp_label")
   );
 
   handle->read_receipt_image = GTK_IMAGE(
-      gtk_builder_get_object(handle->builder, "read_receipt_image")
+      gtk_builder_get_object(builder, "read_receipt_image")
   );
 
+  handle->text_label = GTK_LABEL(
+      gtk_builder_get_object(builder, "text_label")
+  );
+
+  handle->file_revealer = GTK_REVEALER(
+      gtk_builder_get_object(builder, "file_revealer")
+  );
+
+  handle->preview_drawing_area = GTK_DRAWING_AREA(
+      gtk_builder_get_object(builder, "preview_drawing_area")
+  );
+
+  switch (handle->type)
+  {
+    case UI_MESSAGE_STATUS:
+      gtk_widget_set_visible(GTK_WIDGET(handle->timestamp_label), FALSE);
+      break;
+    default:
+      break;
+  }
+
+  switch (content_type)
+  {
+    case UI_MESSAGE_CONTENT_FILE:
+      gtk_revealer_set_reveal_child(handle->file_revealer, TRUE);
+      break;
+    default:
+      break;
+  }
+
+  gtk_container_add(content_box, GTK_WIDGET(
+      gtk_builder_get_object(builder, "message_content_box")
+  ));
+
+  g_object_unref(builder);
   return handle;
 }
 

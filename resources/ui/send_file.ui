@@ -78,6 +78,7 @@ Author: Tobias Frisch
             <property name="spacing">4</property>
             <child>
               <object class="GtkDrawingArea" id="file_drawing_area">
+                <property name="width-request">250</property>
                 <property name="height-request">250</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>

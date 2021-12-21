@@ -26,6 +26,7 @@
 
 #include <gdk/gdkkeysyms.h>
 
+#include "message.h"
 #include "messenger.h"
 #include "picker.h"
 #include "profile_entry.h"
@@ -251,6 +252,8 @@ ui_chat_new(MESSENGER_Application *app)
 {
   UI_CHAT_Handle *handle = g_malloc(sizeof(UI_CHAT_Handle));
   UI_MESSENGER_Handle *messenger = &(app->ui.messenger);
+
+  handle->messages = NULL;
 
   handle->builder = gtk_builder_new_from_file(
       "resources/ui/chat.ui"
@@ -551,6 +554,18 @@ ui_chat_delete(UI_CHAT_Handle *handle)
   ui_picker_delete(handle->picker);
 
   g_object_unref(handle->builder);
+
+  GList *list = handle->messages;
+
+  while (list) {
+    if (list->data)
+      ui_message_delete((UI_MESSAGE_Handle*) list->data);
+
+    list = list->next;
+  }
+
+  if (handle->messages)
+    g_list_free(handle->messages);
 
   g_free(handle);
 }

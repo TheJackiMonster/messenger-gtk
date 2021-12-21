@@ -39,6 +39,12 @@ typedef struct UI_SEND_FILE_Handle
 
   GtkButton *cancel_button;
   GtkButton *send_button;
+
+  GdkPixbuf *image;
+  GdkPixbufAnimation *animation;
+  GdkPixbufAnimationIter *animation_iter;
+
+  guint redraw_animation;
 } UI_SEND_FILE_Handle;
 
 void
