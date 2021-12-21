@@ -95,6 +95,29 @@ handle_chat_contacts_listbox_row_activated(GtkListBox *listbox,
 }
 
 static void
+handle_chat_messages_listbox_size_allocate(UNUSED GtkWidget *widget,
+					   UNUSED GdkRectangle *allocation,
+				           gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  GtkAdjustment *adjustment = gtk_scrolled_window_get_vadjustment(
+      handle->chat_scrolled_window
+  );
+
+  const gdouble value = gtk_adjustment_get_value(adjustment);
+  const gdouble upper = gtk_adjustment_get_upper(adjustment);
+  const gdouble page_size = gtk_adjustment_get_page_size(adjustment);
+
+  const gdouble edge_value = upper - page_size;
+
+  if (value >= handle->edge_value)
+    gtk_adjustment_set_value(adjustment, edge_value);
+
+  handle->edge_value = upper - page_size;
+}
+
+static void
 handle_back_button_click(UNUSED GtkButton *button,
 			 gpointer user_data)
 {
@@ -254,6 +277,7 @@ ui_chat_new(MESSENGER_Application *app)
   UI_MESSENGER_Handle *messenger = &(app->ui.messenger);
 
   handle->messages = NULL;
+  handle->edge_value = 0;
 
   handle->builder = gtk_builder_new_from_file(
       "resources/ui/chat.ui"
@@ -324,6 +348,10 @@ ui_chat_new(MESSENGER_Application *app)
       gtk_builder_get_object(handle->builder, "chat_details_contacts_box")
   );
 
+  handle->chat_scrolled_window = GTK_SCROLLED_WINDOW(
+      gtk_builder_get_object(handle->builder, "chat_scrolled_window")
+  );
+
   handle->chat_contacts_listbox = GTK_LIST_BOX(
       gtk_builder_get_object(handle->builder, "chat_contacts_listbox")
   );
@@ -337,6 +365,13 @@ ui_chat_new(MESSENGER_Application *app)
 
   handle->messages_listbox = GTK_LIST_BOX(
       gtk_builder_get_object(handle->builder, "messages_listbox")
+  );
+
+  g_signal_connect(
+      handle->messages_listbox,
+      "size-allocate",
+      G_CALLBACK(handle_chat_messages_listbox_size_allocate),
+      handle
   );
 
   handle->attach_file_button = GTK_BUTTON(

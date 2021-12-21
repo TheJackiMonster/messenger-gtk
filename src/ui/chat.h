@@ -37,6 +37,7 @@ typedef struct UI_PICKER_Handle UI_PICKER_Handle;
 typedef struct UI_CHAT_Handle
 {
   GList *messages;
+  gdouble edge_value;
 
   GtkBuilder *builder;
   GtkWidget *chat_box;
@@ -52,6 +53,8 @@ typedef struct UI_CHAT_Handle
   GtkLabel *chat_details_label;
   GtkButton *hide_chat_details_button;
   GtkBox *chat_details_contacts_box;
+
+  GtkScrolledWindow *chat_scrolled_window;
 
   GtkListBox *chat_contacts_listbox;
   GtkListBox *messages_listbox;

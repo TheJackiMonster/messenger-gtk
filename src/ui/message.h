@@ -30,6 +30,8 @@
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
 
+#include <gnunet/gnunet_chat_lib.h>
+
 typedef struct MESSENGER_Application MESSENGER_Application;
 
 typedef enum UI_MESSAGE_Type
@@ -65,6 +67,8 @@ typedef struct UI_MESSAGE_Handle
   GtkLabel *timestamp_label;
   GtkImage *read_receipt_image;
 
+  GtkStack *content_stack;
+
   GtkLabel *text_label;
   GtkRevealer *file_revealer;
   GtkDrawingArea *preview_drawing_area;
@@ -73,6 +77,10 @@ typedef struct UI_MESSAGE_Handle
 UI_MESSAGE_Handle*
 ui_message_new(UI_MESSAGE_Type type,
 	       UI_MESSAGE_ContentType content_type);
+
+void
+ui_message_update(UI_MESSAGE_Handle *handle,
+		  struct GNUNET_CHAT_Message *message);
 
 void
 ui_message_delete(UI_MESSAGE_Handle *handle);

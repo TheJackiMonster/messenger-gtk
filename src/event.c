@@ -304,11 +304,13 @@ event_receive_message(UNUSED MESSENGER_Application *app,
   if (!handle)
     return;
 
+  struct GNUNET_CHAT_File *file = GNUNET_CHAT_message_get_file(msg);
+
   const int sent = GNUNET_CHAT_message_is_sent(msg);
 
   UI_MESSAGE_Handle *message = ui_message_new(
       GNUNET_YES == sent? UI_MESSAGE_SENT : UI_MESSAGE_DEFAULT,
-      UI_MESSAGE_CONTENT_TEXT
+      file? UI_MESSAGE_CONTENT_FILE : UI_MESSAGE_CONTENT_TEXT
   );
 
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(

@@ -106,6 +106,10 @@ ui_message_new(UI_MESSAGE_Type type,
       gtk_builder_get_object(builder, "read_receipt_image")
   );
 
+  handle->content_stack = GTK_STACK(
+      gtk_builder_get_object(builder, "content_stack")
+  );
+
   handle->text_label = GTK_LABEL(
       gtk_builder_get_object(builder, "text_label")
   );
@@ -129,8 +133,25 @@ ui_message_new(UI_MESSAGE_Type type,
 
   switch (content_type)
   {
+    case UI_MESSAGE_CONTENT_TEXT:
+      gtk_stack_set_visible_child(
+	  handle->content_stack,
+	  GTK_WIDGET(handle->text_label)
+      );
+      break;
     case UI_MESSAGE_CONTENT_FILE:
+      gtk_stack_set_visible_child(
+	  handle->content_stack,
+	  GTK_WIDGET(handle->file_revealer)
+      );
+
       gtk_revealer_set_reveal_child(handle->file_revealer, TRUE);
+      break;
+    case UI_MESSAGE_CONTENT_PREVIEW:
+      gtk_stack_set_visible_child(
+	  handle->content_stack,
+	  GTK_WIDGET(handle->preview_drawing_area)
+      );
       break;
     default:
       break;
@@ -142,6 +163,18 @@ ui_message_new(UI_MESSAGE_Type type,
 
   g_object_unref(builder);
   return handle;
+}
+
+void
+ui_message_update(UI_MESSAGE_Handle *handle,
+		  struct GNUNET_CHAT_Message *msg)
+{
+  struct GNUNET_CHAT_File *file = GNUNET_CHAT_message_get_file(msg);
+
+  if (!file)
+    return;
+
+  // TODO
 }
 
 void
