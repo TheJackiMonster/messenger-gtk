@@ -514,7 +514,9 @@ ui_chat_update(UI_CHAT_Handle *handle,
   GString *subtitle = g_string_new("");
 
   if (contact)
+  {
     title = GNUNET_CHAT_contact_get_name(contact);
+  }
   else if (group)
   {
     title = GNUNET_CHAT_group_get_name(group);
@@ -581,6 +583,18 @@ ui_chat_update(UI_CHAT_Handle *handle,
   gtk_widget_set_sensitive(GTK_WIDGET(handle->attach_file_button), activated);
   gtk_widget_set_sensitive(GTK_WIDGET(handle->emoji_button), activated);
   gtk_widget_set_sensitive(GTK_WIDGET(handle->send_record_button), activated);
+
+  if (!handle->messages)
+    return;
+
+  UI_MESSAGE_Handle *message = (
+      (UI_MESSAGE_Handle*) handle->messages->data
+  );
+
+  const gchar *time = gtk_label_get_text(message->timestamp_label);
+
+  if (!group)
+    gtk_label_set_text(handle->chat_subtitle, time);
 }
 
 void

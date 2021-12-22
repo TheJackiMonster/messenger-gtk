@@ -235,12 +235,12 @@ event_joining_contact(MESSENGER_Application *app,
   if (!handle)
     return;
 
-  ui_chat_entry_update(handle, app, context);
-
   UI_MESSAGE_Handle *message = ui_message_new(
       UI_MESSAGE_STATUS,
       UI_MESSAGE_CONTENT_TEXT
   );
+
+  ui_message_update(message, msg);
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
       msg
@@ -270,7 +270,8 @@ event_joining_contact(MESSENGER_Application *app,
       message->message_box
   );
 
-  handle->chat->messages = g_list_append(handle->chat->messages, message);
+  handle->chat->messages = g_list_prepend(handle->chat->messages, message);
+  ui_chat_entry_update(handle, app, context);
 }
 
 void
@@ -325,6 +326,8 @@ event_invitation(UNUSED MESSENGER_Application *app,
       UI_MESSAGE_CONTENT_TEXT
   );
 
+  ui_message_update(message, msg);
+
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
     msg
   );
@@ -360,7 +363,8 @@ event_invitation(UNUSED MESSENGER_Application *app,
       message->message_box
   );
 
-  handle->chat->messages = g_list_append(handle->chat->messages, message);
+  handle->chat->messages = g_list_prepend(handle->chat->messages, message);
+  ui_chat_entry_update(handle, app, context);
 }
 
 void
@@ -382,6 +386,8 @@ event_receive_message(UNUSED MESSENGER_Application *app,
       file? UI_MESSAGE_CONTENT_FILE : UI_MESSAGE_CONTENT_TEXT
   );
 
+  ui_message_update(message, msg);
+
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
       msg
   );
@@ -393,8 +399,8 @@ event_receive_message(UNUSED MESSENGER_Application *app,
       msg
   );
 
-  const char *text = GNUNET_CHAT_message_get_text(msg);
-  const char *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
+  const gchar *text = GNUNET_CHAT_message_get_text(msg);
+  const gchar *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
 
   if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
       (GNUNET_YES != sent))
@@ -409,21 +415,11 @@ event_receive_message(UNUSED MESSENGER_Application *app,
   gtk_label_set_text(message->text_label, text? text : "");
   gtk_label_set_text(message->timestamp_label, time? time : "");
 
-  if (message->read_receipt_image)
-    // TODO: check read receipt
-
   gtk_container_add(
       GTK_CONTAINER(handle->chat->messages_listbox),
       message->message_box
   );
 
-  handle->chat->messages = g_list_append(handle->chat->messages, message);
-
-  gtk_label_set_text(handle->text_label, text? text : "");
-  gtk_label_set_text(handle->timestamp_label, time? time : "");
-
-  gtk_widget_set_visible(
-      GTK_WIDGET(handle->read_receipt_image),
-      GNUNET_YES == sent
-  );
+  handle->chat->messages = g_list_prepend(handle->chat->messages, message);
+  ui_chat_entry_update(handle, app, context);
 }

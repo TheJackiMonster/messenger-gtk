@@ -27,6 +27,8 @@
 #include "../application.h"
 #include "../contact.h"
 
+#include "message.h"
+
 UI_CHAT_ENTRY_Handle*
 ui_chat_entry_new(MESSENGER_Application *app)
 {
@@ -62,6 +64,16 @@ ui_chat_entry_new(MESSENGER_Application *app)
   return handle;
 }
 
+/*static int
+_iterate_message_read_receipt(UNUSED void *cls,
+			      UNUSED const struct GNUNET_CHAT_Message *message,
+			      const struct GNUNET_CHAT_Contact *contact,
+			      int read_receipt)
+{
+  printf("read_receipt: %s %d\n", GNUNET_CHAT_contact_get_name(contact), read_receipt);
+  return GNUNET_YES;
+}*/
+
 void
 ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 		     MESSENGER_Application *app,
@@ -86,8 +98,47 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
     hdy_avatar_set_text(handle->entry_avatar, title);
   }
 
-  if (handle->chat)
-    ui_chat_update(handle->chat, app, context);
+  if (!handle->chat)
+    return;
+
+  ui_chat_update(handle->chat, app, context);
+
+  if (!handle->chat->messages)
+    return;
+
+  UI_MESSAGE_Handle *message = (
+      (UI_MESSAGE_Handle*) handle->chat->messages->data
+  );
+
+  const gchar *text = gtk_label_get_text(message->text_label);
+  const gchar *time = gtk_label_get_text(message->timestamp_label);
+
+  if (group)
+  {
+    GString *message_text = g_string_new(
+	gtk_label_get_text(message->sender_label)
+    );
+
+    g_string_append_printf(
+	message_text,
+    	_(": %s"),
+	text
+    );
+
+    gtk_label_set_text(handle->text_label, message_text->str);
+    g_string_free(message_text, TRUE);
+  }
+  else
+    gtk_label_set_text(handle->text_label, text);
+
+  gtk_label_set_text(handle->timestamp_label, time);
+
+  gtk_widget_set_visible(
+      GTK_WIDGET(handle->read_receipt_image),
+      message->read_receipt_image? gtk_widget_is_visible(
+	  GTK_WIDGET(message->read_receipt_image)
+      ) : FALSE
+  );
 }
 
 void

@@ -80,7 +80,7 @@ ui_message_new(UI_MESSAGE_Type type,
 
 void
 ui_message_update(UI_MESSAGE_Handle *handle,
-		  struct GNUNET_CHAT_Message *message);
+		  const struct GNUNET_CHAT_Message *message);
 
 void
 ui_message_delete(UI_MESSAGE_Handle *handle);

@@ -167,7 +167,7 @@ ui_message_new(UI_MESSAGE_Type type,
 
 void
 ui_message_update(UI_MESSAGE_Handle *handle,
-		  struct GNUNET_CHAT_Message *msg)
+		  const struct GNUNET_CHAT_Message *msg)
 {
   struct GNUNET_CHAT_File *file = GNUNET_CHAT_message_get_file(msg);
 
