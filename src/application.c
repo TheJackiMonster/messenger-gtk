@@ -70,6 +70,7 @@ application_init(MESSENGER_Application *app,
   );
 
   notify_init("Messenger-GTK");
+  app->notifications = NULL;
 
   _load_ui_stylesheets();
 
@@ -162,6 +163,18 @@ application_run(MESSENGER_Application *app)
   g_hash_table_destroy(app->ui.bindings);
 
   pthread_mutex_destroy(&(app->chat.mutex));
+
+  GList *list = app->notifications;
+
+  while (list) {
+    if (list->data)
+      notify_notification_close(NOTIFY_NOTIFICATION(list->data), NULL);
+
+    list = list->next;
+  }
+
+  if (app->notifications)
+    g_list_free(app->notifications);
 
   notify_uninit();
 

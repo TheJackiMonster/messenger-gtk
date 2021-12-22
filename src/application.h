@@ -51,10 +51,11 @@ typedef enum MESSENGER_ApplicationSignal
 
 typedef struct MESSENGER_Application
 {
-  char** argv;
+  char **argv;
   int argc;
 
-  GtkApplication* application;
+  GtkApplication *application;
+  GList *notifications;
 
   struct {
     int status;

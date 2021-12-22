@@ -33,8 +33,12 @@
 
 static void
 _close_notification(NotifyNotification* notification,
-		    UNUSED gpointer user_data)
+		    gpointer user_data)
 {
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  app->notifications = g_list_remove(app->notifications, notification);
+
   notify_notification_clear_actions(notification);
   notify_notification_clear_hints(notification);
 
@@ -42,7 +46,7 @@ _close_notification(NotifyNotification* notification,
 }
 
 static void
-_show_notification(UNUSED MESSENGER_Application *app,
+_show_notification(MESSENGER_Application *app,
 		   UNUSED struct GNUNET_CHAT_Context *context,
 		   const struct GNUNET_CHAT_Contact *contact,
 		   const gchar *text,
@@ -54,6 +58,11 @@ _show_notification(UNUSED MESSENGER_Application *app,
       sender? sender : "(unknown)", text, icon
   );
 
+  if (!notification)
+    return;
+
+  app->notifications = g_list_append(app->notifications, notification);
+
   if (0 == g_strcmp0(icon, "avatar-default-symbolic"))
     notify_notification_set_category(notification, "presence.online");
   else
@@ -63,7 +72,7 @@ _show_notification(UNUSED MESSENGER_Application *app,
       notification,
       "closed",
       G_CALLBACK(_close_notification),
-      NULL
+      app
   );
 
   notify_notification_show(notification, NULL);
