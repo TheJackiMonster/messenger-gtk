@@ -35,6 +35,15 @@ handle_cancel_button_click(UNUSED GtkButton *button,
 }
 
 static void
+handle_sending_upload_file(UNUSED void *cls,
+			   UNUSED const struct GNUNET_CHAT_File *file,
+			   uint64_t completed,
+			   uint64_t size)
+{
+  printf("UPLOAD: %lu / %lu\n", completed, size);
+}
+
+static void
 handle_send_button_click(GtkButton *button,
 			 gpointer user_data)
 {
@@ -59,9 +68,16 @@ handle_send_button_click(GtkButton *button,
   );
 
   if (context)
-    GNUNET_CHAT_context_send_file(context, filename, NULL, NULL); // TODO: callbacks!
+    GNUNET_CHAT_context_send_file(
+	context,
+	filename,
+	handle_sending_upload_file,
+	NULL
+    );
 
   g_free(filename);
+
+  gtk_window_close(GTK_WINDOW(app->ui.send_file.dialog));
 }
 
 static void
