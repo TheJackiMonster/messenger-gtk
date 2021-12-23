@@ -23,16 +23,17 @@
  */
 
 #include "application.h"
+#include "resources.h"
 
 static void
 _load_ui_stylesheets(void)
 {
   GdkScreen* screen = gdk_screen_get_default();
   GtkCssProvider* provider = gtk_css_provider_new();
-  gtk_css_provider_load_from_path(
+
+  gtk_css_provider_load_from_resource(
       provider,
-      "resources/css/style.css",
-      NULL
+      "org/gnunet/Messenger-GTK/css/style.css"
   );
 
   gtk_style_context_add_provider_for_screen(
@@ -65,9 +66,11 @@ application_init(MESSENGER_Application *app,
   hdy_init();
 
   app->application = gtk_application_new(
-      "org.gnunet.MESSENGER-GTK",
+      "org.gnunet.Messenger-GTK",
       G_APPLICATION_NON_UNIQUE
   );
+
+  resources_register();
 
   notify_init("Messenger-GTK");
   app->notifications = NULL;
@@ -110,6 +113,20 @@ application_init(MESSENGER_Application *app,
       G_CALLBACK(_application_activate),
       app
   );
+}
+
+const gchar*
+application_get_resource_path(MESSENGER_Application *app,
+			      const char *path)
+{
+  static gchar resource_path [PATH_MAX];
+
+  const gchar *base_path = g_application_get_resource_base_path(
+      G_APPLICATION(app->application)
+  );
+
+  snprintf(resource_path, PATH_MAX, "%s/%s", base_path, path);
+  return resource_path;
 }
 
 static void*
@@ -177,6 +194,8 @@ application_run(MESSENGER_Application *app)
     g_list_free(app->notifications);
 
   notify_uninit();
+
+  resources_unregister();
 
   g_object_unref(app->application);
 }

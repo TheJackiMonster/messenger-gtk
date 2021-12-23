@@ -37,7 +37,9 @@ void
 ui_settings_dialog_init(MESSENGER_Application *app,
 			UI_SETTINGS_Handle *handle)
 {
-  handle->builder = gtk_builder_new_from_file("resources/ui/settings.ui");
+  handle->builder = gtk_builder_new_from_resource(
+      application_get_resource_path(app, "ui/settings.ui")
+  );
 
   handle->dialog = HDY_PREFERENCES_WINDOW(
       gtk_builder_get_object(handle->builder, "settings_dialog")

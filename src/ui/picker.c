@@ -97,8 +97,8 @@ ui_picker_new(UNUSED MESSENGER_Application *app,
 {
   UI_PICKER_Handle *handle = g_malloc(sizeof(UI_PICKER_Handle));
 
-  handle->builder = gtk_builder_new_from_file(
-      "resources/ui/picker.ui"
+  handle->builder = gtk_builder_new_from_resource(
+      application_get_resource_path(app, "ui/picker.ui")
   );
 
   handle->picker_box = GTK_WIDGET(

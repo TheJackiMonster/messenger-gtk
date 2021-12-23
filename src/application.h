@@ -94,6 +94,10 @@ application_init(MESSENGER_Application *app,
 		 int argc,
 		 char **argv);
 
+const gchar*
+application_get_resource_path(MESSENGER_Application *app,
+			      const char *path);
+
 void
 application_run(MESSENGER_Application *app);
 

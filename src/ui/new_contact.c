@@ -287,7 +287,9 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
   handle->video = zbar_video_create();
   handle->scanner = zbar_image_scanner_create();
 
-  handle->builder = gtk_builder_new_from_file("resources/ui/new_contact.ui");
+  handle->builder = gtk_builder_new_from_resource(
+      application_get_resource_path(app, "ui/new_contact.ui")
+  );
 
   handle->dialog = GTK_DIALOG(
       gtk_builder_get_object(handle->builder, "new_contact_dialog")

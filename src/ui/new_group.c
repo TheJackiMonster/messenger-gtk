@@ -163,7 +163,7 @@ _iterate_contacts(void *cls,
 
   const char *key = GNUNET_CHAT_contact_get_key(contact);
 
-  UI_CONTACT_ENTRY_Handle *entry = ui_contact_entry_new();
+  UI_CONTACT_ENTRY_Handle *entry = ui_contact_entry_new(app);
   gtk_list_box_prepend(
       app->ui.new_group.contacts_listbox,
       entry->entry_box
@@ -198,7 +198,9 @@ ui_new_group_dialog_init(MESSENGER_Application *app,
 {
   handle->contact_entries = NULL;
 
-  handle->builder = gtk_builder_new_from_file("resources/ui/new_group.ui");
+  handle->builder = gtk_builder_new_from_resource(
+      application_get_resource_path(app, "ui/new_group.ui")
+  );
 
   handle->dialog = GTK_DIALOG(
       gtk_builder_get_object(handle->builder, "new_group_dialog")

@@ -38,7 +38,7 @@ typedef struct UI_PROFILE_ENTRY_Handle
 } UI_PROFILE_ENTRY_Handle;
 
 UI_PROFILE_ENTRY_Handle*
-ui_profile_entry_new(void);
+ui_profile_entry_new(MESSENGER_Application *app);
 
 void
 ui_profile_entry_delete(UI_PROFILE_ENTRY_Handle *handle);

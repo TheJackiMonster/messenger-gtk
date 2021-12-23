@@ -1,12 +1,14 @@
 
-SOURCE_DIR  = src/
-INSTALL_DIR ?= /usr/local/
+RESOURCES_DIR = resources/
+SOURCE_DIR    = src/
+INSTALL_DIR  ?= /usr/local/
 
 BINARY  = messenger-gtk
 SOURCES = messenger_gtk.c\
 		  application.c\
 		  contact.c\
 		  event.c\
+		  resources.c\
 		  chat/messenger.c\
 		  ui/chat.c\
 		  ui/chat_entry.c\
@@ -23,8 +25,11 @@ SOURCES = messenger_gtk.c\
 		  ui/profile_entry.c\
 		  ui/send_file.c\
 		  ui/settings.c
-		  
-HEADERS = 
+
+HEADERS = util.h
+
+RESOURCES = css.gresource.xml\
+			ui.gresource.xml
 
 LIBRARIES = gnunetchat
 PACKAGES  = gnunetutil libhandy-1 gtk+-3.0 libnotify zbar libqrencode
@@ -34,20 +39,42 @@ GNU_CC ?= gcc
 GNU_LD ?= gcc
 GNU_RM ?= rm
 
-CFLAGS  += -pedantic -Wall -Wextra -ggdb3
+GLIB_COMPILE_RESOURCES ?= glib-compile-resources
+
+CFLAGS  += -pedantic -Wall -Wextra -ggdb3 -Wno-overlength-strings
 LDFLAGS += 
 
 DEBUGFLAGS   = -O0 -D _DEBUG
 RELEASEFLAGS = -O2 -D NDEBUG
 
-SOURCE_FILES  = $(addprefix $(SOURCE_DIR), $(SOURCES))
-OBJECT_FILES  = $(SOURCE_FILES:%.c=%.o)
+ICON_SIZES = 32\
+			 64\
+			 128\
+			 256\
+			 512
+
+APPICON_DIR = $(addprefix $(RESOURCES_DIR), icon/)
+
+RESOURCES_FILES = $(addprefix $(RESOURCES_DIR), $(RESOURCES))
+
+SOURCE_FILES  = $(RESOURCES_FILES:%.gresource.xml=%.c)\
+				$(addprefix $(SOURCE_DIR), $(SOURCES))
+
+RESOURCES_HEADERS = $(RESOURCES_FILES:%.gresource.xml=%.h)
+
 HEADER_FILES  = $(addprefix $(SOURCE_DIR), $(HEADERS))
+
+OBJECT_FILES  = $(SOURCE_FILES:%.c=%.o)
+
 LIBRARY_FLAGS = $(addprefix -l, $(LIBRARIES))
 PACKAGE_FLAGS = $(shell pkg-config --cflags --libs $(PACKAGES))
 INCLUDE_FLAGS = $(addprefix -I, $(INCLUDES))
 
 all: $(BINARY)
+
+%.c: %.gresource.xml
+	$(GLIB_COMPILE_RESOURCES) --sourcedir=$(RESOURCES_DIR) $< --generate-source
+	$(GLIB_COMPILE_RESOURCES) --sourcedir=$(RESOURCES_DIR) $< --generate-header
 
 debug: CFLAGS += $(DEBUGFLAGS)
 debug: $(BINARY)
@@ -68,16 +95,29 @@ mobile: $(BINARY)
 
 .PHONY: install
 
+define install-icon
+	install -Dm644 $(addprefix $(APPICON_DIR), full_color_$(1).png) $(addprefix $(INSTALL_DIR), share/icons/hicolor/$(1)x$(1)/apps/$(BINARY).png)
+endef
+
 install:
-	install -m 755 $(BINARY) $(addprefix $(INSTALL_DIR), bin/)
+	install -Dm755 $(BINARY) $(addprefix $(INSTALL_DIR), bin/)
+	$(foreach SIZE,$(ICON_SIZES),$(call install-icon,$(SIZE));)
+	install -Dm644 $(addprefix $(RESOURCES_DIR), $(BINARY).desktop) $(addprefix $(INSTALL_DIR), share/applications/)
 
 .PHONY: uninstall
 
+define uninstall-icon
+	$(GNU_RM) -f $(addprefix $(INSTALL_DIR), share/icons/hicolor/$(1)x$(1)/apps/$(BINARY).png)
+endef
+
 uninstall:
 	$(GNU_RM) -f $(addsuffix $(BINARY), $(addprefix $(INSTALL_DIR), bin/))
+	$(foreach SIZE,$(ICON_SIZES),$(call uninstall-icon,$(SIZE)))
+	$(GNU_RM) -f $(addsuffix $(BINARY).desktop, $(addprefix $(INSTALL_DIR), share/applications/))
 
 .PHONY: clean
 
 clean:
 	$(GNU_RM) -f $(BINARY)
 	$(GNU_RM) -f $(OBJECT_FILES)
+	$(GNU_RM) -f $(RESOURCES_HEADERS)

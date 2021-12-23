@@ -160,7 +160,7 @@ event_update_profile(MESSENGER_Application *app)
     hdy_avatar_set_text(ui->profile_avatar, name);
     gtk_label_set_text(ui->profile_label, name);
 
-    UI_PROFILE_ENTRY_Handle *profile = ui_profile_entry_new();
+    UI_PROFILE_ENTRY_Handle *profile = ui_profile_entry_new(app);
 
     hdy_avatar_set_text(profile->entry_avatar, name);
     gtk_label_set_text(profile->entry_label, name);
@@ -235,11 +235,7 @@ event_joining_contact(MESSENGER_Application *app,
   if (!handle)
     return;
 
-  UI_MESSAGE_Handle *message = ui_message_new(
-      UI_MESSAGE_STATUS,
-      UI_MESSAGE_CONTENT_TEXT
-  );
-
+  UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
   ui_message_update(message, msg);
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
@@ -328,11 +324,7 @@ event_invitation(UNUSED MESSENGER_Application *app,
   if (!invitation)
     return;
 
-  UI_MESSAGE_Handle *message = ui_message_new(
-      UI_MESSAGE_STATUS,
-      UI_MESSAGE_CONTENT_TEXT
-  );
-
+  UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
   ui_message_update(message, msg);
 
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
@@ -384,15 +376,13 @@ event_receive_message(UNUSED MESSENGER_Application *app,
   if (!handle)
     return;
 
-  struct GNUNET_CHAT_File *file = GNUNET_CHAT_message_get_file(msg);
-
   const int sent = GNUNET_CHAT_message_is_sent(msg);
 
-  UI_MESSAGE_Handle *message = ui_message_new(
-      GNUNET_YES == sent? UI_MESSAGE_SENT : UI_MESSAGE_DEFAULT,
-      file? UI_MESSAGE_CONTENT_FILE : UI_MESSAGE_CONTENT_TEXT
+  const UI_MESSAGE_Type type = (
+      GNUNET_YES == sent? UI_MESSAGE_SENT : UI_MESSAGE_DEFAULT
   );
 
+  UI_MESSAGE_Handle *message = ui_message_new(app, type);
   ui_message_update(message, msg);
 
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(

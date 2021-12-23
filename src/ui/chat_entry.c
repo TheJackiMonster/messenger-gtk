@@ -35,7 +35,9 @@ ui_chat_entry_new(MESSENGER_Application *app)
   UI_CHAT_ENTRY_Handle* handle = g_malloc(sizeof(UI_CHAT_ENTRY_Handle));
 
   handle->chat = ui_chat_new(app);
-  handle->builder = gtk_builder_new_from_file("resources/ui/chat_entry.ui");
+  handle->builder = gtk_builder_new_from_resource(
+      application_get_resource_path(app, "ui/chat_entry.ui")
+  );
 
   handle->entry_box = GTK_WIDGET(
       gtk_builder_get_object(handle->builder, "entry_box")

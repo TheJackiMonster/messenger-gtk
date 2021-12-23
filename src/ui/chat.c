@@ -279,8 +279,8 @@ ui_chat_new(MESSENGER_Application *app)
   handle->messages = NULL;
   handle->edge_value = 0;
 
-  handle->builder = gtk_builder_new_from_file(
-      "resources/ui/chat.ui"
+  handle->builder = gtk_builder_new_from_resource(
+      application_get_resource_path(app, "ui/chat.ui")
   );
 
   handle->chat_box = GTK_WIDGET(
@@ -466,6 +466,7 @@ ui_chat_new(MESSENGER_Application *app)
 }
 
 struct IterateChatGroupClosure {
+  MESSENGER_Application *app;
   GHashTable *bindings;
   GtkListBox *listbox;
 };
@@ -480,7 +481,7 @@ iterate_ui_chat_update_group_contacts(void *cls,
   );
 
   GtkListBox *listbox = closure->listbox;
-  UI_PROFILE_ENTRY_Handle* entry = ui_profile_entry_new();
+  UI_PROFILE_ENTRY_Handle* entry = ui_profile_entry_new(closure->app);
 
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
@@ -559,6 +560,7 @@ ui_chat_update(UI_CHAT_Handle *handle,
   if (group)
   {
     struct IterateChatGroupClosure closure;
+    closure.app = app;
     closure.bindings = app->ui.bindings;
     closure.listbox = handle->chat_contacts_listbox;
 

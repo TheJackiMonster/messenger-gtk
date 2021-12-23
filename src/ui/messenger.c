@@ -194,7 +194,9 @@ ui_messenger_init(MESSENGER_Application *app,
 {
   handle->chat_entries = NULL;
 
-  handle->builder = gtk_builder_new_from_file("resources/ui/messenger.ui");
+  handle->builder = gtk_builder_new_from_resource(
+      application_get_resource_path(app, "ui/messenger.ui")
+  );
 
   handle->main_window = GTK_APPLICATION_WINDOW(
       gtk_builder_get_object(handle->builder, "main_window")

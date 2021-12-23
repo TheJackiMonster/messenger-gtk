@@ -27,8 +27,8 @@
 #include "../application.h"
 
 UI_MESSAGE_Handle*
-ui_message_new(UI_MESSAGE_Type type,
-	       UI_MESSAGE_ContentType content_type)
+ui_message_new(MESSENGER_Application *app,
+	       UI_MESSAGE_Type type)
 {
   UI_MESSAGE_Handle* handle = g_malloc(sizeof(UI_MESSAGE_Handle));
 
@@ -39,17 +39,19 @@ ui_message_new(UI_MESSAGE_Type type,
   switch (handle->type)
   {
     case UI_MESSAGE_SENT:
-      ui_builder_file = "resources/ui/message-sent.ui";
+      ui_builder_file = "ui/message-sent.ui";
       break;
     case UI_MESSAGE_STATUS:
-      ui_builder_file = "resources/ui/message-status.ui";
+      ui_builder_file = "ui/message-status.ui";
       break;
     default:
-      ui_builder_file = "resources/ui/message.ui";
+      ui_builder_file = "ui/message.ui";
       break;
   }
 
-  handle->builder = gtk_builder_new_from_file(ui_builder_file);
+  handle->builder = gtk_builder_new_from_resource(
+      application_get_resource_path(app, ui_builder_file)
+  );
 
   handle->message_box = GTK_WIDGET(
       gtk_builder_get_object(handle->builder, "message_box")
@@ -94,8 +96,8 @@ ui_message_new(UI_MESSAGE_Type type,
       gtk_builder_get_object(handle->builder, "content_box")
   );
 
-  GtkBuilder *builder = gtk_builder_new_from_file(
-      "resources/ui/message_content.ui"
+  GtkBuilder *builder = gtk_builder_new_from_resource(
+      application_get_resource_path(app, "ui/message_content.ui")
   );
 
   handle->timestamp_label = GTK_LABEL(
@@ -126,32 +128,6 @@ ui_message_new(UI_MESSAGE_Type type,
   {
     case UI_MESSAGE_STATUS:
       gtk_widget_set_visible(GTK_WIDGET(handle->timestamp_label), FALSE);
-      break;
-    default:
-      break;
-  }
-
-  switch (content_type)
-  {
-    case UI_MESSAGE_CONTENT_TEXT:
-      gtk_stack_set_visible_child(
-	  handle->content_stack,
-	  GTK_WIDGET(handle->text_label)
-      );
-      break;
-    case UI_MESSAGE_CONTENT_FILE:
-      gtk_stack_set_visible_child(
-	  handle->content_stack,
-	  GTK_WIDGET(handle->file_revealer)
-      );
-
-      gtk_revealer_set_reveal_child(handle->file_revealer, TRUE);
-      break;
-    case UI_MESSAGE_CONTENT_PREVIEW:
-      gtk_stack_set_visible_child(
-	  handle->content_stack,
-	  GTK_WIDGET(handle->preview_drawing_area)
-      );
       break;
     default:
       break;

@@ -231,7 +231,9 @@ void
 ui_send_file_dialog_init(MESSENGER_Application *app,
 			 UI_SEND_FILE_Handle *handle)
 {
-  handle->builder = gtk_builder_new_from_file("resources/ui/send_file.ui");
+  handle->builder = gtk_builder_new_from_resource(
+      application_get_resource_path(app, "ui/send_file.ui")
+  );
 
   handle->dialog = GTK_DIALOG(
       gtk_builder_get_object(handle->builder, "send_file_dialog")

@@ -77,7 +77,9 @@ void
 ui_new_profile_dialog_init(MESSENGER_Application *app,
 			   UI_NEW_PROFILE_Handle *handle)
 {
-  handle->builder = gtk_builder_new_from_file("resources/ui/new_profile.ui");
+  handle->builder = gtk_builder_new_from_resource(
+      application_get_resource_path(app, "ui/new_profile.ui")
+  );
 
   handle->dialog = GTK_DIALOG(
       gtk_builder_get_object(handle->builder, "new_profile_dialog")

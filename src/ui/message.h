@@ -41,13 +41,6 @@ typedef enum UI_MESSAGE_Type
   UI_MESSAGE_STATUS 	= 2
 } UI_MESSAGE_Type;
 
-typedef enum UI_MESSAGE_ContentType
-{
-  UI_MESSAGE_CONTENT_TEXT 	= 0,
-  UI_MESSAGE_CONTENT_FILE 	= 1,
-  UI_MESSAGE_CONTENT_PREVIEW 	= 2
-} UI_MESSAGE_ContentType;
-
 typedef struct UI_MESSAGE_Handle
 {
   UI_MESSAGE_Type type;
@@ -75,8 +68,8 @@ typedef struct UI_MESSAGE_Handle
 } UI_MESSAGE_Handle;
 
 UI_MESSAGE_Handle*
-ui_message_new(UI_MESSAGE_Type type,
-	       UI_MESSAGE_ContentType content_type);
+ui_message_new(MESSENGER_Application *app,
+	       UI_MESSAGE_Type type);
 
 void
 ui_message_update(UI_MESSAGE_Handle *handle,

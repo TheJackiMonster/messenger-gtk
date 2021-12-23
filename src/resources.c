@@ -19,30 +19,26 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/contact_entry.h
+ * @file resources.c
  */
 
-#ifndef UI_CONTACT_ENTRY_H_
-#define UI_CONTACT_ENTRY_H_
+#include "resources.h"
 
-#include "messenger.h"
+#include <gio/gio.h>
 
-typedef struct UI_CONTACT_ENTRY_Handle
-{
-  GtkBuilder *builder;
-
-  GtkWidget *entry_box;
-
-  HdyAvatar *entry_avatar;
-
-  GtkLabel *title_label;
-  GtkLabel *subtitle_label;
-} UI_CONTACT_ENTRY_Handle;
-
-UI_CONTACT_ENTRY_Handle*
-ui_contact_entry_new(MESSENGER_Application *app);
+#include "../resources/css.h"
+#include "../resources/ui.h"
 
 void
-ui_contact_entry_delete(UI_CONTACT_ENTRY_Handle *handle);
+resources_register()
+{
+  g_resources_register(css_get_resource());
+  g_resources_register(ui_get_resource());
+}
 
-#endif /* UI_CONTACT_ENTRY_H_ */
+void
+resources_unregister()
+{
+  g_resources_unregister(css_get_resource());
+  g_resources_unregister(ui_get_resource());
+}
