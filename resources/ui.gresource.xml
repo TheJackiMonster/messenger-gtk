@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/org/gnunet/Messenger-GTK">
+  <gresource prefix="/org/gnunet/Messenger">
     <file compressed="true">ui/chat_entry.ui</file>
     <file compressed="true">ui/chat.ui</file>
 	<file compressed="true">ui/contacts.ui</file>

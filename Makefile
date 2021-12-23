@@ -1,4 +1,6 @@
 
+APP_ID = org.gnunet.Messenger
+
 RESOURCES_DIR = resources/
 SOURCE_DIR    = src/
 INSTALL_DIR  ?= /usr/local/
@@ -96,24 +98,26 @@ mobile: $(BINARY)
 .PHONY: install
 
 define install-icon
-	install -Dm644 $(addprefix $(APPICON_DIR), full_color_$(1).png) $(addprefix $(INSTALL_DIR), share/icons/hicolor/$(1)x$(1)/apps/$(BINARY).png)
+	install -Dm644 $(addprefix $(APPICON_DIR), full_color_$(1).png) $(addprefix $(INSTALL_DIR), share/icons/hicolor/$(1)x$(1)/apps/$(APP_ID).png)
 endef
 
 install:
 	install -Dm755 $(BINARY) $(addprefix $(INSTALL_DIR), bin/)
 	$(foreach SIZE,$(ICON_SIZES),$(call install-icon,$(SIZE));)
-	install -Dm644 $(addprefix $(RESOURCES_DIR), $(BINARY).desktop) $(addprefix $(INSTALL_DIR), share/applications/)
+	install -Dm644 $(addprefix $(APPICON_DIR), full_color.svg) $(addprefix $(INSTALL_DIR), share/icons/hicolor/scalable/apps/$(APP_ID).svg)
+	desktop-file-install --dir=$(addprefix $(INSTALL_DIR), share/applications/) $(addprefix $(RESOURCES_DIR), $(APP_ID).desktop)
 
 .PHONY: uninstall
 
 define uninstall-icon
-	$(GNU_RM) -f $(addprefix $(INSTALL_DIR), share/icons/hicolor/$(1)x$(1)/apps/$(BINARY).png)
+	$(GNU_RM) -f $(addprefix $(INSTALL_DIR), share/icons/hicolor/$(1)x$(1)/apps/$(APP_ID).png)
 endef
 
 uninstall:
 	$(GNU_RM) -f $(addsuffix $(BINARY), $(addprefix $(INSTALL_DIR), bin/))
-	$(foreach SIZE,$(ICON_SIZES),$(call uninstall-icon,$(SIZE)))
-	$(GNU_RM) -f $(addsuffix $(BINARY).desktop, $(addprefix $(INSTALL_DIR), share/applications/))
+	$(foreach SIZE,$(ICON_SIZES),$(call uninstall-icon,$(SIZE));)
+	$(GNU_RM) -f $(addprefix $(INSTALL_DIR), share/icons/hicolor/scalable/apps/$(APP_ID).svg)
+	$(GNU_RM) -f $(addsuffix $(APP_ID).desktop, $(addprefix $(INSTALL_DIR), share/applications/))
 
 .PHONY: clean
 

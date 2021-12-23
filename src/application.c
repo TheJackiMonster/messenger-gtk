@@ -26,14 +26,14 @@
 #include "resources.h"
 
 static void
-_load_ui_stylesheets(void)
+_load_ui_stylesheets(MESSENGER_Application *app)
 {
   GdkScreen* screen = gdk_screen_get_default();
   GtkCssProvider* provider = gtk_css_provider_new();
 
   gtk_css_provider_load_from_resource(
       provider,
-      "org/gnunet/Messenger-GTK/css/style.css"
+      application_get_resource_path(app, "css/style.css")
   );
 
   gtk_style_context_add_provider_for_screen(
@@ -66,7 +66,7 @@ application_init(MESSENGER_Application *app,
   hdy_init();
 
   app->application = gtk_application_new(
-      "org.gnunet.Messenger-GTK",
+      "org.gnunet.Messenger",
       G_APPLICATION_NON_UNIQUE
   );
 
@@ -75,7 +75,7 @@ application_init(MESSENGER_Application *app,
   notify_init("Messenger-GTK");
   app->notifications = NULL;
 
-  _load_ui_stylesheets();
+  _load_ui_stylesheets(app);
 
   app->chat.status = EXIT_FAILURE;
   app->chat.tid = 0;
