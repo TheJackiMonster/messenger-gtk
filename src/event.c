@@ -263,7 +263,14 @@ event_joining_contact(MESSENGER_Application *app,
 	"avatar-default-symbolic"
     );
 
+  struct GNUNET_TIME_Absolute timestamp = GNUNET_CHAT_message_get_timestamp(
+      msg
+  );
+
+  const gchar *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
+
   gtk_label_set_text(message->text_label, join_message);
+  gtk_label_set_text(message->timestamp_label, time? time : "");
 
   gtk_container_add(
       GTK_CONTAINER(handle->chat->messages_listbox),
