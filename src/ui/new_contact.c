@@ -324,7 +324,7 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
       handle
   );
 
-  g_signal_connect(
+  handle->id_draw_signal = g_signal_connect(
       handle->id_drawing_area,
       "draw",
       G_CALLBACK(handle_id_drawing_area_draw),
@@ -376,6 +376,11 @@ ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle)
     g_source_remove(handle->idle_processing);
 
   handle->idle_processing = 0;
+
+  g_signal_handler_disconnect(
+      handle->id_drawing_area,
+      handle->id_draw_signal
+  );
 
   g_object_unref(handle->builder);
 

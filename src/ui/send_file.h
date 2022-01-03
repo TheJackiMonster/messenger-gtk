@@ -37,6 +37,8 @@ typedef struct UI_SEND_FILE_Handle
   GtkDrawingArea *file_drawing_area;
   GtkFileChooserButton *file_chooser_button;
 
+  gulong file_draw_signal;
+
   GtkButton *cancel_button;
   GtkButton *send_button;
 

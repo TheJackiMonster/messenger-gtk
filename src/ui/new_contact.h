@@ -47,6 +47,8 @@ typedef struct UI_NEW_CONTACT_Handle
   GtkDrawingArea *id_drawing_area;
   GtkEntry *id_entry;
 
+  gulong id_draw_signal;
+
   GtkButton *cancel_button;
   GtkButton *confirm_button;
 

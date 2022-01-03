@@ -94,7 +94,8 @@ handle_file_redraw_animation(gpointer user_data)
 
   handle->redraw_animation = 0;
 
-  if (handle->file_drawing_area)
+  if ((handle->file_drawing_area) &&
+      ((handle->image) || (handle->animation) || (handle->animation_iter)))
     gtk_widget_queue_draw(GTK_WIDGET(handle->file_drawing_area));
 
   return FALSE;
@@ -224,7 +225,8 @@ handle_file_chooser_button_file_set(GtkFileChooserButton *file_chooser_button,
     g_free(filename);
   }
 
-  gtk_widget_queue_draw(GTK_WIDGET(handle->file_drawing_area));
+  if (handle->file_drawing_area)
+    gtk_widget_queue_draw(GTK_WIDGET(handle->file_drawing_area));
 }
 
 void
@@ -257,7 +259,7 @@ ui_send_file_dialog_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "file_chooser_button")
   );
 
-  g_signal_connect(
+  handle->file_draw_signal = g_signal_connect(
       handle->file_drawing_area,
       "draw",
       G_CALLBACK(handle_file_drawing_area_draw),
@@ -329,6 +331,11 @@ void
 ui_send_file_dialog_cleanup(UI_SEND_FILE_Handle *handle)
 {
   _clear_file_preview_data(handle);
+
+  g_signal_handler_disconnect(
+      handle->file_drawing_area,
+      handle->file_draw_signal
+  );
 
   g_object_unref(handle->builder);
 }
