@@ -24,7 +24,12 @@
 
 #include "send_file.h"
 
+#include "chat.h"
+#include "chat_entry.h"
+#include "file_load_entry.h"
+
 #include "../application.h"
+#include "../file.h"
 
 static void
 handle_cancel_button_click(UNUSED GtkButton *button,
@@ -36,11 +41,21 @@ handle_cancel_button_click(UNUSED GtkButton *button,
 
 static void
 handle_sending_upload_file(UNUSED void *cls,
-			   UNUSED const struct GNUNET_CHAT_File *file,
+			   const struct GNUNET_CHAT_File *file,
 			   uint64_t completed,
 			   uint64_t size)
 {
-  printf("UPLOAD: %lu / %lu\n", completed, size);
+  UI_FILE_LOAD_ENTRY_Handle *file_load = cls;
+
+  gtk_progress_bar_set_fraction(
+      file_load->load_progress_bar,
+      1.0 * completed / size
+  );
+
+  file_update_upload_info(file, completed, size);
+
+  if ((completed >= size) && (file_load->chat))
+    ui_chat_remove_file_load(file_load->chat, file_load);
 }
 
 static void
@@ -67,17 +82,38 @@ handle_send_button_click(GtkButton *button,
       app->ui.bindings, text_view
   );
 
-  if (context)
-    GNUNET_CHAT_context_send_file(
+  UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(context);
+  UI_CHAT_Handle *handle = entry? entry->chat : NULL;
+
+  struct GNUNET_CHAT_File *file = NULL;
+
+  if ((context) && (handle))
+  {
+    UI_FILE_LOAD_ENTRY_Handle *file_load = ui_file_load_entry_new(app);
+
+    gtk_label_set_text(file_load->file_label, filename);
+    gtk_progress_bar_set_fraction(file_load->load_progress_bar, 0.0);
+
+    ui_chat_add_file_load(handle, file_load);
+
+    file = GNUNET_CHAT_context_send_file(
 	context,
 	filename,
 	handle_sending_upload_file,
-	NULL
+	file_load
     );
+  }
 
   g_free(filename);
 
   gtk_window_close(GTK_WINDOW(app->ui.send_file.dialog));
+
+  if (!file)
+    return;
+
+  file_create_info(file);
+
+  // TODO: create UI component?
 }
 
 static void
@@ -117,7 +153,7 @@ handle_file_drawing_area_draw(GtkWidget* drawing_area,
 
   GdkPixbuf *image = handle->image;
 
-  if (!handle->animation)
+  if (!(handle->animation))
     goto render_image;
 
   if (handle->animation_iter)
@@ -219,7 +255,7 @@ handle_file_chooser_button_file_set(GtkFileChooserButton *file_chooser_button,
   {
     handle->animation = gdk_pixbuf_animation_new_from_file(filename, NULL);
 
-    if (!handle->animation)
+    if (!(handle->animation))
       handle->image = gdk_pixbuf_new_from_file(filename, NULL);
 
     g_free(filename);
@@ -313,7 +349,7 @@ void
 ui_send_file_dialog_update(UI_SEND_FILE_Handle *handle,
 			   const gchar *filename)
 {
-  if (!handle->file_chooser_button)
+  if (!(handle->file_chooser_button))
     return;
 
   gtk_file_chooser_set_filename(

@@ -10,12 +10,14 @@ SOURCES = messenger_gtk.c\
 		  application.c\
 		  contact.c\
 		  event.c\
+		  file.c\
 		  resources.c\
 		  chat/messenger.c\
 		  ui/chat.c\
 		  ui/chat_entry.c\
 		  ui/contact_entry.c\
 		  ui/contacts.c\
+		  ui/file_load_entry.c\
 		  ui/invite_contact.c\
 		  ui/message.c\
 		  ui/messenger.c\

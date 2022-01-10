@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -100,12 +100,12 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
     hdy_avatar_set_text(handle->entry_avatar, title);
   }
 
-  if (!handle->chat)
+  if (!(handle->chat))
     return;
 
   ui_chat_update(handle->chat, app, context);
 
-  if (!handle->chat->messages)
+  if (!(handle->chat->messages))
     return;
 
   UI_MESSAGE_Handle *message = (

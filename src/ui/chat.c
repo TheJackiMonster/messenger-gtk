@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -26,6 +26,7 @@
 
 #include <gdk/gdkkeysyms.h>
 
+#include "file_load_entry.h"
 #include "message.h"
 #include "messenger.h"
 #include "picker.h"
@@ -40,11 +41,22 @@ handle_flap_via_button_click(UNUSED GtkButton *button,
 {
   HdyFlap *flap = HDY_FLAP(user_data);
 
-  if (TRUE == hdy_flap_get_reveal_flap(flap)) {
+  if (TRUE == hdy_flap_get_reveal_flap(flap))
     hdy_flap_set_reveal_flap(flap, FALSE);
-  } else {
+  else
     hdy_flap_set_reveal_flap(flap, TRUE);
-  }
+}
+
+static void
+handle_popover_via_button_click(UNUSED GtkButton *button,
+				gpointer user_data)
+{
+  GtkPopover *popover = GTK_POPOVER(user_data);
+
+  if (gtk_widget_is_visible(GTK_WIDGET(popover)))
+    gtk_popover_popdown(popover);
+  else
+    gtk_popover_popup(popover);
 }
 
 static void
@@ -273,11 +285,15 @@ handle_picker_button_click(UNUSED GtkButton *button,
 UI_CHAT_Handle*
 ui_chat_new(MESSENGER_Application *app)
 {
+  GNUNET_assert(app);
+
   UI_CHAT_Handle *handle = g_malloc(sizeof(UI_CHAT_Handle));
   UI_MESSENGER_Handle *messenger = &(app->ui.messenger);
 
   handle->messages = NULL;
   handle->edge_value = 0;
+
+  handle->loads = NULL;
 
   handle->builder = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/chat.ui")
@@ -316,6 +332,25 @@ ui_chat_new(MESSENGER_Application *app)
 
   handle->chat_subtitle = GTK_LABEL(
       gtk_builder_get_object(handle->builder, "chat_subtitle")
+  );
+
+  handle->chat_load_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "chat_load_button")
+  );
+
+  handle->chat_load_popover = GTK_POPOVER(
+      gtk_builder_get_object(handle->builder, "chat_load_popover")
+  );
+
+  handle->chat_load_listbox = GTK_LIST_BOX(
+      gtk_builder_get_object(handle->builder, "chat_load_listbox")
+  );
+
+  g_signal_connect(
+      handle->chat_load_button,
+      "clicked",
+      G_CALLBACK(handle_popover_via_button_click),
+      handle->chat_load_popover
   );
 
   handle->chat_details_button = GTK_BUTTON(
@@ -505,6 +540,8 @@ ui_chat_update(UI_CHAT_Handle *handle,
 	       MESSENGER_Application *app,
 	       const struct GNUNET_CHAT_Context* context)
 {
+  GNUNET_assert((handle) && (app) && (context));
+
   const struct GNUNET_CHAT_Contact* contact;
   const struct GNUNET_CHAT_Group* group;
 
@@ -586,7 +623,7 @@ ui_chat_update(UI_CHAT_Handle *handle,
   gtk_widget_set_sensitive(GTK_WIDGET(handle->emoji_button), activated);
   gtk_widget_set_sensitive(GTK_WIDGET(handle->send_record_button), activated);
 
-  if (!handle->messages)
+  if (!(handle->messages))
     return;
 
   UI_MESSAGE_Handle *message = (
@@ -602,6 +639,8 @@ ui_chat_update(UI_CHAT_Handle *handle,
 void
 ui_chat_delete(UI_CHAT_Handle *handle)
 {
+  GNUNET_assert(handle);
+
   ui_picker_delete(handle->picker);
 
   g_object_unref(handle->builder);
@@ -615,8 +654,90 @@ ui_chat_delete(UI_CHAT_Handle *handle)
     list = list->next;
   }
 
+  list = handle->loads;
+
+  while (list) {
+    if (list->data)
+      ui_file_load_entry_delete((UI_FILE_LOAD_ENTRY_Handle*) list->data);
+
+    list = list->next;
+  }
+
   if (handle->messages)
     g_list_free(handle->messages);
 
+  if (handle->loads)
+    g_list_free(handle->loads);
+
   g_free(handle);
+}
+
+void
+ui_chat_add_message(UI_CHAT_Handle *handle,
+		    UI_MESSAGE_Handle *message)
+{
+  GNUNET_assert((handle) && (message));
+
+  gtk_container_add(
+      GTK_CONTAINER(handle->messages_listbox),
+      message->message_box
+  );
+
+  handle->messages = g_list_prepend(handle->messages, message);
+}
+
+void
+ui_chat_remove_message(UI_CHAT_Handle *handle,
+		       UI_MESSAGE_Handle *message)
+{
+  GNUNET_assert((handle) && (message));
+
+  handle->messages = g_list_remove(handle->messages, message);
+
+  gtk_container_remove(
+      GTK_CONTAINER(handle->messages_listbox),
+      gtk_widget_get_parent(GTK_WIDGET(message->message_box))
+  );
+}
+
+void
+ui_chat_add_file_load(UI_CHAT_Handle *handle,
+		      UI_FILE_LOAD_ENTRY_Handle *file_load)
+{
+  GNUNET_assert((handle) && (file_load));
+
+  gtk_container_add(
+      GTK_CONTAINER(handle->chat_load_listbox),
+      file_load->entry_box
+  );
+
+  handle->loads = g_list_append(handle->loads, file_load);
+
+  gtk_widget_show(GTK_WIDGET(handle->chat_load_button));
+
+  file_load->chat = handle;
+}
+
+void
+ui_chat_remove_file_load(UI_CHAT_Handle *handle,
+			 UI_FILE_LOAD_ENTRY_Handle *file_load)
+{
+  GNUNET_assert((handle) && (file_load) && (handle == file_load->chat));
+
+  handle->loads = g_list_remove(handle->loads, file_load);
+
+  gtk_container_remove(
+      GTK_CONTAINER(handle->chat_load_listbox),
+      gtk_widget_get_parent(GTK_WIDGET(file_load->entry_box))
+  );
+
+  if (handle->loads)
+    return;
+
+  if (gtk_widget_is_visible(GTK_WIDGET(handle->chat_load_popover)))
+    gtk_popover_popdown(handle->chat_load_popover);
+
+  gtk_widget_hide(GTK_WIDGET(handle->chat_load_button));
+
+  file_load->chat = NULL;
 }

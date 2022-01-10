@@ -69,7 +69,6 @@ Author: Tobias Frisch
                   <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="halign">start</property>
                     <property name="margin-start">4</property>
                     <property name="margin-end">4</property>
                     <property name="orientation">vertical</property>
@@ -77,6 +76,8 @@ Author: Tobias Frisch
                       <object class="GtkLabel" id="chat_title">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="ellipsize">end</property>
+                        <property name="single-line-mode">True</property>
                         <property name="xalign">0</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
@@ -92,6 +93,8 @@ Author: Tobias Frisch
                       <object class="GtkLabel" id="chat_subtitle">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="ellipsize">end</property>
+                        <property name="single-line-mode">True</property>
                         <property name="xalign">0</property>
                         <attributes>
                           <attribute name="weight" value="light"/>
@@ -101,7 +104,7 @@ Author: Tobias Frisch
                         </style>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
@@ -132,6 +135,26 @@ Author: Tobias Frisch
                     <property name="fill">True</property>
                     <property name="pack-type">end</property>
                     <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="chat_load_button">
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="relief">none</property>
+                    <child>
+                      <object class="GtkSpinner">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="active">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="pack-type">end</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <style>
@@ -528,6 +551,18 @@ Author: Tobias Frisch
         <property name="fill">True</property>
         <property name="position">1</property>
       </packing>
+    </child>
+  </object>
+  <object class="GtkPopover" id="chat_load_popover">
+    <property name="can-focus">False</property>
+    <property name="relative-to">chat_load_button</property>
+    <property name="position">bottom</property>
+    <child>
+      <object class="GtkListBox" id="chat_load_listbox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="selection-mode">none</property>
+      </object>
     </child>
   </object>
 </interface>

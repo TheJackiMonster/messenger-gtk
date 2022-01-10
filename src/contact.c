@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -27,7 +27,7 @@
 void
 contact_create_info(struct GNUNET_CHAT_Contact *contact)
 {
-  if (GNUNET_CHAT_contact_get_user_pointer(contact))
+  if ((!contact) || (GNUNET_CHAT_contact_get_user_pointer(contact)))
     return;
 
   MESSENGER_ContactInfo* info = g_malloc(sizeof(MESSENGER_ContactInfo));

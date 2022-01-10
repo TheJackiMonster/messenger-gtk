@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -268,12 +268,7 @@ event_joining_contact(MESSENGER_Application *app,
   gtk_label_set_text(message->text_label, join_message);
   gtk_label_set_text(message->timestamp_label, time? time : "");
 
-  gtk_container_add(
-      GTK_CONTAINER(handle->chat->messages_listbox),
-      message->message_box
-  );
-
-  handle->chat->messages = g_list_prepend(handle->chat->messages, message);
+  ui_chat_add_message(handle->chat, message);
   ui_chat_entry_update(handle, app, context);
 }
 
@@ -357,12 +352,7 @@ event_invitation(UNUSED MESSENGER_Application *app,
   gtk_widget_show(GTK_WIDGET(message->deny_button));
   gtk_widget_show(GTK_WIDGET(message->accept_button));
 
-  gtk_container_add(
-      GTK_CONTAINER(handle->chat->messages_listbox),
-      message->message_box
-  );
-
-  handle->chat->messages = g_list_prepend(handle->chat->messages, message);
+  ui_chat_add_message(handle->chat, message);
   ui_chat_entry_update(handle, app, context);
 }
 
@@ -412,11 +402,6 @@ event_receive_message(UNUSED MESSENGER_Application *app,
   gtk_label_set_text(message->text_label, text? text : "");
   gtk_label_set_text(message->timestamp_label, time? time : "");
 
-  gtk_container_add(
-      GTK_CONTAINER(handle->chat->messages_listbox),
-      message->message_box
-  );
-
-  handle->chat->messages = g_list_prepend(handle->chat->messages, message);
+  ui_chat_add_message(handle->chat, message);
   ui_chat_entry_update(handle, app, context);
 }

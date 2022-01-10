@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -32,12 +32,16 @@
 #include <gnunet/gnunet_chat_lib.h>
 
 typedef struct MESSENGER_Application MESSENGER_Application;
+typedef struct UI_MESSAGE_Handle UI_MESSAGE_Handle;
 typedef struct UI_PICKER_Handle UI_PICKER_Handle;
+typedef struct UI_FILE_LOAD_ENTRY_Handle UI_FILE_LOAD_ENTRY_Handle;
 
 typedef struct UI_CHAT_Handle
 {
   GList *messages;
   gdouble edge_value;
+
+  GList *loads;
 
   GtkBuilder *builder;
   GtkWidget *chat_box;
@@ -48,8 +52,12 @@ typedef struct UI_CHAT_Handle
 
   GtkLabel *chat_title;
   GtkLabel *chat_subtitle;
-  GtkButton *chat_details_button;
 
+  GtkButton *chat_load_button;
+  GtkPopover *chat_load_popover;
+  GtkListBox *chat_load_listbox;
+
+  GtkButton *chat_details_button;
   GtkLabel *chat_details_label;
   GtkButton *hide_chat_details_button;
   GtkBox *chat_details_contacts_box;
@@ -80,5 +88,21 @@ ui_chat_update(UI_CHAT_Handle *handle,
 
 void
 ui_chat_delete(UI_CHAT_Handle *handle);
+
+void
+ui_chat_add_message(UI_CHAT_Handle *handle,
+		    UI_MESSAGE_Handle *message);
+
+void
+ui_chat_remove_message(UI_CHAT_Handle *handle,
+		       UI_MESSAGE_Handle *message);
+
+void
+ui_chat_add_file_load(UI_CHAT_Handle *handle,
+		      UI_FILE_LOAD_ENTRY_Handle *file_load);
+
+void
+ui_chat_remove_file_load(UI_CHAT_Handle *handle,
+			 UI_FILE_LOAD_ENTRY_Handle *file_load);
 
 #endif /* UI_CHAT_H_ */

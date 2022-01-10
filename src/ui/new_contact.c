@@ -68,7 +68,7 @@ handle_id_drawing_area_draw(GtkWidget* drawing_area,
 
   GdkPixbuf *image = NULL;
 
-  if (!handle->image)
+  if (!(handle->image))
     return FALSE;
 
   uint w, h;
