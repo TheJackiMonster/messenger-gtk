@@ -85,16 +85,15 @@ handle_send_button_click(GtkButton *button,
   UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(context);
   UI_CHAT_Handle *handle = entry? entry->chat : NULL;
 
+  UI_FILE_LOAD_ENTRY_Handle *file_load = NULL;
   struct GNUNET_CHAT_File *file = NULL;
 
   if ((context) && (handle))
   {
-    UI_FILE_LOAD_ENTRY_Handle *file_load = ui_file_load_entry_new(app);
+    file_load = ui_file_load_entry_new(app);
 
     gtk_label_set_text(file_load->file_label, filename);
     gtk_progress_bar_set_fraction(file_load->load_progress_bar, 0.0);
-
-    ui_chat_add_file_load(handle, file_load);
 
     file = GNUNET_CHAT_context_send_file(
 	context,
@@ -109,11 +108,16 @@ handle_send_button_click(GtkButton *button,
   gtk_window_close(GTK_WINDOW(app->ui.send_file.dialog));
 
   if (!file)
+  {
+    if (file_load)
+      ui_file_load_entry_delete(file_load);
+
     return;
+  }
 
   file_create_info(file);
 
-  // TODO: create UI component?
+  ui_chat_add_file_load(handle, file_load);
 }
 
 static void

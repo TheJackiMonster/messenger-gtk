@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -63,8 +63,22 @@ typedef struct UI_MESSAGE_Handle
   GtkStack *content_stack;
 
   GtkLabel *text_label;
+
   GtkRevealer *file_revealer;
+  GtkLabel *filename_label;
+  GtkProgressBar *file_progress_bar;
+  GtkButton *file_button;
+  GtkImage *file_status_image;
+
   GtkDrawingArea *preview_drawing_area;
+
+  gulong preview_draw_signal;
+
+  GdkPixbuf *preview_image;
+  GdkPixbufAnimation *preview_animation;
+  GdkPixbufAnimationIter *preview_animation_iter;
+
+  guint redraw_animation;
 } UI_MESSAGE_Handle;
 
 UI_MESSAGE_Handle*

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.38.2 
 
-Copyright (C) 2021 GNUnet e.V.
+Copyright (C) 2021‑‑2022 GNUnet e.V.
 
 GNUnet is free software: you can redistribute it and/or modify it
 under the terms of the GNU Affero General Public License as published
@@ -115,7 +115,7 @@ Author: Tobias Frisch
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkProgressBar">
+                      <object class="GtkProgressBar" id="file_progress_bar">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                       </object>
@@ -141,7 +141,7 @@ Author: Tobias Frisch
                     <property name="valign">center</property>
                     <property name="relief">none</property>
                     <child>
-                      <object class="GtkImage">
+                      <object class="GtkImage" id="file_status_image">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="icon-name">folder-download-symbolic</property>
