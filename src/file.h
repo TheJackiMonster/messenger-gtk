@@ -48,4 +48,10 @@ file_update_upload_info(const struct GNUNET_CHAT_File *file,
 			uint64_t completed,
 			uint64_t size);
 
+void
+file_update_download_info(const struct GNUNET_CHAT_File *file,
+			  MESSENGER_Application *app,
+			  uint64_t completed,
+			  uint64_t size);
+
 #endif /* FILE_H_ */

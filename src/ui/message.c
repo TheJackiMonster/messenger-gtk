@@ -27,6 +27,85 @@
 #include <gnunet/gnunet_chat_lib.h>
 
 #include "../application.h"
+#include "../file.h"
+
+static void
+handle_downloading_file(void *cls,
+			const struct GNUNET_CHAT_File *file,
+			uint64_t completed,
+			uint64_t size)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  if (!app)
+    return;
+
+  file_update_download_info(file, app, completed, size);
+}
+
+static void
+handle_file_button_click(GtkButton *button,
+			 gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  UI_MESSAGE_Handle* handle = g_hash_table_lookup(
+      app->ui.bindings, button
+  );
+
+  if (!handle)
+    return;
+
+  struct GNUNET_CHAT_File *file = g_hash_table_lookup(
+      app->ui.bindings, handle->file_progress_bar
+  );
+
+  if (!file)
+    return;
+
+  uint64_t size = GNUNET_CHAT_file_get_size(file);
+
+  if (size <= 0)
+    return;
+
+  uint64_t local_size = GNUNET_CHAT_file_get_local_size(file);
+
+  if (GNUNET_YES == GNUNET_CHAT_file_is_downloading(file))
+  {
+    GNUNET_CHAT_file_stop_download(file);
+
+    gtk_image_set_from_icon_name(
+	handle->file_status_image,
+	"folder-download-symbolic",
+	GTK_ICON_SIZE_BUTTON
+    );
+  }
+  else if (local_size < size)
+  {
+    GNUNET_CHAT_file_start_download(file, handle_downloading_file, app);
+
+    gtk_image_set_from_icon_name(
+    	handle->file_status_image,
+    	"process-stop-symbolic",
+    	GTK_ICON_SIZE_BUTTON
+    );
+  }
+  else if (size > 0)
+  {
+    const gchar *preview = GNUNET_CHAT_file_open_preview(file);
+
+    if (!preview)
+      return;
+
+    GString* uri = g_string_new("file://");
+    g_string_append(uri, preview);
+
+    if (!g_app_info_launch_default_for_uri(uri->str, NULL, NULL))
+      GNUNET_CHAT_file_close_preview(file);
+
+    g_string_free(uri, TRUE);
+  }
+}
 
 static int
 handle_message_redraw_animation(gpointer user_data)
@@ -267,9 +346,18 @@ ui_message_new(MESSENGER_Application *app,
       gtk_builder_get_object(builder, "file_button")
   );
 
+  g_signal_connect(
+      handle->file_button,
+      "clicked",
+      G_CALLBACK(handle_file_button_click),
+      app
+  );
+
   handle->file_status_image = GTK_IMAGE(
       gtk_builder_get_object(builder, "file_status_image")
   );
+
+  g_hash_table_insert(app->ui.bindings, handle->file_button, handle);
 
   handle->preview_drawing_area = GTK_DRAWING_AREA(
       gtk_builder_get_object(builder, "preview_drawing_area")
@@ -308,15 +396,37 @@ ui_message_new(MESSENGER_Application *app,
 
 void
 ui_message_update(UI_MESSAGE_Handle *handle,
+		  MESSENGER_Application *app,
 		  const struct GNUNET_CHAT_Message *msg)
 {
-  struct GNUNET_CHAT_File *file = GNUNET_CHAT_message_get_file(msg);
+  struct GNUNET_CHAT_File *file = NULL;
+
+  if (msg)
+    file = GNUNET_CHAT_message_get_file(msg);
+  else
+    file = g_hash_table_lookup(app->ui.bindings, handle->message_box);
 
   if (!file)
     return;
 
-  if (GNUNET_YES != GNUNET_CHAT_file_is_local(file))
+  if (g_hash_table_contains(app->ui.bindings, handle->message_box))
+    g_hash_table_replace(app->ui.bindings, handle->message_box, file);
+  else
+    g_hash_table_insert(app->ui.bindings, handle->message_box, file);
+
+  uint64_t size = GNUNET_CHAT_file_get_size(file);
+  uint64_t local_size = GNUNET_CHAT_file_get_local_size(file);
+
+  if ((size <= 0) || (size > local_size))
+  {
+    gtk_image_set_from_icon_name(
+    	handle->file_status_image,
+    	"folder-download-symbolic",
+    	GTK_ICON_SIZE_BUTTON
+    );
+
     goto file_content;
+  }
 
   if (!(handle->preview_drawing_area))
     goto file_progress;
@@ -336,14 +446,14 @@ ui_message_update(UI_MESSAGE_Handle *handle,
   if ((handle->preview_animation) || (handle->preview_animation))
   {
     gtk_widget_set_size_request(
-	GTK_WIDGET(handle->preview_drawing_area),
-	250,
-	-1
+      GTK_WIDGET(handle->preview_drawing_area),
+      250,
+      -1
     );
 
     gtk_stack_set_visible_child(
-    	handle->content_stack,
-    	GTK_WIDGET(handle->preview_drawing_area)
+      handle->content_stack,
+      GTK_WIDGET(handle->preview_drawing_area)
     );
 
     gtk_widget_queue_draw(GTK_WIDGET(handle->preview_drawing_area));
@@ -355,6 +465,12 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 file_progress:
   gtk_progress_bar_set_fraction(handle->file_progress_bar, 1.0);
 
+  gtk_image_set_from_icon_name(
+      handle->file_status_image,
+      "document-open-symbolic",
+      GTK_ICON_SIZE_BUTTON
+  );
+
 file_content:
   gtk_label_set_text(handle->filename_label, GNUNET_CHAT_file_get_name(file));
 
@@ -364,6 +480,11 @@ file_content:
   );
 
   gtk_revealer_set_reveal_child(handle->file_revealer, TRUE);
+
+  if (g_hash_table_contains(app->ui.bindings, handle->file_progress_bar))
+    g_hash_table_replace(app->ui.bindings, handle->file_progress_bar, file);
+  else
+    g_hash_table_insert(app->ui.bindings, handle->file_progress_bar, file);
 }
 
 void

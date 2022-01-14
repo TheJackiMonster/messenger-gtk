@@ -25,6 +25,7 @@
 #include "event.h"
 
 #include "contact.h"
+#include "file.h"
 
 #include "ui/chat_entry.h"
 #include "ui/contact_entry.h"
@@ -236,7 +237,7 @@ event_joining_contact(MESSENGER_Application *app,
     return;
 
   UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
-  ui_message_update(message, msg);
+  ui_message_update(message, app, msg);
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
       msg
@@ -304,7 +305,7 @@ _event_invitation_accept_click(UNUSED GtkButton *button,
 }
 
 void
-event_invitation(UNUSED MESSENGER_Application *app,
+event_invitation(MESSENGER_Application *app,
 		 struct GNUNET_CHAT_Context *context,
 		 const struct GNUNET_CHAT_Message *msg)
 {
@@ -320,7 +321,7 @@ event_invitation(UNUSED MESSENGER_Application *app,
     return;
 
   UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
-  ui_message_update(message, msg);
+  ui_message_update(message, app, msg);
 
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
     msg
@@ -357,7 +358,7 @@ event_invitation(UNUSED MESSENGER_Application *app,
 }
 
 void
-event_receive_message(UNUSED MESSENGER_Application *app,
+event_receive_message(MESSENGER_Application *app,
 		      struct GNUNET_CHAT_Context *context,
 		      const struct GNUNET_CHAT_Message *msg)
 {
@@ -373,7 +374,16 @@ event_receive_message(UNUSED MESSENGER_Application *app,
   );
 
   UI_MESSAGE_Handle *message = ui_message_new(app, type);
-  ui_message_update(message, msg);
+
+  struct GNUNET_CHAT_File *file = GNUNET_CHAT_message_get_file(msg);
+
+  if (file)
+  {
+    file_create_info(file);
+    file_add_ui_message_to_info(file, message);
+  }
+
+  ui_message_update(message, app, msg);
 
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
       msg

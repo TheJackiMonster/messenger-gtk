@@ -70,5 +70,39 @@ file_update_upload_info(const struct GNUNET_CHAT_File *file,
 			uint64_t completed,
 			uint64_t size)
 {
-  //
+  MESSENGER_FileInfo* info = GNUNET_CHAT_file_get_user_pointer(file);
+
+  if (!info)
+    return;
+
+  // TODO
+}
+
+void
+file_update_download_info(const struct GNUNET_CHAT_File *file,
+			  MESSENGER_Application *app,
+			  uint64_t completed,
+			  uint64_t size)
+{
+  MESSENGER_FileInfo* info = GNUNET_CHAT_file_get_user_pointer(file);
+
+  if (!info)
+    return;
+
+  GList *list = info->file_messages;
+
+  while (list)
+  {
+    UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) list->data;
+
+    gtk_progress_bar_set_fraction(
+	message->file_progress_bar,
+	1.0 * completed / size
+    );
+
+    if (completed >= size)
+      ui_message_update(message, app, NULL);
+
+    list = list->next;
+  }
 }

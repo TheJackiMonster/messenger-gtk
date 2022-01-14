@@ -87,6 +87,7 @@ ui_message_new(MESSENGER_Application *app,
 
 void
 ui_message_update(UI_MESSAGE_Handle *handle,
+		  MESSENGER_Application *app,
 		  const struct GNUNET_CHAT_Message *message);
 
 void
