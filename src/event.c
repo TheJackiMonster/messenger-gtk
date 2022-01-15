@@ -269,7 +269,7 @@ event_joining_contact(MESSENGER_Application *app,
   gtk_label_set_text(message->text_label, join_message);
   gtk_label_set_text(message->timestamp_label, time? time : "");
 
-  ui_chat_add_message(handle->chat, message);
+  ui_chat_add_message(handle->chat, app, message);
   ui_chat_entry_update(handle, app, context);
 }
 
@@ -353,7 +353,7 @@ event_invitation(MESSENGER_Application *app,
   gtk_widget_show(GTK_WIDGET(message->deny_button));
   gtk_widget_show(GTK_WIDGET(message->accept_button));
 
-  ui_chat_add_message(handle->chat, message);
+  ui_chat_add_message(handle->chat, app, message);
   ui_chat_entry_update(handle, app, context);
 }
 
@@ -412,6 +412,6 @@ event_receive_message(MESSENGER_Application *app,
   gtk_label_set_text(message->text_label, text? text : "");
   gtk_label_set_text(message->timestamp_label, time? time : "");
 
-  ui_chat_add_message(handle->chat, message);
+  ui_chat_add_message(handle->chat, app, message);
   ui_chat_entry_update(handle, app, context);
 }

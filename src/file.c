@@ -75,7 +75,19 @@ file_update_upload_info(const struct GNUNET_CHAT_File *file,
   if (!info)
     return;
 
-  // TODO
+  GList *list = info->file_messages;
+
+  while (list)
+  {
+    UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) list->data;
+
+    gtk_progress_bar_set_fraction(
+      message->file_progress_bar,
+      1.0 * completed / size
+    );
+
+    list = list->next;
+  }
 }
 
 void

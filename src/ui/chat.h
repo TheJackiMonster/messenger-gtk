@@ -50,6 +50,10 @@ typedef struct UI_CHAT_Handle
 
   HdyFlap *flap_chat_details;
 
+  GtkStack *chat_title_stack;
+  GtkWidget *title_box;
+  GtkWidget *selection_box;
+
   GtkLabel *chat_title;
   GtkLabel *chat_subtitle;
 
@@ -61,6 +65,10 @@ typedef struct UI_CHAT_Handle
   GtkLabel *chat_details_label;
   GtkButton *hide_chat_details_button;
   GtkBox *chat_details_contacts_box;
+
+  GtkButton *selection_close_button;
+  GtkLabel *selection_count_label;
+  GtkButton *selection_delete_button;
 
   GtkScrolledWindow *chat_scrolled_window;
 
@@ -91,10 +99,12 @@ ui_chat_delete(UI_CHAT_Handle *handle);
 
 void
 ui_chat_add_message(UI_CHAT_Handle *handle,
+		    MESSENGER_Application *app,
 		    UI_MESSAGE_Handle *message);
 
 void
 ui_chat_remove_message(UI_CHAT_Handle *handle,
+		       MESSENGER_Application *app,
 		       UI_MESSAGE_Handle *message);
 
 void

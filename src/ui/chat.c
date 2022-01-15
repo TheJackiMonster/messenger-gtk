@@ -143,6 +143,41 @@ handle_back_button_click(UNUSED GtkButton *button,
 }
 
 static void
+handle_chat_messages_selected_rows_changed(GtkListBox *listbox,
+					   gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  GList *selected = gtk_list_box_get_selected_rows(listbox);
+  uint32_t count = 0;
+
+  while (selected)
+  {
+    count++;
+    selected = selected->next;
+  }
+
+  GString *counter = g_string_new("");
+  g_string_append_printf(counter, "%u", count);
+  gtk_label_set_text(handle->selection_count_label, counter->str);
+  g_string_free(counter, TRUE);
+
+  if (count > 0)
+    gtk_stack_set_visible_child(handle->chat_title_stack, handle->selection_box);
+  else
+    gtk_stack_set_visible_child(handle->chat_title_stack, handle->title_box);
+}
+
+static void
+handle_chat_selection_close_button_click(UNUSED GtkButton *button,
+					 gpointer user_data)
+{
+  GtkListBox *listbox = GTK_LIST_BOX(user_data);
+
+  gtk_list_box_unselect_all(listbox);
+}
+
+static void
 handle_attach_file_button_click(GtkButton *button,
 				gpointer user_data)
 {
@@ -326,6 +361,18 @@ ui_chat_new(MESSENGER_Application *app)
       gtk_builder_get_object(handle->builder, "flap_chat_details")
   );
 
+  handle->chat_title_stack = GTK_STACK(
+      gtk_builder_get_object(handle->builder, "chat_title_stack")
+  );
+
+  handle->title_box = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder, "title_box")
+  );
+
+  handle->selection_box = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder, "selection_box")
+  );
+
   handle->chat_title = GTK_LABEL(
       gtk_builder_get_object(handle->builder, "chat_title")
   );
@@ -383,6 +430,18 @@ ui_chat_new(MESSENGER_Application *app)
       gtk_builder_get_object(handle->builder, "chat_details_contacts_box")
   );
 
+  handle->selection_close_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "selection_close_button")
+  );
+
+  handle->selection_count_label = GTK_LABEL(
+      gtk_builder_get_object(handle->builder, "selection_count_label")
+  );
+
+  handle->selection_delete_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "selection_delete_button")
+  );
+
   handle->chat_scrolled_window = GTK_SCROLLED_WINDOW(
       gtk_builder_get_object(handle->builder, "chat_scrolled_window")
   );
@@ -400,6 +459,20 @@ ui_chat_new(MESSENGER_Application *app)
 
   handle->messages_listbox = GTK_LIST_BOX(
       gtk_builder_get_object(handle->builder, "messages_listbox")
+  );
+
+  g_signal_connect(
+      handle->messages_listbox,
+      "selected-rows-changed",
+      G_CALLBACK(handle_chat_messages_selected_rows_changed),
+      handle
+  );
+
+  g_signal_connect(
+      handle->selection_close_button,
+      "clicked",
+      G_CALLBACK(handle_chat_selection_close_button_click),
+      handle->messages_listbox
   );
 
   g_signal_connect(
@@ -674,6 +747,7 @@ ui_chat_delete(UI_CHAT_Handle *handle)
 
 void
 ui_chat_add_message(UI_CHAT_Handle *handle,
+		    GNUNET_UNUSED MESSENGER_Application *app,
 		    UI_MESSAGE_Handle *message)
 {
   GNUNET_assert((handle) && (message));
@@ -688,6 +762,7 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
 
 void
 ui_chat_remove_message(UI_CHAT_Handle *handle,
+		       GNUNET_UNUSED MESSENGER_Application *app,
 		       UI_MESSAGE_Handle *message)
 {
   GNUNET_assert((handle) && (message));
