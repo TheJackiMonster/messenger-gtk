@@ -45,6 +45,8 @@ typedef struct UI_MESSAGE_Handle
 {
   UI_MESSAGE_Type type;
 
+  struct GNUNET_TIME_Absolute timestamp;
+
   GtkBuilder *builder;
   GtkWidget *message_box;
 

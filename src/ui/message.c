@@ -248,6 +248,8 @@ ui_message_new(MESSENGER_Application *app,
 
   handle->type = type;
 
+  handle->timestamp = GNUNET_TIME_absolute_get_zero_();
+
   const char *ui_builder_file;
 
   switch (handle->type)
@@ -402,7 +404,11 @@ ui_message_update(UI_MESSAGE_Handle *handle,
   struct GNUNET_CHAT_File *file = NULL;
 
   if (msg)
+  {
     file = GNUNET_CHAT_message_get_file(msg);
+
+    handle->timestamp = GNUNET_CHAT_message_get_timestamp(msg);
+  }
   else
     file = g_hash_table_lookup(app->ui.bindings, handle->message_box);
 

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -28,7 +28,7 @@
 #include "../event.h"
 
 int
-_chat_messenger_iterate_contacts(UNUSED void *cls,
+_chat_messenger_destroy_contacts(UNUSED void *cls,
 				 UNUSED struct GNUNET_CHAT_Handle *handle,
 				 struct GNUNET_CHAT_Contact *contact)
 {
@@ -56,7 +56,7 @@ _chat_messenger_idle(void *cls)
 
   GNUNET_CHAT_iterate_contacts(
       app->chat.messenger.handle,
-      _chat_messenger_iterate_contacts,
+      _chat_messenger_destroy_contacts,
       NULL
   );
 

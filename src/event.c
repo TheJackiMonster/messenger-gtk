@@ -84,7 +84,6 @@ _add_new_chat_entry(MESSENGER_Application *app,
 		    struct GNUNET_CHAT_Context *context)
 {
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
-
   UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new(app);
 
   ui_chat_entry_update(entry, app, context);
@@ -125,7 +124,15 @@ _iterate_profile_contacts(void *cls,
 			  struct GNUNET_CHAT_Contact *contact)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
-  _add_new_chat_entry(app, GNUNET_CHAT_contact_get_context(contact));
+
+  struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
+      contact
+  );
+
+  if (GNUNET_SYSERR == GNUNET_CHAT_context_get_status(context))
+    return GNUNET_YES;
+
+  _add_new_chat_entry(app, context);
   return GNUNET_YES;
 }
 
@@ -135,6 +142,14 @@ _iterate_profile_groups(void *cls,
 			UNUSED struct GNUNET_CHAT_Group *group)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  struct GNUNET_CHAT_Context *context = GNUNET_CHAT_group_get_context(
+      group
+  );
+
+  if (GNUNET_SYSERR == GNUNET_CHAT_context_get_status(context))
+    return GNUNET_YES;
+
   _add_new_chat_entry(app, GNUNET_CHAT_group_get_context(group));
   return GNUNET_YES;
 }

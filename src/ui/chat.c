@@ -142,6 +142,35 @@ handle_back_button_click(UNUSED GtkButton *button,
   }
 }
 
+static gint
+handle_chat_messages_sort(GtkListBoxRow* row0,
+			  GtkListBoxRow* row1,
+			  gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  UI_MESSAGE_Handle *message0 = (UI_MESSAGE_Handle*) (
+      g_hash_table_lookup(app->ui.bindings, row0)
+  );
+
+  UI_MESSAGE_Handle *message1 = (UI_MESSAGE_Handle*) (
+      g_hash_table_lookup(app->ui.bindings, row1)
+  );
+
+  if ((!message0) || (!message1))
+    return 0;
+
+  struct GNUNET_TIME_Absolute timestamp0 = message0->timestamp;
+  struct GNUNET_TIME_Absolute timestamp1 = message1->timestamp;
+
+  if (GNUNET_TIME_absolute_cmp(timestamp0, <, timestamp1))
+    return -1;
+  else if (GNUNET_TIME_absolute_cmp(timestamp0, >, timestamp1))
+    return +1;
+  else
+    return 0;
+}
+
 static void
 handle_chat_messages_selected_rows_changed(GtkListBox *listbox,
 					   gpointer user_data)
@@ -461,6 +490,13 @@ ui_chat_new(MESSENGER_Application *app)
       gtk_builder_get_object(handle->builder, "messages_listbox")
   );
 
+  gtk_list_box_set_sort_func(
+      handle->messages_listbox,
+      handle_chat_messages_sort,
+      app,
+      NULL
+  );
+
   g_signal_connect(
       handle->messages_listbox,
       "selected-rows-changed",
@@ -747,7 +783,7 @@ ui_chat_delete(UI_CHAT_Handle *handle)
 
 void
 ui_chat_add_message(UI_CHAT_Handle *handle,
-		    GNUNET_UNUSED MESSENGER_Application *app,
+		    MESSENGER_Application *app,
 		    UI_MESSAGE_Handle *message)
 {
   GNUNET_assert((handle) && (message));
@@ -757,17 +793,27 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
       message->message_box
   );
 
+  GtkWidget *row = gtk_widget_get_parent(message->message_box);
+
+  g_hash_table_insert(app->ui.bindings, row, message);
+
   handle->messages = g_list_prepend(handle->messages, message);
+
+  gtk_list_box_invalidate_sort(handle->messages_listbox);
 }
 
 void
 ui_chat_remove_message(UI_CHAT_Handle *handle,
-		       GNUNET_UNUSED MESSENGER_Application *app,
+		       MESSENGER_Application *app,
 		       UI_MESSAGE_Handle *message)
 {
   GNUNET_assert((handle) && (message));
 
   handle->messages = g_list_remove(handle->messages, message);
+
+  GtkWidget *row = gtk_widget_get_parent(message->message_box);
+
+  g_hash_table_remove(app->ui.bindings, row);
 
   gtk_container_remove(
       GTK_CONTAINER(handle->messages_listbox),
