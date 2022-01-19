@@ -38,21 +38,15 @@ _chat_messenger_destroy_contacts(UNUSED void *cls,
 }
 
 static void
-_chat_messenger_idle(void *cls)
+_chat_messenger_quit(void *cls)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
-  if (MESSENGER_NONE == app->chat.signal)
-  {
-    app->chat.messenger.idle = GNUNET_SCHEDULER_add_delayed_with_priority(
-	GNUNET_TIME_relative_get_second_(),
-	GNUNET_SCHEDULER_PRIORITY_IDLE,
-	&_chat_messenger_idle,
-	app
-    );
+  MESSENGER_ApplicationSignal signal;
+  int received = read(app->chat.pipe[0], &signal, sizeof(signal));
 
-    return;
-  }
+  if (received < 0)
+    signal = MESSENGER_FAIL;
 
   GNUNET_CHAT_iterate_contacts(
       app->chat.messenger.handle,
@@ -63,8 +57,7 @@ _chat_messenger_idle(void *cls)
   GNUNET_CHAT_stop(app->chat.messenger.handle);
   app->chat.messenger.handle = NULL;
 
-  if (MESSENGER_QUIT != app->chat.signal)
-    GNUNET_SCHEDULER_shutdown();
+  GNUNET_SCHEDULER_shutdown();
 }
 
 static int
@@ -181,10 +174,17 @@ chat_messenger_run(void *cls,
       app
   );
 
-  app->chat.messenger.idle = GNUNET_SCHEDULER_add_delayed_with_priority(
-      GNUNET_TIME_relative_get_zero_(),
-      GNUNET_SCHEDULER_PRIORITY_IDLE,
-      &_chat_messenger_idle,
+  struct GNUNET_NETWORK_FDSet *fd = GNUNET_NETWORK_fdset_create ();
+  GNUNET_NETWORK_fdset_set_native(fd, app->chat.pipe[0]);
+
+  app->chat.messenger.quit = GNUNET_SCHEDULER_add_select(
+      GNUNET_SCHEDULER_PRIORITY_URGENT,
+      GNUNET_TIME_relative_get_forever_(),
+      fd,
+      NULL,
+      &_chat_messenger_quit,
       app
   );
+
+  GNUNET_NETWORK_fdset_destroy(fd);
 }

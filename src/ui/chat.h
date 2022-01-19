@@ -73,6 +73,7 @@ typedef struct UI_CHAT_Handle
   GtkScrolledWindow *chat_scrolled_window;
 
   GtkListBox *chat_contacts_listbox;
+  GtkListBox *chat_files_listbox;
   GtkListBox *messages_listbox;
 
   GtkButton *attach_file_button;

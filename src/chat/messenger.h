@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -35,7 +35,7 @@ typedef struct MESSENGER_Application MESSENGER_Application;
 typedef struct CHAT_MESSENGER_Handle
 {
   struct GNUNET_CHAT_Handle *handle;
-  struct GNUNET_SCHEDULER_Task *idle;
+  struct GNUNET_SCHEDULER_Task *quit;
 } CHAT_MESSENGER_Handle;
 
 void

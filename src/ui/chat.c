@@ -486,6 +486,10 @@ ui_chat_new(MESSENGER_Application *app)
       app
   );
 
+  handle->chat_files_listbox = GTK_LIST_BOX(
+      gtk_builder_get_object(handle->builder, "chat_files_listbox")
+  );
+
   handle->messages_listbox = GTK_LIST_BOX(
       gtk_builder_get_object(handle->builder, "messages_listbox")
   );

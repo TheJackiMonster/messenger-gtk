@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -79,7 +79,7 @@ application_init(MESSENGER_Application *app,
 
   app->chat.status = EXIT_FAILURE;
   app->chat.tid = 0;
-  app->chat.signal = MESSENGER_NONE;
+  pipe(app->chat.pipe);
 
   pthread_mutex_init(&(app->chat.mutex), NULL);
 
@@ -175,9 +175,15 @@ application_run(MESSENGER_Application *app)
       app->argv
   );
 
+  if (app->ui.status != 0)
+    application_exit(app, MESSENGER_FAIL);
+
   pthread_join(app->chat.tid, NULL);
 
   g_hash_table_destroy(app->ui.bindings);
+
+  close(app->chat.pipe[0]);
+  close(app->chat.pipe[1]);
 
   pthread_mutex_destroy(&(app->chat.mutex));
 
@@ -286,7 +292,7 @@ void
 application_exit(MESSENGER_Application *app,
 		 MESSENGER_ApplicationSignal signal)
 {
-  app->chat.signal = signal;
+  write(app->chat.pipe[1], &signal, sizeof(signal));
 }
 
 int
