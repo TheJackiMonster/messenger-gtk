@@ -30,6 +30,7 @@
 typedef struct UI_INVITE_CONTACT_Handle
 {
   GList *contact_entries;
+  GHashTable *bindings;
 
   GtkBuilder *builder;
   GtkDialog *dialog;
