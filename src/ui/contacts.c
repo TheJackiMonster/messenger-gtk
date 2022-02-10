@@ -82,6 +82,46 @@ close_dialog:
   gtk_window_close(GTK_WINDOW(app->ui.contacts.dialog));
 }
 
+static gboolean
+handle_contacts_listbox_filter_func(GtkListBoxRow *row,
+				    gpointer user_data)
+{
+  UI_CONTACTS_Handle *handle = (UI_CONTACTS_Handle*) user_data;
+
+  if (!gtk_list_box_row_get_selectable(row))
+    return TRUE;
+
+  const gchar *filter = gtk_entry_get_text(
+      GTK_ENTRY(handle->contact_search_entry)
+  );
+
+  if (!filter)
+    return TRUE;
+
+  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
+      g_hash_table_lookup(handle->bindings, row)
+  );
+
+  if (!contact)
+    return FALSE;
+
+  const gchar *name = GNUNET_CHAT_contact_get_name(contact);
+
+  if (!name)
+    return FALSE;
+
+  return g_str_match_string(filter, name, TRUE);
+}
+
+static void
+handle_contact_search_entry_search_changed(UNUSED GtkSearchEntry* search_entry,
+					   gpointer user_data)
+{
+  GtkListBox *listbox = GTK_LIST_BOX(user_data);
+
+  gtk_list_box_invalidate_filter(listbox);
+}
+
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
 		      gpointer user_data)
@@ -138,6 +178,7 @@ ui_contacts_dialog_init(MESSENGER_Application *app,
 			UI_CONTACTS_Handle *handle)
 {
   handle->contact_entries = NULL;
+  handle->bindings = app->ui.bindings;
 
   handle->builder = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/contacts.ui")
@@ -163,6 +204,20 @@ ui_contacts_dialog_init(MESSENGER_Application *app,
 
   handle->contacts_listbox = GTK_LIST_BOX(
       gtk_builder_get_object(handle->builder, "contacts_listbox")
+  );
+
+  gtk_list_box_set_filter_func(
+      handle->contacts_listbox,
+      handle_contacts_listbox_filter_func,
+      handle,
+      NULL
+  );
+
+  g_signal_connect(
+      handle->contact_search_entry,
+      "search-changed",
+      G_CALLBACK(handle_contact_search_entry_search_changed),
+      handle->contacts_listbox
   );
 
   g_signal_connect(
@@ -195,6 +250,8 @@ ui_contacts_dialog_init(MESSENGER_Application *app,
       _iterate_contacts,
       app
   );
+
+  gtk_list_box_invalidate_filter(handle->contacts_listbox);
 }
 
 void
