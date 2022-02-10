@@ -42,6 +42,9 @@ _chat_messenger_quit(void *cls)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
+  if (app->chat.messenger.idle)
+    GNUNET_SCHEDULER_cancel(app->chat.messenger.idle);
+
   MESSENGER_ApplicationSignal signal;
   int received = read(app->chat.pipe[0], &signal, sizeof(signal));
 
@@ -58,6 +61,19 @@ _chat_messenger_quit(void *cls)
   app->chat.messenger.handle = NULL;
 
   GNUNET_SCHEDULER_shutdown();
+}
+
+static void
+_chat_messenger_idle(void *cls)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  app->chat.messenger.idle = GNUNET_SCHEDULER_add_delayed_with_priority(
+      GNUNET_TIME_relative_get_second_(),
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      &_chat_messenger_idle,
+      app
+  );
 }
 
 static int
@@ -183,6 +199,11 @@ chat_messenger_run(void *cls,
       fd,
       NULL,
       &_chat_messenger_quit,
+      app
+  );
+
+  app->chat.messenger.idle = GNUNET_SCHEDULER_add_now(
+      &_chat_messenger_idle,
       app
   );
 
