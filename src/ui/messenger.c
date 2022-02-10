@@ -161,6 +161,16 @@ handle_chats_listbox_row_activated(UNUSED GtkListBox* listbox,
 {
   UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
 
+  if (!gtk_list_box_row_get_selectable(row))
+    return;
+
+  UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) g_hash_table_lookup(
+      handle->bindings, row
+  );
+
+  if ((!entry) || (!(entry->chat)) || (!(entry->chat->chat_box)))
+    return;
+
   GtkStack *stack = handle->chats_stack;
   HdyLeaflet *leaflet = handle->leaflet_chat;
 
@@ -170,11 +180,48 @@ handle_chats_listbox_row_activated(UNUSED GtkListBox* listbox,
     hdy_leaflet_set_visible_child(leaflet, GTK_WIDGET(children->next->data));
   }
 
-  GtkWidget *entry = GTK_WIDGET(
-      gtk_container_get_children(GTK_CONTAINER(row))->data
+  gtk_stack_set_visible_child(stack, entry->chat->chat_box);
+}
+
+static gboolean
+handle_chats_listbox_filter_func(GtkListBoxRow *row,
+				 gpointer user_data)
+{
+  UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
+
+  if ((!gtk_list_box_row_get_selectable(row)) ||
+      (gtk_list_box_row_is_selected(row)))
+    return TRUE;
+
+  const gchar *filter = gtk_entry_get_text(
+      GTK_ENTRY(handle->chats_search)
   );
 
-  gtk_stack_set_visible_child_name(stack, gtk_widget_get_name(entry));
+  if (!filter)
+    return TRUE;
+
+  UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) g_hash_table_lookup(
+      handle->bindings, row
+  );
+
+  if (!entry)
+    return FALSE;
+
+  const gchar *title = gtk_label_get_text(entry->title_label);
+
+  if (!title)
+    return FALSE;
+
+  return g_str_match_string(filter, title, TRUE);
+}
+
+static void
+handle_chats_search_changed(UNUSED GtkSearchEntry *search,
+			    gpointer user_data)
+{
+  GtkListBox *listbox = GTK_LIST_BOX(user_data);
+
+  gtk_list_box_invalidate_filter(listbox);
 }
 
 static void
@@ -193,6 +240,7 @@ ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle)
 {
   handle->chat_entries = NULL;
+  handle->bindings = app->ui.bindings;
 
   handle->builder = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/messenger.ui")
@@ -375,6 +423,20 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->chats_listbox = GTK_LIST_BOX(
       gtk_builder_get_object(handle->builder, "chats_listbox")
+  );
+
+  gtk_list_box_set_filter_func(
+      handle->chats_listbox,
+      handle_chats_listbox_filter_func,
+      handle,
+      NULL
+  );
+
+  g_signal_connect(
+      handle->chats_search,
+      "search-changed",
+      G_CALLBACK(handle_chats_search_changed),
+      handle->chats_listbox
   );
 
   g_signal_connect(

@@ -747,10 +747,6 @@ Author: Tobias Frisch
                       </packing>
                     </child>
                   </object>
-                  <packing>
-                    <property name="name">page0</property>
-                    <property name="title" translatable="yes">page0</property>
-                  </packing>
                 </child>
               </object>
               <packing>

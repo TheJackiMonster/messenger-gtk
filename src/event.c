@@ -91,15 +91,9 @@ _add_new_chat_entry(MESSENGER_Application *app,
   gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
   GNUNET_CHAT_context_set_user_pointer(context, entry);
 
-  char context_id [9];
-  g_snprintf(context_id, sizeof(context_id), "%08lx", (gulong) context);
-
-  gtk_widget_set_name(entry->entry_box, context_id);
-
-  gtk_stack_add_named(
-      ui->chats_stack,
-      entry->chat->chat_box,
-      context_id
+  gtk_container_add(
+      GTK_CONTAINER(ui->chats_stack),
+      entry->chat->chat_box
   );
 
   g_hash_table_insert(
@@ -114,7 +108,15 @@ _add_new_chat_entry(MESSENGER_Application *app,
       gtk_widget_get_parent(entry->entry_box)
   );
 
+  g_hash_table_insert(
+      app->ui.bindings,
+      row,
+      entry
+  );
+
   gtk_list_box_select_row(ui->chats_listbox, row);
+  gtk_list_box_invalidate_filter(ui->chats_listbox);
+
   gtk_widget_activate(GTK_WIDGET(row));
 }
 

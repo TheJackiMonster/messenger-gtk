@@ -36,6 +36,7 @@ typedef struct MESSENGER_Application MESSENGER_Application;
 typedef struct UI_MESSENGER_Handle
 {
   GList *chat_entries;
+  GHashTable *bindings;
 
   GtkBuilder *builder;
   GtkApplicationWindow *main_window;
