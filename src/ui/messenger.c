@@ -35,9 +35,8 @@
 
 #include "../application.h"
 
-static void
-handle_flap_via_button_click(UNUSED GtkButton* button,
-			     gpointer user_data)
+static gboolean
+_flap_reveal_switch(gpointer user_data)
 {
   HdyFlap* flap = HDY_FLAP(user_data);
 
@@ -46,6 +45,15 @@ handle_flap_via_button_click(UNUSED GtkButton* button,
   } else {
     hdy_flap_set_reveal_flap(flap, TRUE);
   }
+
+  return FALSE;
+}
+
+static void
+handle_flap_via_button_click(UNUSED GtkButton* button,
+			     gpointer user_data)
+{
+  g_idle_add(G_SOURCE_FUNC(_flap_reveal_switch), user_data);
 }
 
 static void
