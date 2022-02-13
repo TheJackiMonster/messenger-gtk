@@ -101,6 +101,11 @@ _chat_messenger_message(void *cls,
 
   switch (kind)
   {
+    case GNUNET_CHAT_KIND_REFRESH:
+    {
+      application_call_event(app, event_refresh_accounts);
+      break;
+    }
     case GNUNET_CHAT_KIND_LOGIN:
     {
       application_call_event(app, event_update_profile);
@@ -185,7 +190,6 @@ chat_messenger_run(void *cls,
   app->chat.messenger.handle = GNUNET_CHAT_start(
       cfg,
       ".messenger",
-      app->chat.identity,
       &_chat_messenger_message,
       app
   );

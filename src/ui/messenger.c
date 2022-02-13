@@ -94,7 +94,14 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
     return;
   }
 
-  // TODO: switch to selected profile
+  struct GNUNET_CHAT_Account *account = (struct GNUNET_CHAT_Account*) (
+      g_hash_table_lookup(app->ui.bindings, row)
+  );
+
+  if (!account)
+    return;
+
+  GNUNET_CHAT_connect(app->chat.messenger.handle, account);
 }
 
 static void
@@ -497,4 +504,6 @@ ui_messenger_cleanup(UI_MESSENGER_Handle *handle)
 
   if (handle->chat_entries)
     g_list_free(handle->chat_entries);
+
+  memset(handle, 0, sizeof(*handle));
 }

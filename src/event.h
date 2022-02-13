@@ -28,6 +28,9 @@
 #include "application.h"
 
 void
+event_refresh_accounts(MESSENGER_Application *app);
+
+void
 event_update_profile(MESSENGER_Application *app);
 
 void

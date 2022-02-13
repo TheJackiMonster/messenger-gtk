@@ -80,6 +80,68 @@ _show_notification(MESSENGER_Application *app,
 }
 
 static void
+_clear_each_selectable_widget(GtkWidget *widget,
+			      gpointer user_data)
+{
+  GtkContainer *container = GTK_CONTAINER(user_data);
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(widget);
+
+  if (gtk_list_box_row_get_selectable(row))
+    gtk_container_remove(container, widget);
+}
+
+static int
+_iterate_accounts(void *cls,
+		  const struct GNUNET_CHAT_Handle *handle,
+		  struct GNUNET_CHAT_Account *account)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+
+  const gchar *name = GNUNET_CHAT_account_get_name(account);
+
+  UI_PROFILE_ENTRY_Handle *profile = ui_profile_entry_new(app);
+
+  hdy_avatar_set_text(profile->entry_avatar, name);
+  gtk_label_set_text(profile->entry_label, name);
+
+  gtk_list_box_prepend(ui->accounts_listbox, profile->entry_box);
+
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
+    gtk_widget_get_parent(profile->entry_box)
+  );
+
+  g_hash_table_insert(ui->bindings, row, account);
+
+  if ((account == GNUNET_CHAT_get_connected(handle)) ||
+      ((app->chat.identity) && (0 == g_strcmp0(app->chat.identity, name))))
+    gtk_list_box_select_row(ui->accounts_listbox, row);
+
+  ui_profile_entry_delete(profile);
+  return GNUNET_YES;
+}
+
+void
+event_refresh_accounts(MESSENGER_Application *app)
+{
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+  CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
+
+  if (!(ui->accounts_listbox))
+    return;
+
+  gtk_list_box_unselect_all(ui->accounts_listbox);
+
+  gtk_container_foreach(
+      GTK_CONTAINER(ui->accounts_listbox),
+      _clear_each_selectable_widget,
+      ui->accounts_listbox
+  );
+
+  GNUNET_CHAT_iterate_accounts(chat->handle, _iterate_accounts, app);
+}
+
+static void
 _add_new_chat_entry(MESSENGER_Application *app,
 		    struct GNUNET_CHAT_Context *context)
 {
@@ -156,15 +218,6 @@ _iterate_profile_groups(void *cls,
   return GNUNET_YES;
 }
 
-static void
-_clear_each_widget(GtkWidget *widget,
-		   gpointer user_data)
-{
-  GtkContainer *container = GTK_CONTAINER(user_data);
-
-  gtk_container_remove(container, widget);
-}
-
 void
 event_update_profile(MESSENGER_Application *app)
 {
@@ -177,21 +230,6 @@ event_update_profile(MESSENGER_Application *app)
   {
     hdy_avatar_set_text(ui->profile_avatar, name);
     gtk_label_set_text(ui->profile_label, name);
-
-    UI_PROFILE_ENTRY_Handle *profile = ui_profile_entry_new(app);
-
-    hdy_avatar_set_text(profile->entry_avatar, name);
-    gtk_label_set_text(profile->entry_label, name);
-
-    gtk_list_box_prepend(ui->accounts_listbox, profile->entry_box);
-
-    GtkListBoxRow *row = GTK_LIST_BOX_ROW(
-	gtk_widget_get_parent(profile->entry_box)
-    );
-
-    gtk_list_box_select_row(ui->accounts_listbox, row);
-
-    ui_profile_entry_delete(profile);
   }
 
   const char *key = GNUNET_CHAT_get_key(chat->handle);
@@ -201,7 +239,7 @@ event_update_profile(MESSENGER_Application *app)
 
   gtk_container_foreach(
       GTK_CONTAINER(ui->chats_listbox),
-      _clear_each_widget,
+      _clear_each_selectable_widget,
       ui->chats_listbox
   );
 
