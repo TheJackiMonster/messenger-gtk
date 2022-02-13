@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -27,6 +27,22 @@
 #include "../application.h"
 
 static void
+_open_new_profile(GtkEntry *entry, MESSENGER_Application *app)
+{
+  const gchar *name = gtk_entry_get_text(entry);
+
+  if (GNUNET_OK != GNUNET_CHAT_account_create(app->chat.messenger.handle, name))
+    return;
+
+  gtk_list_box_unselect_all(app->ui.messenger.accounts_listbox);
+
+  if (app->chat.identity)
+    GNUNET_free(app->chat.identity);
+
+  app->chat.identity = GNUNET_strdup(name);
+}
+
+static void
 handle_profile_entry_changed(GtkEditable *editable,
 			      gpointer user_data)
 {
@@ -42,7 +58,7 @@ handle_profile_entry_activate(UNUSED GtkEntry *entry,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  // TODO: create new profile and switch to it
+  _open_new_profile(app->ui.new_profile.profile_entry, app);
 
   gtk_window_close(GTK_WINDOW(app->ui.new_profile.dialog));
 }
@@ -61,7 +77,7 @@ handle_confirm_button_click(UNUSED GtkButton *button,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  // TODO: create new profile and switch to it
+  _open_new_profile(app->ui.new_profile.profile_entry, app);
 
   gtk_window_close(GTK_WINDOW(app->ui.new_profile.dialog));
 }

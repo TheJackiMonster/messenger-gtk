@@ -115,7 +115,7 @@ _iterate_accounts(void *cls,
 
   if ((account == GNUNET_CHAT_get_connected(handle)) ||
       ((app->chat.identity) && (0 == g_strcmp0(app->chat.identity, name))))
-    gtk_list_box_select_row(ui->accounts_listbox, row);
+    gtk_widget_activate(GTK_WIDGET(row));
 
   ui_profile_entry_delete(profile);
   return GNUNET_YES;

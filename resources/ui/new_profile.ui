@@ -53,6 +53,7 @@ Author: Tobias Frisch
             <child>
               <object class="GtkButton" id="confirm_button">
                 <property name="label" translatable="yes">Confirm</property>
+                <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
               </object>
