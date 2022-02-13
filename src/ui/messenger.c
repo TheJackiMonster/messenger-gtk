@@ -101,6 +101,8 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   if (!account)
     return;
 
+  hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
+
   GNUNET_CHAT_connect(app->chat.messenger.handle, account);
 }
 
