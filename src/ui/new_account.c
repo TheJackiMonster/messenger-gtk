@@ -125,7 +125,7 @@ ui_new_account_dialog_init(MESSENGER_Application *app,
 
   gtk_window_set_title(
       GTK_WINDOW(handle->dialog),
-      _("New Profile")
+      _("New Account")
   );
 
   gtk_window_set_transient_for(
