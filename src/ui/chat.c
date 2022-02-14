@@ -30,10 +30,9 @@
 #include "message.h"
 #include "messenger.h"
 #include "picker.h"
-#include "profile_entry.h"
-
 #include "../application.h"
 #include "../contact.h"
+#include "account_entry.h"
 
 static gboolean
 _flap_reveal_switch(gpointer user_data)
@@ -638,7 +637,7 @@ iterate_ui_chat_update_group_contacts(void *cls,
   );
 
   GtkListBox *listbox = closure->listbox;
-  UI_PROFILE_ENTRY_Handle* entry = ui_profile_entry_new(closure->app);
+  UI_ACCOUNT_ENTRY_Handle* entry = ui_account_entry_new(closure->app);
 
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
@@ -653,7 +652,7 @@ iterate_ui_chat_update_group_contacts(void *cls,
 
   g_hash_table_insert(closure->bindings, row, contact);
 
-  ui_profile_entry_delete(entry);
+  ui_account_entry_delete(entry);
   return GNUNET_YES;
 }
 

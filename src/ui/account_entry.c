@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -19,20 +19,20 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/profile_entry.c
+ * @file ui/account_entry.c
  */
 
-#include "profile_entry.h"
+#include "account_entry.h"
 
 #include "../application.h"
 
-UI_PROFILE_ENTRY_Handle*
-ui_profile_entry_new(MESSENGER_Application *app)
+UI_ACCOUNT_ENTRY_Handle*
+ui_account_entry_new(MESSENGER_Application *app)
 {
-  UI_PROFILE_ENTRY_Handle* handle = g_malloc(sizeof(UI_PROFILE_ENTRY_Handle));
+  UI_ACCOUNT_ENTRY_Handle* handle = g_malloc(sizeof(UI_ACCOUNT_ENTRY_Handle));
 
   handle->builder = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/profile_entry.ui")
+      application_get_resource_path(app, "ui/account_entry.ui")
   );
 
   handle->entry_box = GTK_WIDGET(
@@ -51,7 +51,7 @@ ui_profile_entry_new(MESSENGER_Application *app)
 }
 
 void
-ui_profile_entry_delete(UI_PROFILE_ENTRY_Handle *handle)
+ui_account_entry_delete(UI_ACCOUNT_ENTRY_Handle *handle)
 {
   g_object_unref(handle->builder);
 

@@ -56,7 +56,7 @@ Author: Tobias Frisch
       </packing>
     </child>
     <style>
-      <class name="profile-entry"/>
+      <class name="account-entry"/>
     </style>
   </object>
 </interface>

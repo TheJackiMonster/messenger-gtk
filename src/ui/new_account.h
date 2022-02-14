@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -19,33 +19,33 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/new_profile.h
+ * @file ui/new_account.h
  */
 
-#ifndef UI_NEW_PROFILE_H_
-#define UI_NEW_PROFILE_H_
+#ifndef UI_NEW_ACCOUNT_H_
+#define UI_NEW_ACCOUNT_H_
 
 #include "messenger.h"
 
-typedef struct UI_NEW_PROFILE_Handle
+typedef struct UI_NEW_ACCOUNT_Handle
 {
   GtkBuilder *builder;
   GtkDialog *dialog;
 
-  HdyAvatar *profile_avatar;
-  GtkFileChooserButton *profile_avatar_file;
+  HdyAvatar *account_avatar;
+  GtkFileChooserButton *account_avatar_file;
 
-  GtkEntry *profile_entry;
+  GtkEntry *account_entry;
 
   GtkButton *cancel_button;
   GtkButton *confirm_button;
-} UI_NEW_PROFILE_Handle;
+} UI_NEW_ACCOUNT_Handle;
 
 void
-ui_new_profile_dialog_init(MESSENGER_Application *app,
-			   UI_NEW_PROFILE_Handle *handle);
+ui_new_account_dialog_init(MESSENGER_Application *app,
+			   UI_NEW_ACCOUNT_Handle *handle);
 
 void
-ui_new_profile_dialog_cleanup(UI_NEW_PROFILE_Handle *handle);
+ui_new_account_dialog_cleanup(UI_NEW_ACCOUNT_Handle *handle);
 
-#endif /* UI_NEW_PROFILE_H_ */
+#endif /* UI_NEW_ACCOUNT_H_ */

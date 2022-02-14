@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -88,9 +88,9 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   {
     hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
 
-    ui_new_profile_dialog_init(app, &(app->ui.new_profile));
+    ui_new_account_dialog_init(app, &(app->ui.new_account));
 
-    gtk_widget_show(GTK_WIDGET(app->ui.new_profile.dialog));
+    gtk_widget_show(GTK_WIDGET(app->ui.new_account.dialog));
     return;
   }
 

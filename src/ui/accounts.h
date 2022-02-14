@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -19,28 +19,32 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/profile_entry.h
+ * @file ui/accounts.h
  */
 
-#ifndef UI_PROFILE_ENTRY_H_
-#define UI_PROFILE_ENTRY_H_
+#ifndef UI_ACCOUNTS_H_
+#define UI_ACCOUNTS_H_
 
 #include "messenger.h"
 
-typedef struct UI_PROFILE_ENTRY_Handle
+typedef struct UI_ACCOUNTS_Handle
 {
+  GList *account_entries;
+  GHashTable *bindings;
+
   GtkBuilder *builder;
+  GtkDialog *dialog;
 
-  GtkWidget *entry_box;
+  GtkListBox *accounts_listbox;
 
-  HdyAvatar *entry_avatar;
-  GtkLabel *entry_label;
-} UI_PROFILE_ENTRY_Handle;
-
-UI_PROFILE_ENTRY_Handle*
-ui_profile_entry_new(MESSENGER_Application *app);
+  GtkButton *close_button;
+} UI_ACCOUNTS_Handle;
 
 void
-ui_profile_entry_delete(UI_PROFILE_ENTRY_Handle *handle);
+ui_accounts_dialog_init(MESSENGER_Application *app,
+			UI_ACCOUNTS_Handle *handle);
 
-#endif /* UI_PROFILE_ENTRY_H_ */
+void
+ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle);
+
+#endif /* UI_ACCOUNTS_H_ */

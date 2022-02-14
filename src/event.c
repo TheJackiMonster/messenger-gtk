@@ -26,11 +26,11 @@
 
 #include "contact.h"
 #include "file.h"
+#include "ui/account_entry.h"
 
 #include "ui/chat_entry.h"
 #include "ui/contact_entry.h"
 #include "ui/message.h"
-#include "ui/profile_entry.h"
 
 static void
 _close_notification(NotifyNotification* notification,
@@ -100,15 +100,15 @@ _iterate_accounts(void *cls,
 
   const gchar *name = GNUNET_CHAT_account_get_name(account);
 
-  UI_PROFILE_ENTRY_Handle *profile = ui_profile_entry_new(app);
+  UI_ACCOUNT_ENTRY_Handle *entry = ui_account_entry_new(app);
 
-  hdy_avatar_set_text(profile->entry_avatar, name);
-  gtk_label_set_text(profile->entry_label, name);
+  hdy_avatar_set_text(entry->entry_avatar, name);
+  gtk_label_set_text(entry->entry_label, name);
 
-  gtk_list_box_prepend(ui->accounts_listbox, profile->entry_box);
+  gtk_list_box_prepend(ui->accounts_listbox, entry->entry_box);
 
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
-    gtk_widget_get_parent(profile->entry_box)
+    gtk_widget_get_parent(entry->entry_box)
   );
 
   g_hash_table_insert(ui->bindings, row, account);
@@ -117,7 +117,7 @@ _iterate_accounts(void *cls,
       ((app->chat.identity) && (0 == g_strcmp0(app->chat.identity, name))))
     gtk_widget_activate(GTK_WIDGET(row));
 
-  ui_profile_entry_delete(profile);
+  ui_account_entry_delete(entry);
   return GNUNET_YES;
 }
 
