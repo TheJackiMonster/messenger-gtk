@@ -257,9 +257,21 @@ ui_contacts_dialog_init(MESSENGER_Application *app,
 void
 ui_contacts_dialog_cleanup(UI_CONTACTS_Handle *handle)
 {
+  GList *list = gtk_container_get_children(
+      GTK_CONTAINER(handle->contacts_listbox)
+  );
+
+  while (list)
+  {
+    if (list->data)
+      g_hash_table_remove(handle->bindings, list->data);
+
+    list = list->next;
+  }
+
   g_object_unref(handle->builder);
 
-  GList *list = handle->contact_entries;
+  list = handle->contact_entries;
 
   while (list) {
     if (list->data)

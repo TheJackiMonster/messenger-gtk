@@ -43,6 +43,17 @@ _load_ui_stylesheets(MESSENGER_Application *app)
   );
 }
 
+static gboolean
+_application_accounts(gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  ui_accounts_dialog_init(app, &(app->ui.accounts));
+
+  gtk_widget_show(GTK_WIDGET(app->ui.accounts.dialog));
+  return FALSE;
+}
+
 static void
 _application_activate(UNUSED GtkApplication* application,
 		      gpointer user_data)
@@ -50,6 +61,11 @@ _application_activate(UNUSED GtkApplication* application,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   ui_messenger_init(app, &(app->ui.messenger));
+
+  if (app->chat.identity)
+    gtk_widget_show(GTK_WIDGET(app->ui.messenger.main_window));
+  else
+    g_idle_add(G_SOURCE_FUNC(_application_accounts), app);
 }
 
 void

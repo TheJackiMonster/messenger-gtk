@@ -26,6 +26,15 @@
 
 #include "../application.h"
 
+static gboolean
+_show_messenger_main_window(gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  gtk_widget_show(GTK_WIDGET(app->ui.messenger.main_window));
+  return FALSE;
+}
+
 static void
 _open_new_account(GtkEntry *entry, MESSENGER_Application *app)
 {
@@ -40,6 +49,11 @@ _open_new_account(GtkEntry *entry, MESSENGER_Application *app)
     GNUNET_free(app->chat.identity);
 
   app->chat.identity = GNUNET_strdup(name);
+
+  if (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
+    app->ui.new_account.show_queued = g_idle_add(
+      G_SOURCE_FUNC(_show_messenger_main_window), app
+    );
 }
 
 static void
@@ -86,13 +100,21 @@ static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
 		      gpointer user_data)
 {
-  ui_new_account_dialog_cleanup((UI_NEW_ACCOUNT_Handle*) user_data);
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  ui_new_account_dialog_cleanup(&(app->ui.new_account));
+
+  if ((!(app->ui.new_account.show_queued)) &&
+      (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window))))
+    gtk_widget_destroy(GTK_WIDGET(app->ui.messenger.main_window));
 }
 
 void
 ui_new_account_dialog_init(MESSENGER_Application *app,
 			   UI_NEW_ACCOUNT_Handle *handle)
 {
+  handle->show_queued = 0;
+
   handle->builder = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/new_account.ui")
   );
@@ -163,7 +185,7 @@ ui_new_account_dialog_init(MESSENGER_Application *app,
       handle->dialog,
       "destroy",
       G_CALLBACK(handle_dialog_destroy),
-      handle
+      app
   );
 }
 

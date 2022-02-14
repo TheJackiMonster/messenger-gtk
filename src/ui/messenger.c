@@ -206,6 +206,8 @@ handle_chats_listbox_filter_func(GtkListBoxRow *row,
 {
   UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
 
+  printf("-- %lu\n", (uint64_t) row);
+
   if ((!gtk_list_box_row_get_selectable(row)) ||
       (gtk_list_box_row_is_selected(row)))
     return TRUE;
@@ -466,8 +468,6 @@ ui_messenger_init(MESSENGER_Application *app,
   handle->chats_stack = GTK_STACK(
       gtk_builder_get_object(handle->builder, "chats_stack")
   );
-
-  gtk_widget_show(GTK_WIDGET(handle->main_window));
 
   g_signal_connect(
       handle->main_window,

@@ -31,6 +31,7 @@ typedef struct UI_ACCOUNTS_Handle
 {
   GList *account_entries;
   GHashTable *bindings;
+  guint show_queued;
 
   GtkBuilder *builder;
   GtkDialog *dialog;

@@ -29,6 +29,8 @@
 
 typedef struct UI_NEW_ACCOUNT_Handle
 {
+  guint show_queued;
+
   GtkBuilder *builder;
   GtkDialog *dialog;
 

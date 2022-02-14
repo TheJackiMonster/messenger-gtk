@@ -13,20 +13,21 @@ SOURCES = messenger_gtk.c\
 		  file.c\
 		  resources.c\
 		  chat/messenger.c\
-		  ui/chat.c\
+		  ui/account_entry.c\
+		  ui/accounts.c\
 		  ui/chat_entry.c\
+		  ui/chat.c\
 		  ui/contact_entry.c\
 		  ui/contacts.c\
 		  ui/file_load_entry.c\
 		  ui/invite_contact.c\
 		  ui/message.c\
 		  ui/messenger.c\
+		  ui/new_account.c\
 		  ui/new_contact.c\
 		  ui/new_group.c\
 		  ui/new_platform.c\
-		  ui/new_account.c\
 		  ui/picker.c\
-		  ui/account_entry.c\
 		  ui/send_file.c\
 		  ui/settings.c
 

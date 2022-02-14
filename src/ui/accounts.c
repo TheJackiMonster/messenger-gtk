@@ -46,6 +46,15 @@ _open_new_account_dialog(gpointer user_data)
   return FALSE;
 }
 
+static gboolean
+_show_messenger_main_window(gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  gtk_widget_show(GTK_WIDGET(app->ui.messenger.main_window));
+  return FALSE;
+}
+
 static void
 handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
 				      GtkListBoxRow* row,
@@ -55,7 +64,10 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
 
   if (!gtk_list_box_row_get_selectable(row))
   {
-    g_idle_add(G_SOURCE_FUNC(_open_new_account_dialog), app);
+    app->ui.accounts.show_queued = g_idle_add(
+	G_SOURCE_FUNC(_open_new_account_dialog), app
+    );
+
     goto close_dialog;
   }
 
@@ -66,7 +78,12 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   if (!account)
     goto close_dialog;
 
-  // TODO
+  if (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
+    app->ui.accounts.show_queued = g_idle_add(
+	G_SOURCE_FUNC(_show_messenger_main_window), app
+    );
+
+  GNUNET_CHAT_connect(app->chat.messenger.handle, account);
 
 close_dialog:
   gtk_window_close(GTK_WINDOW(app->ui.accounts.dialog));
@@ -76,16 +93,21 @@ static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
 		      gpointer user_data)
 {
-  ui_accounts_dialog_cleanup((UI_ACCOUNTS_Handle*) user_data);
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  ui_accounts_dialog_cleanup(&(app->ui.accounts));
+
+  if ((!(app->ui.accounts.show_queued)) &&
+      (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window))))
+    gtk_widget_destroy(GTK_WIDGET(app->ui.messenger.main_window));
 }
 
 static int
 _iterate_accounts(void *cls,
-		  const struct GNUNET_CHAT_Handle *handle,
+		  UNUSED const struct GNUNET_CHAT_Handle *handle,
 		  struct GNUNET_CHAT_Account *account)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
-  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
 
   const gchar *name = GNUNET_CHAT_account_get_name(account);
 
@@ -94,16 +116,16 @@ _iterate_accounts(void *cls,
   hdy_avatar_set_text(entry->entry_avatar, name);
   gtk_label_set_text(entry->entry_label, name);
 
-  gtk_list_box_prepend(ui->accounts_listbox, entry->entry_box);
+  gtk_list_box_prepend(app->ui.accounts.accounts_listbox, entry->entry_box);
 
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
     gtk_widget_get_parent(entry->entry_box)
   );
 
-  g_hash_table_insert(ui->bindings, row, account);
+  g_hash_table_insert(app->ui.bindings, row, account);
 
-  ui.accounts.account_entries = g_list_append(
-      ui.accounts.account_entries,
+  app->ui.accounts.account_entries = g_list_append(
+      app->ui.accounts.account_entries,
       entry
   );
 
@@ -116,6 +138,7 @@ ui_accounts_dialog_init(MESSENGER_Application *app,
 {
   handle->account_entries = NULL;
   handle->bindings = app->ui.bindings;
+  handle->show_queued = 0;
 
   handle->builder = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/accounts.ui")
@@ -127,7 +150,7 @@ ui_accounts_dialog_init(MESSENGER_Application *app,
 
   gtk_window_set_title(
       GTK_WINDOW(handle->dialog),
-      _("Contacts")
+      _("Accounts")
   );
 
   gtk_window_set_transient_for(
@@ -161,7 +184,7 @@ ui_accounts_dialog_init(MESSENGER_Application *app,
       handle->dialog,
       "destroy",
       G_CALLBACK(handle_dialog_destroy),
-      handle
+      app
   );
 
   GNUNET_CHAT_iterate_accounts(
@@ -169,14 +192,28 @@ ui_accounts_dialog_init(MESSENGER_Application *app,
       _iterate_accounts,
       app
   );
+
+  gtk_list_box_unselect_all(handle->accounts_listbox);
 }
 
 void
 ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle)
 {
+  GList *list = gtk_container_get_children(
+      GTK_CONTAINER(handle->accounts_listbox)
+  );
+
+  while (list)
+  {
+    if (list->data)
+      g_hash_table_remove(handle->bindings, list->data);
+
+    list = list->next;
+  }
+
   g_object_unref(handle->builder);
 
-  GList *list = handle->account_entries;
+  list = handle->account_entries;
 
   while (list) {
     if (list->data)
