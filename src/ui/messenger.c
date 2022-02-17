@@ -57,24 +57,33 @@ handle_flap_via_button_click(UNUSED GtkButton* button,
 }
 
 static void
+_switch_details_revealer_visibility(UI_MESSENGER_Handle *handle,
+				    gboolean state)
+{
+  GtkRevealer *revealer = handle->account_details_revealer;
+  GtkImage *symbol = handle->account_details_symbol;
+
+  gtk_revealer_set_reveal_child(revealer, state);
+  gtk_image_set_from_icon_name(
+      symbol,
+      state?
+      "go-up-symbolic" :
+      "go-down-symbolic",
+      GTK_ICON_SIZE_BUTTON
+  );
+}
+
+static void
 handle_account_details_button_click(UNUSED GtkButton* button,
 				    gpointer user_data)
 {
   UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
 
   GtkRevealer *revealer = handle->account_details_revealer;
-  GtkImage *symbol = handle->account_details_symbol;
 
   gboolean old_state = gtk_revealer_get_reveal_child(revealer);
 
-  gtk_revealer_set_reveal_child(revealer, !old_state);
-  gtk_image_set_from_icon_name(
-      symbol,
-      old_state?
-      "go-down-symbolic" :
-      "go-up-symbolic",
-      GTK_ICON_SIZE_BUTTON
-  );
+  _switch_details_revealer_visibility(handle, !old_state);
 }
 
 static void
@@ -86,6 +95,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
 
   if (row == app->ui.messenger.add_account_listbox_row)
   {
+    _switch_details_revealer_visibility(&(app->ui.messenger), FALSE);
     hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
 
     ui_new_account_dialog_init(app, &(app->ui.new_account));
@@ -101,6 +111,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   if (!account)
     return;
 
+  _switch_details_revealer_visibility(&(app->ui.messenger), FALSE);
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
 
   GNUNET_CHAT_connect(app->chat.messenger.handle, account);
@@ -205,8 +216,6 @@ handle_chats_listbox_filter_func(GtkListBoxRow *row,
 				 gpointer user_data)
 {
   UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
-
-  printf("-- %lu\n", (uint64_t) row);
 
   if ((!gtk_list_box_row_get_selectable(row)) ||
       (gtk_list_box_row_is_selected(row)))
@@ -467,6 +476,10 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->chats_stack = GTK_STACK(
       gtk_builder_get_object(handle->builder, "chats_stack")
+  );
+
+  handle->no_chat_box = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder, "no_chat_box")
   );
 
   g_signal_connect(

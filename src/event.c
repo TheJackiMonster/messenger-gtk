@@ -243,6 +243,8 @@ event_update_profile(MESSENGER_Application *app)
       ui->chats_listbox
   );
 
+  gtk_stack_set_visible_child(ui->chats_stack, ui->no_chat_box);
+
   GNUNET_CHAT_iterate_contacts(chat->handle, _iterate_profile_contacts, app);
   GNUNET_CHAT_iterate_groups(chat->handle, _iterate_profile_groups, app);
 }

@@ -70,6 +70,7 @@ typedef struct UI_MESSENGER_Handle
   GtkListBox *chats_listbox;
 
   GtkStack *chats_stack;
+  GtkWidget *no_chat_box;
 } UI_MESSENGER_Handle;
 
 void
