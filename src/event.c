@@ -472,3 +472,31 @@ event_receive_message(MESSENGER_Application *app,
   ui_chat_add_message(handle->chat, app, message);
   ui_chat_entry_update(handle, app, context);
 }
+
+void
+event_delete_message(MESSENGER_Application *app,
+		     struct GNUNET_CHAT_Context *context,
+		     const struct GNUNET_CHAT_Message *msg)
+{
+  UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
+
+  if ((!handle) || (!(handle->chat)))
+    return;
+
+  GList *messages = handle->chat->messages;
+
+  while (messages)
+  {
+    UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) (messages->data);
+
+    if ((message) && (message->msg == GNUNET_CHAT_message_get_target(msg)))
+    {
+      ui_chat_remove_message(handle->chat, app, message);
+      break;
+    }
+
+    messages = messages->next;
+  }
+
+  ui_chat_entry_update(handle, app, context);
+}

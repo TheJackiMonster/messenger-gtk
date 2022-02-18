@@ -58,4 +58,9 @@ event_receive_message(MESSENGER_Application *app,
 		      struct GNUNET_CHAT_Context *context,
 		      const struct GNUNET_CHAT_Message *msg);
 
+void
+event_delete_message(MESSENGER_Application *app,
+		     struct GNUNET_CHAT_Context *context,
+		     const struct GNUNET_CHAT_Message *msg);
+
 #endif /* EVENT_H_ */

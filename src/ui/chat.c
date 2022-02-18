@@ -215,6 +215,37 @@ handle_chat_selection_close_button_click(UNUSED GtkButton *button,
 }
 
 static void
+handle_chat_selection_delete_button_click(UNUSED GtkButton *button,
+					  gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  GList *selected = gtk_list_box_get_selected_rows(handle->messages_listbox);
+  UI_MESSAGE_Handle *message;
+
+  while (selected)
+  {
+    GtkListBoxRow *row = GTK_LIST_BOX_ROW(selected->data);
+
+    if (!row)
+      goto skip_row;
+
+    message = g_hash_table_lookup(handle->bindings, row);
+
+    if ((!message) || (!(message->msg)))
+      goto skip_row;
+
+    GNUNET_CHAT_message_delete(
+	message->msg,
+	GNUNET_TIME_relative_get_zero_()
+    );
+
+  skip_row:
+    selected = selected->next;
+  }
+}
+
+static void
 handle_attach_file_button_click(GtkButton *button,
 				gpointer user_data)
 {
@@ -361,6 +392,8 @@ ui_chat_new(MESSENGER_Application *app)
 
   UI_CHAT_Handle *handle = g_malloc(sizeof(UI_CHAT_Handle));
   UI_MESSENGER_Handle *messenger = &(app->ui.messenger);
+
+  handle->bindings = app->ui.bindings;
 
   handle->messages = NULL;
   handle->edge_value = 0;
@@ -521,6 +554,13 @@ ui_chat_new(MESSENGER_Application *app)
       "clicked",
       G_CALLBACK(handle_chat_selection_close_button_click),
       handle->messages_listbox
+  );
+
+  g_signal_connect(
+      handle->selection_delete_button,
+      "clicked",
+      G_CALLBACK(handle_chat_selection_delete_button_click),
+      handle
   );
 
   g_signal_connect(

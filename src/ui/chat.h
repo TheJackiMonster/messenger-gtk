@@ -38,6 +38,8 @@ typedef struct UI_FILE_LOAD_ENTRY_Handle UI_FILE_LOAD_ENTRY_Handle;
 
 typedef struct UI_CHAT_Handle
 {
+  GHashTable *bindings;
+
   GList *messages;
   gdouble edge_value;
 

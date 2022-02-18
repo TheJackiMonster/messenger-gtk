@@ -249,6 +249,7 @@ ui_message_new(MESSENGER_Application *app,
   handle->type = type;
 
   handle->timestamp = GNUNET_TIME_absolute_get_zero_();
+  handle->msg = NULL;
 
   const char *ui_builder_file;
 
@@ -402,6 +403,8 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 		  const struct GNUNET_CHAT_Message *msg)
 {
   struct GNUNET_CHAT_File *file = NULL;
+
+  handle->msg = msg;
 
   if (msg)
   {

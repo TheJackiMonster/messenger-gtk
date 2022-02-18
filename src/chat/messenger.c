@@ -170,6 +170,16 @@ _chat_messenger_message(void *cls,
       );
       break;
     }
+    case GNUNET_CHAT_KIND_DELETION:
+    {
+      application_call_message_event(
+      	  app,
+      	  event_delete_message,
+      	  context,
+      	  message
+      );
+      break;
+    }
     default:
       break;
   }
