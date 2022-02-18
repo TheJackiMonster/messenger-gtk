@@ -32,6 +32,7 @@
 
 #include "ui/accounts.h"
 #include "ui/contacts.h"
+#include "ui/delete_messages.h"
 #include "ui/invite_contact.h"
 #include "ui/messenger.h"
 #include "ui/new_account.h"
@@ -71,7 +72,6 @@ typedef struct MESSENGER_Application
 
   struct {
     int status;
-    gboolean mobile;
 
     GHashTable *bindings;
 
@@ -79,6 +79,7 @@ typedef struct MESSENGER_Application
 
     UI_INVITE_CONTACT_Handle invite_contact;
     UI_SEND_FILE_Handle send_file;
+    UI_DELETE_MESSAGES_Handle delete_messages;
 
     UI_NEW_CONTACT_Handle new_contact;
     UI_NEW_GROUP_Handle new_group;
@@ -89,6 +90,14 @@ typedef struct MESSENGER_Application
     UI_CONTACTS_Handle contacts;
     UI_SETTINGS_Handle settings;
   } ui;
+
+  struct {
+    gboolean mobile_design;
+    gboolean hide_delete_dialog;
+    gboolean disable_notifications;
+    gboolean accept_all_files;
+    gboolean accept_all_invites;
+  } settings;
 } MESSENGER_Application;
 
 void

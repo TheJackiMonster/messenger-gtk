@@ -295,11 +295,6 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "new_contact_dialog")
   );
 
-  gtk_window_set_title(
-      GTK_WINDOW(handle->dialog),
-      _("New Contact")
-  );
-
   gtk_window_set_transient_for(
       GTK_WINDOW(handle->dialog),
       GTK_WINDOW(app->ui.messenger.main_window)

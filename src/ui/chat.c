@@ -33,6 +33,7 @@
 #include "../application.h"
 #include "../contact.h"
 #include "account_entry.h"
+#include "delete_messages.h"
 
 static gboolean
 _flap_reveal_switch(gpointer user_data)
@@ -214,13 +215,11 @@ handle_chat_selection_close_button_click(UNUSED GtkButton *button,
   gtk_list_box_unselect_all(listbox);
 }
 
-static void
-handle_chat_selection_delete_button_click(UNUSED GtkButton *button,
-					  gpointer user_data)
+void
+_delete_messages_callback(GHashTable *bindings,
+			  GList *selected,
+			  gulong delay)
 {
-  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
-
-  GList *selected = gtk_list_box_get_selected_rows(handle->messages_listbox);
   UI_MESSAGE_Handle *message;
 
   while (selected)
@@ -230,18 +229,47 @@ handle_chat_selection_delete_button_click(UNUSED GtkButton *button,
     if (!row)
       goto skip_row;
 
-    message = g_hash_table_lookup(handle->bindings, row);
+    message = g_hash_table_lookup(bindings, row);
 
     if ((!message) || (!(message->msg)))
       goto skip_row;
 
     GNUNET_CHAT_message_delete(
-	message->msg,
-	GNUNET_TIME_relative_get_zero_()
+    	message->msg,
+    	GNUNET_TIME_relative_multiply(
+    	    GNUNET_TIME_relative_get_second_(),
+	    delay
+	)
     );
 
   skip_row:
     selected = selected->next;
+  }
+}
+
+static void
+handle_chat_selection_delete_button_click(UNUSED GtkButton *button,
+					  gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  MESSENGER_Application *app = handle->app;
+
+  GList *selected = gtk_list_box_get_selected_rows(handle->messages_listbox);
+
+  if (app->settings.hide_delete_dialog)
+    _delete_messages_callback(app->ui.bindings, selected, 0);
+  else
+  {
+    ui_delete_messages_dialog_init(app, &(app->ui.delete_messages));
+
+    ui_delete_messages_dialog_link(
+	&(app->ui.delete_messages),
+	_delete_messages_callback,
+	selected
+    );
+
+    gtk_widget_show(GTK_WIDGET(app->ui.delete_messages.dialog));
   }
 }
 
@@ -366,7 +394,7 @@ handle_send_text_key_press (GtkWidget *widget,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  if ((app->ui.mobile) ||
+  if ((app->settings.mobile_design) ||
       (event->state & GDK_SHIFT_MASK) ||
       ((event->keyval != GDK_KEY_Return) &&
        (event->keyval != GDK_KEY_KP_Enter)))
@@ -393,7 +421,7 @@ ui_chat_new(MESSENGER_Application *app)
   UI_CHAT_Handle *handle = g_malloc(sizeof(UI_CHAT_Handle));
   UI_MESSENGER_Handle *messenger = &(app->ui.messenger);
 
-  handle->bindings = app->ui.bindings;
+  handle->app = app;
 
   handle->messages = NULL;
   handle->edge_value = 0;

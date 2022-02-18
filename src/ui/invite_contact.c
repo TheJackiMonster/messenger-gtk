@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -178,11 +178,6 @@ ui_invite_contact_dialog_init(MESSENGER_Application *app,
 
   handle->dialog = GTK_DIALOG(
       gtk_builder_get_object(handle->builder, "invite_contact_dialog")
-  );
-
-  gtk_window_set_title(
-      GTK_WINDOW(handle->dialog),
-      _("Invite Contact")
   );
 
   gtk_window_set_transient_for(

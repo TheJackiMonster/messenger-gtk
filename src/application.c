@@ -99,8 +99,6 @@ application_init(MESSENGER_Application *app,
 
   pthread_mutex_init(&(app->chat.mutex), NULL);
 
-  app->ui.mobile = FALSE;
-
   app->ui.bindings = g_hash_table_new(g_direct_hash, g_direct_equal);
 
   g_application_add_main_option(
@@ -155,7 +153,7 @@ _application_chat_thread(void *args)
 	  'm',
 	  "mobile",
 	  "Optimize UI spacing for mobile devices",
-	  &(app->ui.mobile)
+	  &(app->settings.mobile_design)
       ),
       GNUNET_GETOPT_option_string (
 	  'e',

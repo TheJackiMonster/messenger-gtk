@@ -308,7 +308,7 @@ ui_messenger_init(MESSENGER_Application *app,
       G_BINDING_INVERT_BOOLEAN
   );
 
-  if (app->ui.mobile)
+  if (app->settings.mobile_design)
     g_object_bind_property(
       handle->leaflet_chat,
       "folded",
