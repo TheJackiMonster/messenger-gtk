@@ -815,9 +815,18 @@ ui_chat_update(UI_CHAT_Handle *handle,
   if (!(handle->messages))
     return;
 
-  UI_MESSAGE_Handle *message = (
-      (UI_MESSAGE_Handle*) handle->messages->data
-  );
+  GList *list = handle->messages;
+
+  while (list)
+  {
+    ui_message_refresh((UI_MESSAGE_Handle*) list->data);
+    list = list->next;
+  }
+
+  UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) (handle->messages->data);
+
+  if (!(message->timestamp_label))
+    return;
 
   const gchar *time = gtk_label_get_text(message->timestamp_label);
 
@@ -876,21 +885,6 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
   GtkWidget *row = gtk_widget_get_parent(message->message_box);
 
   g_hash_table_insert(app->ui.bindings, row, message);
-
-  GList *list = handle->messages;
-
-  while (list)
-  {
-    UI_MESSAGE_Handle *msg_handle = (UI_MESSAGE_Handle*) list->data;
-
-    if (UI_MESSAGE_SENT == msg_handle->type)
-    {
-      ui_message_refresh(msg_handle);
-      break;
-    }
-
-    list = list->next;
-  }
 
   handle->messages = g_list_prepend(handle->messages, message);
 

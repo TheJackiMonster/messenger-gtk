@@ -232,7 +232,7 @@ handle_chats_listbox_filter_func(GtkListBoxRow *row,
       handle->bindings, row
   );
 
-  if (!entry)
+  if ((!entry) || (!(entry->title_label)))
     return FALSE;
 
   const gchar *title = gtk_label_get_text(entry->title_label);

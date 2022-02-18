@@ -427,6 +427,10 @@ event_receive_message(MESSENGER_Application *app,
     return;
 
   const int sent = GNUNET_CHAT_message_is_sent(msg);
+  const gchar *text = GNUNET_CHAT_message_get_text(msg);
+
+  if ((text) && (!(*text)))
+    goto skip_message;
 
   const UI_MESSAGE_Type type = (
       GNUNET_YES == sent? UI_MESSAGE_SENT : UI_MESSAGE_DEFAULT
@@ -455,7 +459,6 @@ event_receive_message(MESSENGER_Application *app,
       msg
   );
 
-  const gchar *text = GNUNET_CHAT_message_get_text(msg);
   const gchar *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
 
   if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
@@ -472,6 +475,8 @@ event_receive_message(MESSENGER_Application *app,
   gtk_label_set_text(message->timestamp_label, time? time : "");
 
   ui_chat_add_message(handle->chat, app, message);
+
+skip_message:
   ui_chat_entry_update(handle, app, context);
 }
 
