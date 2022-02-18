@@ -877,6 +877,21 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
 
   g_hash_table_insert(app->ui.bindings, row, message);
 
+  GList *list = handle->messages;
+
+  while (list)
+  {
+    UI_MESSAGE_Handle *msg_handle = (UI_MESSAGE_Handle*) list->data;
+
+    if (UI_MESSAGE_SENT == msg_handle->type)
+    {
+      ui_message_refresh(msg_handle);
+      break;
+    }
+
+    list = list->next;
+  }
+
   handle->messages = g_list_prepend(handle->messages, message);
 
   gtk_list_box_invalidate_sort(handle->messages_listbox);

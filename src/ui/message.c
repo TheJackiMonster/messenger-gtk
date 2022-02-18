@@ -397,6 +397,36 @@ ui_message_new(MESSENGER_Application *app,
   return handle;
 }
 
+static int
+_iterate_read_receipts(void *cls,
+		       UNUSED const struct GNUNET_CHAT_Message *message,
+		       const struct GNUNET_CHAT_Contact *contact,
+		       int read_receipt)
+{
+  int *count_read_receipts = (int*) cls;
+
+  if ((GNUNET_YES == read_receipt) &&
+      (GNUNET_NO == GNUNET_CHAT_contact_is_owned(contact)))
+    (*count_read_receipts)++;
+
+  return GNUNET_YES;
+}
+
+void
+ui_message_refresh(UI_MESSAGE_Handle *handle)
+{
+  if ((!(handle->msg)) ||
+      (GNUNET_YES != GNUNET_CHAT_message_is_sent(handle->msg)))
+    return;
+
+  int count = 0;
+  if ((0 < GNUNET_CHAT_message_get_read_receipt(handle->msg, _iterate_read_receipts, &count)) &&
+      (0 < count))
+    gtk_widget_show(GTK_WIDGET(handle->read_receipt_image));
+  else
+    gtk_widget_hide(GTK_WIDGET(handle->read_receipt_image));
+}
+
 void
 ui_message_update(UI_MESSAGE_Handle *handle,
 		  MESSENGER_Application *app,
@@ -405,6 +435,8 @@ ui_message_update(UI_MESSAGE_Handle *handle,
   struct GNUNET_CHAT_File *file = NULL;
 
   handle->msg = msg;
+
+  ui_message_refresh(handle);
 
   if (msg)
   {

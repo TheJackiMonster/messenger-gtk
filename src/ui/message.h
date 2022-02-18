@@ -89,6 +89,9 @@ ui_message_new(MESSENGER_Application *app,
 	       UI_MESSAGE_Type type);
 
 void
+ui_message_refresh(UI_MESSAGE_Handle *handle);
+
+void
 ui_message_update(UI_MESSAGE_Handle *handle,
 		  MESSENGER_Application *app,
 		  const struct GNUNET_CHAT_Message *message);
