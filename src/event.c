@@ -127,6 +127,8 @@ event_refresh_accounts(MESSENGER_Application *app)
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
 
+  ui_accounts_dialog_refresh(app, &(app->ui.accounts));
+
   if (!(ui->accounts_listbox))
     return;
 

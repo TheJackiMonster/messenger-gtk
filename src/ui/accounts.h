@@ -46,6 +46,10 @@ ui_accounts_dialog_init(MESSENGER_Application *app,
 			UI_ACCOUNTS_Handle *handle);
 
 void
+ui_accounts_dialog_refresh(MESSENGER_Application *app,
+			   UI_ACCOUNTS_Handle *handle);
+
+void
 ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle);
 
 #endif /* UI_ACCOUNTS_H_ */

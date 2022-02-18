@@ -49,6 +49,7 @@ _application_accounts(gpointer user_data)
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   ui_accounts_dialog_init(app, &(app->ui.accounts));
+  ui_accounts_dialog_refresh(app, &(app->ui.accounts));
 
   gtk_widget_show(GTK_WIDGET(app->ui.accounts.dialog));
   return FALSE;

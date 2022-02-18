@@ -181,7 +181,68 @@ ui_accounts_dialog_init(MESSENGER_Application *app,
       G_CALLBACK(handle_dialog_destroy),
       app
   );
+}
 
+static void
+_clear_accounts_listbox_rows(UI_ACCOUNTS_Handle *handle,
+			     gboolean bindings_only)
+{
+  GList *list = gtk_container_get_children(
+      GTK_CONTAINER(handle->accounts_listbox)
+  );
+
+  while (list)
+  {
+    GtkListBoxRow *row = GTK_LIST_BOX_ROW(list->data);
+
+    if ((!row) || (!gtk_list_box_row_get_selectable(row)))
+      goto skip_row;
+
+    g_hash_table_remove(handle->bindings, row);
+
+    if (!bindings_only)
+      gtk_container_remove(
+	  GTK_CONTAINER(handle->accounts_listbox),
+	  GTK_WIDGET(row)
+      );
+
+  skip_row:
+    list = list->next;
+  }
+}
+
+static void
+_clear_accounts_entries(UI_ACCOUNTS_Handle *handle)
+{
+  GList *list = handle->account_entries;
+
+  while (list) {
+    if (list->data)
+      ui_account_entry_delete((UI_ACCOUNT_ENTRY_Handle*) list->data);
+
+    list = list->next;
+  }
+
+  if (handle->account_entries)
+    g_list_free(handle->account_entries);
+
+  handle->account_entries = NULL;
+}
+
+void
+ui_accounts_dialog_refresh(MESSENGER_Application *app,
+			   UI_ACCOUNTS_Handle *handle)
+{
+  if (!(handle->accounts_listbox))
+    return;
+
+  if (!(handle->account_entries))
+    goto add_account_entries;
+
+  _clear_accounts_listbox_rows(handle, FALSE);
+  _clear_accounts_entries(handle);
+
+add_account_entries:
   GNUNET_CHAT_iterate_accounts(
       app->chat.messenger.handle,
       _iterate_accounts,
@@ -194,29 +255,11 @@ ui_accounts_dialog_init(MESSENGER_Application *app,
 void
 ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle)
 {
-  GList *list = gtk_container_get_children(
-      GTK_CONTAINER(handle->accounts_listbox)
-  );
-
-  while (list)
-  {
-    if (list->data)
-      g_hash_table_remove(handle->bindings, list->data);
-
-    list = list->next;
-  }
+  _clear_accounts_listbox_rows(handle, TRUE);
 
   g_object_unref(handle->builder);
 
-  list = handle->account_entries;
+  _clear_accounts_entries(handle);
 
-  while (list) {
-    if (list->data)
-      ui_account_entry_delete((UI_ACCOUNT_ENTRY_Handle*) list->data);
-
-    list = list->next;
-  }
-
-  if (handle->account_entries)
-    g_list_free(handle->account_entries);
+  handle->accounts_listbox = NULL;
 }
