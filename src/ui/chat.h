@@ -56,6 +56,7 @@ typedef struct UI_CHAT_Handle
   GtkWidget *title_box;
   GtkWidget *selection_box;
 
+  HdyAvatar *chat_avatar;
   GtkLabel *chat_title;
   GtkLabel *chat_subtitle;
 

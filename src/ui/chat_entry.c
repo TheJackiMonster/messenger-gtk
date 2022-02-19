@@ -66,16 +66,6 @@ ui_chat_entry_new(MESSENGER_Application *app)
   return handle;
 }
 
-/*static int
-_iterate_message_read_receipt(UNUSED void *cls,
-			      UNUSED const struct GNUNET_CHAT_Message *message,
-			      const struct GNUNET_CHAT_Contact *contact,
-			      int read_receipt)
-{
-  printf("read_receipt: %s %d\n", GNUNET_CHAT_contact_get_name(contact), read_receipt);
-  return GNUNET_YES;
-}*/
-
 void
 ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 		     MESSENGER_Application *app,
@@ -88,22 +78,35 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
   group = GNUNET_CHAT_context_get_group(context);
 
   const char *title = NULL;
+  const char *icon = "action-unavailable-symbolic";
 
   if (contact)
+  {
     title = GNUNET_CHAT_contact_get_name(contact);
+    icon = "avatar-default-symbolic";
+  }
   else if (group)
+  {
     title = GNUNET_CHAT_group_get_name(group);
 
-  if (title)
-  {
-    gtk_label_set_text(handle->title_label, title);
-    hdy_avatar_set_text(handle->entry_avatar, title);
+    if ((title) && ('#' == *title))
+      icon = "network-wired-symbolic";
+    else
+      icon = "system-users-symbolic";
   }
+
+  gtk_label_set_text(handle->title_label, title? title : "");
+
+  hdy_avatar_set_text(handle->entry_avatar, title? title : "");
+  hdy_avatar_set_icon_name(handle->entry_avatar, icon);
 
   if (!(handle->chat))
     return;
 
   ui_chat_update(handle->chat, app, context);
+
+  hdy_avatar_set_text(handle->chat->chat_avatar, title? title : "");
+  hdy_avatar_set_icon_name(handle->chat->chat_avatar, icon);
 
   if (!(handle->chat->messages))
     return;

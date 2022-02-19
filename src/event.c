@@ -53,6 +53,9 @@ _show_notification(MESSENGER_Application *app,
 		   const gchar *text,
 		   const gchar *icon)
 {
+  if (app->settings.disable_notifications)
+    return;
+
   const char *sender = GNUNET_CHAT_contact_get_name(contact);
 
   NotifyNotification *notification = notify_notification_new(

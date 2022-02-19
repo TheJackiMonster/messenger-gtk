@@ -471,6 +471,10 @@ ui_chat_new(MESSENGER_Application *app)
       gtk_builder_get_object(handle->builder, "selection_box")
   );
 
+  handle->chat_avatar = HDY_AVATAR(
+      gtk_builder_get_object(handle->builder, "chat_avatar")
+  );
+
   handle->chat_title = GTK_LABEL(
       gtk_builder_get_object(handle->builder, "chat_title")
   );
@@ -741,9 +745,7 @@ ui_chat_update(UI_CHAT_Handle *handle,
   GString *subtitle = g_string_new("");
 
   if (contact)
-  {
     title = GNUNET_CHAT_contact_get_name(contact);
-  }
   else if (group)
   {
     title = GNUNET_CHAT_group_get_name(group);
