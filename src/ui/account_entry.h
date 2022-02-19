@@ -41,6 +41,14 @@ UI_ACCOUNT_ENTRY_Handle*
 ui_account_entry_new(MESSENGER_Application *app);
 
 void
+ui_account_entry_set_account(UI_ACCOUNT_ENTRY_Handle* handle,
+			     const struct GNUNET_CHAT_Account *account);
+
+void
+ui_account_entry_set_contact(UI_ACCOUNT_ENTRY_Handle* handle,
+			     const struct GNUNET_CHAT_Contact *contact);
+
+void
 ui_account_entry_delete(UI_ACCOUNT_ENTRY_Handle *handle);
 
 #endif /* UI_ACCOUNT_ENTRY_H_ */

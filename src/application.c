@@ -100,7 +100,7 @@ application_init(MESSENGER_Application *app,
 
   pthread_mutex_init(&(app->chat.mutex), NULL);
 
-  app->ui.bindings = g_hash_table_new(g_direct_hash, g_direct_equal);
+  app->bindings = bindings_create();
 
   g_application_add_main_option(
       G_APPLICATION(app->application),
@@ -195,7 +195,7 @@ application_run(MESSENGER_Application *app)
 
   pthread_join(app->chat.tid, NULL);
 
-  g_hash_table_destroy(app->ui.bindings);
+  bindings_destroy(app->bindings);
 
   close(app->chat.pipe[0]);
   close(app->chat.pipe[1]);

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -19,34 +19,42 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/invite_contact.h
+ * @file bindings.h
  */
 
-#ifndef UI_INVITE_CONTACT_H_
-#define UI_INVITE_CONTACT_H_
+#ifndef BINDINGS_H_
+#define BINDINGS_H_
 
-#include "messenger.h"
-#include "../bindings.h"
+#include <gnunet/platform.h>
+#include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_container_lib.h>
 
-typedef struct UI_INVITE_CONTACT_Handle
+#include <glib.h>
+
+typedef struct MESSENGER_Bindings
 {
-  MESSENGER_Bindings *bindings;
+  struct GNUNET_CONTAINER_MultiShortmap *map;
+} MESSENGER_Bindings;
 
-  GtkBuilder *builder;
-  GtkDialog *dialog;
-
-  GtkSearchEntry *contact_search_entry;
-
-  GtkListBox *contacts_listbox;
-
-  GtkButton *close_button;
-} UI_INVITE_CONTACT_Handle;
+MESSENGER_Bindings*
+bindings_create();
 
 void
-ui_invite_contact_dialog_init(MESSENGER_Application *app,
-			      UI_INVITE_CONTACT_Handle *handle);
+bindings_put(MESSENGER_Bindings *bindings,
+	     gconstpointer key,
+	     gpointer value);
 
 void
-ui_invite_contact_dialog_cleanup(UI_INVITE_CONTACT_Handle *handle);
+bindings_remove(MESSENGER_Bindings *bindings,
+		gconstpointer key,
+		gpointer value,
+		GDestroyNotify destroy);
 
-#endif /* UI_INVITE_CONTACT_H_ */
+void*
+bindings_get(const MESSENGER_Bindings *bindings,
+	     gconstpointer key);
+
+void
+bindings_destroy(MESSENGER_Bindings *bindings);
+
+#endif /* BINDINGS_H_ */

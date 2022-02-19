@@ -28,7 +28,7 @@
 #include "messenger.h"
 
 typedef void
-(*UI_DELETE_MESSAGES_Callback) (GHashTable *bindings,
+(*UI_DELETE_MESSAGES_Callback) (MESSENGER_Application *app,
 				GList *selected,
 				gulong delay);
 

@@ -8,6 +8,7 @@ INSTALL_DIR  ?= /usr/local/
 BINARY  = messenger-gtk
 SOURCES = messenger_gtk.c\
 		  application.c\
+		  bindings.c\
 		  contact.c\
 		  event.c\
 		  file.c\

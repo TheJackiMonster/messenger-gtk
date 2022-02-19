@@ -49,15 +49,15 @@ handle_file_button_click(GtkButton *button,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  UI_MESSAGE_Handle* handle = g_hash_table_lookup(
-      app->ui.bindings, button
+  UI_MESSAGE_Handle* handle = (UI_MESSAGE_Handle*) (
+      bindings_get(app->bindings, button)
   );
 
   if (!handle)
     return;
 
-  struct GNUNET_CHAT_File *file = g_hash_table_lookup(
-      app->ui.bindings, handle->file_progress_bar
+  struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File*) (
+      bindings_get(app->bindings, handle->file_progress_bar)
   );
 
   if (!file)
@@ -266,38 +266,38 @@ ui_message_new(MESSENGER_Application *app,
       break;
   }
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder[0] = gtk_builder_new_from_resource(
       application_get_resource_path(app, ui_builder_file)
   );
 
   handle->message_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder, "message_box")
+      gtk_builder_get_object(handle->builder[0], "message_box")
   );
 
   handle->sender_avatar = HDY_AVATAR(
-      gtk_builder_get_object(handle->builder, "sender_avatar")
+      gtk_builder_get_object(handle->builder[0], "sender_avatar")
   );
 
   handle->sender_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder, "sender_label")
+      gtk_builder_get_object(handle->builder[0], "sender_label")
   );
 
   if (UI_MESSAGE_STATUS == handle->type)
   {
     handle->deny_revealer = GTK_REVEALER(
-	gtk_builder_get_object(handle->builder, "deny_revealer")
+	gtk_builder_get_object(handle->builder[0], "deny_revealer")
     );
 
     handle->accept_revealer = GTK_REVEALER(
-    	gtk_builder_get_object(handle->builder, "accept_revealer")
+    	gtk_builder_get_object(handle->builder[0], "accept_revealer")
     );
 
     handle->deny_button = GTK_BUTTON(
-	gtk_builder_get_object(handle->builder, "deny_button")
+	gtk_builder_get_object(handle->builder[0], "deny_button")
     );
 
     handle->accept_button = GTK_BUTTON(
-	gtk_builder_get_object(handle->builder, "accept_button")
+	gtk_builder_get_object(handle->builder[0], "accept_button")
     );
   }
   else
@@ -310,43 +310,43 @@ ui_message_new(MESSENGER_Application *app,
   }
 
   GtkContainer *content_box = GTK_CONTAINER(
-      gtk_builder_get_object(handle->builder, "content_box")
+      gtk_builder_get_object(handle->builder[0], "content_box")
   );
 
-  GtkBuilder *builder = gtk_builder_new_from_resource(
+  handle->builder[1] = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/message_content.ui")
   );
 
   handle->timestamp_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "timestamp_label")
+      gtk_builder_get_object(handle->builder[1], "timestamp_label")
   );
 
   handle->read_receipt_image = GTK_IMAGE(
-      gtk_builder_get_object(builder, "read_receipt_image")
+      gtk_builder_get_object(handle->builder[1], "read_receipt_image")
   );
 
   handle->content_stack = GTK_STACK(
-      gtk_builder_get_object(builder, "content_stack")
+      gtk_builder_get_object(handle->builder[1], "content_stack")
   );
 
   handle->text_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "text_label")
+      gtk_builder_get_object(handle->builder[1], "text_label")
   );
 
   handle->file_revealer = GTK_REVEALER(
-      gtk_builder_get_object(builder, "file_revealer")
+      gtk_builder_get_object(handle->builder[1], "file_revealer")
   );
 
   handle->filename_label = GTK_LABEL(
-      gtk_builder_get_object(builder, "filename_label")
+      gtk_builder_get_object(handle->builder[1], "filename_label")
   );
 
   handle->file_progress_bar = GTK_PROGRESS_BAR(
-      gtk_builder_get_object(builder, "file_progress_bar")
+      gtk_builder_get_object(handle->builder[1], "file_progress_bar")
   );
 
   handle->file_button = GTK_BUTTON(
-      gtk_builder_get_object(builder, "file_button")
+      gtk_builder_get_object(handle->builder[1], "file_button")
   );
 
   g_signal_connect(
@@ -357,16 +357,16 @@ ui_message_new(MESSENGER_Application *app,
   );
 
   handle->file_status_image = GTK_IMAGE(
-      gtk_builder_get_object(builder, "file_status_image")
+      gtk_builder_get_object(handle->builder[1], "file_status_image")
   );
 
-  g_hash_table_insert(app->ui.bindings, handle->file_button, handle);
+  bindings_put(app->bindings, handle->file_button, handle);
 
   handle->preview_drawing_area = GTK_DRAWING_AREA(
-      gtk_builder_get_object(builder, "preview_drawing_area")
+      gtk_builder_get_object(handle->builder[1], "preview_drawing_area")
   );
 
-  handle->preview_draw_signal = g_signal_connect(
+  g_signal_connect(
       handle->preview_drawing_area,
       "draw",
       G_CALLBACK(handle_preview_drawing_area_draw),
@@ -383,10 +383,8 @@ ui_message_new(MESSENGER_Application *app,
   }
 
   gtk_container_add(content_box, GTK_WIDGET(
-      gtk_builder_get_object(builder, "message_content_box")
+      gtk_builder_get_object(handle->builder[1], "message_content_box")
   ));
-
-  g_object_unref(builder);
 
   handle->preview_image = NULL;
   handle->preview_animation = NULL;
@@ -445,15 +443,14 @@ ui_message_update(UI_MESSAGE_Handle *handle,
     handle->timestamp = GNUNET_CHAT_message_get_timestamp(msg);
   }
   else
-    file = g_hash_table_lookup(app->ui.bindings, handle->message_box);
+    file = (struct GNUNET_CHAT_File*) (
+	bindings_get(app->bindings, handle->message_box)
+    );
 
   if (!file)
     return;
 
-  if (g_hash_table_contains(app->ui.bindings, handle->message_box))
-    g_hash_table_replace(app->ui.bindings, handle->message_box, file);
-  else
-    g_hash_table_insert(app->ui.bindings, handle->message_box, file);
+  bindings_put(app->bindings, handle->message_box, file);
 
   uint64_t size = GNUNET_CHAT_file_get_size(file);
   uint64_t local_size = GNUNET_CHAT_file_get_local_size(file);
@@ -522,10 +519,7 @@ file_content:
 
   gtk_revealer_set_reveal_child(handle->file_revealer, TRUE);
 
-  if (g_hash_table_contains(app->ui.bindings, handle->file_progress_bar))
-    g_hash_table_replace(app->ui.bindings, handle->file_progress_bar, file);
-  else
-    g_hash_table_insert(app->ui.bindings, handle->file_progress_bar, file);
+  bindings_put(app->bindings, handle->file_progress_bar, file);
 }
 
 void
@@ -533,12 +527,8 @@ ui_message_delete(UI_MESSAGE_Handle *handle)
 {
   _clear_message_preview_data(handle);
 
-  g_signal_handler_disconnect(
-      handle->preview_drawing_area,
-      handle->preview_draw_signal
-  );
-
-  g_object_unref(handle->builder);
+  g_object_unref(handle->builder[1]);
+  g_object_unref(handle->builder[0]);
 
   g_free(handle);
 }

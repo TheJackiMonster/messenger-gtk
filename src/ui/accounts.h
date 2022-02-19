@@ -26,11 +26,11 @@
 #define UI_ACCOUNTS_H_
 
 #include "messenger.h"
+#include "../bindings.h"
 
 typedef struct UI_ACCOUNTS_Handle
 {
-  GList *account_entries;
-  GHashTable *bindings;
+  MESSENGER_Bindings *bindings;
   guint show_queued;
 
   GtkBuilder *builder;

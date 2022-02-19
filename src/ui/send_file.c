@@ -65,7 +65,7 @@ handle_send_button_click(GtkButton *button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
-      g_hash_table_lookup(app->ui.bindings, button)
+      bindings_get(app->bindings, button)
   );
 
   if (!text_view)
@@ -78,8 +78,8 @@ handle_send_button_click(GtkButton *button,
   if (!filename)
     return;
 
-  struct GNUNET_CHAT_Context *context = g_hash_table_lookup(
-      app->ui.bindings, text_view
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
+      bindings_get(app->bindings, text_view)
   );
 
   UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(context);

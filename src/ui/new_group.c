@@ -50,8 +50,8 @@ _open_new_group(GtkEntry *entry,
     {
       GtkListBoxRow *row = GTK_LIST_BOX_ROW(selected->data);
 
-      struct GNUNET_CHAT_Contact* contact = g_hash_table_lookup(
-	  app->ui.bindings, row
+      struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
+	  bindings_get(app->bindings, row)
       );
 
       GNUNET_CHAT_group_invite_contact(group, contact);
@@ -158,31 +158,19 @@ _iterate_contacts(void *cls,
 
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
-  const char *title;
-  title = GNUNET_CHAT_contact_get_name(contact);
-
-  const char *key = GNUNET_CHAT_contact_get_key(contact);
-
   UI_CONTACT_ENTRY_Handle *entry = ui_contact_entry_new(app);
+  ui_contact_entry_set_contact(entry, contact);
+
   gtk_list_box_prepend(
       app->ui.new_group.contacts_listbox,
       entry->entry_box
   );
 
-  if (title)
-  {
-    gtk_label_set_text(entry->title_label, title);
-    hdy_avatar_set_text(entry->entry_avatar, title);
-  }
-
-  if (key)
-    gtk_label_set_text(entry->subtitle_label, key);
-
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
       gtk_widget_get_parent(entry->entry_box)
   );
 
-  g_hash_table_insert(app->ui.bindings, row, contact);
+  bindings_put(app->bindings, row, contact);
 
   app->ui.new_group.contact_entries = g_list_append(
       app->ui.new_group.contact_entries,

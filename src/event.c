@@ -93,57 +93,11 @@ _clear_each_selectable_widget(GtkWidget *widget,
     gtk_container_remove(container, widget);
 }
 
-static int
-_iterate_accounts(void *cls,
-		  const struct GNUNET_CHAT_Handle *handle,
-		  struct GNUNET_CHAT_Account *account)
-{
-  MESSENGER_Application *app = (MESSENGER_Application*) cls;
-  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
-
-  const gchar *name = GNUNET_CHAT_account_get_name(account);
-
-  UI_ACCOUNT_ENTRY_Handle *entry = ui_account_entry_new(app);
-
-  hdy_avatar_set_text(entry->entry_avatar, name);
-  gtk_label_set_text(entry->entry_label, name);
-
-  gtk_list_box_prepend(ui->accounts_listbox, entry->entry_box);
-
-  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
-    gtk_widget_get_parent(entry->entry_box)
-  );
-
-  g_hash_table_insert(ui->bindings, row, account);
-
-  if ((account == GNUNET_CHAT_get_connected(handle)) ||
-      ((app->chat.identity) && (0 == g_strcmp0(app->chat.identity, name))))
-    gtk_widget_activate(GTK_WIDGET(row));
-
-  ui_account_entry_delete(entry);
-  return GNUNET_YES;
-}
-
 void
 event_refresh_accounts(MESSENGER_Application *app)
 {
-  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
-  CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
-
   ui_accounts_dialog_refresh(app, &(app->ui.accounts));
-
-  if (!(ui->accounts_listbox))
-    return;
-
-  gtk_list_box_unselect_all(ui->accounts_listbox);
-
-  gtk_container_foreach(
-      GTK_CONTAINER(ui->accounts_listbox),
-      _clear_each_selectable_widget,
-      ui->accounts_listbox
-  );
-
-  GNUNET_CHAT_iterate_accounts(chat->handle, _iterate_accounts, app);
+  ui_messenger_refresh(app, &(app->ui.messenger));
 }
 
 static void
@@ -163,11 +117,7 @@ _add_new_chat_entry(MESSENGER_Application *app,
       entry->chat->chat_box
   );
 
-  g_hash_table_insert(
-      app->ui.bindings,
-      entry->chat->send_text_view,
-      context
-  );
+  bindings_put(app->bindings, entry->chat->send_text_view, context);
 
   ui->chat_entries = g_list_append(ui->chat_entries, entry);
 
@@ -175,11 +125,7 @@ _add_new_chat_entry(MESSENGER_Application *app,
       gtk_widget_get_parent(entry->entry_box)
   );
 
-  g_hash_table_insert(
-      app->ui.bindings,
-      row,
-      entry
-  );
+  bindings_put(app->bindings, row, entry);
 
   gtk_list_box_select_row(ui->chats_listbox, row);
   gtk_list_box_invalidate_filter(ui->chats_listbox);
@@ -298,12 +244,22 @@ event_joining_contact(MESSENGER_Application *app,
   if (!handle)
     return;
 
-  UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
-  ui_message_update(message, app, msg);
-
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
       msg
   );
+
+  if (!contact)
+    return;
+
+  UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) (
+      bindings_get(handle->joining, contact)
+  );
+
+  if (message)
+    ui_chat_remove_message(handle->chat, app, message);
+
+  message = ui_message_new(app, UI_MESSAGE_STATUS);
+  ui_message_update(message, app, msg);
 
   contact_create_info(contact);
   _update_contact_context(app, contact);
@@ -332,6 +288,8 @@ event_joining_contact(MESSENGER_Application *app,
   gtk_label_set_text(message->timestamp_label, time? time : "");
 
   ui_chat_add_message(handle->chat, app, message);
+  bindings_put(handle->joining, contact, message);
+
   ui_chat_entry_update(handle, app, context);
 }
 
@@ -343,6 +301,9 @@ event_update_contacts(MESSENGER_Application *app,
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
       msg
   );
+
+  if (!contact)
+    return;
 
   contact_update_info(contact);
   _update_contact_context(app, contact);

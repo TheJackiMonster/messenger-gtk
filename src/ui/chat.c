@@ -76,7 +76,7 @@ handle_chat_contacts_listbox_row_activated(GtkListBox *listbox,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
-      g_hash_table_lookup(app->ui.bindings, listbox)
+      bindings_get(app->bindings, listbox)
   );
 
   if (!text_view)
@@ -86,18 +86,14 @@ handle_chat_contacts_listbox_row_activated(GtkListBox *listbox,
   {
     ui_invite_contact_dialog_init(app, &(app->ui.invite_contact));
 
-    g_hash_table_insert(
-	app->ui.bindings,
-	app->ui.invite_contact.contacts_listbox,
-	text_view
-    );
+    bindings_put(app->bindings, app->ui.invite_contact.contacts_listbox, text_view);
 
     gtk_widget_show(GTK_WIDGET(app->ui.invite_contact.dialog));
     return;
   }
 
   struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
-      g_hash_table_lookup(app->ui.bindings, row)
+      bindings_get(app->bindings, row)
   );
 
   if ((!contact) || (!GNUNET_CHAT_contact_get_key(contact)) ||
@@ -159,11 +155,11 @@ handle_chat_messages_sort(GtkListBoxRow* row0,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   UI_MESSAGE_Handle *message0 = (UI_MESSAGE_Handle*) (
-      g_hash_table_lookup(app->ui.bindings, row0)
+      bindings_get(app->bindings, row0)
   );
 
   UI_MESSAGE_Handle *message1 = (UI_MESSAGE_Handle*) (
-      g_hash_table_lookup(app->ui.bindings, row1)
+      bindings_get(app->bindings, row1)
   );
 
   if ((!message0) || (!message1))
@@ -216,7 +212,7 @@ handle_chat_selection_close_button_click(UNUSED GtkButton *button,
 }
 
 void
-_delete_messages_callback(GHashTable *bindings,
+_delete_messages_callback(MESSENGER_Application *app,
 			  GList *selected,
 			  gulong delay)
 {
@@ -229,7 +225,7 @@ _delete_messages_callback(GHashTable *bindings,
     if (!row)
       goto skip_row;
 
-    message = g_hash_table_lookup(bindings, row);
+    message = bindings_get(app->bindings, row);
 
     if ((!message) || (!(message->msg)))
       goto skip_row;
@@ -258,7 +254,7 @@ handle_chat_selection_delete_button_click(UNUSED GtkButton *button,
   GList *selected = gtk_list_box_get_selected_rows(handle->messages_listbox);
 
   if (app->settings.hide_delete_dialog)
-    _delete_messages_callback(app->ui.bindings, selected, 0);
+    _delete_messages_callback(app, selected, 0);
   else
   {
     ui_delete_messages_dialog_init(app, &(app->ui.delete_messages));
@@ -280,7 +276,7 @@ handle_attach_file_button_click(GtkButton *button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
-      g_hash_table_lookup(app->ui.bindings, button)
+      bindings_get(app->bindings, button)
   );
 
   if (!text_view)
@@ -312,11 +308,7 @@ handle_attach_file_button_click(GtkButton *button,
 
   g_free(filename);
 
-  g_hash_table_insert(
-      app->ui.bindings,
-      app->ui.send_file.send_button,
-      text_view
-  );
+  bindings_put(app->bindings, app->ui.send_file.send_button, text_view);
 
   gtk_widget_show(GTK_WIDGET(app->ui.send_file.dialog));
 
@@ -360,8 +352,8 @@ _send_text_from_view(MESSENGER_Application *app,
   if (0 == strlen(text))
     return FALSE;
 
-  struct GNUNET_CHAT_Context *context = g_hash_table_lookup(
-      app->ui.bindings, text_view
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
+      bindings_get(app->bindings, text_view)
   );
 
   if (context)
@@ -378,7 +370,7 @@ handle_send_record_button_click(GtkButton *button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
-      g_hash_table_lookup(app->ui.bindings, button)
+      bindings_get(app->bindings, button)
   );
 
   if (!_send_text_from_view(app, text_view))
@@ -654,23 +646,9 @@ ui_chat_new(MESSENGER_Application *app)
       app
   );
 
-  g_hash_table_insert(
-      app->ui.bindings,
-      handle->chat_contacts_listbox,
-      handle->send_text_view
-  );
-
-  g_hash_table_insert(
-      app->ui.bindings,
-      handle->attach_file_button,
-      handle->send_text_view
-  );
-
-  g_hash_table_insert(
-      app->ui.bindings,
-      handle->send_record_button,
-      handle->send_text_view
-  );
+  bindings_put(app->bindings, handle->chat_contacts_listbox, handle->send_text_view);
+  bindings_put(app->bindings, handle->attach_file_button, handle->send_text_view);
+  bindings_put(app->bindings, handle->send_record_button, handle->send_text_view);
 
   handle->picker_revealer = GTK_REVEALER(
       gtk_builder_get_object(handle->builder, "picker_revealer")
@@ -695,7 +673,6 @@ ui_chat_new(MESSENGER_Application *app)
 
 struct IterateChatGroupClosure {
   MESSENGER_Application *app;
-  GHashTable *bindings;
   GtkListBox *listbox;
 };
 
@@ -711,10 +688,7 @@ iterate_ui_chat_update_group_contacts(void *cls,
   GtkListBox *listbox = closure->listbox;
   UI_ACCOUNT_ENTRY_Handle* entry = ui_account_entry_new(closure->app);
 
-  const char *name = GNUNET_CHAT_contact_get_name(contact);
-
-  gtk_label_set_text(entry->entry_label, name? name : "");
-  hdy_avatar_set_text(entry->entry_avatar, name? name : "");
+  ui_account_entry_set_contact(entry, contact);
 
   gtk_list_box_prepend(listbox, entry->entry_box);
 
@@ -722,7 +696,7 @@ iterate_ui_chat_update_group_contacts(void *cls,
       gtk_widget_get_parent(entry->entry_box)
   );
 
-  g_hash_table_insert(closure->bindings, row, contact);
+  bindings_put(closure->app->bindings, row, contact);
 
   ui_account_entry_delete(entry);
   return GNUNET_YES;
@@ -776,8 +750,7 @@ ui_chat_update(UI_CHAT_Handle *handle,
     GtkWidget *widget = GTK_WIDGET(children->data);
     children = children->next;
 
-    if (g_hash_table_contains(app->ui.bindings, widget))
-      g_hash_table_remove(app->ui.bindings, widget);
+    bindings_remove(app->bindings, widget, NULL, NULL);
 
     gtk_container_remove(
 	GTK_CONTAINER(handle->chat_contacts_listbox),
@@ -789,7 +762,6 @@ ui_chat_update(UI_CHAT_Handle *handle,
   {
     struct IterateChatGroupClosure closure;
     closure.app = app;
-    closure.bindings = app->ui.bindings;
     closure.listbox = handle->chat_contacts_listbox;
 
     GNUNET_CHAT_group_iterate_contacts(
@@ -845,29 +817,11 @@ ui_chat_delete(UI_CHAT_Handle *handle)
 
   g_object_unref(handle->builder);
 
-  GList *list = handle->messages;
-
-  while (list) {
-    if (list->data)
-      ui_message_delete((UI_MESSAGE_Handle*) list->data);
-
-    list = list->next;
-  }
-
-  list = handle->loads;
-
-  while (list) {
-    if (list->data)
-      ui_file_load_entry_delete((UI_FILE_LOAD_ENTRY_Handle*) list->data);
-
-    list = list->next;
-  }
-
   if (handle->messages)
-    g_list_free(handle->messages);
+    g_list_free_full(handle->messages, (GDestroyNotify) ui_message_delete);
 
   if (handle->loads)
-    g_list_free(handle->loads);
+    g_list_free_full(handle->loads, (GDestroyNotify) ui_file_load_entry_delete);
 
   g_free(handle);
 }
@@ -886,7 +840,7 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
 
   GtkWidget *row = gtk_widget_get_parent(message->message_box);
 
-  g_hash_table_insert(app->ui.bindings, row, message);
+  bindings_put(app->bindings, row, message);
 
   handle->messages = g_list_prepend(handle->messages, message);
 
@@ -904,12 +858,14 @@ ui_chat_remove_message(UI_CHAT_Handle *handle,
 
   GtkWidget *row = gtk_widget_get_parent(message->message_box);
 
-  g_hash_table_remove(app->ui.bindings, row);
+  bindings_remove(app->bindings, row, NULL, NULL);
 
   gtk_container_remove(
       GTK_CONTAINER(handle->messages_listbox),
       gtk_widget_get_parent(GTK_WIDGET(message->message_box))
   );
+
+  handle->messages = g_list_append(handle->messages, message);
 }
 
 void

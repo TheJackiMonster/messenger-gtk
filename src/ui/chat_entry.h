@@ -26,9 +26,12 @@
 #define UI_CHAT_ENTRY_H_
 
 #include "chat.h"
+#include "../bindings.h"
 
 typedef struct UI_CHAT_ENTRY_Handle
 {
+  MESSENGER_Bindings *joining;
+
   UI_CHAT_Handle *chat;
   GtkBuilder *builder;
 

@@ -35,8 +35,9 @@ typedef struct MESSENGER_Application MESSENGER_Application;
 
 typedef struct UI_MESSENGER_Handle
 {
+  MESSENGER_Application *app;
+
   GList *chat_entries;
-  GHashTable *bindings;
 
   GtkBuilder *builder;
   GtkApplicationWindow *main_window;
@@ -76,6 +77,10 @@ typedef struct UI_MESSENGER_Handle
 void
 ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle);
+
+void
+ui_messenger_refresh(MESSENGER_Application *app,
+		     UI_MESSENGER_Handle *handle);
 
 gboolean
 ui_messenger_is_context_active(UI_MESSENGER_Handle *handle,

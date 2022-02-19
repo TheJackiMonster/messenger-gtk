@@ -26,6 +26,7 @@
 
 #include <gtk-3.0/gdk/gdkkeys.h>
 
+#include "account_entry.h"
 #include "chat_entry.h"
 #include "contacts.h"
 #include "message.h"
@@ -105,7 +106,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   }
 
   struct GNUNET_CHAT_Account *account = (struct GNUNET_CHAT_Account*) (
-      g_hash_table_lookup(app->ui.bindings, row)
+      bindings_get(app->bindings, row)
   );
 
   if (!account)
@@ -192,8 +193,8 @@ handle_chats_listbox_row_activated(UNUSED GtkListBox* listbox,
   if (!gtk_list_box_row_get_selectable(row))
     return;
 
-  UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) g_hash_table_lookup(
-      handle->bindings, row
+  UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) (
+      bindings_get(handle->app->bindings, row)
   );
 
   if ((!entry) || (!(entry->chat)) || (!(entry->chat->chat_box)))
@@ -217,7 +218,7 @@ handle_chats_listbox_filter_func(GtkListBoxRow *row,
 {
   UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
 
-  if ((!gtk_list_box_row_get_selectable(row)) ||
+  if ((!row) || (!gtk_list_box_row_get_selectable(row)) ||
       (gtk_list_box_row_is_selected(row)))
     return TRUE;
 
@@ -228,8 +229,8 @@ handle_chats_listbox_filter_func(GtkListBoxRow *row,
   if (!filter)
     return TRUE;
 
-  UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) g_hash_table_lookup(
-      handle->bindings, row
+  UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) (
+      bindings_get(handle->app->bindings, row)
   );
 
   if ((!entry) || (!(entry->title_label)))
@@ -267,8 +268,8 @@ void
 ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle)
 {
+  handle->app = app;
   handle->chat_entries = NULL;
-  handle->bindings = app->ui.bindings;
 
   handle->builder = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/messenger.ui")
@@ -490,6 +491,79 @@ ui_messenger_init(MESSENGER_Application *app,
   );
 }
 
+static void
+_messenger_clear_accounts_listbox_rows(UI_MESSENGER_Handle *handle)
+{
+  GList *list = gtk_container_get_children(
+      GTK_CONTAINER(handle->accounts_listbox)
+  );
+
+  while (list)
+  {
+    GtkListBoxRow *row = GTK_LIST_BOX_ROW(list->data);
+
+    if ((!row) || (!gtk_list_box_row_get_selectable(row)))
+      goto skip_row;
+
+    bindings_remove(handle->app->bindings, row, NULL, NULL);
+
+    gtk_container_remove(
+	GTK_CONTAINER(handle->accounts_listbox),
+	GTK_WIDGET(row)
+    );
+
+  skip_row:
+    list = list->next;
+  }
+}
+
+static int
+_messenger_iterate_accounts(void *cls,
+			    const struct GNUNET_CHAT_Handle *handle,
+			    struct GNUNET_CHAT_Account *account)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+
+  const gchar *name = GNUNET_CHAT_account_get_name(account);
+
+  UI_ACCOUNT_ENTRY_Handle *entry = ui_account_entry_new(app);
+
+  hdy_avatar_set_text(entry->entry_avatar, name);
+  gtk_label_set_text(entry->entry_label, name);
+
+  gtk_list_box_prepend(ui->accounts_listbox, entry->entry_box);
+
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
+    gtk_widget_get_parent(entry->entry_box)
+  );
+
+  bindings_put(app->bindings, row, account);
+
+  if ((account == GNUNET_CHAT_get_connected(handle)) ||
+      ((app->chat.identity) && (0 == g_strcmp0(app->chat.identity, name))))
+    gtk_widget_activate(GTK_WIDGET(row));
+
+  ui_account_entry_delete(entry);
+  return GNUNET_YES;
+}
+
+void
+ui_messenger_refresh(MESSENGER_Application *app,
+		     UI_MESSENGER_Handle *handle)
+{
+  if (!(handle->accounts_listbox))
+    return;
+
+  _messenger_clear_accounts_listbox_rows(handle);
+
+  GNUNET_CHAT_iterate_accounts(
+      app->chat.messenger.handle,
+      _messenger_iterate_accounts,
+      app
+  );
+}
+
 gboolean
 ui_messenger_is_context_active(UI_MESSENGER_Handle *handle,
 			       struct GNUNET_CHAT_Context *context)
@@ -514,11 +588,8 @@ ui_messenger_cleanup(UI_MESSENGER_Handle *handle)
 {
   g_object_unref(handle->builder);
 
-  for (GList *list = handle->chat_entries; list; list = list->next)
-    ui_chat_entry_delete((UI_CHAT_ENTRY_Handle*) list->data);
-
   if (handle->chat_entries)
-    g_list_free(handle->chat_entries);
+    g_list_free_full(handle->chat_entries, (GDestroyNotify) ui_chat_entry_delete);
 
   memset(handle, 0, sizeof(*handle));
 }

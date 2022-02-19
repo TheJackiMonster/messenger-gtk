@@ -51,6 +51,32 @@ ui_account_entry_new(MESSENGER_Application *app)
 }
 
 void
+ui_account_entry_set_account(UI_ACCOUNT_ENTRY_Handle* handle,
+			     const struct GNUNET_CHAT_Account *account)
+{
+  const gchar *name = GNUNET_CHAT_account_get_name(account);
+
+  if (!name)
+    return;
+
+  hdy_avatar_set_text(handle->entry_avatar, name);
+  gtk_label_set_text(handle->entry_label, name);
+}
+
+void
+ui_account_entry_set_contact(UI_ACCOUNT_ENTRY_Handle* handle,
+			     const struct GNUNET_CHAT_Contact *contact)
+{
+  const gchar *name = GNUNET_CHAT_contact_get_name(contact);
+
+  if (!name)
+    return;
+
+  hdy_avatar_set_text(handle->entry_avatar, name);
+  gtk_label_set_text(handle->entry_label, name);
+}
+
+void
 ui_account_entry_delete(UI_ACCOUNT_ENTRY_Handle *handle)
 {
   g_object_unref(handle->builder);

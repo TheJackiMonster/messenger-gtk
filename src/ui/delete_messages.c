@@ -57,7 +57,7 @@ handle_confirm_button_click(UNUSED GtkButton *button,
 
   if (app->ui.delete_messages.callback)
     app->ui.delete_messages.callback(
-	app->ui.bindings,
+	app,
 	app->ui.delete_messages.selected,
 	delay
     );

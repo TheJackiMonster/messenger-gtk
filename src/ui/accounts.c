@@ -72,7 +72,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   }
 
   struct GNUNET_CHAT_Account *account = (struct GNUNET_CHAT_Account*) (
-      g_hash_table_lookup(app->ui.bindings, row)
+      bindings_get(app->bindings, row)
   );
 
   if (!account)
@@ -109,25 +109,18 @@ _iterate_accounts(void *cls,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
-  const gchar *name = GNUNET_CHAT_account_get_name(account);
-
   UI_ACCOUNT_ENTRY_Handle *entry = ui_account_entry_new(app);
 
-  hdy_avatar_set_text(entry->entry_avatar, name);
-  gtk_label_set_text(entry->entry_label, name);
+  ui_account_entry_set_account(entry, account);
 
   gtk_list_box_prepend(app->ui.accounts.accounts_listbox, entry->entry_box);
 
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
-    gtk_widget_get_parent(entry->entry_box)
+      gtk_widget_get_parent(entry->entry_box)
   );
 
-  g_hash_table_insert(app->ui.bindings, row, account);
-
-  app->ui.accounts.account_entries = g_list_append(
-      app->ui.accounts.account_entries,
-      entry
-  );
+  bindings_put(app->bindings, row, account);
+  bindings_put(app->ui.accounts.bindings, row, entry);
 
   return GNUNET_YES;
 }
@@ -136,8 +129,7 @@ void
 ui_accounts_dialog_init(MESSENGER_Application *app,
 			UI_ACCOUNTS_Handle *handle)
 {
-  handle->account_entries = NULL;
-  handle->bindings = app->ui.bindings;
+  handle->bindings = bindings_create();
   handle->show_queued = 0;
 
   handle->builder = gtk_builder_new_from_resource(
@@ -198,35 +190,22 @@ _clear_accounts_listbox_rows(UI_ACCOUNTS_Handle *handle,
     if ((!row) || (!gtk_list_box_row_get_selectable(row)))
       goto skip_row;
 
-    g_hash_table_remove(handle->bindings, row);
-
     if (!bindings_only)
       gtk_container_remove(
 	  GTK_CONTAINER(handle->accounts_listbox),
 	  GTK_WIDGET(row)
       );
 
+    bindings_remove(
+	handle->bindings,
+	row,
+	NULL,
+	(GDestroyNotify) ui_account_entry_delete
+    );
+
   skip_row:
     list = list->next;
   }
-}
-
-static void
-_clear_accounts_entries(UI_ACCOUNTS_Handle *handle)
-{
-  GList *list = handle->account_entries;
-
-  while (list) {
-    if (list->data)
-      ui_account_entry_delete((UI_ACCOUNT_ENTRY_Handle*) list->data);
-
-    list = list->next;
-  }
-
-  if (handle->account_entries)
-    g_list_free(handle->account_entries);
-
-  handle->account_entries = NULL;
 }
 
 void
@@ -236,20 +215,13 @@ ui_accounts_dialog_refresh(MESSENGER_Application *app,
   if (!(handle->accounts_listbox))
     return;
 
-  if (!(handle->account_entries))
-    goto add_account_entries;
-
   _clear_accounts_listbox_rows(handle, FALSE);
-  _clear_accounts_entries(handle);
 
-add_account_entries:
   GNUNET_CHAT_iterate_accounts(
       app->chat.messenger.handle,
       _iterate_accounts,
       app
   );
-
-  gtk_list_box_unselect_all(handle->accounts_listbox);
 }
 
 void
@@ -259,7 +231,8 @@ ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle)
 
   g_object_unref(handle->builder);
 
-  _clear_accounts_entries(handle);
+  bindings_destroy(handle->bindings);
+  handle->bindings = NULL;
 
   handle->accounts_listbox = NULL;
 }

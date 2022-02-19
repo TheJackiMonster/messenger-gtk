@@ -48,7 +48,7 @@ typedef struct UI_MESSAGE_Handle
   struct GNUNET_TIME_Absolute timestamp;
   const struct GNUNET_CHAT_Message *msg;
 
-  GtkBuilder *builder;
+  GtkBuilder *builder [2];
   GtkWidget *message_box;
 
   HdyAvatar *sender_avatar;
@@ -74,8 +74,6 @@ typedef struct UI_MESSAGE_Handle
   GtkImage *file_status_image;
 
   GtkDrawingArea *preview_drawing_area;
-
-  gulong preview_draw_signal;
 
   GdkPixbuf *preview_image;
   GdkPixbufAnimation *preview_animation;

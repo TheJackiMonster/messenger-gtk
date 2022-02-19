@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -26,11 +26,11 @@
 #define UI_CONTACTS_H_
 
 #include "messenger.h"
+#include "../bindings.h"
 
 typedef struct UI_CONTACTS_Handle
 {
-  GList *contact_entries;
-  GHashTable *bindings;
+  MESSENGER_Bindings *bindings;
 
   GtkBuilder *builder;
   GtkDialog *dialog;
