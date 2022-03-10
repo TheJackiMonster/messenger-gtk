@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -26,12 +26,9 @@
 #define UI_CHAT_ENTRY_H_
 
 #include "chat.h"
-#include "../bindings.h"
 
 typedef struct UI_CHAT_ENTRY_Handle
 {
-  MESSENGER_Bindings *joining;
-
   UI_CHAT_Handle *chat;
   GtkBuilder *builder;
 

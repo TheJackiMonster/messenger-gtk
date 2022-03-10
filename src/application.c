@@ -100,7 +100,9 @@ application_init(MESSENGER_Application *app,
 
   pthread_mutex_init(&(app->chat.mutex), NULL);
 
-  app->bindings = bindings_create();
+  app->quarks.widget = g_quark_from_string("messenger_widget");
+  app->quarks.data = g_quark_from_string("messenger_data");
+  app->quarks.ui = g_quark_from_string("messenger_ui");
 
   g_application_add_main_option(
       G_APPLICATION(app->application),
@@ -194,8 +196,6 @@ application_run(MESSENGER_Application *app)
     application_exit(app, MESSENGER_FAIL);
 
   pthread_join(app->chat.tid, NULL);
-
-  bindings_destroy(app->bindings);
 
   close(app->chat.pipe[0]);
   close(app->chat.pipe[1]);

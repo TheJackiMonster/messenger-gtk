@@ -44,11 +44,11 @@ handle_contacts_listbox_row_activated(GtkListBox* listbox,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
-      bindings_get(app->bindings, listbox)
+      g_object_get_qdata(G_OBJECT(listbox), app->quarks.widget)
   );
 
   struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
-      bindings_get(app->bindings, row)
+      g_object_get_qdata(G_OBJECT(row), app->quarks.data)
   );
 
   if ((!contact) || (!GNUNET_CHAT_contact_get_key(contact)) ||
@@ -57,7 +57,7 @@ handle_contacts_listbox_row_activated(GtkListBox* listbox,
     goto close_dialog;
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-      bindings_get(app->bindings, text_view)
+      g_object_get_qdata(G_OBJECT(text_view), app->quarks.data)
   );
 
   if (!context)
@@ -78,20 +78,20 @@ static gboolean
 handle_contacts_listbox_filter_func(GtkListBoxRow *row,
 				    gpointer user_data)
 {
-  UI_INVITE_CONTACT_Handle *handle = (UI_INVITE_CONTACT_Handle*) user_data;
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   if ((!row) || (!gtk_list_box_row_get_selectable(row)))
     return TRUE;
 
   const gchar *filter = gtk_entry_get_text(
-      GTK_ENTRY(handle->contact_search_entry)
+      GTK_ENTRY(app->ui.invite_contact.contact_search_entry)
   );
 
   if (!filter)
     return TRUE;
 
   UI_CONTACT_ENTRY_Handle *entry = (UI_CONTACT_ENTRY_Handle*) (
-      bindings_get(handle->bindings, row)
+      g_object_get_qdata(G_OBJECT(row), app->quarks.ui)
   );
 
   if (!entry)
@@ -143,8 +143,14 @@ _iterate_contacts(void *cls,
       gtk_widget_get_parent(entry->entry_box)
   );
 
-  bindings_put(app->bindings, row, contact);
-  bindings_put(app->ui.invite_contact.bindings, row, entry);
+  g_object_set_qdata(G_OBJECT(row), app->quarks.data, contact);
+
+  g_object_set_qdata_full(
+      G_OBJECT(row),
+      app->quarks.ui,
+      entry,
+      (GDestroyNotify) ui_contact_entry_delete
+  );
 
   return GNUNET_YES;
 }
@@ -153,8 +159,6 @@ void
 ui_invite_contact_dialog_init(MESSENGER_Application *app,
 			      UI_INVITE_CONTACT_Handle *handle)
 {
-  handle->bindings = bindings_create();
-
   handle->builder = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/invite_contact.ui")
   );
@@ -179,7 +183,7 @@ ui_invite_contact_dialog_init(MESSENGER_Application *app,
   gtk_list_box_set_filter_func(
       handle->contacts_listbox,
       handle_contacts_listbox_filter_func,
-      handle,
+      app,
       NULL
   );
 
@@ -224,48 +228,10 @@ ui_invite_contact_dialog_init(MESSENGER_Application *app,
   gtk_list_box_invalidate_filter(handle->contacts_listbox);
 }
 
-static void
-_clear_contacts_listbox_rows(UI_INVITE_CONTACT_Handle *handle,
-			     gboolean bindings_only)
-{
-  GList *list = gtk_container_get_children(
-      GTK_CONTAINER(handle->contacts_listbox)
-  );
-
-  while (list)
-  {
-    GtkListBoxRow *row = GTK_LIST_BOX_ROW(list->data);
-
-    if ((!row) || (!gtk_list_box_row_get_selectable(row)))
-      goto skip_row;
-
-    if (!bindings_only)
-      gtk_container_remove(
-	  GTK_CONTAINER(handle->contacts_listbox),
-	  GTK_WIDGET(row)
-      );
-
-    bindings_remove(
-	handle->bindings,
-	row,
-	NULL,
-	(GDestroyNotify) ui_contact_entry_delete
-    );
-
-  skip_row:
-    list = list->next;
-  }
-}
-
 void
 ui_invite_contact_dialog_cleanup(UI_INVITE_CONTACT_Handle *handle)
 {
-  _clear_contacts_listbox_rows(handle, TRUE);
-
   g_object_unref(handle->builder);
-
-  bindings_destroy(handle->bindings);
-  handle->bindings = NULL;
 
   handle->contacts_listbox = NULL;
 }

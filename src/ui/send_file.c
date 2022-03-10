@@ -65,7 +65,7 @@ handle_send_button_click(GtkButton *button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
-      bindings_get(app->bindings, button)
+      g_object_get_qdata(G_OBJECT(button), app->quarks.widget)
   );
 
   if (!text_view)
@@ -79,7 +79,7 @@ handle_send_button_click(GtkButton *button,
     return;
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-      bindings_get(app->bindings, text_view)
+      g_object_get_qdata(G_OBJECT(text_view), app->quarks.data)
   );
 
   UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(context);

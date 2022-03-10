@@ -117,7 +117,11 @@ _add_new_chat_entry(MESSENGER_Application *app,
       entry->chat->chat_box
   );
 
-  bindings_put(app->bindings, entry->chat->send_text_view, context);
+  g_object_set_qdata(
+      G_OBJECT(entry->chat->send_text_view),
+      app->quarks.data,
+      context
+  );
 
   ui->chat_entries = g_list_append(ui->chat_entries, entry);
 
@@ -125,7 +129,11 @@ _add_new_chat_entry(MESSENGER_Application *app,
       gtk_widget_get_parent(entry->entry_box)
   );
 
-  bindings_put(app->bindings, row, entry);
+  g_object_set_qdata(
+      G_OBJECT(row),
+      app->quarks.ui,
+      entry
+  );
 
   gtk_list_box_select_row(ui->chats_listbox, row);
   gtk_list_box_invalidate_filter(ui->chats_listbox);
@@ -252,7 +260,7 @@ event_joining_contact(MESSENGER_Application *app,
     return;
 
   UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) (
-      bindings_get(handle->joining, contact)
+      GNUNET_CHAT_member_get_user_pointer(context, contact)
   );
 
   if (message)
@@ -288,7 +296,8 @@ event_joining_contact(MESSENGER_Application *app,
   gtk_label_set_text(message->timestamp_label, time? time : "");
 
   ui_chat_add_message(handle->chat, app, message);
-  bindings_put(handle->joining, contact, message);
+
+  GNUNET_CHAT_member_set_user_pointer(context, contact, message);
 
   ui_chat_entry_update(handle, app, context);
 }

@@ -106,7 +106,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   }
 
   struct GNUNET_CHAT_Account *account = (struct GNUNET_CHAT_Account*) (
-      bindings_get(app->bindings, row)
+      g_object_get_qdata(G_OBJECT(row), app->quarks.data)
   );
 
   if (!account)
@@ -188,20 +188,20 @@ handle_chats_listbox_row_activated(UNUSED GtkListBox* listbox,
 				   GtkListBoxRow* row,
 				   gpointer user_data)
 {
-  UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   if (!gtk_list_box_row_get_selectable(row))
     return;
 
   UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) (
-      bindings_get(handle->app->bindings, row)
+      g_object_get_qdata(G_OBJECT(row), app->quarks.ui)
   );
 
   if ((!entry) || (!(entry->chat)) || (!(entry->chat->chat_box)))
     return;
 
-  GtkStack *stack = handle->chats_stack;
-  HdyLeaflet *leaflet = handle->leaflet_chat;
+  GtkStack *stack = app->ui.messenger.chats_stack;
+  HdyLeaflet *leaflet = app->ui.messenger.leaflet_chat;
 
   GList *children = gtk_container_get_children(GTK_CONTAINER(leaflet));
 
@@ -216,21 +216,21 @@ static gboolean
 handle_chats_listbox_filter_func(GtkListBoxRow *row,
 				 gpointer user_data)
 {
-  UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   if ((!row) || (!gtk_list_box_row_get_selectable(row)) ||
       (gtk_list_box_row_is_selected(row)))
     return TRUE;
 
   const gchar *filter = gtk_entry_get_text(
-      GTK_ENTRY(handle->chats_search)
+      GTK_ENTRY(app->ui.messenger.chats_search)
   );
 
   if (!filter)
     return TRUE;
 
   UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) (
-      bindings_get(handle->app->bindings, row)
+      g_object_get_qdata(G_OBJECT(row), app->quarks.ui)
   );
 
   if ((!entry) || (!(entry->title_label)))
@@ -457,7 +457,7 @@ ui_messenger_init(MESSENGER_Application *app,
   gtk_list_box_set_filter_func(
       handle->chats_listbox,
       handle_chats_listbox_filter_func,
-      handle,
+      app,
       NULL
   );
 
@@ -472,7 +472,7 @@ ui_messenger_init(MESSENGER_Application *app,
       handle->chats_listbox,
       "row-activated",
       G_CALLBACK(handle_chats_listbox_row_activated),
-      handle
+      app
   );
 
   handle->chats_stack = GTK_STACK(
@@ -489,32 +489,6 @@ ui_messenger_init(MESSENGER_Application *app,
       G_CALLBACK(handle_main_window_destroy),
       app
   );
-}
-
-static void
-_messenger_clear_accounts_listbox_rows(UI_MESSENGER_Handle *handle)
-{
-  GList *list = gtk_container_get_children(
-      GTK_CONTAINER(handle->accounts_listbox)
-  );
-
-  while (list)
-  {
-    GtkListBoxRow *row = GTK_LIST_BOX_ROW(list->data);
-
-    if ((!row) || (!gtk_list_box_row_get_selectable(row)))
-      goto skip_row;
-
-    bindings_remove(handle->app->bindings, row, NULL, NULL);
-
-    gtk_container_remove(
-	GTK_CONTAINER(handle->accounts_listbox),
-	GTK_WIDGET(row)
-    );
-
-  skip_row:
-    list = list->next;
-  }
 }
 
 static int
@@ -538,7 +512,7 @@ _messenger_iterate_accounts(void *cls,
     gtk_widget_get_parent(entry->entry_box)
   );
 
-  bindings_put(app->bindings, row, account);
+  g_object_set_qdata(G_OBJECT(row), app->quarks.data, account);
 
   if ((account == GNUNET_CHAT_get_connected(handle)) ||
       ((app->chat.identity) && (0 == g_strcmp0(app->chat.identity, name))))
@@ -555,7 +529,25 @@ ui_messenger_refresh(MESSENGER_Application *app,
   if (!(handle->accounts_listbox))
     return;
 
-  _messenger_clear_accounts_listbox_rows(handle);
+  GList *list = gtk_container_get_children(
+      GTK_CONTAINER(handle->accounts_listbox)
+  );
+
+  while (list)
+  {
+    GtkListBoxRow *row = GTK_LIST_BOX_ROW(list->data);
+
+    if ((!row) || (!gtk_list_box_row_get_selectable(row)))
+      goto skip_row;
+
+    gtk_container_remove(
+	GTK_CONTAINER(handle->accounts_listbox),
+	GTK_WIDGET(row)
+    );
+
+  skip_row:
+    list = list->next;
+  }
 
   GNUNET_CHAT_iterate_accounts(
       app->chat.messenger.handle,

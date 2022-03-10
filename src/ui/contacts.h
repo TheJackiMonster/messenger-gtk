@@ -26,12 +26,9 @@
 #define UI_CONTACTS_H_
 
 #include "messenger.h"
-#include "../bindings.h"
 
 typedef struct UI_CONTACTS_Handle
 {
-  MESSENGER_Bindings *bindings;
-
   GtkBuilder *builder;
   GtkDialog *dialog;
 

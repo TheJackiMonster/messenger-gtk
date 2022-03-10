@@ -50,14 +50,14 @@ handle_file_button_click(GtkButton *button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   UI_MESSAGE_Handle* handle = (UI_MESSAGE_Handle*) (
-      bindings_get(app->bindings, button)
+      g_object_get_qdata(G_OBJECT(button), app->quarks.ui)
   );
 
   if (!handle)
     return;
 
   struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File*) (
-      bindings_get(app->bindings, handle->file_progress_bar)
+      g_object_get_qdata(G_OBJECT(handle->file_progress_bar), app->quarks.data)
   );
 
   if (!file)
@@ -360,7 +360,7 @@ ui_message_new(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder[1], "file_status_image")
   );
 
-  bindings_put(app->bindings, handle->file_button, handle);
+  g_object_set_qdata(G_OBJECT(handle->file_button), app->quarks.ui, handle);
 
   handle->preview_drawing_area = GTK_DRAWING_AREA(
       gtk_builder_get_object(handle->builder[1], "preview_drawing_area")
@@ -444,13 +444,13 @@ ui_message_update(UI_MESSAGE_Handle *handle,
   }
   else
     file = (struct GNUNET_CHAT_File*) (
-	bindings_get(app->bindings, handle->message_box)
+	g_object_get_qdata(G_OBJECT(handle->message_box), app->quarks.data)
     );
 
   if (!file)
     return;
 
-  bindings_put(app->bindings, handle->message_box, file);
+  g_object_set_qdata(G_OBJECT(handle->message_box), app->quarks.data, file);
 
   uint64_t size = GNUNET_CHAT_file_get_size(file);
   uint64_t local_size = GNUNET_CHAT_file_get_local_size(file);
@@ -519,7 +519,11 @@ file_content:
 
   gtk_revealer_set_reveal_child(handle->file_revealer, TRUE);
 
-  bindings_put(app->bindings, handle->file_progress_bar, file);
+  g_object_set_qdata(
+      G_OBJECT(handle->file_progress_bar),
+      app->quarks.data,
+      file
+  );
 }
 
 void

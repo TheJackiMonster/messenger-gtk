@@ -51,7 +51,7 @@ _open_new_group(GtkEntry *entry,
       GtkListBoxRow *row = GTK_LIST_BOX_ROW(selected->data);
 
       struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
-	  bindings_get(app->bindings, row)
+	  g_object_get_qdata(G_OBJECT(row), app->quarks.data)
       );
 
       GNUNET_CHAT_group_invite_contact(group, contact);
@@ -170,7 +170,7 @@ _iterate_contacts(void *cls,
       gtk_widget_get_parent(entry->entry_box)
   );
 
-  bindings_put(app->bindings, row, contact);
+  g_object_set_qdata(G_OBJECT(row), app->quarks.data, contact);
 
   app->ui.new_group.contact_entries = g_list_append(
       app->ui.new_group.contact_entries,

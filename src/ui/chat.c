@@ -76,7 +76,7 @@ handle_chat_contacts_listbox_row_activated(GtkListBox *listbox,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
-      bindings_get(app->bindings, listbox)
+      g_object_get_qdata(G_OBJECT(listbox), app->quarks.widget)
   );
 
   if (!text_view)
@@ -86,14 +86,18 @@ handle_chat_contacts_listbox_row_activated(GtkListBox *listbox,
   {
     ui_invite_contact_dialog_init(app, &(app->ui.invite_contact));
 
-    bindings_put(app->bindings, app->ui.invite_contact.contacts_listbox, text_view);
+    g_object_set_qdata(
+	G_OBJECT(app->ui.invite_contact.contacts_listbox),
+	app->quarks.widget,
+	text_view
+    );
 
     gtk_widget_show(GTK_WIDGET(app->ui.invite_contact.dialog));
     return;
   }
 
   struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
-      bindings_get(app->bindings, row)
+      g_object_get_qdata(G_OBJECT(row), app->quarks.data)
   );
 
   if ((!contact) || (!GNUNET_CHAT_contact_get_key(contact)) ||
@@ -155,11 +159,11 @@ handle_chat_messages_sort(GtkListBoxRow* row0,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   UI_MESSAGE_Handle *message0 = (UI_MESSAGE_Handle*) (
-      bindings_get(app->bindings, row0)
+      g_object_get_qdata(G_OBJECT(row0), app->quarks.ui)
   );
 
   UI_MESSAGE_Handle *message1 = (UI_MESSAGE_Handle*) (
-      bindings_get(app->bindings, row1)
+      g_object_get_qdata(G_OBJECT(row1), app->quarks.ui)
   );
 
   if ((!message0) || (!message1))
@@ -225,7 +229,10 @@ _delete_messages_callback(MESSENGER_Application *app,
     if (!row)
       goto skip_row;
 
-    message = bindings_get(app->bindings, row);
+    message = (UI_MESSAGE_Handle*) g_object_get_qdata(
+	G_OBJECT(row),
+	app->quarks.ui
+    );
 
     if ((!message) || (!(message->msg)))
       goto skip_row;
@@ -276,7 +283,7 @@ handle_attach_file_button_click(GtkButton *button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
-      bindings_get(app->bindings, button)
+      g_object_get_qdata(G_OBJECT(button), app->quarks.widget)
   );
 
   if (!text_view)
@@ -308,7 +315,11 @@ handle_attach_file_button_click(GtkButton *button,
 
   g_free(filename);
 
-  bindings_put(app->bindings, app->ui.send_file.send_button, text_view);
+  g_object_set_qdata(
+      G_OBJECT(app->ui.send_file.send_button),
+      app->quarks.widget,
+      text_view
+  );
 
   gtk_widget_show(GTK_WIDGET(app->ui.send_file.dialog));
 
@@ -353,7 +364,7 @@ _send_text_from_view(MESSENGER_Application *app,
     return FALSE;
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-      bindings_get(app->bindings, text_view)
+      g_object_get_qdata(G_OBJECT(text_view), app->quarks.data)
   );
 
   if (context)
@@ -370,7 +381,7 @@ handle_send_record_button_click(GtkButton *button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
-      bindings_get(app->bindings, button)
+      g_object_get_qdata(G_OBJECT(button), app->quarks.widget)
   );
 
   if (!_send_text_from_view(app, text_view))
@@ -646,9 +657,23 @@ ui_chat_new(MESSENGER_Application *app)
       app
   );
 
-  bindings_put(app->bindings, handle->chat_contacts_listbox, handle->send_text_view);
-  bindings_put(app->bindings, handle->attach_file_button, handle->send_text_view);
-  bindings_put(app->bindings, handle->send_record_button, handle->send_text_view);
+  g_object_set_qdata(
+      G_OBJECT(handle->chat_contacts_listbox),
+      app->quarks.widget,
+      handle->send_text_view
+  );
+
+  g_object_set_qdata(
+      G_OBJECT(handle->attach_file_button),
+      app->quarks.widget,
+      handle->send_text_view
+  );
+
+  g_object_set_qdata(
+      G_OBJECT(handle->send_record_button),
+      app->quarks.widget,
+      handle->send_text_view
+  );
 
   handle->picker_revealer = GTK_REVEALER(
       gtk_builder_get_object(handle->builder, "picker_revealer")
@@ -696,9 +721,14 @@ iterate_ui_chat_update_group_contacts(void *cls,
       gtk_widget_get_parent(entry->entry_box)
   );
 
-  bindings_put(closure->app->bindings, row, contact);
+  g_object_set_qdata(G_OBJECT(row), closure->app->quarks.data, contact);
+  g_object_set_qdata_full(
+      G_OBJECT(row),
+      closure->app->quarks.ui,
+      entry,
+      (GDestroyNotify) ui_account_entry_delete
+  );
 
-  ui_account_entry_delete(entry);
   return GNUNET_YES;
 }
 
@@ -749,8 +779,6 @@ ui_chat_update(UI_CHAT_Handle *handle,
   while ((children) && (children->next)) {
     GtkWidget *widget = GTK_WIDGET(children->data);
     children = children->next;
-
-    bindings_remove(app->bindings, widget, NULL, NULL);
 
     gtk_container_remove(
 	GTK_CONTAINER(handle->chat_contacts_listbox),
@@ -840,7 +868,7 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
 
   GtkWidget *row = gtk_widget_get_parent(message->message_box);
 
-  bindings_put(app->bindings, row, message);
+  g_object_set_qdata(G_OBJECT(row), app->quarks.ui, message);
 
   handle->messages = g_list_prepend(handle->messages, message);
 
@@ -849,7 +877,7 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
 
 void
 ui_chat_remove_message(UI_CHAT_Handle *handle,
-		       MESSENGER_Application *app,
+		       UNUSED MESSENGER_Application *app,
 		       UI_MESSAGE_Handle *message)
 {
   GNUNET_assert((handle) && (message));
@@ -858,12 +886,7 @@ ui_chat_remove_message(UI_CHAT_Handle *handle,
 
   GtkWidget *row = gtk_widget_get_parent(message->message_box);
 
-  bindings_remove(app->bindings, row, NULL, NULL);
-
-  gtk_container_remove(
-      GTK_CONTAINER(handle->messages_listbox),
-      gtk_widget_get_parent(GTK_WIDGET(message->message_box))
-  );
+  gtk_container_remove(GTK_CONTAINER(handle->messages_listbox), row);
 
   handle->messages = g_list_append(handle->messages, message);
 }

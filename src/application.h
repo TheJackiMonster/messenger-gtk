@@ -42,7 +42,6 @@
 #include "ui/send_file.h"
 #include "ui/settings.h"
 
-#include "bindings.h"
 #include "util.h"
 
 typedef enum MESSENGER_ApplicationSignal
@@ -60,7 +59,11 @@ typedef struct MESSENGER_Application
   GtkApplication *application;
   GList *notifications;
 
-  MESSENGER_Bindings *bindings;
+  struct {
+    GQuark widget;
+    GQuark data;
+    GQuark ui;
+  } quarks;
 
   struct {
     int status;
