@@ -31,6 +31,8 @@
 #include "contacts.h"
 #include "message.h"
 #include "new_contact.h"
+#include "new_group.h"
+#include "new_lobby.h"
 #include "new_platform.h"
 #include "settings.h"
 
@@ -55,6 +57,19 @@ handle_flap_via_button_click(UNUSED GtkButton* button,
 			     gpointer user_data)
 {
   g_idle_add(G_SOURCE_FUNC(_flap_reveal_switch), user_data);
+}
+
+static void
+handle_lobby_button_click(UNUSED GtkButton* button,
+			  gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
+
+  ui_new_lobby_dialog_init(app, &(app->ui.new_lobby));
+
+  gtk_widget_show(GTK_WIDGET(app->ui.new_lobby.dialog));
 }
 
 static void
@@ -264,6 +279,25 @@ handle_main_window_destroy(UNUSED GtkWidget *window,
   application_exit(app, MESSENGER_QUIT);
 }
 
+static void
+_switch_accounts_listbox_connection(MESSENGER_Application *app,
+				    UI_MESSENGER_Handle *handle,
+				    gboolean enabled)
+{
+  if (enabled)
+    handle->accounts_signal = g_signal_connect(
+	handle->accounts_listbox,
+	"row-activated",
+	G_CALLBACK(handle_accounts_listbox_row_activated),
+	app
+    );
+  else
+    g_signal_handler_disconnect(
+	handle->accounts_listbox,
+	handle->accounts_signal
+    );
+}
+
 void
 ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle)
@@ -342,8 +376,15 @@ ui_messenger_init(MESSENGER_Application *app,
       handle->flap_user_details
   );
 
-  handle->favourites_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "favourites_button")
+  handle->lobby_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "lobby_button")
+  );
+
+  g_signal_connect(
+      handle->lobby_button,
+      "clicked",
+      G_CALLBACK(handle_lobby_button_click),
+      app
   );
 
   handle->account_details_button = GTK_BUTTON(
@@ -373,12 +414,7 @@ ui_messenger_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "add_account_listbox_row")
   );
 
-  g_signal_connect(
-      handle->accounts_listbox,
-      "row-activated",
-      G_CALLBACK(handle_accounts_listbox_row_activated),
-      app
-  );
+  _switch_accounts_listbox_connection(app, handle, TRUE);
 
   handle->new_contact_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "new_contact_button")
@@ -522,6 +558,22 @@ _messenger_iterate_accounts(void *cls,
   return GNUNET_YES;
 }
 
+static void
+_clear_accounts_listbox(GtkWidget *widget,
+			gpointer data)
+{
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(widget);
+  GtkListBox *listbox = GTK_LIST_BOX(data);
+
+  if ((!row) || (!listbox) || (!gtk_list_box_row_get_selectable(row)))
+    return;
+
+  gtk_container_remove(
+      GTK_CONTAINER(listbox),
+      widget
+  );
+}
+
 void
 ui_messenger_refresh(MESSENGER_Application *app,
 		     UI_MESSENGER_Handle *handle)
@@ -529,31 +581,21 @@ ui_messenger_refresh(MESSENGER_Application *app,
   if (!(handle->accounts_listbox))
     return;
 
-  GList *list = gtk_container_get_children(
-      GTK_CONTAINER(handle->accounts_listbox)
+  _switch_accounts_listbox_connection(app, handle, FALSE);
+
+  gtk_container_foreach(
+      GTK_CONTAINER(handle->accounts_listbox),
+      _clear_accounts_listbox,
+      handle->accounts_listbox
   );
-
-  while (list)
-  {
-    GtkListBoxRow *row = GTK_LIST_BOX_ROW(list->data);
-
-    if ((!row) || (!gtk_list_box_row_get_selectable(row)))
-      goto skip_row;
-
-    gtk_container_remove(
-	GTK_CONTAINER(handle->accounts_listbox),
-	GTK_WIDGET(row)
-    );
-
-  skip_row:
-    list = list->next;
-  }
 
   GNUNET_CHAT_iterate_accounts(
       app->chat.messenger.handle,
       _messenger_iterate_accounts,
       app
   );
+
+  _switch_accounts_listbox_connection(app, handle, TRUE);
 }
 
 gboolean

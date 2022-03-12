@@ -38,6 +38,7 @@
 #include "ui/new_account.h"
 #include "ui/new_contact.h"
 #include "ui/new_group.h"
+#include "ui/new_lobby.h"
 #include "ui/new_platform.h"
 #include "ui/send_file.h"
 #include "ui/settings.h"
@@ -87,6 +88,7 @@ typedef struct MESSENGER_Application
 
     UI_NEW_CONTACT_Handle new_contact;
     UI_NEW_GROUP_Handle new_group;
+    UI_NEW_LOBBY_Handle new_lobby;
     UI_NEW_PLATFORM_Handle new_platform;
     UI_NEW_ACCOUNT_Handle new_account;
 

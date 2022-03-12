@@ -52,7 +52,7 @@ typedef struct UI_MESSENGER_Handle
   GtkLabel *profile_key_label;
 
   GtkButton *hide_user_details_button;
-  GtkButton *favourites_button;
+  GtkButton *lobby_button;
   GtkButton *account_details_button;
   GtkImage *account_details_symbol;
 
@@ -72,6 +72,8 @@ typedef struct UI_MESSENGER_Handle
 
   GtkStack *chats_stack;
   GtkWidget *no_chat_box;
+
+  gulong accounts_signal;
 } UI_MESSENGER_Handle;
 
 void

@@ -246,7 +246,7 @@ Author: Tobias Frisch
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkButton" id="favourites_button">
+                              <object class="GtkButton" id="lobby_button">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">True</property>
@@ -257,7 +257,7 @@ Author: Tobias Frisch
                                   <object class="GtkImage">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="icon-name">user-bookmarks-symbolic</property>
+                                    <property name="icon-name">dialog-password-symbolic</property>
                                   </object>
                                 </child>
                               </object>

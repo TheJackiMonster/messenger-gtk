@@ -40,8 +40,28 @@ handle_confirm_button_click(UNUSED GtkButton *button,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  // TODO: Add new contact
+  const gint id_length = gtk_entry_get_text_length(app->ui.new_contact.id_entry);
+  const gchar *id_text = gtk_entry_get_text(app->ui.new_contact.id_entry);
 
+  if (id_length <= 0)
+    goto close_dialog;
+
+  gchar *emsg = NULL;
+  struct GNUNET_CHAT_Uri *uri = GNUNET_CHAT_uri_parse(id_text, &emsg);
+
+  if (uri)
+  {
+    GNUNET_CHAT_lobby_join(app->chat.messenger.handle, uri);
+    GNUNET_CHAT_uri_destroy(uri);
+  }
+
+  if (emsg)
+  {
+    printf("ERROR: %s\n", emsg);
+    GNUNET_free(emsg);
+  }
+
+close_dialog:
   gtk_window_close(GTK_WINDOW(app->ui.new_contact.dialog));
 }
 
@@ -60,6 +80,9 @@ handle_id_drawing_area_draw(GtkWidget* drawing_area,
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) user_data;
 
   GtkStyleContext* context = gtk_widget_get_style_context(drawing_area);
+
+  if (!context)
+    return FALSE;
 
   const guint width = gtk_widget_get_allocated_width(drawing_area);
   const guint height = gtk_widget_get_allocated_height(drawing_area);

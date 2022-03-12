@@ -16,6 +16,7 @@
 	<file compressed="true">ui/messenger.ui</file>
 	<file compressed="true">ui/new_contact.ui</file>
 	<file compressed="true">ui/new_group.ui</file>
+	<file compressed="true">ui/new_lobby.ui</file>
 	<file compressed="true">ui/new_platform.ui</file>
 	<file compressed="true">ui/new_account.ui</file>
 	<file compressed="true">ui/picker.ui</file>
