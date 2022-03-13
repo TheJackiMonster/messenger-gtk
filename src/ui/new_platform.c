@@ -173,4 +173,6 @@ void
 ui_new_platform_dialog_cleanup(UI_NEW_PLATFORM_Handle *handle)
 {
   g_object_unref(handle->builder);
+
+  memset(handle, 0, sizeof(*handle));
 }

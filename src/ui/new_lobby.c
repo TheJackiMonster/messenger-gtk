@@ -198,7 +198,7 @@ handle_id_drawing_area_draw(GtkWidget* drawing_area,
   const guint w = handle->qr->width;
   const guint w2 = w + m * 2;
 
-  guchar pixels [w2 * w2 * 3];
+  guchar *pixels = (guchar*) g_malloc(sizeof(guchar) * w2 * w2 * 3);
 
   guint x, y, z;
   for (y = 0; y < w2; y++)
@@ -263,9 +263,10 @@ handle_id_drawing_area_draw(GtkWidget* drawing_area,
   g_object_unref(scaled);
   g_object_unref(image);
 
+  g_free(pixels);
+
   return FALSE;
 }
-
 
 void
 ui_new_lobby_dialog_init(MESSENGER_Application *app,
@@ -385,7 +386,6 @@ ui_new_lobby_dialog_init(MESSENGER_Application *app,
       handle
   );
 }
-
 
 void
 ui_new_lobby_dialog_cleanup(UI_NEW_LOBBY_Handle *handle)

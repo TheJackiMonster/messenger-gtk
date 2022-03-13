@@ -95,11 +95,11 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  ui_accounts_dialog_cleanup(&(app->ui.accounts));
+  if ((app->ui.accounts.show_queued) ||
+      (gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window))))
+    return;
 
-  if ((!(app->ui.accounts.show_queued)) &&
-      (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window))))
-    gtk_widget_destroy(GTK_WIDGET(app->ui.messenger.main_window));
+  gtk_widget_destroy(GTK_WIDGET(app->ui.messenger.main_window));
 }
 
 static int
@@ -219,5 +219,5 @@ ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle)
 {
   g_object_unref(handle->builder);
 
-  handle->accounts_listbox = NULL;
+  memset(handle, 0, sizeof(*handle));
 }

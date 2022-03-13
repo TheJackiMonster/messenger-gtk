@@ -393,8 +393,6 @@ ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle)
   if (0 != handle->idle_processing)
     g_source_remove(handle->idle_processing);
 
-  handle->idle_processing = 0;
-
   g_signal_handler_disconnect(
       handle->id_drawing_area,
       handle->id_draw_signal
@@ -405,8 +403,8 @@ ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle)
   if (handle->image)
     zbar_image_destroy(handle->image);
 
-  handle->image = NULL;
-
   zbar_image_scanner_destroy(handle->scanner);
   zbar_video_destroy(handle->video);
+
+  memset(handle, 0, sizeof(*handle));
 }

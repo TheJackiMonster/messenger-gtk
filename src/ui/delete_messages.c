@@ -149,4 +149,6 @@ void
 ui_delete_messages_dialog_cleanup(UI_DELETE_MESSAGES_Handle *handle)
 {
   g_object_unref(handle->builder);
+
+  memset(handle, 0, sizeof(*handle));
 }

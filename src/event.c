@@ -51,7 +51,8 @@ _show_notification(MESSENGER_Application *app,
 		   UNUSED struct GNUNET_CHAT_Context *context,
 		   const struct GNUNET_CHAT_Contact *contact,
 		   const gchar *text,
-		   const gchar *icon)
+		   const gchar *icon,
+		   const gchar *category)
 {
   if (app->settings.disable_notifications)
     return;
@@ -67,10 +68,7 @@ _show_notification(MESSENGER_Application *app,
 
   app->notifications = g_list_append(app->notifications, notification);
 
-  if (0 == g_strcmp0(icon, "avatar-default-symbolic"))
-    notify_notification_set_category(notification, "presence.online");
-  else
-    notify_notification_set_category(notification, "im.received");
+  notify_notification_set_category(notification, category);
 
   g_signal_connect(
       notification,
@@ -82,15 +80,25 @@ _show_notification(MESSENGER_Application *app,
   notify_notification_show(notification, NULL);
 }
 
-static void
-_clear_each_selectable_widget(GtkWidget *widget,
-			      gpointer user_data)
+void
+event_handle_warning(MESSENGER_Application *app,
+		     struct GNUNET_CHAT_Context *context,
+		     const struct GNUNET_CHAT_Message *msg)
 {
-  GtkContainer *container = GTK_CONTAINER(user_data);
-  GtkListBoxRow *row = GTK_LIST_BOX_ROW(widget);
+  const gchar *text = GNUNET_CHAT_message_get_text(msg);
 
-  if (gtk_list_box_row_get_selectable(row))
-    gtk_container_remove(container, widget);
+  const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
+      msg
+  );
+
+  _show_notification(
+      app,
+      context,
+      contact,
+      text,
+      "dialog-warning-symbolic",
+      "im.error"
+  );
 }
 
 void
@@ -177,6 +185,48 @@ _iterate_profile_groups(void *cls,
   return GNUNET_YES;
 }
 
+static void
+_clear_chat_entry(GtkWidget *widget,
+		  gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(widget);
+
+  if (!gtk_list_box_row_get_selectable(row))
+    return;
+
+  UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) g_object_get_qdata(
+      G_OBJECT(row),
+      app->quarks.ui
+  );
+
+  ui->chat_entries = g_list_remove(ui->chat_entries, entry);
+
+  gtk_container_remove(
+      GTK_CONTAINER(ui->chats_listbox),
+      widget
+  );
+
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
+      g_object_get_qdata(
+	  G_OBJECT(entry->chat->send_text_view),
+	  app->quarks.data
+      )
+  );
+
+  if (context)
+    GNUNET_CHAT_context_set_user_pointer(context, NULL);
+
+  gtk_container_remove(
+      GTK_CONTAINER(ui->chats_stack),
+      entry->chat->chat_box
+  );
+
+  ui_chat_entry_delete(entry);
+}
+
 void
 event_update_profile(MESSENGER_Application *app)
 {
@@ -198,8 +248,8 @@ event_update_profile(MESSENGER_Application *app)
 
   gtk_container_foreach(
       GTK_CONTAINER(ui->chats_listbox),
-      _clear_each_selectable_widget,
-      ui->chats_listbox
+      _clear_chat_entry,
+      app
   );
 
   gtk_stack_set_visible_child(ui->chats_stack, ui->no_chat_box);
@@ -215,10 +265,17 @@ event_update_chats(MESSENGER_Application *app,
 {
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 
-  if (!handle)
-    _add_new_chat_entry(app, context);
-  else
-    ui_chat_entry_update(handle, app, context);
+  const enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(
+      msg
+  );
+
+  if (GNUNET_CHAT_KIND_JOIN == kind)
+    if (!handle)
+      _add_new_chat_entry(app, context);
+    else
+      ui_chat_entry_update(handle, app, context);
+  else if (handle)
+    _clear_chat_entry(gtk_widget_get_parent(handle->entry_box), app);
 
   contact_create_info(GNUNET_CHAT_message_get_sender(msg));
 }
@@ -243,9 +300,9 @@ _update_contact_context(MESSENGER_Application *app,
 }
 
 void
-event_joining_contact(MESSENGER_Application *app,
-		      struct GNUNET_CHAT_Context *context,
-		      const struct GNUNET_CHAT_Message *msg)
+event_presence_contact(MESSENGER_Application *app,
+		       struct GNUNET_CHAT_Context *context,
+		       const struct GNUNET_CHAT_Message *msg)
 {
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 
@@ -258,6 +315,10 @@ event_joining_contact(MESSENGER_Application *app,
 
   if (!contact)
     return;
+
+  const enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(
+      msg
+  );
 
   UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) (
       GNUNET_CHAT_member_get_user_pointer(context, contact)
@@ -275,15 +336,18 @@ event_joining_contact(MESSENGER_Application *app,
   contact_add_name_avatar_to_info(contact, message->sender_avatar);
   contact_add_name_label_to_info(contact, message->sender_label);
 
-  const gchar *join_message = _("joined the chat");
+  const gchar *presence_message = (
+      GNUNET_CHAT_KIND_JOIN == kind? _("joined the chat") : _("left the chat")
+  );
 
   if (!ui_messenger_is_context_active(&(app->ui.messenger), context))
     _show_notification(
 	app,
 	context,
 	contact,
-	join_message,
-	"avatar-default-symbolic"
+	presence_message,
+	"avatar-default-symbolic",
+	"presence.online"
     );
 
   struct GNUNET_TIME_Absolute timestamp = GNUNET_CHAT_message_get_timestamp(
@@ -292,7 +356,7 @@ event_joining_contact(MESSENGER_Application *app,
 
   const gchar *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
 
-  gtk_label_set_text(message->text_label, join_message);
+  gtk_label_set_text(message->text_label, presence_message);
   gtk_label_set_text(message->timestamp_label, time? time : "");
 
   ui_chat_add_message(handle->chat, app, message);
@@ -370,7 +434,8 @@ event_invitation(MESSENGER_Application *app,
 	context,
 	contact,
 	invite_message,
-	"mail-message-new-symbolic"
+	"mail-message-new-symbolic",
+	"im.received"
     );
 
   gtk_label_set_text(message->text_label, invite_message);
@@ -441,7 +506,8 @@ event_receive_message(MESSENGER_Application *app,
 	context,
 	contact,
 	text,
-	"mail-unread-symbolic"
+	"mail-unread-symbolic",
+	"im.received"
     );
 
   gtk_label_set_text(message->text_label, text? text : "");

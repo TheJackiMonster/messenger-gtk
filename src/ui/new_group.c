@@ -313,4 +313,6 @@ ui_new_group_dialog_cleanup(UI_NEW_GROUP_Handle *handle)
 
   if (handle->contact_entries)
     g_list_free(handle->contact_entries);
+
+  memset(handle, 0, sizeof(*handle));
 }

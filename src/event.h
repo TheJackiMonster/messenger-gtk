@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -28,6 +28,11 @@
 #include "application.h"
 
 void
+event_handle_warning(MESSENGER_Application *app,
+		     struct GNUNET_CHAT_Context *context,
+		     const struct GNUNET_CHAT_Message *msg);
+
+void
 event_refresh_accounts(MESSENGER_Application *app);
 
 void
@@ -39,9 +44,9 @@ event_update_chats(MESSENGER_Application *app,
 		   const struct GNUNET_CHAT_Message *msg);
 
 void
-event_joining_contact(MESSENGER_Application *app,
-		      struct GNUNET_CHAT_Context *context,
-		      const struct GNUNET_CHAT_Message *msg);
+event_presence_contact(MESSENGER_Application *app,
+		       struct GNUNET_CHAT_Context *context,
+		       const struct GNUNET_CHAT_Message *msg);
 
 void
 event_update_contacts(MESSENGER_Application *app,

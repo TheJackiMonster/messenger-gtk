@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -62,4 +62,6 @@ void
 ui_settings_dialog_cleanup(UI_SETTINGS_Handle *handle)
 {
   g_object_unref(handle->builder);
+
+  memset(handle, 0, sizeof(*handle));
 }

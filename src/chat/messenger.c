@@ -101,6 +101,14 @@ _chat_messenger_message(void *cls,
 
   switch (kind)
   {
+    case GNUNET_CHAT_KIND_WARNING:
+      application_call_message_event(
+      	  app,
+      	  event_handle_warning,
+      	  context,
+      	  message
+      );
+      break;
     case GNUNET_CHAT_KIND_REFRESH:
     {
       application_call_event(app, event_refresh_accounts);
@@ -122,21 +130,17 @@ _chat_messenger_message(void *cls,
       break;
     }
     case GNUNET_CHAT_KIND_JOIN:
-    {
-      application_call_message_event(
-	  app,
-	  (GNUNET_YES == GNUNET_CHAT_message_is_sent(message)?
-	      event_update_chats :
-	      event_joining_contact
-	  ),
-	  context,
-	  message
-      );
-      break;
-    }
     case GNUNET_CHAT_KIND_LEAVE:
     {
-      // TODO: add status message
+      application_call_message_event(
+      	  app,
+      	  (GNUNET_YES == GNUNET_CHAT_message_is_sent(message)?
+      	      event_update_chats :
+      	      event_presence_contact
+      	  ),
+      	  context,
+      	  message
+      );
       break;
     }
     case GNUNET_CHAT_KIND_CONTACT:

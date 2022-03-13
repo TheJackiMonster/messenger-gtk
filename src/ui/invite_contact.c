@@ -233,5 +233,5 @@ ui_invite_contact_dialog_cleanup(UI_INVITE_CONTACT_Handle *handle)
 {
   g_object_unref(handle->builder);
 
-  handle->contacts_listbox = NULL;
+  memset(handle, 0, sizeof(*handle));
 }
