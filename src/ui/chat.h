@@ -25,9 +25,11 @@
 #ifndef UI_CHAT_H_
 #define UI_CHAT_H_
 
+#include <gstreamer-1.0/gst/gst.h>
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
 #include <libnotify/notify.h>
+#include <stdio.h>
 
 #include <gnunet/gnunet_chat_lib.h>
 
@@ -39,6 +41,24 @@ typedef struct UI_FILE_LOAD_ENTRY_Handle UI_FILE_LOAD_ENTRY_Handle;
 typedef struct UI_CHAT_Handle
 {
   gboolean recorded;
+  gboolean playing;
+
+  char recording_filename [PATH_MAX];
+
+  guint record_timer;
+  guint record_time;
+
+  guint play_timer;
+  guint play_time;
+
+  GstElement *record_pipeline;
+  GstElement *record_sink;
+
+  GstElement *play_pipeline;
+  GstElement *play_source;
+
+  guint record_watch;
+  guint play_watch;
 
   MESSENGER_Application *app;
 

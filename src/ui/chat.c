@@ -25,15 +25,18 @@
 #include "chat.h"
 
 #include <gdk/gdkkeysyms.h>
+#include <stdlib.h>
 
 #include "file_load_entry.h"
 #include "message.h"
 #include "messenger.h"
 #include "picker.h"
-#include "../application.h"
-#include "../contact.h"
 #include "account_entry.h"
 #include "delete_messages.h"
+
+#include "../application.h"
+#include "../contact.h"
+#include "../file.h"
 
 static gboolean
 _flap_reveal_switch(gpointer user_data)
@@ -389,6 +392,12 @@ _send_text_from_view(MESSENGER_Application *app,
 static void
 _drop_any_recording(UI_CHAT_Handle *handle)
 {
+  if ((handle->play_pipeline) && (handle->playing))
+  {
+    gst_element_set_state(handle->play_pipeline, GST_STATE_NULL);
+    handle->playing = FALSE;
+  }
+
   _update_send_record_symbol(
       gtk_text_view_get_buffer(handle->send_text_view),
       handle->send_record_symbol,
@@ -397,7 +406,30 @@ _drop_any_recording(UI_CHAT_Handle *handle)
 
   gtk_stack_set_visible_child(handle->send_stack, handle->send_text_box);
 
+  if (handle->recording_filename[0])
+    remove(handle->recording_filename);
+
+  handle->recording_filename[0] = 0;
   handle->recorded = FALSE;
+}
+
+static void
+handle_sending_recording_upload_file(UNUSED void *cls,
+				     const struct GNUNET_CHAT_File *file,
+				     uint64_t completed,
+				     uint64_t size)
+{
+  UI_FILE_LOAD_ENTRY_Handle *file_load = cls;
+
+  gtk_progress_bar_set_fraction(
+      file_load->load_progress_bar,
+      1.0 * completed / size
+  );
+
+  file_update_upload_info(file, completed, size);
+
+  if ((completed >= size) && (file_load->chat))
+    ui_chat_remove_file_load(file_load->chat, file_load);
 }
 
 static void
@@ -410,16 +442,41 @@ handle_send_record_button_click(GtkButton *button,
       g_object_get_qdata(G_OBJECT(button), app->quarks.ui)
   );
 
-  if ((handle->recorded) &&
-      (!gtk_revealer_get_child_revealed(handle->picker_revealer)) &&
-      (gtk_stack_get_visible_child(handle->send_stack) ==
-	  handle->send_recording_box))
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
+      g_object_get_qdata(G_OBJECT(handle->send_text_view), app->quarks.data)
+  );
+
+  if ((handle->recorded) && (context) &&
+      (handle->recording_filename[0]) &&
+      (!gtk_revealer_get_child_revealed(handle->picker_revealer)))
   {
-    // TODO: send audio as file!
+    UI_FILE_LOAD_ENTRY_Handle *file_load = ui_file_load_entry_new(app);
+
+    gtk_label_set_text(file_load->file_label, handle->recording_filename);
+    gtk_progress_bar_set_fraction(file_load->load_progress_bar, 0.0);
+
+    struct GNUNET_CHAT_File *file = GNUNET_CHAT_context_send_file(
+	context,
+	handle->recording_filename,
+	handle_sending_recording_upload_file,
+	file_load
+    );
+
+    if (file)
+    {
+      file_create_info(file);
+
+      ui_chat_add_file_load(handle, file_load);
+    }
+    else if (file_load)
+      ui_file_load_entry_delete(file_load);
 
     _drop_any_recording(handle);
     return;
   }
+
+  if (gtk_stack_get_visible_child(handle->send_stack) != handle->send_text_box)
+    return;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
       g_object_get_qdata(G_OBJECT(button), app->quarks.widget)
@@ -439,10 +496,26 @@ handle_send_record_button_pressed(GtkWidget *widget,
       g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
   );
 
-  if ((handle->recorded) ||
+  if ((handle->recorded) || (!(handle->record_pipeline)) ||
+      (handle->recording_filename[0]) ||
       (gtk_revealer_get_child_revealed(handle->picker_revealer)) ||
       (handle->send_text_box != gtk_stack_get_visible_child(handle->send_stack)))
     return FALSE;
+
+  strcpy(handle->recording_filename, "/tmp/rec_XXXXXX.ogg");
+
+  int fd = mkstemps(handle->recording_filename, 4);
+
+  if (-1 == fd)
+    return FALSE;
+  else
+    close(fd);
+
+  if ((handle->play_pipeline) && (handle->playing))
+  {
+    gst_element_set_state(handle->play_pipeline, GST_STATE_NULL);
+    handle->playing = FALSE;
+  }
 
   gtk_image_set_from_icon_name(
       handle->play_pause_symbol,
@@ -456,9 +529,20 @@ handle_send_record_button_pressed(GtkWidget *widget,
       GTK_ICON_SIZE_BUTTON
   );
 
-  gtk_widget_set_sensitive(GTK_WIDGET(handle->recording_play_button), FALSE);
+  gtk_label_set_text(handle->recording_label, "00:00:00");
+  gtk_progress_bar_set_fraction(handle->recording_progress_bar, 0.0);
 
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->recording_play_button), FALSE);
   gtk_stack_set_visible_child(handle->send_stack, handle->send_recording_box);
+
+  g_object_set(
+      G_OBJECT(handle->record_sink),
+      "location",
+      handle->recording_filename,
+      NULL
+  );
+
+  gst_element_set_state(handle->record_pipeline, GST_STATE_PLAYING);
 
   return TRUE;
 }
@@ -474,7 +558,8 @@ handle_send_record_button_released(GtkWidget *widget,
       g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
   );
 
-  if ((handle->recorded) ||
+  if ((handle->recorded) || (!(handle->record_pipeline)) ||
+      (!(handle->recording_filename[0])) ||
       (gtk_revealer_get_child_revealed(handle->picker_revealer)) ||
       (handle->send_recording_box != gtk_stack_get_visible_child(
 	  handle->send_stack)))
@@ -482,8 +567,7 @@ handle_send_record_button_released(GtkWidget *widget,
 
   gtk_widget_set_sensitive(GTK_WIDGET(handle->recording_play_button), TRUE);
 
-  gtk_revealer_set_reveal_child(handle->picker_revealer, FALSE);
-
+  gst_element_set_state(handle->record_pipeline, GST_STATE_NULL);
   handle->recorded = TRUE;
 
   gtk_image_set_from_icon_name(
@@ -521,6 +605,62 @@ handle_recording_close_button_click(UNUSED GtkButton *button,
 }
 
 static void
+_stop_playing_recording(UI_CHAT_Handle *handle,
+			gboolean reset_bar)
+{
+  gst_element_set_state(handle->play_pipeline, GST_STATE_NULL);
+  handle->playing = FALSE;
+
+  gtk_image_set_from_icon_name(
+    handle->play_pause_symbol,
+    "media-playback-start-symbolic",
+    GTK_ICON_SIZE_BUTTON
+  );
+
+  gtk_progress_bar_set_fraction(
+      handle->recording_progress_bar,
+      reset_bar? 0.0 : 1.0
+  );
+
+  if (handle->play_timer)
+  {
+    g_source_remove(handle->play_timer);
+    handle->play_timer = 0;
+  }
+}
+
+static void
+handle_recording_play_button_click(UNUSED GtkButton *button,
+				   gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  if ((!(handle->recorded)) || (!(handle->play_pipeline)))
+    return;
+
+  if (handle->playing)
+    _stop_playing_recording(handle, TRUE);
+  else if (handle->recording_filename[0])
+  {
+    g_object_set(
+	G_OBJECT(handle->play_source),
+	"location",
+	handle->recording_filename,
+	NULL
+    );
+
+    gst_element_set_state(handle->play_pipeline, GST_STATE_PLAYING);
+    handle->playing = TRUE;
+
+    gtk_image_set_from_icon_name(
+	handle->play_pause_symbol,
+    	"media-playback-stop-symbolic",
+    	GTK_ICON_SIZE_BUTTON
+    );
+  }
+}
+
+static void
 handle_picker_button_click(UNUSED GtkButton *button,
 			   gpointer user_data)
 {
@@ -537,6 +677,268 @@ handle_picker_button_click(UNUSED GtkButton *button,
   );
 }
 
+static gboolean
+_record_timer_func(gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  GString *time_string = g_string_new(NULL);
+
+  g_string_printf(
+      time_string,
+      "%02u:%02u:%02u",
+      (handle->record_time / 3600),
+      (handle->record_time / 60) % 60,
+      (handle->record_time % 60)
+  );
+
+  gtk_label_set_text(handle->recording_label, time_string->str);
+  g_string_free(time_string, TRUE);
+
+  if (!(handle->recorded))
+  {
+    handle->record_time++;
+    handle->record_timer = g_timeout_add_seconds(
+	1,
+	_record_timer_func,
+	handle
+    );
+  }
+  else
+    handle->record_timer = 0;
+
+  return FALSE;
+}
+
+static gboolean
+_play_timer_func(gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  if (handle->play_time < handle->record_time * 100)
+    gtk_progress_bar_set_fraction(
+	handle->recording_progress_bar,
+	0.01 * handle->play_time / handle->record_time
+    );
+  else
+    gtk_progress_bar_set_fraction(
+	handle->recording_progress_bar,
+	1.0
+    );
+
+  if (handle->playing)
+  {
+    handle->play_time++;
+    handle->play_timer = g_timeout_add(
+	10,
+	_play_timer_func,
+	handle
+    );
+  }
+  else
+    handle->play_timer = 0;
+
+  return FALSE;
+}
+
+static gboolean
+handle_record_bus_watch(UNUSED GstBus *bus,
+		        GstMessage *msg,
+		        gpointer data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) data;
+  GstMessageType type = GST_MESSAGE_TYPE(msg);
+
+  switch (type)
+  {
+    case GST_MESSAGE_STREAM_START:
+      handle->record_time = 0;
+      handle->record_timer = g_timeout_add_seconds(
+	  0,
+	  _record_timer_func,
+	  handle
+      );
+
+      break;
+    default:
+      break;
+  }
+
+  return TRUE;
+}
+
+static gboolean
+handle_play_bus_watch(UNUSED GstBus *bus,
+		      GstMessage *msg,
+		      gpointer data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) data;
+  GstMessageType type = GST_MESSAGE_TYPE(msg);
+
+  switch (type)
+  {
+    case GST_MESSAGE_STREAM_START:
+      handle->play_time = 0;
+      handle->play_timer = g_timeout_add_seconds(
+	0,
+	_play_timer_func,
+	handle
+      );
+
+      break;
+    case GST_MESSAGE_EOS:
+      if (handle->playing)
+	_stop_playing_recording(handle, FALSE);
+      break;
+    default:
+      break;
+  }
+
+  return TRUE;
+}
+
+static void
+_play_pad_added(UNUSED GstElement *element,
+		GstPad *pad,
+		gpointer data)
+{
+  GstElement *decoder = (GstElement*) data;
+
+  GstPad *sinkpad = gst_element_get_static_pad(decoder, "sink");
+  gst_pad_link(pad, sinkpad);
+  gst_object_unref (sinkpad);
+}
+
+static void
+_setup_gst_pipelines(UI_CHAT_Handle *handle)
+{
+  handle->record_pipeline = gst_pipeline_new("audio-recorder");
+
+  GstElement *audio_source = gst_element_factory_make(
+      "autoaudiosrc",
+      "audio-input"
+  );
+
+  GstElement *audio_converter = gst_element_factory_make(
+      "audioconvert",
+      "audio-converter"
+  );
+
+  GstElement *vorbis_encoder = gst_element_factory_make(
+      "vorbisenc",
+      "vorbis-encoder"
+  );
+
+  GstElement *ogg_muxer = gst_element_factory_make(
+      "oggmux",
+      "ogg-muxer"
+  );
+
+  handle->record_sink = gst_element_factory_make(
+      "filesink",
+      "file-output"
+  );
+
+  gst_bin_add_many(
+      GST_BIN(handle->record_pipeline),
+      audio_source,
+      audio_converter,
+      vorbis_encoder,
+      ogg_muxer,
+      handle->record_sink,
+      NULL
+  );
+
+  gst_element_link_many(
+      audio_source,
+      audio_converter,
+      vorbis_encoder,
+      ogg_muxer,
+      handle->record_sink,
+      NULL
+  );
+
+  {
+    GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(handle->record_pipeline));
+
+    handle->record_watch = gst_bus_add_watch(
+	bus,
+	handle_record_bus_watch,
+	handle
+    );
+
+    gst_object_unref(bus);
+  }
+
+  handle->play_pipeline = gst_pipeline_new("audio-previewer");
+
+  handle->play_source = gst_element_factory_make(
+      "filesrc",
+      "file-input"
+  );
+
+  GstElement *ogg_demuxer = gst_element_factory_make(
+      "oggdemux",
+      "ogg-demuxer"
+  );
+
+  GstElement *vorbis_decoder = gst_element_factory_make(
+      "vorbisdec",
+      "vorbis-decoder"
+  );
+
+  GstElement *audio_play_converter = gst_element_factory_make(
+      "audioconvert",
+      "audio-converter"
+  );
+
+  GstElement *audio_sink = gst_element_factory_make(
+      "autoaudiosink",
+      "audio-output"
+  );
+
+  gst_bin_add_many(
+      GST_BIN(handle->play_pipeline),
+      handle->play_source,
+      ogg_demuxer,
+      vorbis_decoder,
+      audio_play_converter,
+      audio_sink,
+      NULL
+  );
+
+  gst_element_link(
+      handle->play_source,
+      ogg_demuxer
+  );
+
+  gst_element_link_many(
+      vorbis_decoder,
+      audio_play_converter,
+      audio_sink,
+      NULL
+  );
+
+  g_signal_connect(
+      ogg_demuxer,
+      "pad-added",
+      G_CALLBACK(_play_pad_added),
+      vorbis_decoder
+  );
+
+  {
+    GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(handle->play_pipeline));
+
+    handle->play_watch = gst_bus_add_watch(
+      bus,
+      handle_play_bus_watch,
+      handle
+    );
+
+    gst_object_unref(bus);
+  }
+}
+
 UI_CHAT_Handle*
 ui_chat_new(MESSENGER_Application *app)
 {
@@ -545,12 +947,11 @@ ui_chat_new(MESSENGER_Application *app)
   UI_CHAT_Handle *handle = g_malloc(sizeof(UI_CHAT_Handle));
   UI_MESSENGER_Handle *messenger = &(app->ui.messenger);
 
-  handle->recorded = FALSE;
+  memset(handle, 0, sizeof(*handle));
+
+  _setup_gst_pipelines(handle);
 
   handle->app = app;
-
-  handle->messages = NULL;
-  handle->edge_value = 0;
 
   handle->loads = NULL;
 
@@ -845,6 +1246,13 @@ ui_chat_new(MESSENGER_Application *app)
       gtk_builder_get_object(handle->builder, "recording_play_button")
   );
 
+  g_signal_connect(
+      handle->recording_play_button,
+      "clicked",
+      G_CALLBACK(handle_recording_play_button_click),
+      handle
+  );
+
   handle->play_pause_symbol = GTK_IMAGE(
       gtk_builder_get_object(handle->builder, "play_pause_symbol")
   );
@@ -1032,6 +1440,27 @@ ui_chat_delete(UI_CHAT_Handle *handle)
 
   if (handle->loads)
     g_list_free_full(handle->loads, (GDestroyNotify) ui_file_load_entry_delete);
+
+  if (handle->record_pipeline)
+  {
+    gst_element_set_state (handle->record_pipeline, GST_STATE_NULL);
+    gst_object_unref(GST_OBJECT(handle->record_pipeline));
+  }
+
+  if (handle->play_pipeline)
+  {
+    gst_element_set_state (handle->play_pipeline, GST_STATE_NULL);
+    gst_object_unref(GST_OBJECT(handle->play_pipeline));
+  }
+
+  if (handle->recording_filename[0])
+    remove(handle->recording_filename);
+
+  if (handle->record_timer)
+    g_source_remove(handle->record_timer);
+
+  if (handle->play_timer)
+    g_source_remove(handle->play_timer);
 
   g_free(handle);
 }

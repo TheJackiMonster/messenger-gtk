@@ -25,6 +25,11 @@
 #include "application.h"
 #include "resources.h"
 
+#include <gstreamer-1.0/gst/gst.h>
+#include <gtk-3.0/gtk/gtk.h>
+#include <libhandy-1/handy.h>
+#include <libnotify/notify.h>
+
 static void
 _load_ui_stylesheets(MESSENGER_Application *app)
 {
@@ -79,6 +84,7 @@ application_init(MESSENGER_Application *app,
   app->argc = argc;
   app->argv = argv;
 
+  gst_init (&argc, &argv);
   gtk_init(&argc, &argv);
   hdy_init();
 

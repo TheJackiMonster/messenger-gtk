@@ -449,7 +449,7 @@ Author: Tobias Frisch
                               <object class="GtkLabel" id="recording_label">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="label" translatable="yes">00:00</property>
+                                <property name="label" translatable="yes">00:00:00</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>

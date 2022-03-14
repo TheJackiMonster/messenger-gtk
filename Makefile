@@ -39,7 +39,14 @@ RESOURCES = css.gresource.xml\
 			ui.gresource.xml
 
 LIBRARIES = gnunetchat
-PACKAGES  = gnunetutil libhandy-1 gtk+-3.0 libnotify zbar libqrencode
+PACKAGES  = gnunetutil\
+			gstreamer-1.0\
+			gtk+-3.0\
+			libhandy-1\
+			libnotify\
+			libqrencode\
+			zbar
+			
 INCLUDES  = submodules/gnome-characters/lib
 
 GNU_CC ?= gcc
