@@ -82,24 +82,9 @@ _chat_messenger_message(void *cls,
 			const struct GNUNET_CHAT_Message *message)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
-
   pthread_mutex_lock(&(app->chat.mutex));
 
-  const enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(message);
-  const struct GNUNET_CHAT_Contact* sender = GNUNET_CHAT_message_get_sender(message);
-
-  struct GNUNET_TIME_Absolute time = GNUNET_CHAT_message_get_timestamp(message);
-
-  printf("- %d, %lu", kind, time.abs_value_us);
-
-  if (GNUNET_YES == GNUNET_CHAT_message_is_sent(message))
-    printf(", [!]\n");
-  else if (sender)
-    printf(", %s\n", GNUNET_CHAT_contact_get_name(sender));
-  else
-    printf("\n");
-
-  switch (kind)
+  switch (GNUNET_CHAT_message_get_kind(message))
   {
     case GNUNET_CHAT_KIND_WARNING:
       application_call_message_event(
@@ -189,7 +174,6 @@ _chat_messenger_message(void *cls,
   }
 
   pthread_mutex_unlock(&(app->chat.mutex));
-
   return GNUNET_YES;
 }
 

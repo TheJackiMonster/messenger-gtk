@@ -91,6 +91,8 @@ event_handle_warning(MESSENGER_Application *app,
       msg
   );
 
+  fprintf(stderr, "ERROR: %s\n", text);
+
   _show_notification(
       app,
       context,
