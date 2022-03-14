@@ -189,5 +189,7 @@ ui_new_account_dialog_cleanup(UI_NEW_ACCOUNT_Handle *handle)
 {
   g_object_unref(handle->builder);
 
+  guint show = handle->show_queued;
   memset(handle, 0, sizeof(*handle));
+  handle->show_queued = show;
 }
