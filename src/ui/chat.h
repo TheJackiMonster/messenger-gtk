@@ -38,6 +38,8 @@ typedef struct UI_FILE_LOAD_ENTRY_Handle UI_FILE_LOAD_ENTRY_Handle;
 
 typedef struct UI_CHAT_Handle
 {
+  gboolean recorded;
+
   MESSENGER_Application *app;
 
   GList *messages;
@@ -79,11 +81,21 @@ typedef struct UI_CHAT_Handle
   GtkListBox *chat_files_listbox;
   GtkListBox *messages_listbox;
 
+  GtkStack *send_stack;
+  GtkWidget *send_text_box;
+  GtkWidget *send_recording_box;
+
   GtkButton *attach_file_button;
   GtkTextView *send_text_view;
   GtkButton *emoji_button;
   GtkButton *send_record_button;
   GtkImage *send_record_symbol;
+
+  GtkButton *recording_close_button;
+  GtkButton *recording_play_button;
+  GtkImage *play_pause_symbol;
+  GtkLabel *recording_label;
+  GtkProgressBar *recording_progress_bar;
 
   GtkRevealer *picker_revealer;
 

@@ -328,11 +328,10 @@ close_dialog:
 }
 
 static void
-handle_send_text_buffer_changed(GtkTextBuffer *buffer,
-				gpointer user_data)
+_update_send_record_symbol(GtkTextBuffer *buffer,
+			   GtkImage *symbol,
+			   gboolean picker_revealed)
 {
-  GtkImage *symbol = GTK_IMAGE(user_data);
-
   GtkTextIter start, end;
   gtk_text_buffer_get_start_iter(buffer, &start);
   gtk_text_buffer_get_end_iter(buffer, &end);
@@ -341,10 +340,23 @@ handle_send_text_buffer_changed(GtkTextBuffer *buffer,
 
   gtk_image_set_from_icon_name(
       symbol,
-      0 < strlen(text)?
+      (0 < strlen(text)) || (picker_revealed)?
       "mail-send-symbolic" :
       "audio-input-microphone-symbolic",
       GTK_ICON_SIZE_BUTTON
+  );
+}
+
+static void
+handle_send_text_buffer_changed(GtkTextBuffer *buffer,
+				gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  _update_send_record_symbol(
+      buffer,
+      handle->send_record_symbol,
+      gtk_revealer_get_child_revealed(handle->picker_revealer)
   );
 }
 
@@ -375,19 +387,112 @@ _send_text_from_view(MESSENGER_Application *app,
 }
 
 static void
+_drop_any_recording(UI_CHAT_Handle *handle)
+{
+  _update_send_record_symbol(
+      gtk_text_view_get_buffer(handle->send_text_view),
+      handle->send_record_symbol,
+      FALSE
+  );
+
+  gtk_stack_set_visible_child(handle->send_stack, handle->send_text_box);
+
+  handle->recorded = FALSE;
+}
+
+static void
 handle_send_record_button_click(GtkButton *button,
 				gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
+      g_object_get_qdata(G_OBJECT(button), app->quarks.ui)
+  );
+
+  if ((handle->recorded) &&
+      (!gtk_revealer_get_child_revealed(handle->picker_revealer)) &&
+      (gtk_stack_get_visible_child(handle->send_stack) ==
+	  handle->send_recording_box))
+  {
+    // TODO: send audio as file!
+
+    _drop_any_recording(handle);
+    return;
+  }
+
   GtkTextView *text_view = GTK_TEXT_VIEW(
       g_object_get_qdata(G_OBJECT(button), app->quarks.widget)
   );
 
-  if (!_send_text_from_view(app, text_view))
-  {
-    // TODO: record audio and attach as file?
-  }
+  _send_text_from_view(app, text_view);
+}
+
+static gboolean
+handle_send_record_button_pressed(GtkWidget *widget,
+				  UNUSED GdkEvent *event,
+				  gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
+      g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
+  );
+
+  if ((handle->recorded) ||
+      (gtk_revealer_get_child_revealed(handle->picker_revealer)) ||
+      (handle->send_text_box != gtk_stack_get_visible_child(handle->send_stack)))
+    return FALSE;
+
+  gtk_image_set_from_icon_name(
+      handle->play_pause_symbol,
+      "media-playback-start-symbolic",
+      GTK_ICON_SIZE_BUTTON
+  );
+
+  gtk_image_set_from_icon_name(
+      handle->send_record_symbol,
+      "media-record-symbolic",
+      GTK_ICON_SIZE_BUTTON
+  );
+
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->recording_play_button), FALSE);
+
+  gtk_stack_set_visible_child(handle->send_stack, handle->send_recording_box);
+
+  return TRUE;
+}
+
+static gboolean
+handle_send_record_button_released(GtkWidget *widget,
+				   UNUSED GdkEvent *event,
+				   gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
+      g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
+  );
+
+  if ((handle->recorded) ||
+      (gtk_revealer_get_child_revealed(handle->picker_revealer)) ||
+      (handle->send_recording_box != gtk_stack_get_visible_child(
+	  handle->send_stack)))
+    return FALSE;
+
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->recording_play_button), TRUE);
+
+  gtk_revealer_set_reveal_child(handle->picker_revealer, FALSE);
+
+  handle->recorded = TRUE;
+
+  gtk_image_set_from_icon_name(
+      handle->send_record_symbol,
+      "mail-send-symbolic",
+      GTK_ICON_SIZE_BUTTON
+  );
+
+  return TRUE;
 }
 
 static gboolean
@@ -407,13 +512,29 @@ handle_send_text_key_press (GtkWidget *widget,
 }
 
 static void
+handle_recording_close_button_click(UNUSED GtkButton *button,
+				    gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  _drop_any_recording(handle);
+}
+
+static void
 handle_picker_button_click(UNUSED GtkButton *button,
 			   gpointer user_data)
 {
-  GtkRevealer *revealer = GTK_REVEALER(user_data);
-  gboolean reveal = !gtk_revealer_get_child_revealed(revealer);
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
-  gtk_revealer_set_reveal_child(revealer, reveal);
+  gboolean reveal = !gtk_revealer_get_child_revealed(handle->picker_revealer);
+
+  gtk_revealer_set_reveal_child(handle->picker_revealer, reveal);
+
+  _update_send_record_symbol(
+      gtk_text_view_get_buffer(handle->send_text_view),
+      handle->send_record_symbol,
+      reveal
+  );
 }
 
 UI_CHAT_Handle*
@@ -423,6 +544,8 @@ ui_chat_new(MESSENGER_Application *app)
 
   UI_CHAT_Handle *handle = g_malloc(sizeof(UI_CHAT_Handle));
   UI_MESSENGER_Handle *messenger = &(app->ui.messenger);
+
+  handle->recorded = FALSE;
 
   handle->app = app;
 
@@ -605,6 +728,18 @@ ui_chat_new(MESSENGER_Application *app)
       handle
   );
 
+  handle->send_stack = GTK_STACK(
+      gtk_builder_get_object(handle->builder, "send_stack")
+  );
+
+  handle->send_text_box = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder, "send_text_box")
+  );
+
+  handle->send_recording_box = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder, "send_recording_box")
+  );
+
   handle->attach_file_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "attach_file_button")
   );
@@ -640,13 +775,27 @@ ui_chat_new(MESSENGER_Application *app)
       send_text_buffer,
       "changed",
       G_CALLBACK(handle_send_text_buffer_changed),
-      handle->send_record_symbol
+      handle
   );
 
   g_signal_connect(
       handle->send_record_button,
       "clicked",
       G_CALLBACK(handle_send_record_button_click),
+      app
+  );
+
+  g_signal_connect(
+      handle->send_record_button,
+      "button-press-event",
+      G_CALLBACK(handle_send_record_button_pressed),
+      app
+  );
+
+  g_signal_connect(
+      handle->send_record_button,
+      "button-release-event",
+      G_CALLBACK(handle_send_record_button_released),
       app
   );
 
@@ -675,6 +824,39 @@ ui_chat_new(MESSENGER_Application *app)
       handle->send_text_view
   );
 
+  g_object_set_qdata(
+      G_OBJECT(handle->send_record_button),
+      app->quarks.ui,
+      handle
+  );
+
+  handle->recording_close_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "recording_close_button")
+  );
+
+  g_signal_connect(
+      handle->recording_close_button,
+      "clicked",
+      G_CALLBACK(handle_recording_close_button_click),
+      handle
+  );
+
+  handle->recording_play_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "recording_play_button")
+  );
+
+  handle->play_pause_symbol = GTK_IMAGE(
+      gtk_builder_get_object(handle->builder, "play_pause_symbol")
+  );
+
+  handle->recording_label = GTK_LABEL(
+      gtk_builder_get_object(handle->builder, "recording_label")
+  );
+
+  handle->recording_progress_bar = GTK_PROGRESS_BAR(
+      gtk_builder_get_object(handle->builder, "recording_progress_bar")
+  );
+
   handle->picker_revealer = GTK_REVEALER(
       gtk_builder_get_object(handle->builder, "picker_revealer")
   );
@@ -690,7 +872,7 @@ ui_chat_new(MESSENGER_Application *app)
       handle->emoji_button,
       "clicked",
       G_CALLBACK(handle_picker_button_click),
-      handle->picker_revealer
+      handle
   );
 
   return handle;
