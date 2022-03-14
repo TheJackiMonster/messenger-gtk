@@ -492,6 +492,21 @@ handle_send_record_button_pressed(GtkWidget *widget,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
+  GtkTextView *text_view = GTK_TEXT_VIEW(
+      g_object_get_qdata(G_OBJECT(widget), app->quarks.widget)
+  );
+
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
+
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(buffer, &start);
+  gtk_text_buffer_get_end_iter(buffer, &end);
+
+  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+
+  if (0 < strlen(text))
+    return FALSE;
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
       g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
   );
@@ -553,6 +568,21 @@ handle_send_record_button_released(GtkWidget *widget,
 				   gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  GtkTextView *text_view = GTK_TEXT_VIEW(
+      g_object_get_qdata(G_OBJECT(widget), app->quarks.widget)
+  );
+
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
+
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(buffer, &start);
+  gtk_text_buffer_get_end_iter(buffer, &end);
+
+  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+
+  if (0 < strlen(text))
+    return FALSE;
 
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
       g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
