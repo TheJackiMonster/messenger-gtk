@@ -103,11 +103,100 @@ event_handle_warning(MESSENGER_Application *app,
   );
 }
 
+static gboolean
+_idle_refresh_accounts(gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  if (!(app->ui.messenger.main_window))
+    goto refresh_exit;
+
+  if (gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
+    ui_messenger_refresh(app, &(app->ui.messenger));
+  else
+    ui_accounts_dialog_refresh(app, &(app->ui.accounts));
+
+refresh_exit:
+  app->ui.messenger.account_refresh = 0;
+  return FALSE;
+}
+
 void
 event_refresh_accounts(MESSENGER_Application *app)
 {
-  ui_accounts_dialog_refresh(app, &(app->ui.accounts));
-  ui_messenger_refresh(app, &(app->ui.messenger));
+  if (app->ui.messenger.account_refresh)
+    g_source_remove(app->ui.messenger.account_refresh);
+
+  if (app->ui.messenger.main_window)
+    app->ui.messenger.account_refresh = g_idle_add(
+	G_SOURCE_FUNC(_idle_refresh_accounts),
+	app
+    );
+  else
+    app->ui.messenger.account_refresh = 0;
+}
+
+static gboolean
+_select_chat_to_activate(gpointer user_data)
+{
+  UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) user_data;
+
+  if (!(entry->chat))
+    return FALSE;
+
+  MESSENGER_Application *app = entry->chat->app;
+
+  if (!app)
+    return FALSE;
+
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
+      gtk_widget_get_parent(entry->entry_box)
+  );
+
+  gtk_list_box_select_row(ui->chats_listbox, row);
+  gtk_list_box_invalidate_filter(ui->chats_listbox);
+
+  gtk_widget_activate(GTK_WIDGET(row));
+
+  ui->chat_selection = 0;
+  return FALSE;
+}
+
+static gboolean
+_idle_chat_entry_update(gpointer user_data)
+{
+  UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) user_data;
+
+  if ((!(entry->chat)) || (!(entry->chat->app)) ||
+      (!(entry->chat->send_text_view)))
+    goto update_exit;
+
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
+      g_object_get_qdata(
+	  G_OBJECT(entry->chat->send_text_view),
+	  entry->chat->app->quarks.data
+      )
+  );
+
+  ui_chat_entry_update(entry, entry->chat->app, context);
+
+update_exit:
+  entry->update = 0;
+  return FALSE;
+}
+
+static void
+enqueue_chat_entry_update(UI_CHAT_ENTRY_Handle *entry)
+{
+  if (entry->update)
+    g_source_remove(entry->update);
+
+  entry->update = g_idle_add(
+      G_SOURCE_FUNC(_idle_chat_entry_update),
+      entry
+  );
 }
 
 static void
@@ -117,7 +206,7 @@ _add_new_chat_entry(MESSENGER_Application *app,
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new(app);
 
-  ui_chat_entry_update(entry, app, context);
+  enqueue_chat_entry_update(entry);
 
   gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
   GNUNET_CHAT_context_set_user_pointer(context, entry);
@@ -145,10 +234,13 @@ _add_new_chat_entry(MESSENGER_Application *app,
       entry
   );
 
-  gtk_list_box_select_row(ui->chats_listbox, row);
-  gtk_list_box_invalidate_filter(ui->chats_listbox);
+  if (ui->chat_selection)
+    g_source_remove(ui->chat_selection);
 
-  gtk_widget_activate(GTK_WIDGET(row));
+  ui->chat_selection = g_idle_add(
+      G_SOURCE_FUNC(_select_chat_to_activate),
+      entry
+  );
 }
 
 static int
@@ -275,7 +367,7 @@ event_update_chats(MESSENGER_Application *app,
     if (!handle)
       _add_new_chat_entry(app, context);
     else
-      ui_chat_entry_update(handle, app, context);
+      enqueue_chat_entry_update(handle);
   else if (handle)
     _clear_chat_entry(gtk_widget_get_parent(handle->entry_box), app);
 
@@ -298,7 +390,7 @@ _update_contact_context(MESSENGER_Application *app,
   if (!handle)
     return;
 
-  ui_chat_entry_update(handle, app, context);
+  enqueue_chat_entry_update(handle);
 }
 
 void
@@ -365,7 +457,7 @@ event_presence_contact(MESSENGER_Application *app,
 
   GNUNET_CHAT_member_set_user_pointer(context, contact, message);
 
-  ui_chat_entry_update(handle, app, context);
+  enqueue_chat_entry_update(handle);
 }
 
 void
@@ -388,7 +480,7 @@ event_update_contacts(MESSENGER_Application *app,
   if (!handle)
     return;
 
-  ui_chat_entry_update(handle, app, context);
+  enqueue_chat_entry_update(handle);
 }
 
 static void
@@ -453,7 +545,8 @@ event_invitation(MESSENGER_Application *app,
   gtk_widget_show(GTK_WIDGET(message->accept_button));
 
   ui_chat_add_message(handle->chat, app, message);
-  ui_chat_entry_update(handle, app, context);
+
+  enqueue_chat_entry_update(handle);
 }
 
 void
@@ -518,7 +611,7 @@ event_receive_message(MESSENGER_Application *app,
   ui_chat_add_message(handle->chat, app, message);
 
 skip_message:
-  ui_chat_entry_update(handle, app, context);
+  enqueue_chat_entry_update(handle);
 }
 
 void
@@ -546,5 +639,5 @@ event_delete_message(MESSENGER_Application *app,
     messages = messages->next;
   }
 
-  ui_chat_entry_update(handle, app, context);
+  enqueue_chat_entry_update(handle);
 }

@@ -280,31 +280,12 @@ handle_main_window_destroy(UNUSED GtkWidget *window,
   application_exit(app, MESSENGER_QUIT);
 }
 
-static void
-_switch_accounts_listbox_connection(MESSENGER_Application *app,
-				    UI_MESSENGER_Handle *handle,
-				    gboolean enabled)
-{
-  if (enabled)
-    handle->accounts_signal = g_signal_connect(
-	handle->accounts_listbox,
-	"row-activated",
-	G_CALLBACK(handle_accounts_listbox_row_activated),
-	app
-    );
-  else
-    g_signal_handler_disconnect(
-	handle->accounts_listbox,
-	handle->accounts_signal
-    );
-}
-
 void
 ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle)
 {
+  memset(handle, 0, sizeof(*handle));
   handle->app = app;
-  handle->chat_entries = NULL;
 
   handle->builder = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/messenger.ui")
@@ -415,7 +396,12 @@ ui_messenger_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "add_account_listbox_row")
   );
 
-  _switch_accounts_listbox_connection(app, handle, TRUE);
+  g_signal_connect(
+      handle->accounts_listbox,
+      "row-activated",
+      G_CALLBACK(handle_accounts_listbox_row_activated),
+      app
+  );
 
   handle->new_contact_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "new_contact_button")
@@ -582,8 +568,6 @@ ui_messenger_refresh(MESSENGER_Application *app,
   if (!(handle->accounts_listbox))
     return;
 
-  _switch_accounts_listbox_connection(app, handle, FALSE);
-
   gtk_container_foreach(
       GTK_CONTAINER(handle->accounts_listbox),
       _clear_accounts_listbox,
@@ -595,8 +579,6 @@ ui_messenger_refresh(MESSENGER_Application *app,
       _messenger_iterate_accounts,
       app
   );
-
-  _switch_accounts_listbox_connection(app, handle, TRUE);
 }
 
 gboolean
@@ -625,6 +607,12 @@ ui_messenger_cleanup(UI_MESSENGER_Handle *handle)
 
   if (handle->chat_entries)
     g_list_free_full(handle->chat_entries, (GDestroyNotify) ui_chat_entry_delete);
+
+  if (handle->chat_selection)
+    g_source_remove(handle->chat_selection);
+
+  if (handle->account_refresh)
+    g_source_remove(handle->account_refresh);
 
   memset(handle, 0, sizeof(*handle));
 }

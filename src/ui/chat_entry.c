@@ -34,6 +34,8 @@ ui_chat_entry_new(MESSENGER_Application *app)
 {
   UI_CHAT_ENTRY_Handle* handle = g_malloc(sizeof(UI_CHAT_ENTRY_Handle));
 
+  memset(handle, 0, sizeof(*handle));
+
   handle->chat = ui_chat_new(app);
   handle->builder = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/chat_entry.ui")
@@ -152,6 +154,9 @@ ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle)
   ui_chat_delete(handle->chat);
 
   g_object_unref(handle->builder);
+
+  if (handle->update)
+    g_source_remove(handle->update);
 
   g_free(handle);
 }

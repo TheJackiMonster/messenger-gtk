@@ -29,6 +29,8 @@
 
 typedef struct UI_CHAT_ENTRY_Handle
 {
+  guint update;
+
   UI_CHAT_Handle *chat;
   GtkBuilder *builder;
 

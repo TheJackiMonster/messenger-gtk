@@ -38,6 +38,8 @@ typedef struct UI_MESSENGER_Handle
   MESSENGER_Application *app;
 
   GList *chat_entries;
+  guint chat_selection;
+  guint account_refresh;
 
   GtkBuilder *builder;
   GtkApplicationWindow *main_window;
@@ -72,8 +74,6 @@ typedef struct UI_MESSENGER_Handle
 
   GtkStack *chats_stack;
   GtkWidget *no_chat_box;
-
-  gulong accounts_signal;
 } UI_MESSENGER_Handle;
 
 void

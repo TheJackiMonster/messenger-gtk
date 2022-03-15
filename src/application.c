@@ -239,7 +239,10 @@ _application_event_call(gpointer user_data)
   MESSENGER_ApplicationEventCall *call;
 
   call = (MESSENGER_ApplicationEventCall*) user_data;
+
+  pthread_mutex_lock(&(call->app->chat.mutex));
   call->event(call->app);
+  pthread_mutex_unlock(&(call->app->chat.mutex));
 
   GNUNET_free(call);
   return FALSE;
@@ -258,7 +261,7 @@ application_call_event(MESSENGER_Application *app,
   call->app = app;
   call->event = event;
 
-  g_idle_add(G_SOURCE_FUNC(_application_event_call), call);
+  g_timeout_add(0, G_SOURCE_FUNC(_application_event_call), call);
 }
 
 typedef struct MESSENGER_ApplicationMessageEventCall
