@@ -71,7 +71,7 @@ ui_chat_entry_new(MESSENGER_Application *app)
 void
 ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 		     MESSENGER_Application *app,
-		     const struct GNUNET_CHAT_Context *context)
+		     struct GNUNET_CHAT_Context *context)
 {
   const struct GNUNET_CHAT_Contact* contact;
   const struct GNUNET_CHAT_Group* group;
@@ -106,9 +106,6 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
     return;
 
   ui_chat_update(handle->chat, app, context);
-
-  hdy_avatar_set_text(handle->chat->chat_avatar, title? title : "");
-  hdy_avatar_set_icon_name(handle->chat->chat_avatar, icon);
 
   if (!(handle->chat->messages))
     return;
@@ -159,4 +156,35 @@ ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle)
     g_source_remove(handle->update);
 
   g_free(handle);
+}
+
+void
+ui_chat_entry_dispose(UI_CHAT_ENTRY_Handle *handle,
+		      MESSENGER_Application *app)
+{
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+
+  ui->chat_entries = g_list_remove(ui->chat_entries, handle);
+
+  gtk_container_remove(
+      GTK_CONTAINER(ui->chats_listbox),
+      gtk_widget_get_parent(handle->entry_box)
+  );
+
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
+      g_object_get_qdata(
+	G_OBJECT(handle->chat->send_text_view),
+	app->quarks.data
+      )
+  );
+
+  if (context)
+    GNUNET_CHAT_context_set_user_pointer(context, NULL);
+
+  gtk_container_remove(
+      GTK_CONTAINER(ui->chats_stack),
+      handle->chat->chat_box
+  );
+
+  ui_chat_entry_delete(handle);
 }

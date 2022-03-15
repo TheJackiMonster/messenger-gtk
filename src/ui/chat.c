@@ -27,6 +27,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <stdlib.h>
 
+#include "chat_entry.h"
 #include "file_load_entry.h"
 #include "message.h"
 #include "messenger.h"
@@ -152,6 +153,55 @@ handle_back_button_click(UNUSED GtkButton *button,
   if (children) {
     hdy_leaflet_set_visible_child(leaflet, GTK_WIDGET(children->data));
   }
+}
+
+static void
+handle_reveal_identity_button_click(UNUSED GtkButton *button,
+				    gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  // TODO
+}
+
+static void
+handle_leave_chat_button_click(UNUSED GtkButton *button,
+			       gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  if ((!handle) || (!(handle->send_text_view)))
+    return;
+
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
+      g_object_get_qdata(
+	G_OBJECT(handle->send_text_view),
+	handle->app->quarks.data
+      )
+  );
+
+  if (!context)
+    return;
+
+  struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_context_get_contact(
+      context
+  );
+
+  struct GNUNET_CHAT_Group *group = GNUNET_CHAT_context_get_group(
+      context
+  );
+
+  if (contact)
+    GNUNET_CHAT_contact_delete(contact);
+  else if (group)
+    GNUNET_CHAT_group_leave(group);
+
+  UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(context);
+
+  if ((!entry) || (!(handle->app)))
+    return;
+
+  ui_chat_entry_dispose(entry, handle->app);
 }
 
 static gint
@@ -1089,6 +1139,40 @@ ui_chat_new(MESSENGER_Application *app)
       gtk_builder_get_object(handle->builder, "chat_details_contacts_box")
   );
 
+  handle->chat_details_files_box = GTK_BOX(
+      gtk_builder_get_object(handle->builder, "chat_details_files_box")
+  );
+
+  handle->chat_details_avatar = HDY_AVATAR(
+      gtk_builder_get_object(handle->builder, "chat_details_avatar")
+  );
+
+  handle->reveal_identity_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "reveal_identity_button")
+  );
+
+  g_signal_connect(
+      handle->reveal_identity_button,
+      "clicked",
+      G_CALLBACK(handle_reveal_identity_button_click),
+      handle
+  );
+
+  handle->leave_chat_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "leave_chat_button")
+  );
+
+  g_signal_connect(
+      handle->leave_chat_button,
+      "clicked",
+      G_CALLBACK(handle_leave_chat_button_click),
+      handle
+  );
+
+  handle->chat_notifications_switch = GTK_SWITCH(
+      gtk_builder_get_object(handle->builder, "chat_notifications_switch")
+  );
+
   handle->selection_close_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "selection_close_button")
   );
@@ -1355,7 +1439,7 @@ iterate_ui_chat_update_group_contacts(void *cls,
 void
 ui_chat_update(UI_CHAT_Handle *handle,
 	       MESSENGER_Application *app,
-	       const struct GNUNET_CHAT_Context* context)
+	       struct GNUNET_CHAT_Context* context)
 {
   GNUNET_assert((handle) && (app) && (context));
 
@@ -1366,13 +1450,23 @@ ui_chat_update(UI_CHAT_Handle *handle,
   group = GNUNET_CHAT_context_get_group(context);
 
   const char *title = NULL;
+  const char *icon = "action-unavailable-symbolic";
+
   GString *subtitle = g_string_new("");
 
   if (contact)
+  {
     title = GNUNET_CHAT_contact_get_name(contact);
+    icon = "avatar-default-symbolic";
+  }
   else if (group)
   {
     title = GNUNET_CHAT_group_get_name(group);
+
+    if ((title) && ('#' == *title))
+      icon = "network-wired-symbolic";
+    else
+      icon = "system-users-symbolic";
 
     g_string_append_printf(
 	subtitle,
@@ -1380,6 +1474,12 @@ ui_chat_update(UI_CHAT_Handle *handle,
 	GNUNET_CHAT_group_iterate_contacts(group, NULL, NULL)
     );
   }
+
+  hdy_avatar_set_text(handle->chat_avatar, title? title : "");
+  hdy_avatar_set_icon_name(handle->chat_avatar, icon);
+
+  hdy_avatar_set_text(handle->chat_details_avatar, title? title : "");
+  hdy_avatar_set_icon_name(handle->chat_details_avatar, icon);
 
   if (title)
   {
@@ -1422,6 +1522,16 @@ ui_chat_update(UI_CHAT_Handle *handle,
   gtk_widget_set_visible(
       GTK_WIDGET(handle->chat_details_contacts_box),
       group? TRUE : FALSE
+  );
+
+  gtk_widget_set_visible(
+      GTK_WIDGET(handle->reveal_identity_button),
+      contact? TRUE : FALSE
+  );
+
+  gtk_widget_set_sensitive(
+      GTK_WIDGET(handle->leave_chat_button),
+      (contact) || (group)? TRUE : FALSE
   );
 
   const int status = GNUNET_CHAT_context_get_status(context);

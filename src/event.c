@@ -284,8 +284,6 @@ _clear_chat_entry(GtkWidget *widget,
 		  gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
-
-  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(widget);
 
   if (!gtk_list_box_row_get_selectable(row))
@@ -296,29 +294,7 @@ _clear_chat_entry(GtkWidget *widget,
       app->quarks.ui
   );
 
-  ui->chat_entries = g_list_remove(ui->chat_entries, entry);
-
-  gtk_container_remove(
-      GTK_CONTAINER(ui->chats_listbox),
-      widget
-  );
-
-  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-      g_object_get_qdata(
-	  G_OBJECT(entry->chat->send_text_view),
-	  app->quarks.data
-      )
-  );
-
-  if (context)
-    GNUNET_CHAT_context_set_user_pointer(context, NULL);
-
-  gtk_container_remove(
-      GTK_CONTAINER(ui->chats_stack),
-      entry->chat->chat_box
-  );
-
-  ui_chat_entry_delete(entry);
+  ui_chat_entry_dispose(entry, app);
 }
 
 void
@@ -375,8 +351,7 @@ event_update_chats(MESSENGER_Application *app,
 }
 
 static void
-_update_contact_context(MESSENGER_Application *app,
-			struct GNUNET_CHAT_Contact *contact)
+_update_contact_context(struct GNUNET_CHAT_Contact *contact)
 {
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
       contact
@@ -425,7 +400,7 @@ event_presence_contact(MESSENGER_Application *app,
   ui_message_update(message, app, msg);
 
   contact_create_info(contact);
-  _update_contact_context(app, contact);
+  _update_contact_context(contact);
 
   contact_add_name_avatar_to_info(contact, message->sender_avatar);
   contact_add_name_label_to_info(contact, message->sender_label);
@@ -461,7 +436,7 @@ event_presence_contact(MESSENGER_Application *app,
 }
 
 void
-event_update_contacts(MESSENGER_Application *app,
+event_update_contacts(UNUSED MESSENGER_Application *app,
 		      struct GNUNET_CHAT_Context *context,
 		      const struct GNUNET_CHAT_Message *msg)
 {
@@ -473,7 +448,7 @@ event_update_contacts(MESSENGER_Application *app,
     return;
 
   contact_update_info(contact);
-  _update_contact_context(app, contact);
+  _update_contact_context(contact);
 
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 

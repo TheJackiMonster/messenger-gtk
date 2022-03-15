@@ -90,6 +90,14 @@ typedef struct UI_CHAT_Handle
   GtkLabel *chat_details_label;
   GtkButton *hide_chat_details_button;
   GtkBox *chat_details_contacts_box;
+  GtkBox *chat_details_files_box;
+
+  HdyAvatar *chat_details_avatar;
+
+  GtkButton *reveal_identity_button;
+  GtkButton *leave_chat_button;
+
+  GtkSwitch *chat_notifications_switch;
 
   GtkButton *selection_close_button;
   GtkLabel *selection_count_label;
@@ -128,7 +136,7 @@ ui_chat_new(MESSENGER_Application *app);
 void
 ui_chat_update(UI_CHAT_Handle *handle,
 	       MESSENGER_Application *app,
-	       const struct GNUNET_CHAT_Context* context);
+	       struct GNUNET_CHAT_Context* context);
 
 void
 ui_chat_delete(UI_CHAT_Handle *handle);
