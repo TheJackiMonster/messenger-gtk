@@ -13,11 +13,13 @@ SOURCES = messenger_gtk.c\
 		  file.c\
 		  resources.c\
 		  chat/messenger.c\
+		  ui/about.c\
 		  ui/account_entry.c\
 		  ui/accounts.c\
 		  ui/chat_entry.c\
 		  ui/chat.c\
 		  ui/contact_entry.c\
+		  ui/contact_info.c\
 		  ui/contacts.c\
 		  ui/delete_messages.c\
 		  ui/file_load_entry.c\
@@ -118,6 +120,7 @@ install:
 	$(foreach SIZE,$(ICON_SIZES),$(call install-icon,$(SIZE));)
 	install -Dm644 $(addprefix $(APPICON_DIR), full_color.svg) $(addprefix $(INSTALL_DIR), share/icons/hicolor/scalable/apps/$(APP_ID).svg)
 	desktop-file-install --dir=$(addprefix $(INSTALL_DIR), share/applications/) $(addprefix $(RESOURCES_DIR), $(APP_ID).desktop)
+	gtk-update-icon-cache -f -t $(addprefix $(INSTALL_DIR), share/icons/hicolor)
 
 .PHONY: uninstall
 

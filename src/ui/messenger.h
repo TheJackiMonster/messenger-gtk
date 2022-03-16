@@ -67,6 +67,7 @@ typedef struct UI_MESSENGER_Handle
   GtkButton *new_platform_button;
   GtkButton *contacts_button;
   GtkButton *settings_button;
+  GtkButton *about_button;
 
   GtkButton *user_details_button;
   GtkSearchEntry *chats_search;

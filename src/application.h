@@ -30,6 +30,7 @@
 
 #include "chat/messenger.h"
 
+#include "ui/about.h"
 #include "ui/accounts.h"
 #include "ui/contacts.h"
 #include "ui/delete_messages.h"
@@ -44,6 +45,16 @@
 #include "ui/settings.h"
 
 #include "util.h"
+
+#define MESSENGER_APPLICATION_APPNAME "GNUnet Messenger"
+#define MESSENGER_APPLICATION_BINARY "messenger-gtk"
+#define MESSENGER_APPLICATION_ID "org.gnunet.Messenger"
+#define MESSENGER_APPLICATION_NAME "Messenger-GTK"
+#define MESSENGER_APPLICATION_DESCRIPTION \
+  "A GTK based GUI for the Messenger service of GNUnet."
+#define MESSENGER_APPLICATION_TITLE "Messenger"
+#define MESSENGER_APPLICATION_SUBTITLE "GNUnet"
+#define MESSENGER_APPLICATION_VERSION "0.0.1"
 
 typedef enum MESSENGER_ApplicationSignal
 {
@@ -81,6 +92,7 @@ typedef struct MESSENGER_Application
     int status;
 
     UI_MESSENGER_Handle messenger;
+    UI_ABOUT_Handle about;
 
     UI_INVITE_CONTACT_Handle invite_contact;
     UI_SEND_FILE_Handle send_file;

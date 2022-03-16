@@ -89,13 +89,13 @@ application_init(MESSENGER_Application *app,
   hdy_init();
 
   app->application = gtk_application_new(
-      "org.gnunet.Messenger",
+      MESSENGER_APPLICATION_ID,
       G_APPLICATION_NON_UNIQUE
   );
 
   resources_register();
 
-  notify_init("Messenger-GTK");
+  notify_init(MESSENGER_APPLICATION_NAME);
   app->notifications = NULL;
 
   _load_ui_stylesheets(app);
@@ -177,8 +177,8 @@ _application_chat_thread(void *args)
   app->chat.status = (GNUNET_PROGRAM_run(
       app->argc,
       app->argv,
-      "messenger-gtk",
-      gettext_noop("A GTK based GUI for the Messenger service of GNUnet."),
+      MESSENGER_APPLICATION_BINARY,
+      gettext_noop(MESSENGER_APPLICATION_DESCRIPTION),
       options,
       &chat_messenger_run,
       app

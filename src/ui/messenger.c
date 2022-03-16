@@ -140,9 +140,7 @@ handle_new_contact_button_click(UNUSED GtkButton* button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
-
   ui_new_contact_dialog_init(app, &(app->ui.new_contact));
-
   gtk_widget_show(GTK_WIDGET(app->ui.new_contact.dialog));
 }
 
@@ -153,9 +151,7 @@ handle_new_group_button_click(UNUSED GtkButton* button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
-
   ui_new_group_dialog_init(app, &(app->ui.new_group));
-
   gtk_widget_show(GTK_WIDGET(app->ui.new_group.dialog));
 }
 
@@ -166,9 +162,7 @@ handle_new_platform_button_click(UNUSED GtkButton* button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
-
   ui_new_platform_dialog_init(app, &(app->ui.new_platform));
-
   gtk_widget_show(GTK_WIDGET(app->ui.new_platform.dialog));
 }
 
@@ -179,9 +173,7 @@ handle_contacts_button_click(UNUSED GtkButton* button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
-
   ui_contacts_dialog_init(app, &(app->ui.contacts));
-
   gtk_widget_show(GTK_WIDGET(app->ui.contacts.dialog));
 }
 
@@ -192,10 +184,19 @@ handle_settings_button_click(UNUSED GtkButton* button,
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
-
   ui_settings_dialog_init(app, &(app->ui.settings));
-
   gtk_widget_show(GTK_WIDGET(app->ui.settings.dialog));
+}
+
+static void
+handle_about_button_click(UNUSED GtkButton* button,
+			  gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
+  ui_about_dialog_init(app, &(app->ui.about));
+  gtk_widget_show(GTK_WIDGET(app->ui.about.dialog));
 }
 
 static void
@@ -295,6 +296,16 @@ ui_messenger_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "main_window")
   );
 
+  gtk_window_set_startup_id(
+      GTK_WINDOW(handle->main_window),
+      MESSENGER_APPLICATION_ID
+  );
+
+  gtk_window_set_icon_name(
+      GTK_WINDOW(handle->main_window),
+      MESSENGER_APPLICATION_ID
+  );
+
   gtk_application_add_window(
       app->application,
       GTK_WINDOW(handle->main_window)
@@ -315,6 +326,16 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->title_bar = HDY_HEADER_BAR(
       gtk_builder_get_object(handle->builder, "title_bar")
+  );
+
+  hdy_header_bar_set_title(
+      handle->title_bar,
+      MESSENGER_APPLICATION_TITLE
+  );
+
+  hdy_header_bar_set_subtitle(
+      handle->title_bar,
+      MESSENGER_APPLICATION_SUBTITLE
   );
 
   g_object_bind_property(
@@ -455,6 +476,17 @@ ui_messenger_init(MESSENGER_Application *app,
       handle->settings_button,
       "clicked",
       G_CALLBACK(handle_settings_button_click),
+      app
+  );
+
+  handle->about_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "about_button")
+  );
+
+  g_signal_connect(
+      handle->about_button,
+      "clicked",
+      G_CALLBACK(handle_about_button_click),
       app
   );
 
