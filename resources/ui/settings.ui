@@ -96,6 +96,7 @@ Author: Tobias Frisch
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Start on login</property>
+                        <property name="ellipsize">end</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -136,6 +137,7 @@ Author: Tobias Frisch
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Run in background</property>
+                        <property name="ellipsize">end</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -191,6 +193,7 @@ Author: Tobias Frisch
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Enable notifications</property>
+                        <property name="ellipsize">end</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -231,6 +234,7 @@ Author: Tobias Frisch
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Play notification sounds</property>
+                        <property name="ellipsize">end</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -309,6 +313,7 @@ Author: Tobias Frisch
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Send read receipts</property>
+                        <property name="ellipsize">end</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -349,6 +354,7 @@ Author: Tobias Frisch
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Show whispering</property>
+                        <property name="ellipsize">end</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -386,7 +392,7 @@ Author: Tobias Frisch
               <object class="HdyPreferencesRow">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="title" translatable="yes">Default timer for new chats</property>
+                <property name="title" translatable="yes">Delete messages automatically</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
@@ -395,7 +401,8 @@ Author: Tobias Frisch
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Default timer for new chats</property>
+                        <property name="label" translatable="yes">Delete messages automatically</property>
+                        <property name="ellipsize">end</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -451,6 +458,7 @@ Author: Tobias Frisch
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Clear history automatically</property>
+                        <property name="ellipsize">end</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -489,6 +497,7 @@ Author: Tobias Frisch
               <object class="HdyPreferencesRow">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="title" translatable="yes">Clear all history</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
@@ -536,7 +545,7 @@ Author: Tobias Frisch
               <object class="HdyPreferencesRow">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="title" translatable="yes">Automatically accept invitations</property>
+                <property name="title" translatable="yes">Accept invitations automatically</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
@@ -545,7 +554,8 @@ Author: Tobias Frisch
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Automatically accept invitations</property>
+                        <property name="label" translatable="yes">Accept invitations automatically</property>
+                        <property name="ellipsize">end</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -576,7 +586,7 @@ Author: Tobias Frisch
               <object class="HdyPreferencesRow">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="title" translatable="yes">Clear invitations automatically</property>
+                <property name="title" translatable="yes">Delete invitations automatically</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
@@ -585,7 +595,8 @@ Author: Tobias Frisch
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Clear invitations automatically</property>
+                        <property name="label" translatable="yes">Delete invitations automatically</property>
+                        <property name="ellipsize">end</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -624,14 +635,14 @@ Author: Tobias Frisch
               <object class="HdyPreferencesRow">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="title" translatable="yes">Clear all invitations</property>
+                <property name="title" translatable="yes">Delete all invitations</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
                       <object class="GtkButton">
-                        <property name="label" translatable="yes">Clear all invitations</property>
+                        <property name="label" translatable="yes">Delete all invitations</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
@@ -664,7 +675,7 @@ Author: Tobias Frisch
               <object class="HdyPreferencesRow">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="title" translatable="yes">Automatically accept files</property>
+                <property name="title" translatable="yes">Accept files automatically</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
@@ -673,7 +684,8 @@ Author: Tobias Frisch
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Automatically accept files</property>
+                        <property name="label" translatable="yes">Accept files automatically</property>
+                        <property name="ellipsize">end</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -756,6 +768,7 @@ Author: Tobias Frisch
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Delete files automatically</property>
+                        <property name="ellipsize">end</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -829,12 +842,12 @@ Author: Tobias Frisch
           <object class="HdyPreferencesGroup">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="title" translatable="yes">Rooms</property>
+            <property name="title" translatable="yes">Chats</property>
             <child>
               <object class="HdyPreferencesRow">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="title" translatable="yes">Leave rooms automatically</property>
+                <property name="title" translatable="yes">Leave chats automatically</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
@@ -843,7 +856,8 @@ Author: Tobias Frisch
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Leave rooms automatically</property>
+                        <property name="label" translatable="yes">Leave chats automatically</property>
+                        <property name="ellipsize">end</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
@@ -882,14 +896,14 @@ Author: Tobias Frisch
               <object class="HdyPreferencesRow">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="title" translatable="yes">Leave all rooms</property>
+                <property name="title" translatable="yes">Leave all chats</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
                       <object class="GtkButton">
-                        <property name="label" translatable="yes">Leave all rooms</property>
+                        <property name="label" translatable="yes">Leave all chats</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
