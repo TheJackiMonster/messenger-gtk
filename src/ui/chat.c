@@ -40,9 +40,10 @@
 #include "../file.h"
 
 static gboolean
-_flap_reveal_switch(gpointer user_data)
+_flap_chat_details_reveal_switch(gpointer user_data)
 {
-  HdyFlap* flap = HDY_FLAP(user_data);
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+  HdyFlap* flap = handle->flap_chat_details;
 
   if (TRUE == hdy_flap_get_reveal_flap(flap)) {
     hdy_flap_set_reveal_flap(flap, FALSE);
@@ -50,14 +51,21 @@ _flap_reveal_switch(gpointer user_data)
     hdy_flap_set_reveal_flap(flap, TRUE);
   }
 
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->messages_listbox), TRUE);
   return FALSE;
 }
 
 static void
-handle_flap_via_button_click(UNUSED GtkButton* button,
-			     gpointer user_data)
+handle_chat_details_via_button_click(UNUSED GtkButton* button,
+				     gpointer user_data)
 {
-  g_idle_add(G_SOURCE_FUNC(_flap_reveal_switch), user_data);
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->messages_listbox), FALSE);
+  g_idle_add(
+      G_SOURCE_FUNC(_flap_chat_details_reveal_switch),
+      handle
+  );
 }
 
 static void
@@ -1126,8 +1134,8 @@ ui_chat_new(MESSENGER_Application *app)
   g_signal_connect(
       handle->chat_details_button,
       "clicked",
-      G_CALLBACK(handle_flap_via_button_click),
-      handle->flap_chat_details
+      G_CALLBACK(handle_chat_details_via_button_click),
+      handle
   );
 
   handle->chat_details_label = GTK_LABEL(
@@ -1141,8 +1149,8 @@ ui_chat_new(MESSENGER_Application *app)
   g_signal_connect(
       handle->hide_chat_details_button,
       "clicked",
-      G_CALLBACK(handle_flap_via_button_click),
-      handle->flap_chat_details
+      G_CALLBACK(handle_chat_details_via_button_click),
+      handle
   );
 
   handle->chat_details_contacts_box = GTK_BOX(

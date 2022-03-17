@@ -52,12 +52,15 @@ handle_contact_edit_button_click(UNUSED GtkButton *button,
   if ((name) && (0 == g_utf8_strlen(name, 1)))
     name = NULL;
 
-  if (GNUNET_CHAT_contact_is_owned(contact))
-    if (GNUNET_YES != GNUNET_CHAT_set_name(contact, name))
+  if (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
+  {
+    if (GNUNET_YES != GNUNET_CHAT_set_name(handle->app->chat.messenger.handle,
+					   name))
       gtk_entry_set_text(
 	  handle->contact_name_entry,
 	  GNUNET_CHAT_contact_get_name(contact)
       );
+  }
   else
     GNUNET_CHAT_contact_set_name(contact, name);
 
