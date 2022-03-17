@@ -44,14 +44,24 @@ handle_contact_edit_button_click(UNUSED GtkButton *button,
       )
   );
 
+  if ((!editable) || (!contact))
+    goto skip_change_name;
+
   const gchar *name = gtk_entry_get_text(handle->contact_name_entry);
 
-  if ((editable) && (contact))
-    GNUNET_CHAT_contact_set_name(
-	contact,
-	(name) && (g_utf8_strlen(name, 1))? name : NULL
-    );
+  if ((name) && (0 == g_utf8_strlen(name, 1)))
+    name = NULL;
 
+  if (GNUNET_CHAT_contact_is_owned(contact))
+    if (GNUNET_YES != GNUNET_CHAT_set_name(contact, name))
+      gtk_entry_set_text(
+	  handle->contact_name_entry,
+	  GNUNET_CHAT_contact_get_name(contact)
+      );
+  else
+    GNUNET_CHAT_contact_set_name(contact, name);
+
+skip_change_name:
   gtk_image_set_from_icon_name(
       handle->contact_edit_symbol,
       editable?
