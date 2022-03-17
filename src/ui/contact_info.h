@@ -50,8 +50,12 @@ typedef struct UI_CONTACT_INFO_Handle
   GtkButton *reveal_identity_button;
   GtkButton *open_chat_button;
 
+  GtkWidget *identity_box;
+  GtkLabel *name_label;
+
   GtkDrawingArea *id_drawing_area;
   gulong id_draw_signal;
+  GtkEntry *id_entry;
 
   GtkButton *back_button;
   GtkButton *close_button;

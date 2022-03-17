@@ -31,6 +31,8 @@ typedef struct UI_CHAT_ENTRY_Handle
 {
   guint update;
 
+  struct GNUNET_TIME_Absolute timestamp;
+
   UI_CHAT_Handle *chat;
   GtkBuilder *builder;
 

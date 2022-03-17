@@ -50,6 +50,7 @@ _flap_user_details_reveal_switch(gpointer user_data)
     hdy_flap_set_reveal_flap(flap, TRUE);
   }
 
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_search), TRUE);
   gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_listbox), TRUE);
   return FALSE;
 }
@@ -60,6 +61,7 @@ handle_user_details_via_button_click(UNUSED GtkButton* button,
 {
   UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
 
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_search), FALSE);
   gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_listbox), FALSE);
   g_idle_add(
       G_SOURCE_FUNC(_flap_user_details_reveal_switch),
@@ -234,6 +236,40 @@ handle_chats_listbox_row_activated(UNUSED GtkListBox* listbox,
   }
 
   gtk_stack_set_visible_child(stack, entry->chat->chat_box);
+}
+
+static gint
+handle_chats_listbox_sort_func(GtkListBoxRow* row0,
+			       GtkListBoxRow* row1,
+			       gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  if ((!row0) || (!row1) ||
+      (!gtk_list_box_row_get_selectable(row0)) ||
+      (!gtk_list_box_row_get_selectable(row1)))
+    return 0;
+
+  UI_CHAT_ENTRY_Handle *entry0 = (UI_CHAT_ENTRY_Handle*) (
+      g_object_get_qdata(G_OBJECT(row0), app->quarks.ui)
+  );
+
+  UI_CHAT_ENTRY_Handle *entry1 = (UI_CHAT_ENTRY_Handle*) (
+      g_object_get_qdata(G_OBJECT(row1), app->quarks.ui)
+  );
+
+  if ((!entry0) || (!entry1))
+    return 0;
+
+  struct GNUNET_TIME_Absolute timestamp0 = entry0->timestamp;
+  struct GNUNET_TIME_Absolute timestamp1 = entry1->timestamp;
+
+  if (GNUNET_TIME_absolute_cmp(timestamp0, >, timestamp1))
+    return -1;
+  else if (GNUNET_TIME_absolute_cmp(timestamp0, <, timestamp1))
+    return +1;
+  else
+    return 0;
 }
 
 static gboolean
@@ -515,6 +551,13 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->chats_listbox = GTK_LIST_BOX(
       gtk_builder_get_object(handle->builder, "chats_listbox")
+  );
+
+  gtk_list_box_set_sort_func(
+      handle->chats_listbox,
+      handle_chats_listbox_sort_func,
+      app,
+      NULL
   );
 
   gtk_list_box_set_filter_func(

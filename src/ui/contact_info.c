@@ -95,7 +95,7 @@ _contact_info_reveal_identity(UI_CONTACT_INFO_Handle *handle)
 
   gtk_stack_set_visible_child(
       handle->contact_info_stack,
-      GTK_WIDGET(handle->id_drawing_area)
+      handle->identity_box
   );
 }
 
@@ -355,6 +355,14 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
       handle
   );
 
+  handle->identity_box = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder, "identity_box")
+  );
+
+  handle->name_label = GTK_LABEL(
+      gtk_builder_get_object(handle->builder, "name_label")
+  );
+
   handle->id_drawing_area = GTK_DRAWING_AREA(
       gtk_builder_get_object(handle->builder, "id_drawing_area")
   );
@@ -364,6 +372,10 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
       "draw",
       G_CALLBACK(handle_id_drawing_area_draw),
       handle
+  );
+
+  handle->id_entry = GTK_ENTRY(
+      gtk_builder_get_object(handle->builder, "id_entry")
   );
 
   handle->back_button = GTK_BUTTON(
@@ -428,8 +440,12 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
   else
     handle->qr = NULL;
 
+  gtk_label_set_text(handle->name_label, name? name : "");
+
   if (handle->id_drawing_area)
     gtk_widget_queue_draw(GTK_WIDGET(handle->id_drawing_area));
+
+  gtk_entry_set_text(handle->id_entry, key? key : "");
 
   gtk_widget_set_sensitive(
       GTK_WIDGET(handle->reveal_identity_button),

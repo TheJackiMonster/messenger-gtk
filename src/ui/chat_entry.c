@@ -36,6 +36,8 @@ ui_chat_entry_new(MESSENGER_Application *app)
 
   memset(handle, 0, sizeof(*handle));
 
+  handle->timestamp = GNUNET_TIME_absolute_get_zero_();
+
   handle->chat = ui_chat_new(app);
   handle->builder = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/chat_entry.ui")
@@ -114,6 +116,8 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
       (UI_MESSAGE_Handle*) handle->chat->messages->data
   );
 
+  handle->timestamp = message->timestamp;
+
   const gchar *text = gtk_label_get_text(message->text_label);
   const gchar *time = gtk_label_get_text(message->timestamp_label);
 
@@ -143,6 +147,8 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 	  GTK_WIDGET(message->read_receipt_image)
       ) : FALSE
   );
+
+  gtk_list_box_invalidate_sort(app->ui.messenger.chats_listbox);
 }
 
 void
