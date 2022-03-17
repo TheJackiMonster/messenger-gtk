@@ -32,6 +32,7 @@
 
 #include "ui/about.h"
 #include "ui/accounts.h"
+#include "ui/contact_info.h"
 #include "ui/contacts.h"
 #include "ui/delete_messages.h"
 #include "ui/invite_contact.h"
@@ -94,9 +95,10 @@ typedef struct MESSENGER_Application
     UI_MESSENGER_Handle messenger;
     UI_ABOUT_Handle about;
 
+    UI_CONTACT_INFO_Handle contact_info;
+    UI_DELETE_MESSAGES_Handle delete_messages;
     UI_INVITE_CONTACT_Handle invite_contact;
     UI_SEND_FILE_Handle send_file;
-    UI_DELETE_MESSAGES_Handle delete_messages;
 
     UI_NEW_CONTACT_Handle new_contact;
     UI_NEW_GROUP_Handle new_group;

@@ -77,7 +77,8 @@ handle_chat_contacts_listbox_row_activated(GtkListBox *listbox,
 					   GtkListBoxRow *row,
 					   gpointer user_data)
 {
-  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+  MESSENGER_Application *app = handle->app;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
       g_object_get_qdata(G_OBJECT(listbox), app->quarks.widget)
@@ -104,19 +105,15 @@ handle_chat_contacts_listbox_row_activated(GtkListBox *listbox,
       g_object_get_qdata(G_OBJECT(row), app->quarks.data)
   );
 
-  if ((!contact) || (!GNUNET_CHAT_contact_get_key(contact)) ||
-      (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact)))
+  if (!contact)
     return;
 
-  struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
-      contact
-  );
+  hdy_flap_set_reveal_flap(handle->flap_chat_details, FALSE);
 
-  if (!context)
-    return;
+  ui_contact_info_dialog_init(app, &(app->ui.contact_info));
+  ui_contact_info_dialog_update(&(app->ui.contact_info), contact, FALSE);
 
-  if (GNUNET_SYSERR == GNUNET_CHAT_context_get_status(context))
-    GNUNET_CHAT_context_request(context);
+  gtk_widget_show(GTK_WIDGET(app->ui.contact_info.dialog));
 }
 
 static void
@@ -156,12 +153,25 @@ handle_back_button_click(UNUSED GtkButton *button,
 }
 
 static void
-handle_reveal_identity_button_click(UNUSED GtkButton *button,
+handle_reveal_identity_button_click(GtkButton *button,
 				    gpointer user_data)
 {
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+  MESSENGER_Application *app = handle->app;
 
-  // TODO
+  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
+      g_object_get_qdata(G_OBJECT(button), app->quarks.data)
+  );
+
+  if (!contact)
+    return;
+
+  hdy_flap_set_reveal_flap(handle->flap_chat_details, FALSE);
+
+  ui_contact_info_dialog_init(app, &(app->ui.contact_info));
+  ui_contact_info_dialog_update(&(app->ui.contact_info), contact, TRUE);
+
+  gtk_widget_show(GTK_WIDGET(app->ui.contact_info.dialog));
 }
 
 static void
@@ -1197,7 +1207,7 @@ ui_chat_new(MESSENGER_Application *app)
       handle->chat_contacts_listbox,
       "row-activated",
       G_CALLBACK(handle_chat_contacts_listbox_row_activated),
-      app
+      handle
   );
 
   handle->chat_files_listbox = GTK_LIST_BOX(
@@ -1443,8 +1453,8 @@ ui_chat_update(UI_CHAT_Handle *handle,
 {
   GNUNET_assert((handle) && (app) && (context));
 
-  const struct GNUNET_CHAT_Contact* contact;
-  const struct GNUNET_CHAT_Group* group;
+  struct GNUNET_CHAT_Contact* contact;
+  struct GNUNET_CHAT_Group* group;
 
   contact = GNUNET_CHAT_context_get_contact(context);
   group = GNUNET_CHAT_context_get_group(context);
@@ -1522,6 +1532,12 @@ ui_chat_update(UI_CHAT_Handle *handle,
   gtk_widget_set_visible(
       GTK_WIDGET(handle->chat_details_contacts_box),
       group? TRUE : FALSE
+  );
+
+  g_object_set_qdata(
+      G_OBJECT(handle->reveal_identity_button),
+      app->quarks.data,
+      contact
   );
 
   gtk_widget_set_visible(

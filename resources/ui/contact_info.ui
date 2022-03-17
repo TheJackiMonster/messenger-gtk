@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.38.2 
 
-Copyright (C) 2021‑‑2022 GNUnet e.V.
+Copyright (C) 2022 GNUnet e.V.
 
 GNUnet is free software: you can redistribute it and/or modify it
 under the terms of the GNU Affero General Public License as published
@@ -25,6 +25,7 @@ Author: Tobias Frisch
   <requires lib="libhandy" version="1.2"/>
   <object class="GtkDialog" id="contact_info_dialog">
     <property name="can-focus">False</property>
+    <property name="title" translatable="yes">Contact Information</property>
     <property name="modal">True</property>
     <property name="window-position">center-on-parent</property>
     <property name="type-hint">dialog</property>
@@ -40,7 +41,6 @@ Author: Tobias Frisch
             <child>
               <object class="GtkButton" id="back_button">
                 <property name="label" translatable="yes">Back</property>
-                <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
               </object>
@@ -114,10 +114,42 @@ Author: Tobias Frisch
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="contact_name">
-                    <property name="width-request">250</property>
+                  <object class="GtkBox">
                     <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">4</property>
+                    <child>
+                      <object class="GtkEntry" id="contact_name">
+                        <property name="width-request">210</property>
+                        <property name="visible">True</property>
+                        <property name="sensitive">False</property>
+                        <property name="can-focus">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="contact_edit_button">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <child>
+                          <object class="GtkImage" id="contact_edit_symbol">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="icon-name">document-edit-symbolic</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -161,6 +193,10 @@ Author: Tobias Frisch
                 <property name="height-request">250</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="margin-start">16</property>
+                <property name="margin-end">16</property>
+                <property name="margin-top">16</property>
+                <property name="margin-bottom">16</property>
               </object>
               <packing>
                 <property name="name">drawing_page</property>

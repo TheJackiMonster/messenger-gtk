@@ -27,8 +27,14 @@
 
 #include "messenger.h"
 
+#include <cairo/cairo.h>
+#include <gdk/gdkpixbuf.h>
+#include <qrencode.h>
+
 typedef struct UI_CONTACT_INFO_Handle
 {
+  MESSENGER_Application *app;
+
   GtkBuilder *builder;
   GtkDialog *dialog;
 
@@ -36,15 +42,21 @@ typedef struct UI_CONTACT_INFO_Handle
 
   GtkWidget *details_box;
   HdyAvatar *contact_avatar;
-  GtkEntry *contact_name;
+  GtkEntry *contact_name_entry;
+
+  GtkButton *contact_edit_button;
+  GtkImage *contact_edit_symbol;
 
   GtkButton *reveal_identity_button;
   GtkButton *open_chat_button;
 
   GtkDrawingArea *id_drawing_area;
+  gulong id_draw_signal;
 
   GtkButton *back_button;
   GtkButton *close_button;
+
+  QRcode *qr;
 } UI_CONTACT_INFO_Handle;
 
 void
@@ -53,7 +65,8 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
 
 void
 ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
-			      struct GNUNET_CHAT_Contact *contact);
+			      struct GNUNET_CHAT_Contact *contact,
+			      gboolean reveal);
 
 void
 ui_contact_info_dialog_cleanup(UI_CONTACT_INFO_Handle *handle);
