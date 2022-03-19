@@ -373,6 +373,10 @@ ui_message_new(MESSENGER_Application *app,
       handle
   );
 
+  handle->whisper_box = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder[1], "whisper_box")
+  );
+
   switch (handle->type)
   {
     case UI_MESSAGE_STATUS:
@@ -425,43 +429,27 @@ ui_message_refresh(UI_MESSAGE_Handle *handle)
     gtk_widget_hide(GTK_WIDGET(handle->read_receipt_image));
 }
 
-void
-ui_message_update(UI_MESSAGE_Handle *handle,
-		  MESSENGER_Application *app,
-		  const struct GNUNET_CHAT_Message *msg)
+static void
+_update_file_message(UI_MESSAGE_Handle *handle,
+		     MESSENGER_Application *app,
+		     struct GNUNET_CHAT_File *file)
 {
-  struct GNUNET_CHAT_File *file = NULL;
-
-  handle->msg = msg;
-
-  ui_message_refresh(handle);
-
-  if (msg)
-  {
-    file = GNUNET_CHAT_message_get_file(msg);
-
-    handle->timestamp = GNUNET_CHAT_message_get_timestamp(msg);
-  }
-  else
-    file = (struct GNUNET_CHAT_File*) (
-	g_object_get_qdata(G_OBJECT(handle->message_box), app->quarks.data)
-    );
-
-  if (!file)
-    return;
-
-  g_object_set_qdata(G_OBJECT(handle->message_box), app->quarks.data, file);
-
   uint64_t size = GNUNET_CHAT_file_get_size(file);
   uint64_t local_size = GNUNET_CHAT_file_get_local_size(file);
+
+  gboolean autostart_download = FALSE;
 
   if ((size <= 0) || (size > local_size))
   {
     gtk_image_set_from_icon_name(
-    	handle->file_status_image,
-    	"folder-download-symbolic",
-    	GTK_ICON_SIZE_BUTTON
+      handle->file_status_image,
+      "folder-download-symbolic",
+      GTK_ICON_SIZE_BUTTON
     );
+
+    if ((app->settings.accept_all_files) &&
+      (!GNUNET_CHAT_file_is_downloading(file)))
+      autostart_download = TRUE;
 
     goto file_content;
   }
@@ -524,6 +512,45 @@ file_content:
       app->quarks.data,
       file
   );
+
+  if (autostart_download)
+    gtk_button_clicked(handle->file_button);
+}
+
+void
+ui_message_update(UI_MESSAGE_Handle *handle,
+		  MESSENGER_Application *app,
+		  const struct GNUNET_CHAT_Message *msg)
+{
+  struct GNUNET_CHAT_File *file = NULL;
+
+  handle->msg = msg;
+
+  ui_message_refresh(handle);
+
+  if (msg)
+  {
+    if (GNUNET_CHAT_KIND_WHISPER == GNUNET_CHAT_message_get_kind(msg))
+      gtk_stack_set_visible_child(
+	  handle->content_stack,
+	  GTK_WIDGET(handle->whisper_box)
+      );
+
+    file = GNUNET_CHAT_message_get_file(msg);
+
+    handle->timestamp = GNUNET_CHAT_message_get_timestamp(msg);
+
+    g_object_set_qdata(G_OBJECT(handle->message_box), app->quarks.data, file);
+  }
+  else
+    file = (struct GNUNET_CHAT_File*) (
+	g_object_get_qdata(G_OBJECT(handle->message_box), app->quarks.data)
+    );
+
+  if (!file)
+    return;
+
+  _update_file_message(handle, app, file);
 }
 
 void

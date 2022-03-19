@@ -75,6 +75,8 @@ typedef struct UI_MESSAGE_Handle
 
   GtkDrawingArea *preview_drawing_area;
 
+  GtkWidget *whisper_box;
+
   GdkPixbuf *preview_image;
   GdkPixbufAnimation *preview_animation;
   GdkPixbufAnimationIter *preview_animation_iter;

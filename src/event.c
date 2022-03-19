@@ -521,6 +521,9 @@ event_invitation(MESSENGER_Application *app,
 
   ui_chat_add_message(handle->chat, app, message);
 
+  if (app->settings.accept_all_invitations)
+    gtk_button_clicked(message->accept_button);
+
   enqueue_chat_entry_update(handle);
 }
 
@@ -534,8 +537,18 @@ event_receive_message(MESSENGER_Application *app,
   if (!handle)
     return;
 
+  const gboolean whispering = (
+      GNUNET_CHAT_KIND_WHISPER == GNUNET_CHAT_message_get_kind(msg)
+  );
+
+  if ((whispering) && (!(app->settings.show_whispering)))
+    return;
+
   const int sent = GNUNET_CHAT_message_is_sent(msg);
   const gchar *text = GNUNET_CHAT_message_get_text(msg);
+
+  if (whispering)
+    text = _("whispers...");
 
   if ((text) && (!(*text)))
     goto skip_message;

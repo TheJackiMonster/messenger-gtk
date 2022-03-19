@@ -114,9 +114,16 @@ typedef struct MESSENGER_Application
   struct {
     gboolean mobile_design;
     gboolean hide_delete_dialog;
+
     gboolean disable_notifications;
+
+    gboolean send_read_receipts;
+    gboolean show_whispering;
+
+    gboolean accept_all_invitations;
     gboolean accept_all_files;
-    gboolean accept_all_invites;
+
+    gchar *download_folder_path;
   } settings;
 } MESSENGER_Application;
 

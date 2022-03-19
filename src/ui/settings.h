@@ -31,6 +31,25 @@ typedef struct UI_SETTINGS_Handle
 {
   GtkBuilder *builder;
   HdyPreferencesWindow *dialog;
+
+  GtkSwitch *enable_notifications_switch;
+
+  GtkSwitch *read_receipts_switch;
+  GtkSwitch *whispering_switch;
+
+  GtkComboBox *auto_delete_combo_box;
+
+  GtkSwitch *auto_accept_invitations_switch;
+  GtkComboBox *delete_invitations_combo_box;
+  GtkButton *delete_invitations_button;
+
+  GtkSwitch *auto_accept_files_switch;
+  GtkFileChooserButton *download_folder_button;
+  GtkComboBox *delete_files_combo_box;
+  GtkButton *delete_files_button;
+
+  GtkComboBox *leave_chats_combo_box;
+  GtkButton *leave_chats_button;
 } UI_SETTINGS_Handle;
 
 void
