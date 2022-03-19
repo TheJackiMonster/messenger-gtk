@@ -485,6 +485,11 @@ event_invitation(MESSENGER_Application *app,
   if (!invitation)
     return;
 
+  const int sent = GNUNET_CHAT_message_is_sent(msg);
+
+  if ((GNUNET_YES != sent) && (app->settings.send_read_receipts))
+    GNUNET_CHAT_context_send_read_receipt(context, msg);
+
   UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
   ui_message_update(message, app, msg);
 
@@ -552,6 +557,9 @@ event_receive_message(MESSENGER_Application *app,
 
   if ((text) && (!(*text)))
     goto skip_message;
+
+  if ((GNUNET_YES != sent) && (app->settings.send_read_receipts))
+    GNUNET_CHAT_context_send_read_receipt(context, msg);
 
   const UI_MESSAGE_Type type = (
       GNUNET_YES == sent? UI_MESSAGE_SENT : UI_MESSAGE_DEFAULT
