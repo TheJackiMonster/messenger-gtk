@@ -328,6 +328,22 @@ event_update_profile(MESSENGER_Application *app)
   GNUNET_CHAT_iterate_groups(chat->handle, _iterate_profile_groups, app);
 }
 
+gboolean
+_delayed_context_drop(gpointer user_data)
+{
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) user_data;
+
+  struct GNUNET_CHAT_Group *group = GNUNET_CHAT_context_get_group(context);
+  struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_context_get_contact(context);
+
+  if (group)
+    GNUNET_CHAT_group_leave(group);
+  else if (contact)
+    GNUNET_CHAT_contact_delete(contact);
+
+  return FALSE;
+}
+
 void
 event_update_chats(MESSENGER_Application *app,
 		   struct GNUNET_CHAT_Context *context,
@@ -340,10 +356,19 @@ event_update_chats(MESSENGER_Application *app,
   );
 
   if (GNUNET_CHAT_KIND_JOIN == kind)
+  {
     if (!handle)
       _add_new_chat_entry(app, context);
     else
       enqueue_chat_entry_update(handle);
+
+    if (app->settings.leave_chats_delay > 0)
+      g_timeout_add_seconds(
+	  app->settings.leave_chats_delay,
+	  _delayed_context_drop,
+	  context
+      );
+  }
   else if (handle)
     _clear_chat_entry(gtk_widget_get_parent(handle->entry_box), app);
 
@@ -485,6 +510,12 @@ event_invitation(MESSENGER_Application *app,
   if (!invitation)
     return;
 
+  if (app->settings.delete_invitations_delay > 0)
+    GNUNET_CHAT_message_delete(msg, GNUNET_TIME_relative_multiply(
+	GNUNET_TIME_relative_get_second_(),
+	app->settings.delete_invitations_delay
+    ));
+
   const int sent = GNUNET_CHAT_message_is_sent(msg);
 
   if ((GNUNET_YES != sent) && (app->settings.send_read_receipts))
@@ -542,6 +573,14 @@ event_receive_message(MESSENGER_Application *app,
   if (!handle)
     return;
 
+  const int sent = GNUNET_CHAT_message_is_sent(msg);
+
+  if ((sent) && (app->settings.auto_delete_delay > 0))
+    GNUNET_CHAT_message_delete(msg, GNUNET_TIME_relative_multiply(
+	GNUNET_TIME_relative_get_second_(),
+	app->settings.auto_delete_delay
+    ));
+
   const gboolean whispering = (
       GNUNET_CHAT_KIND_WHISPER == GNUNET_CHAT_message_get_kind(msg)
   );
@@ -549,7 +588,6 @@ event_receive_message(MESSENGER_Application *app,
   if ((whispering) && (!(app->settings.show_whispering)))
     return;
 
-  const int sent = GNUNET_CHAT_message_is_sent(msg);
   const gchar *text = GNUNET_CHAT_message_get_text(msg);
 
   if (whispering)
@@ -573,6 +611,12 @@ event_receive_message(MESSENGER_Application *app,
   {
     file_create_info(file);
     file_add_ui_message_to_info(file, message);
+
+    if (app->settings.delete_files_delay > 0)
+      GNUNET_CHAT_message_delete(msg, GNUNET_TIME_relative_multiply(
+	  GNUNET_TIME_relative_get_second_(),
+	  app->settings.delete_files_delay
+      ));
   }
 
   ui_message_update(message, app, msg);

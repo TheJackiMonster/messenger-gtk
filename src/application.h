@@ -120,10 +120,16 @@ typedef struct MESSENGER_Application
     gboolean send_read_receipts;
     gboolean show_whispering;
 
-    gboolean accept_all_invitations;
-    gboolean accept_all_files;
+    gulong auto_delete_delay;
 
+    gboolean accept_all_invitations;
+    gulong delete_invitations_delay;
+
+    gboolean accept_all_files;
     gchar *download_folder_path;
+    gulong delete_files_delay;
+
+    gulong leave_chats_delay;
   } settings;
 } MESSENGER_Application;
 

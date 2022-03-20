@@ -45,10 +45,47 @@ handle_inverted_switch_state(GtkSwitch *widget,
 }
 
 static void
+handle_general_combo_box_change(GtkComboBox *widget,
+				gpointer user_data)
+{
+  gulong *delay = (gulong*) user_data;
+  GtkTreeModel *model = gtk_combo_box_get_model(widget);
+
+  GtkTreeIter iter;
+  if (gtk_combo_box_get_active_iter(widget, &iter))
+    gtk_tree_model_get(model, &iter, 1, delay, -1);
+}
+
+static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
 		      gpointer user_data)
 {
   ui_settings_dialog_cleanup((UI_SETTINGS_Handle*) user_data);
+}
+
+static void
+_set_combobox_to_active_by_delay(GtkComboBox *widget,
+				 gulong delay)
+{
+  GtkTreeModel *model = gtk_combo_box_get_model(widget);
+
+  GtkTreeIter iter;
+  if (!gtk_tree_model_get_iter_first(model, &iter))
+    return;
+
+  gulong value;
+
+  do {
+    gtk_tree_model_get(model, &iter, 1, &value, -1);
+
+    if (value == delay)
+      goto set_active;
+
+  } while (gtk_tree_model_iter_next(model, &iter));
+
+  return;
+set_active:
+  gtk_combo_box_set_active_iter(widget, &iter);
 }
 
 void
@@ -120,6 +157,18 @@ ui_settings_dialog_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "auto_delete_combo_box")
   );
 
+  _set_combobox_to_active_by_delay(
+      handle->auto_delete_combo_box,
+      app->settings.auto_delete_delay
+  );
+
+  g_signal_connect(
+      handle->auto_delete_combo_box,
+      "changed",
+      G_CALLBACK(handle_general_combo_box_change),
+      &(app->settings.auto_delete_delay)
+  );
+
   handle->auto_accept_invitations_switch = GTK_SWITCH(
       gtk_builder_get_object(handle->builder, "auto_accept_invitations_switch")
   );
@@ -138,6 +187,18 @@ ui_settings_dialog_init(MESSENGER_Application *app,
 
   handle->delete_invitations_combo_box = GTK_COMBO_BOX(
       gtk_builder_get_object(handle->builder, "delete_invitations_combo_box")
+  );
+
+  _set_combobox_to_active_by_delay(
+      handle->delete_invitations_combo_box,
+      app->settings.delete_invitations_delay
+  );
+
+  g_signal_connect(
+      handle->delete_invitations_combo_box,
+      "changed",
+      G_CALLBACK(handle_general_combo_box_change),
+      &(app->settings.delete_invitations_delay)
   );
 
   handle->delete_invitations_button = GTK_BUTTON(
@@ -168,12 +229,36 @@ ui_settings_dialog_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "delete_files_combo_box")
   );
 
+  _set_combobox_to_active_by_delay(
+      handle->delete_files_combo_box,
+      app->settings.delete_files_delay
+  );
+
+  g_signal_connect(
+      handle->delete_files_combo_box,
+      "changed",
+      G_CALLBACK(handle_general_combo_box_change),
+      &(app->settings.delete_files_delay)
+  );
+
   handle->delete_files_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "delete_files_button")
   );
 
   handle->leave_chats_combo_box = GTK_COMBO_BOX(
       gtk_builder_get_object(handle->builder, "leave_chats_combo_box")
+  );
+
+  _set_combobox_to_active_by_delay(
+      handle->leave_chats_combo_box,
+      app->settings.leave_chats_delay
+  );
+
+  g_signal_connect(
+      handle->leave_chats_combo_box,
+      "changed",
+      G_CALLBACK(handle_general_combo_box_change),
+      &(app->settings.leave_chats_delay)
   );
 
   handle->leave_chats_button = GTK_BUTTON(
