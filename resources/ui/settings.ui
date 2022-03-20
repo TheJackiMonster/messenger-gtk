@@ -649,6 +649,7 @@ Author: Tobias Frisch
                       <object class="GtkButton" id="delete_invitations_button">
                         <property name="label" translatable="yes">Delete all invitations</property>
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <style>
@@ -743,6 +744,7 @@ Author: Tobias Frisch
                     <child>
                       <object class="GtkFileChooserButton" id="download_folder_button">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">False</property>
                         <property name="title" translatable="yes">Select download folder</property>
                       </object>
@@ -821,6 +823,7 @@ Author: Tobias Frisch
                       <object class="GtkButton" id="delete_files_button">
                         <property name="label" translatable="yes">Delete all files</property>
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <style>
@@ -910,6 +913,7 @@ Author: Tobias Frisch
                       <object class="GtkButton" id="leave_chats_button">
                         <property name="label" translatable="yes">Leave all chats</property>
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <style>

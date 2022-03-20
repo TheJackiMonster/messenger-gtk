@@ -56,6 +56,43 @@ handle_general_combo_box_change(GtkComboBox *widget,
     gtk_tree_model_get(model, &iter, 1, delay, -1);
 }
 
+int
+_leave_group_iteration(UNUSED void *cls,
+		       UNUSED struct GNUNET_CHAT_Handle *handle,
+		       struct GNUNET_CHAT_Group *group)
+{
+  GNUNET_CHAT_group_leave(group);
+  return GNUNET_YES;
+}
+
+int
+_delete_contact_iteration(UNUSED void *cls,
+			  UNUSED struct GNUNET_CHAT_Handle *handle,
+			  struct GNUNET_CHAT_Contact *contact)
+{
+  GNUNET_CHAT_contact_delete(contact);
+  return GNUNET_YES;
+}
+
+static void
+handle_leave_chats_button_click(UNUSED GtkButton* button,
+				gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  GNUNET_CHAT_iterate_groups(
+      app->chat.messenger.handle,
+      _leave_group_iteration,
+      NULL
+  );
+
+  GNUNET_CHAT_iterate_contacts(
+      app->chat.messenger.handle,
+      _delete_contact_iteration,
+      NULL
+  );
+}
+
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
 		      gpointer user_data)
@@ -263,6 +300,13 @@ ui_settings_dialog_init(MESSENGER_Application *app,
 
   handle->leave_chats_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "leave_chats_button")
+  );
+
+  g_signal_connect(
+      handle->leave_chats_button,
+      "clicked",
+      G_CALLBACK(handle_leave_chats_button_click),
+      app
   );
 
   g_signal_connect(
