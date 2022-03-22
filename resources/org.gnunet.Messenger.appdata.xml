@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2022 GNUnet e.V. -->
+<component type="desktop">
+	<id>org.gnunet.Messenger</id>
+	<metadata_license>CC0-1.0</metadata_license>
+	<project_license>AGPL-3.0</project_license>
+	<content_rating type="oars-1.1" />
+
+	<name>GNUnet Messenger</name>
+	<summary>A GTK based GUI for the Messenger service of GNUnet.</summary>
+	<description>
+	</description>
+
+	<screenshots>
+	</screenshots>
+
+	<url type="homepage">https://www.gnunet.org</url>
+
+	<update_contact>thejackimonster_at_gmail.com</update_contact>
+
+	<launchable type="desktop-id">org.gnunet.Messenger.desktop</launchable>
+	<releases>
+	</releases>
+</component>

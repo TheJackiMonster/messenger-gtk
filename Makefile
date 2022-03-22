@@ -121,6 +121,8 @@ install:
 	$(foreach SIZE,$(ICON_SIZES),$(call install-icon,$(SIZE));)
 	install -Dm644 $(addprefix $(APPICON_DIR), full_color.svg) $(addprefix $(INSTALL_DIR), share/icons/hicolor/scalable/apps/$(APP_ID).svg)
 	desktop-file-install --dir=$(addprefix $(INSTALL_DIR), share/applications/) $(addprefix $(RESOURCES_DIR), $(APP_ID).desktop)
+	mkdir -p $(addprefix $(INSTALL_DIR), share/appdata/)
+	install -Dm644 $(addprefix $(RESOURCES_DIR), $(APP_ID).appdata.xml) $(addprefix $(INSTALL_DIR), share/appdata/)
 	gtk-update-icon-cache -f -t $(addprefix $(INSTALL_DIR), share/icons/hicolor)
 
 .PHONY: uninstall
@@ -134,6 +136,7 @@ uninstall:
 	$(foreach SIZE,$(ICON_SIZES),$(call uninstall-icon,$(SIZE));)
 	$(GNU_RM) -f $(addprefix $(INSTALL_DIR), share/icons/hicolor/scalable/apps/$(APP_ID).svg)
 	$(GNU_RM) -f $(addsuffix $(APP_ID).desktop, $(addprefix $(INSTALL_DIR), share/applications/))
+	$(GNU_RM) -f $(addsuffix $(APP_ID).appdata.xml, $(addprefix $(INSTALL_DIR), share/appdata/))
 
 .PHONY: clean
 
