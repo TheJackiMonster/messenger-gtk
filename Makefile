@@ -42,6 +42,7 @@ RESOURCES = css.gresource.xml\
 
 LIBRARIES = gnunetchat
 PACKAGES  = gnunetutil\
+			glib-2.0\
 			gstreamer-1.0\
 			gtk+-3.0\
 			libhandy-1\
