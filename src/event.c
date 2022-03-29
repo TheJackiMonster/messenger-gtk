@@ -26,8 +26,9 @@
 
 #include "contact.h"
 #include "file.h"
-#include "ui/account_entry.h"
+#include "ui.h"
 
+#include "ui/account_entry.h"
 #include "ui/chat_entry.h"
 #include "ui/contact_entry.h"
 #include "ui/message.h"
@@ -50,9 +51,9 @@ static void
 _show_notification(MESSENGER_Application *app,
 		   UNUSED struct GNUNET_CHAT_Context *context,
 		   const struct GNUNET_CHAT_Contact *contact,
-		   const gchar *text,
-		   const gchar *icon,
-		   const gchar *category)
+		   const char *text,
+		   const char *icon,
+		   const char *category)
 {
   if (app->settings.disable_notifications)
     return;
@@ -85,13 +86,13 @@ event_handle_warning(MESSENGER_Application *app,
 		     struct GNUNET_CHAT_Context *context,
 		     const struct GNUNET_CHAT_Message *msg)
 {
-  const gchar *text = GNUNET_CHAT_message_get_text(msg);
+  const char *text = GNUNET_CHAT_message_get_text(msg);
 
   const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
       msg
   );
 
-  fprintf(stderr, "ERROR: %s\n", text);
+  g_printerr("ERROR: %s\n", text);
 
   _show_notification(
       app,
@@ -141,7 +142,7 @@ _select_chat_to_activate(gpointer user_data)
 {
   UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) user_data;
 
-  if (!(entry->chat))
+  if ((!entry) || (!(entry->chat)) || (!(entry->entry_box)))
     return FALSE;
 
   MESSENGER_Application *app = entry->chat->app;
@@ -149,11 +150,14 @@ _select_chat_to_activate(gpointer user_data)
   if (!app)
     return FALSE;
 
-  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
-
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
       gtk_widget_get_parent(entry->entry_box)
   );
+
+  if (!row)
+    return FALSE;
+
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
 
   gtk_list_box_select_row(ui->chats_listbox, row);
   gtk_list_box_invalidate_filter(ui->chats_listbox);
@@ -224,9 +228,7 @@ _add_new_chat_entry(MESSENGER_Application *app,
 
   ui->chat_entries = g_list_append(ui->chat_entries, entry);
 
-  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
-      gtk_widget_get_parent(entry->entry_box)
-  );
+  GtkWidget *row = gtk_widget_get_parent(entry->entry_box);
 
   g_object_set_qdata(
       G_OBJECT(row),
@@ -305,16 +307,12 @@ event_update_profile(MESSENGER_Application *app)
 
   const char *name = GNUNET_CHAT_get_name(chat->handle);
 
-  if (name)
-  {
-    hdy_avatar_set_text(ui->profile_avatar, name);
-    gtk_label_set_text(ui->profile_label, name);
-  }
+  ui_avatar_set_text(ui->profile_avatar, name);
+  ui_label_set_text(ui->profile_label, name);
 
   const char *key = GNUNET_CHAT_get_key(chat->handle);
 
-  if (key)
-    gtk_label_set_text(ui->profile_key_label, key);
+  ui_label_set_text(ui->profile_key_label, key);
 
   gtk_container_foreach(
       GTK_CONTAINER(ui->chats_listbox),
@@ -430,7 +428,7 @@ event_presence_contact(MESSENGER_Application *app,
   contact_add_name_avatar_to_info(contact, message->sender_avatar);
   contact_add_name_label_to_info(contact, message->sender_label);
 
-  const gchar *presence_message = (
+  const char *text = (
       GNUNET_CHAT_KIND_JOIN == kind? _("joined the chat") : _("left the chat")
   );
 
@@ -439,7 +437,7 @@ event_presence_contact(MESSENGER_Application *app,
 	app,
 	context,
 	contact,
-	presence_message,
+	text,
 	"avatar-default-symbolic",
 	"presence.online"
     );
@@ -448,10 +446,10 @@ event_presence_contact(MESSENGER_Application *app,
       msg
   );
 
-  const gchar *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
+  const char *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
 
-  gtk_label_set_text(message->text_label, presence_message);
-  gtk_label_set_text(message->timestamp_label, time? time : "");
+  ui_label_set_text(message->text_label, text);
+  ui_label_set_text(message->timestamp_label, time);
 
   ui_chat_add_message(handle->chat, app, message);
 
@@ -531,7 +529,7 @@ event_invitation(MESSENGER_Application *app,
   contact_add_name_avatar_to_info(contact, message->sender_avatar);
   contact_add_name_label_to_info(contact, message->sender_label);
 
-  const gchar *invite_message = _("invited you to a chat");
+  const char *invite_message = _("invited you to a chat");
 
   if (!ui_messenger_is_context_active(&(app->ui.messenger), context))
     _show_notification(
@@ -543,7 +541,7 @@ event_invitation(MESSENGER_Application *app,
 	"im.received"
     );
 
-  gtk_label_set_text(message->text_label, invite_message);
+  ui_label_set_text(message->text_label, invite_message);
 
   g_signal_connect(
       message->accept_button,
@@ -632,7 +630,7 @@ event_receive_message(MESSENGER_Application *app,
       msg
   );
 
-  const gchar *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
+  const char *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
 
   if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
       (GNUNET_YES != sent))
@@ -645,8 +643,8 @@ event_receive_message(MESSENGER_Application *app,
 	"im.received"
     );
 
-  gtk_label_set_text(message->text_label, text? text : "");
-  gtk_label_set_text(message->timestamp_label, time? time : "");
+  ui_label_set_text(message->text_label, text);
+  ui_label_set_text(message->timestamp_label, time);
 
   ui_chat_add_message(handle->chat, app, message);
 

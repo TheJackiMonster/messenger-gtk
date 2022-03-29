@@ -51,7 +51,11 @@ handle_platform_entry_changed(GtkEditable *editable,
   HdyAvatar *avatar = HDY_AVATAR(user_data);
   GtkEntry *entry = GTK_ENTRY(editable);
 
-  GString *topic_string = g_string_new(gtk_entry_get_text(entry));
+  const gchar *text = gtk_entry_get_text(entry);
+
+  hdy_avatar_set_text(avatar, text);
+
+  GString *topic_string = g_string_new(text);
 
   g_string_prepend_c(topic_string, '#');
   hdy_avatar_set_text(avatar, topic_string->str);

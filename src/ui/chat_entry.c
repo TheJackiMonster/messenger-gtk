@@ -24,10 +24,11 @@
 
 #include "chat_entry.h"
 
+#include "message.h"
+
 #include "../application.h"
 #include "../contact.h"
-
-#include "message.h"
+#include "../ui.h"
 
 UI_CHAT_ENTRY_Handle*
 ui_chat_entry_new(MESSENGER_Application *app)
@@ -99,9 +100,8 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
       icon = "system-users-symbolic";
   }
 
-  gtk_label_set_text(handle->title_label, title? title : "");
-
-  hdy_avatar_set_text(handle->entry_avatar, title? title : "");
+  ui_label_set_text(handle->title_label, title);
+  ui_avatar_set_text(handle->entry_avatar, title);
   hdy_avatar_set_icon_name(handle->entry_avatar, icon);
 
   if (!(handle->chat))

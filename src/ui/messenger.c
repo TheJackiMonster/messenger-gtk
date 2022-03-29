@@ -37,6 +37,7 @@
 #include "settings.h"
 
 #include "../application.h"
+#include "../ui.h"
 
 static gboolean
 _flap_user_details_reveal_switch(gpointer user_data)
@@ -605,24 +606,22 @@ _messenger_iterate_accounts(void *cls,
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
 
-  const gchar *name = GNUNET_CHAT_account_get_name(account);
+  const char *name = GNUNET_CHAT_account_get_name(account);
 
   UI_ACCOUNT_ENTRY_Handle *entry = ui_account_entry_new(app);
 
-  hdy_avatar_set_text(entry->entry_avatar, name);
-  gtk_label_set_text(entry->entry_label, name);
+  ui_avatar_set_text(entry->entry_avatar, name);
+  ui_label_set_text(entry->entry_label, name);
 
   gtk_list_box_prepend(ui->accounts_listbox, entry->entry_box);
 
-  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
-    gtk_widget_get_parent(entry->entry_box)
-  );
+  GtkWidget *row = gtk_widget_get_parent(entry->entry_box);
 
   g_object_set_qdata(G_OBJECT(row), app->quarks.data, account);
 
   if ((account == GNUNET_CHAT_get_connected(handle)) ||
       ((app->chat.identity) && (0 == g_strcmp0(app->chat.identity, name))))
-    gtk_widget_activate(GTK_WIDGET(row));
+    gtk_widget_activate(row);
 
   ui_account_entry_delete(entry);
   return GNUNET_YES;
@@ -673,12 +672,15 @@ ui_messenger_is_context_active(UI_MESSENGER_Handle *handle,
 
   UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(context);
 
-  if (!entry)
+  if ((!entry) || (!(entry->entry_box)))
     return FALSE;
 
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
       gtk_widget_get_parent(entry->entry_box)
   );
+
+  if (!row)
+    return FALSE;
 
   return gtk_list_box_row_is_selected(row);
 }

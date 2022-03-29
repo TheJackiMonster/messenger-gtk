@@ -24,6 +24,8 @@
 
 #include "contact.h"
 
+#include "ui.h"
+
 void
 contact_create_info(struct GNUNET_CHAT_Contact *contact)
 {
@@ -67,7 +69,8 @@ contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
     return;
 
   const char *name = GNUNET_CHAT_contact_get_name(contact);
-  gtk_label_set_text(label, name? name : "");
+
+  ui_label_set_text(label, name);
 
   info->name_labels = g_list_append(info->name_labels, label);
 }
@@ -82,7 +85,8 @@ contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
    return;
 
   const char *name = GNUNET_CHAT_contact_get_name(contact);
-  hdy_avatar_set_text(avatar, name? name : "");
+
+  ui_avatar_set_text(avatar, name);
 
   info->name_avatars = g_list_append(info->name_avatars, avatar);
 }
@@ -99,11 +103,8 @@ contact_update_info(const struct GNUNET_CHAT_Contact *contact)
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
   for (list = info->name_labels; list; list = list->next)
-    gtk_label_set_text(GTK_LABEL(list->data), name? name : "");
-
-  if (!name)
-    return;
+    ui_label_set_text(GTK_LABEL(list->data), name);
 
   for (list = info->name_avatars; list; list = list->next)
-    hdy_avatar_set_text(HDY_AVATAR(list->data), name);
+    ui_avatar_set_text(HDY_AVATAR(list->data), name);
 }

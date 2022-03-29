@@ -25,7 +25,9 @@
 #include "contact_info.h"
 
 #include "chat_entry.h"
+
 #include "../application.h"
+#include "../ui.h"
 
 static void
 handle_contact_edit_button_click(UNUSED GtkButton *button,
@@ -137,12 +139,15 @@ handle_open_chat_button_click(UNUSED GtkButton *button,
 
   UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(context);
 
-  if (!entry)
+  if ((!entry) || (!(entry->entry_box)))
     return;
 
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
       gtk_widget_get_parent(entry->entry_box)
   );
+
+  if (!row)
+    return;
 
   gtk_list_box_select_row(handle->app->ui.messenger.chats_listbox, row);
   gtk_list_box_invalidate_filter(handle->app->ui.messenger.chats_listbox);
@@ -415,8 +420,8 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
 {
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
-  hdy_avatar_set_text(handle->contact_avatar, name? name : "");
-  gtk_entry_set_text(handle->contact_name_entry, name? name : "");
+  ui_avatar_set_text(handle->contact_avatar, name);
+  ui_entry_set_text(handle->contact_name_entry, name);
 
   g_object_set_qdata(
       G_OBJECT(handle->contact_name_entry),
@@ -440,12 +445,12 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
   else
     handle->qr = NULL;
 
-  gtk_label_set_text(handle->name_label, name? name : "");
+  ui_label_set_text(handle->name_label, name);
 
   if (handle->id_drawing_area)
     gtk_widget_queue_draw(GTK_WIDGET(handle->id_drawing_area));
 
-  gtk_entry_set_text(handle->id_entry, key? key : "");
+  ui_entry_set_text(handle->id_entry, key);
 
   gtk_widget_set_sensitive(
       GTK_WIDGET(handle->reveal_identity_button),

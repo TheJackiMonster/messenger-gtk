@@ -53,6 +53,8 @@ _application_accounts(gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
+  app->init = 0;
+
   ui_accounts_dialog_init(app, &(app->ui.accounts));
   ui_accounts_dialog_refresh(app, &(app->ui.accounts));
 
@@ -61,17 +63,71 @@ _application_accounts(gpointer user_data)
 }
 
 static void
-_application_activate(UNUSED GtkApplication* application,
-		      gpointer user_data)
+_application_init(MESSENGER_Application *app)
 {
-  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
-
   ui_messenger_init(app, &(app->ui.messenger));
 
   if (app->chat.identity)
     gtk_widget_show(GTK_WIDGET(app->ui.messenger.main_window));
   else
-    g_idle_add(G_SOURCE_FUNC(_application_accounts), app);
+    app->init = g_idle_add(G_SOURCE_FUNC(_application_accounts), app);
+}
+
+static void
+_application_activate(GApplication* application,
+		      gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  g_application_hold(application);
+
+  _application_init(app);
+
+  g_application_release(application);
+}
+
+static void
+_application_open(GApplication* application,
+		  GFile **files,
+		  gint n_files,
+		  UNUSED gchar* hint,
+		  gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  g_application_hold(application);
+
+  _application_init(app);
+
+  for (gint i = 0; i < n_files; i++) {
+    if (!g_file_has_uri_scheme(files[i], "gnunet"))
+      continue;
+
+    gchar *uri_string = g_file_get_uri(files[i]);
+
+    if (!uri_string)
+      continue;
+
+    char *emsg = NULL;
+    struct GNUNET_CHAT_Uri *uri = GNUNET_CHAT_uri_parse(uri_string, &emsg);
+
+    if (emsg)
+    {
+      g_printerr("ERROR: %s\n", emsg);
+      GNUNET_free(emsg);
+    }
+
+    if (!uri)
+      goto free_string;
+
+    GNUNET_CHAT_lobby_join(app->chat.messenger.handle, uri);
+    GNUNET_CHAT_uri_destroy(uri);
+
+  free_string:
+    g_free(uri_string);
+  }
+
+  g_application_release(application);
 }
 
 void
@@ -84,12 +140,13 @@ application_init(MESSENGER_Application *app,
   app->argc = argc;
   app->argv = argv;
 
-  gst_init (&argc, &argv);
+  gst_init(&argc, &argv);
   gtk_init(&argc, &argv);
   hdy_init();
 
   app->application = gtk_application_new(
       MESSENGER_APPLICATION_ID,
+      G_APPLICATION_HANDLES_OPEN |
       G_APPLICATION_NON_UNIQUE
   );
 
@@ -134,6 +191,13 @@ application_init(MESSENGER_Application *app,
       app->application,
       "activate",
       G_CALLBACK(_application_activate),
+      app
+  );
+
+  g_signal_connect(
+      app->application,
+      "open",
+      G_CALLBACK(_application_open),
       app
   );
 }

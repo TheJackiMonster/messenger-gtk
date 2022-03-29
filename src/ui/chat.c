@@ -38,6 +38,7 @@
 #include "../application.h"
 #include "../contact.h"
 #include "../file.h"
+#include "../ui.h"
 
 static gboolean
 _flap_chat_details_reveal_switch(gpointer user_data)
@@ -520,7 +521,7 @@ handle_send_record_button_click(GtkButton *button,
   {
     UI_FILE_LOAD_ENTRY_Handle *file_load = ui_file_load_entry_new(app);
 
-    gtk_label_set_text(file_load->file_label, handle->recording_filename);
+    ui_label_set_text(file_load->file_label, handle->recording_filename);
     gtk_progress_bar_set_fraction(file_load->load_progress_bar, 0.0);
 
     struct GNUNET_CHAT_File *file = GNUNET_CHAT_context_send_file(
@@ -1493,17 +1494,14 @@ ui_chat_update(UI_CHAT_Handle *handle,
     );
   }
 
-  hdy_avatar_set_text(handle->chat_avatar, title? title : "");
+  ui_avatar_set_text(handle->chat_avatar, title);
   hdy_avatar_set_icon_name(handle->chat_avatar, icon);
 
-  hdy_avatar_set_text(handle->chat_details_avatar, title? title : "");
+  ui_avatar_set_text(handle->chat_details_avatar, title);
   hdy_avatar_set_icon_name(handle->chat_details_avatar, icon);
 
-  if (title)
-  {
-    gtk_label_set_text(handle->chat_title, title);
-    gtk_label_set_text(handle->chat_details_label, title);
-  }
+  ui_label_set_text(handle->chat_title, title);
+  ui_label_set_text(handle->chat_details_label, title);
 
   if (subtitle->len > 0)
     gtk_label_set_text(handle->chat_subtitle, subtitle->str);
@@ -1694,7 +1692,7 @@ ui_chat_remove_file_load(UI_CHAT_Handle *handle,
 
   gtk_container_remove(
       GTK_CONTAINER(handle->chat_load_listbox),
-      gtk_widget_get_parent(GTK_WIDGET(file_load->entry_box))
+      gtk_widget_get_parent(file_load->entry_box)
   );
 
   if (handle->loads)

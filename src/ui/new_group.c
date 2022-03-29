@@ -68,7 +68,9 @@ handle_group_entry_changed(GtkEditable *editable,
   HdyAvatar *avatar = HDY_AVATAR(user_data);
   GtkEntry *entry = GTK_ENTRY(editable);
 
-  hdy_avatar_set_text(avatar, gtk_entry_get_text(entry));
+  const gchar *text = gtk_entry_get_text(entry);
+
+  hdy_avatar_set_text(avatar, text);
 }
 
 static void
@@ -166,10 +168,7 @@ _iterate_contacts(void *cls,
       entry->entry_box
   );
 
-  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
-      gtk_widget_get_parent(entry->entry_box)
-  );
-
+  GtkWidget *row = gtk_widget_get_parent(entry->entry_box);
   g_object_set_qdata(G_OBJECT(row), app->quarks.data, contact);
 
   app->ui.new_group.contact_entries = g_list_append(

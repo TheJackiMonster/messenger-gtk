@@ -28,6 +28,7 @@
 
 #include "../application.h"
 #include "../file.h"
+#include "../ui.h"
 
 static void
 handle_downloading_file(void *cls,
@@ -434,6 +435,8 @@ _update_file_message(UI_MESSAGE_Handle *handle,
 		     MESSENGER_Application *app,
 		     struct GNUNET_CHAT_File *file)
 {
+  const char *filename = GNUNET_CHAT_file_get_name(file);
+
   uint64_t size = GNUNET_CHAT_file_get_size(file);
   uint64_t local_size = GNUNET_CHAT_file_get_local_size(file);
 
@@ -498,7 +501,7 @@ file_progress:
   );
 
 file_content:
-  gtk_label_set_text(handle->filename_label, GNUNET_CHAT_file_get_name(file));
+  ui_label_set_text(handle->filename_label, filename);
 
   gtk_stack_set_visible_child(
       handle->content_stack,

@@ -30,6 +30,7 @@
 
 #include "../application.h"
 #include "../file.h"
+#include "../ui.h"
 
 static void
 handle_cancel_button_click(UNUSED GtkButton *button,

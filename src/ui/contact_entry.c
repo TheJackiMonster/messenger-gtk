@@ -25,6 +25,7 @@
 #include "contact_entry.h"
 
 #include "../application.h"
+#include "../ui.h"
 
 UI_CONTACT_ENTRY_Handle*
 ui_contact_entry_new(MESSENGER_Application *app)
@@ -59,24 +60,12 @@ ui_contact_entry_set_contact(UI_CONTACT_ENTRY_Handle* handle,
 			     const struct GNUNET_CHAT_Contact *contact)
 {
 
-  const gchar *name;
-  const gchar *key;
+  const char *name = GNUNET_CHAT_contact_get_name(contact);
+  const char *key = GNUNET_CHAT_contact_get_key(contact);
 
-  name = GNUNET_CHAT_contact_get_name(contact);
-
-  if (!name)
-    goto skip_name;
-
-  hdy_avatar_set_text(handle->entry_avatar, name);
-  gtk_label_set_text(handle->title_label, name);
-
-skip_name:
-  key = GNUNET_CHAT_contact_get_key(contact);
-
-  if (!key)
-    return;
-
-  gtk_label_set_text(handle->subtitle_label, name);
+  ui_avatar_set_text(handle->entry_avatar, name);
+  ui_label_set_text(handle->title_label, name);
+  ui_label_set_text(handle->subtitle_label, key);
 }
 
 void

@@ -49,17 +49,17 @@ handle_confirm_button_click(UNUSED GtkButton *button,
   gchar *emsg = NULL;
   struct GNUNET_CHAT_Uri *uri = GNUNET_CHAT_uri_parse(id_text, &emsg);
 
-  if (uri)
-  {
-    GNUNET_CHAT_lobby_join(app->chat.messenger.handle, uri);
-    GNUNET_CHAT_uri_destroy(uri);
-  }
-
   if (emsg)
   {
-    printf("ERROR: %s\n", emsg);
+    g_printerr("ERROR: %s\n", emsg);
     GNUNET_free(emsg);
   }
+
+  if (!uri)
+    goto close_dialog;
+
+  GNUNET_CHAT_lobby_join(app->chat.messenger.handle, uri);
+  GNUNET_CHAT_uri_destroy(uri);
 
 close_dialog:
   gtk_window_close(GTK_WINDOW(app->ui.new_contact.dialog));

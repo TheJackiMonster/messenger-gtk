@@ -71,6 +71,7 @@ typedef struct MESSENGER_Application
 
   GtkApplication *application;
   GList *notifications;
+  guint init;
 
   struct {
     GQuark widget;

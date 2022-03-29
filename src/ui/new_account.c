@@ -63,7 +63,9 @@ handle_account_entry_changed(GtkEditable *editable,
   HdyAvatar *avatar = HDY_AVATAR(user_data);
   GtkEntry *entry = GTK_ENTRY(editable);
 
-  hdy_avatar_set_text(avatar, gtk_entry_get_text(entry));
+  const gchar *text = gtk_entry_get_text(entry);
+
+  hdy_avatar_set_text(avatar, text);
 }
 
 static void
