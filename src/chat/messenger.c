@@ -188,7 +188,6 @@ chat_messenger_run(void *cls,
 
   app->chat.messenger.handle = GNUNET_CHAT_start(
       cfg,
-      ".messenger",
       &_chat_messenger_message,
       app
   );
