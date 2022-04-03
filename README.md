@@ -1,4 +1,4 @@
-# messenger-gtk
+# Messenger-GTK
 
 A GTK based GUI for the Messenger service of GNUnet.
 
@@ -48,3 +48,13 @@ Then you can simply use the provided Makefile as follows:
  - `make debug` to compile everything with debug parameters
  - `make release` to compile everything with build optimizations enabled
  - `make install` to install the compiled files (you might need sudo permissions to install)
+
+## Contribution
+
+If you want to contribute to this project as well, the following options are available:
+
+ * Contribute directly to the [source code](https://git.gnunet.org/messenger-gtk.git/) with patches to fix issues, implement new features or improve the usability.
+ * Open issues in the [bug tracker](https://bugs.gnunet.org/bug_report_page.php) to report bugs, issues or missing features.
+ * Contact the authors of the software if you need any help to contribute (testing is always an option).
+
+The list of all previous authors can be viewed in the provided [file](AUTHORS).
