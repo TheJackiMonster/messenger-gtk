@@ -60,6 +60,29 @@ contact_destroy_info(struct GNUNET_CHAT_Contact *contact)
 }
 
 void
+contact_set_last_message_to_info(const struct GNUNET_CHAT_Contact *contact,
+				 void *message)
+{
+  MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
+
+  if (!info)
+    return;
+
+  info->last_message = message;
+}
+
+void*
+contact_get_last_message_from_info(const struct GNUNET_CHAT_Contact *contact)
+{
+  MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
+
+  if (!info)
+    return NULL;
+
+  return info->last_message;
+}
+
+void
 contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
 			       GtkLabel *label)
 {

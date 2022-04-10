@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -29,6 +29,8 @@
 
 typedef struct MESSENGER_ContactInfo
 {
+  void *last_message;
+
   GList *name_labels;
   GList *name_avatars;
 } MESSENGER_ContactInfo;
@@ -38,6 +40,13 @@ contact_create_info(struct GNUNET_CHAT_Contact *contact);
 
 void
 contact_destroy_info(struct GNUNET_CHAT_Contact *contact);
+
+void
+contact_set_last_message_to_info(const struct GNUNET_CHAT_Contact *contact,
+				 void *message);
+
+void*
+contact_get_last_message_from_info(const struct GNUNET_CHAT_Contact *contact);
 
 void
 contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,

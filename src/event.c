@@ -412,9 +412,18 @@ event_presence_contact(MESSENGER_Application *app,
       msg
   );
 
-  UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) (
-      GNUNET_CHAT_member_get_user_pointer(context, contact)
-  );
+  struct GNUNET_CHAT_Group *group = GNUNET_CHAT_context_get_group(context);
+
+  UI_MESSAGE_Handle *message = NULL;
+
+  contact_create_info(contact);
+
+  if (group)
+    message = (UI_MESSAGE_Handle*) (
+	GNUNET_CHAT_member_get_user_pointer(group, contact)
+    );
+  else
+    message = (UI_MESSAGE_Handle*) contact_get_last_message_from_info(contact);
 
   if (message)
     ui_chat_remove_message(handle->chat, app, message);
@@ -422,7 +431,6 @@ event_presence_contact(MESSENGER_Application *app,
   message = ui_message_new(app, UI_MESSAGE_STATUS);
   ui_message_update(message, app, msg);
 
-  contact_create_info(contact);
   _update_contact_context(contact);
 
   contact_add_name_avatar_to_info(contact, message->sender_avatar);
@@ -453,7 +461,10 @@ event_presence_contact(MESSENGER_Application *app,
 
   ui_chat_add_message(handle->chat, app, message);
 
-  GNUNET_CHAT_member_set_user_pointer(context, contact, message);
+  if (group)
+    GNUNET_CHAT_member_set_user_pointer(group, contact, message);
+  else
+    contact_set_last_message_to_info(contact, message);
 
   enqueue_chat_entry_update(handle);
 }
