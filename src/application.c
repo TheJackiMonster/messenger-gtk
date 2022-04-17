@@ -254,6 +254,7 @@ _application_chat_thread(void *args)
 void
 application_run(MESSENGER_Application *app)
 {
+  // Start thread to run GNUnet scheduler
   pthread_create(&(app->chat.tid), NULL, _application_chat_thread, app);
 
   app->ui.status = g_application_run(
@@ -265,6 +266,7 @@ application_run(MESSENGER_Application *app)
   if (app->ui.status != 0)
     application_exit(app, MESSENGER_FAIL);
 
+  // Wait for other thread to stop properly
   pthread_join(app->chat.tid, NULL);
 
   close(app->chat.pipe[0]);
@@ -272,6 +274,7 @@ application_run(MESSENGER_Application *app)
 
   pthread_mutex_destroy(&(app->chat.mutex));
 
+  // Get rid of open notifications
   GList *list = app->notifications;
 
   while (list) {
@@ -304,6 +307,7 @@ _application_event_call(gpointer user_data)
 
   call = (MESSENGER_ApplicationEventCall*) user_data;
 
+  // Locking the mutex for synchronization
   pthread_mutex_lock(&(call->app->chat.mutex));
   call->event(call->app);
   pthread_mutex_unlock(&(call->app->chat.mutex));
@@ -344,6 +348,7 @@ _application_message_event_call(gpointer user_data)
 
   call = (MESSENGER_ApplicationMessageEventCall*) user_data;
 
+  // Locking the mutex for synchronization
   pthread_mutex_lock(&(call->app->chat.mutex));
   call->event(call->app, call->context, call->message);
   pthread_mutex_unlock(&(call->app->chat.mutex));
@@ -380,6 +385,8 @@ void
 application_exit(MESSENGER_Application *app,
 		 MESSENGER_ApplicationSignal signal)
 {
+  // Forward a signal to the other thread causing it to shutdown the
+  // GNUnet handles of the application.
   write(app->chat.pipe[1], &signal, sizeof(signal));
 }
 

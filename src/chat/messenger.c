@@ -51,6 +51,7 @@ _chat_messenger_quit(void *cls)
   if (received < 0)
     signal = MESSENGER_FAIL;
 
+  // Free contact infos
   GNUNET_CHAT_iterate_contacts(
       app->chat.messenger.handle,
       _chat_messenger_destroy_contacts,
@@ -68,6 +69,8 @@ _chat_messenger_idle(void *cls)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
+  // Idling until the application shuts down
+  // (required to get events immediately).
   app->chat.messenger.idle = GNUNET_SCHEDULER_add_delayed_with_priority(
       GNUNET_TIME_relative_get_second_(),
       GNUNET_SCHEDULER_PRIORITY_IDLE,
@@ -82,8 +85,11 @@ _chat_messenger_message(void *cls,
 			const struct GNUNET_CHAT_Message *message)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  // Locking the mutex for synchronization
   pthread_mutex_lock(&(app->chat.mutex));
 
+  // Handle each kind of message as proper event regarding context
   switch (GNUNET_CHAT_message_get_kind(message))
   {
     case GNUNET_CHAT_KIND_WARNING:
@@ -186,12 +192,14 @@ chat_messenger_run(void *cls,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
+  // Start libgnunetchat handle
   app->chat.messenger.handle = GNUNET_CHAT_start(
       cfg,
       &_chat_messenger_message,
       app
   );
 
+  // Setup pipe to handle closing the application from the other thread
   struct GNUNET_NETWORK_FDSet *fd = GNUNET_NETWORK_fdset_create ();
   GNUNET_NETWORK_fdset_set_native(fd, app->chat.pipe[0]);
 
@@ -204,6 +212,8 @@ chat_messenger_run(void *cls,
       app
   );
 
+  // The idle callback seems to be necessary to not wait too long for
+  // other events
   app->chat.messenger.idle = GNUNET_SCHEDULER_add_now(
       &_chat_messenger_idle,
       app

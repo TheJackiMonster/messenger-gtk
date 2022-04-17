@@ -51,6 +51,7 @@ _show_messenger_main_window(gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
+  // Refresh the account list
   ui_messenger_refresh(app, &(app->ui.messenger));
 
   gtk_widget_show(GTK_WIDGET(app->ui.messenger.main_window));
@@ -64,6 +65,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
+  // Drop activations of rows which do not contain accounts
   if (!gtk_list_box_row_get_selectable(row))
   {
     app->ui.accounts.show_queued = g_idle_add(
@@ -80,6 +82,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   if (!account)
     goto close_dialog;
 
+  // Handle the GUI swap asyncronously
   if (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
     app->ui.accounts.show_queued = g_idle_add(
 	G_SOURCE_FUNC(_show_messenger_main_window), app
