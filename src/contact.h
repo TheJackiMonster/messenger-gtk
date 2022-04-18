@@ -35,27 +35,73 @@ typedef struct MESSENGER_ContactInfo
   GList *name_avatars;
 } MESSENGER_ContactInfo;
 
+/**
+ * Creates a contact information struct to potentially
+ * update all GUI appearances of a specific contact at
+ * once.
+ *
+ * @param contact Chat contact
+ */
 void
 contact_create_info(struct GNUNET_CHAT_Contact *contact);
 
+/**
+ * Destroys and frees resources allocated for a given
+ * contact information struct.
+ *
+ * @param contact Chat contact
+ */
 void
 contact_destroy_info(struct GNUNET_CHAT_Contact *contact);
 
+/**
+ * Sets the latest join/leave UI message handle so that
+ * the application can check whether a contact is available.
+ *
+ * @param contact Chat contact
+ * @param message Pointer to UI message handle
+ */
 void
 contact_set_last_message_to_info(const struct GNUNET_CHAT_Contact *contact,
 				 void *message);
 
+/**
+ * Returns the latest join/leave UI message handle of
+ * a specific contact.
+ *
+ * @param contact Chat contact
+ */
 void*
 contact_get_last_message_from_info(const struct GNUNET_CHAT_Contact *contact);
 
+/**
+ * Adds a GtkLabel to the list of labels
+ * which get updated by state changes.
+ *
+ * @param contact Chat contact
+ * @param label Label
+ */
 void
 contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
 			       GtkLabel *label);
 
+/**
+ * Adds a HdyAvatar to the list of avatars
+ * which get updated by state changes.
+ *
+ * @param contact Chat contact
+ * @param avatar Avatar
+ */
 void
 contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
 				HdyAvatar *avatar);
 
+/**
+ * Updates the connected UI elements for a given
+ * contact depending on the current state.
+ *
+ * @param contact Chat contact
+ */
 void
 contact_update_info(const struct GNUNET_CHAT_Contact *contact);
 

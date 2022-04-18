@@ -39,6 +39,15 @@ typedef struct CHAT_MESSENGER_Handle
   struct GNUNET_SCHEDULER_Task *idle;
 } CHAT_MESSENGER_Handle;
 
+/**
+ * Startup event of the GNUnet scheduler thread to
+ * handle the messenger application startup.
+ *
+ * @param cls Closure
+ * @param args Arguments
+ * @param cfgfile Configuration file path
+ * @param cfg Configuration
+ */
 void
 chat_messenger_run(void *cls,
 		   char *const *args,

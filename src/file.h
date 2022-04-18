@@ -33,21 +33,59 @@ typedef struct MESSENGER_FileInfo
   GList *file_messages;
 } MESSENGER_FileInfo;
 
+/**
+ * Creates a file information struct to potentially update
+ * all GUI appearances of a specific file at once.
+ *
+ * @param file Chat file
+ */
 void
 file_create_info(struct GNUNET_CHAT_File *file);
 
+/**
+ * Destroys and frees resources allocated for a given
+ * file information struct.
+ *
+ * @param file Chat file
+ */
 void
 file_destroy_info(struct GNUNET_CHAT_File *file);
 
+/**
+ * Adds a UI message handle to the list of handles
+ * which get updated by state changes.
+ *
+ * @param file Chat file
+ * @param message UI message handle
+ */
 void
 file_add_ui_message_to_info(const struct GNUNET_CHAT_File *file,
 			    UI_MESSAGE_Handle *message);
 
+/**
+ * Updates the connected UI elements for a given
+ * file depending on the current state of its upload
+ * process.
+ *
+ * @param file Chat file
+ * @param completed Amount of uploaded bytes
+ * @param size Size of the file in bytes
+ */
 void
 file_update_upload_info(const struct GNUNET_CHAT_File *file,
 			uint64_t completed,
 			uint64_t size);
 
+/**
+ * Updates the connected UI elements for a given
+ * file depending on the current state of its download
+ * process.
+ *
+ * @param file Chat file
+ * @param app Messenger application
+ * @param completed Amount of downloaded bytes
+ * @param size Size of the file in bytes
+ */
 void
 file_update_download_info(const struct GNUNET_CHAT_File *file,
 			  MESSENGER_Application *app,

@@ -134,15 +134,38 @@ typedef struct MESSENGER_Application
   } settings;
 } MESSENGER_Application;
 
+/**
+ * Initializes the messenger application with
+ * startup arguments.
+ *
+ * @param app Messenger application
+ * @param argc Amount of arguments
+ * @param argv Arguments
+ */
 void
 application_init(MESSENGER_Application *app,
 		 int argc,
 		 char **argv);
 
+/**
+ * Returns the path from resources of the
+ * messenger application relative to its storage.
+ *
+ * @param app Messenger application
+ * @param path Path
+ * @return Resource path
+ */
 const gchar*
 application_get_resource_path(MESSENGER_Application *app,
 			      const char *path);
 
+/**
+ * Runs the messenger application starting the
+ * second thread and waiting for the application
+ * to finish.
+ *
+ * @param app Messenger application
+ */
 void
 application_run(MESSENGER_Application *app);
 
@@ -156,20 +179,49 @@ typedef void (*MESSENGER_ApplicationMessageEvent) (
     const struct GNUNET_CHAT_Message *msg
 );
 
+/**
+ * Calls a given event with the messenger application
+ * asyncronously but explicitly synchronized via mutex.
+ *
+ * @param app Messenger application
+ * @param event Event
+ */
 void
 application_call_event(MESSENGER_Application *app,
 		       MESSENGER_ApplicationEvent event);
 
+/**
+ * Calls a given message event with the messenger
+ * application asyncronously but explicitly synchronized
+ * via mutex.
+ *
+ * @param app Messenger application
+ * @param event Message event
+ * @param context Chat context
+ * @param message Message
+ */
 void
 application_call_message_event(MESSENGER_Application *app,
 			       MESSENGER_ApplicationMessageEvent event,
 			       struct GNUNET_CHAT_Context *context,
                                const struct GNUNET_CHAT_Message *message);
 
+/**
+ * Signals the second thread to exit the application.
+ *
+ * @param app Messenger application
+ * @param signal Exit signal
+ */
 void
 application_exit(MESSENGER_Application *app,
 		 MESSENGER_ApplicationSignal signal);
 
+/**
+ * Returns the exit status of the messenger application.
+ *
+ * @param app Messenger application
+ * @return Exit status
+ */
 int
 application_status(MESSENGER_Application *app);
 

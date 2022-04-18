@@ -28,12 +28,33 @@
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
 
+/**
+ * Sets the text of a GtkLabel applying automatic utf8
+ * conversion.
+ *
+ * @param label Label
+ * @param text Non-utf8 text
+ */
 void
 ui_label_set_text(GtkLabel *label, const char *text);
 
+/**
+ * Sets the text of a GtkEntry applying automatic utf8
+ * conversion.
+ *
+ * @param entry Entry
+ * @param text Non-utf8 text
+ */
 void
 ui_entry_set_text(GtkEntry *entry, const char *text);
 
+/**
+ * Sets the text of a HdyAvatar applying automatic utf8
+ * conversion.
+ *
+ * @param avatar Avatar
+ * @param text Non-utf8 text
+ */
 void
 ui_avatar_set_text(HdyAvatar *avatar, const char *text);
 

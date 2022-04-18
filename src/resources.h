@@ -25,9 +25,15 @@
 #ifndef RESOURCES_H_
 #define RESOURCES_H_
 
+/**
+ * Registers the CSS and UI components for the application.
+ */
 void
 resources_register();
 
+/**
+ * Unregisters the CSS and UI components for the application.
+ */
 void
 resources_unregister();
 
