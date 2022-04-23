@@ -130,31 +130,86 @@ typedef struct UI_CHAT_Handle
   UI_PICKER_Handle *picker;
 } UI_CHAT_Handle;
 
+/**
+ * Allocates and creates a new chat handle
+ * to manage a chat for a given messenger
+ * application.
+ *
+ * @param app Messenger application
+ * @return New chat handle
+ */
 UI_CHAT_Handle*
 ui_chat_new(MESSENGER_Application *app);
 
+/**
+ * Updates a given chat handle with the current
+ * state of a messenger application and the chat
+ * context the chat is representing.
+ *
+ * @param handle Chat handle
+ * @param app Messenger application
+ * @param context Chat context
+ */
 void
 ui_chat_update(UI_CHAT_Handle *handle,
 	       MESSENGER_Application *app,
 	       struct GNUNET_CHAT_Context* context);
 
+/**
+ * Frees its resources and destroys a given
+ * chat handle.
+ *
+ * @param handle Chat handle
+ */
 void
 ui_chat_delete(UI_CHAT_Handle *handle);
 
+/**
+ * Add a message handle to a given chat handle
+ * to get listed by it for a messenger
+ * application.
+ *
+ * @param handle Chat handle
+ * @param app Messenger application
+ * @param message Message handle
+ */
 void
 ui_chat_add_message(UI_CHAT_Handle *handle,
 		    MESSENGER_Application *app,
 		    UI_MESSAGE_Handle *message);
 
+/**
+ * Removes a message handle from a given chat
+ * handle to remove it from its list for a
+ * messenger application.
+ *
+ * @param handle Chat handle
+ * @param app Messenger application
+ * @param message Message handle
+ */
 void
 ui_chat_remove_message(UI_CHAT_Handle *handle,
 		       MESSENGER_Application *app,
 		       UI_MESSAGE_Handle *message);
 
+/**
+ * Add a file load entry handle to a given chat
+ * handle to get listed by it.
+ *
+ * @param handle Chat handle
+ * @param file_load File load entry handle
+ */
 void
 ui_chat_add_file_load(UI_CHAT_Handle *handle,
 		      UI_FILE_LOAD_ENTRY_Handle *file_load);
 
+/**
+ * Removes a file load entry handle from a given
+ * chat handle to remove it from its list.
+ *
+ * @param handle Chat handle
+ * @param file_load File load entry handle
+ */
 void
 ui_chat_remove_file_load(UI_CHAT_Handle *handle,
 			 UI_FILE_LOAD_ENTRY_Handle *file_load);

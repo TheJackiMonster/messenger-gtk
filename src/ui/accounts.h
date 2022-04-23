@@ -39,14 +39,34 @@ typedef struct UI_ACCOUNTS_Handle
   GtkButton *close_button;
 } UI_ACCOUNTS_Handle;
 
+/**
+ * Initializes a handle for the accounts dialog
+ * of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle Accounts dialog handle
+ */
 void
 ui_accounts_dialog_init(MESSENGER_Application *app,
 			UI_ACCOUNTS_Handle *handle);
 
+/**
+ * Refreshes a given accounts dialog handle with the
+ * current list of accounts from a messenger application.
+ *
+ * @param app Messenger application
+ * @param handle Accounts dialog handle
+ */
 void
 ui_accounts_dialog_refresh(MESSENGER_Application *app,
 			   UI_ACCOUNTS_Handle *handle);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given accounts dialog handle.
+ *
+ * @param handle Accounts dialog handle
+ */
 void
 ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle);
 

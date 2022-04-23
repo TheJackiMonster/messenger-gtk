@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -77,18 +77,47 @@ typedef struct UI_MESSENGER_Handle
   GtkWidget *no_chat_box;
 } UI_MESSENGER_Handle;
 
+/**
+ * Initializes a handle for the messenger main
+ * window of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle Messenger window handle
+ */
 void
 ui_messenger_init(MESSENGER_Application *app,
 		  UI_MESSENGER_Handle *handle);
 
+/**
+ * Refreshes a given messenger window handle with
+ * the data of the current state from a given
+ * messenger application.
+ *
+ * @param app Messenger application
+ * @param handle Messenger window handle
+ */
 void
 ui_messenger_refresh(MESSENGER_Application *app,
 		     UI_MESSENGER_Handle *handle);
 
+/**
+ * Returns whether a certain chat context is currently
+ * visually represented via a chat UI handle.
+ *
+ * @param handle Messenger window handle
+ * @param context Chat context
+ * @return true if the context is viewed, otherwise false
+ */
 gboolean
 ui_messenger_is_context_active(UI_MESSENGER_Handle *handle,
 			       struct GNUNET_CHAT_Context *context);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given messenger window handle.
+ *
+ * @param handle Messenger window handle
+ */
 void
 ui_messenger_cleanup(UI_MESSENGER_Handle *handle);
 

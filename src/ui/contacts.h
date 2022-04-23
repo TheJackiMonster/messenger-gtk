@@ -39,10 +39,23 @@ typedef struct UI_CONTACTS_Handle
   GtkButton *close_button;
 } UI_CONTACTS_Handle;
 
+/**
+ * Initializes a handle for the contacts dialog
+ * of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle Contacts dialog handle
+ */
 void
 ui_contacts_dialog_init(MESSENGER_Application *app,
 			UI_CONTACTS_Handle *handle);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given contacts dialog handle.
+ *
+ * @param handle Contacts dialog handle
+ */
 void
 ui_contacts_dialog_cleanup(UI_CONTACTS_Handle *handle);
 

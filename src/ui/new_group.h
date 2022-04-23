@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -53,10 +53,23 @@ typedef struct UI_NEW_GROUP_Handle
   GtkButton *confirm_button;
 } UI_NEW_GROUP_Handle;
 
+/**
+ * Initializes a handle for the new group dialog
+ * of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle New group dialog handle
+ */
 void
 ui_new_group_dialog_init(MESSENGER_Application *app,
 			 UI_NEW_GROUP_Handle *handle);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given new group dialog handle.
+ *
+ * @param handle New group dialog handle
+ */
 void
 ui_new_group_dialog_cleanup(UI_NEW_GROUP_Handle *handle);
 

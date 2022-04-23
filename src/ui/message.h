@@ -84,18 +84,48 @@ typedef struct UI_MESSAGE_Handle
   guint redraw_animation;
 } UI_MESSAGE_Handle;
 
+/**
+ * Allocates and creates a new message handle
+ * to represent a message for a given messenger
+ * application by selected message type.
+ *
+ * @param app Messenger application
+ * @param type Message type
+ * @return New message handle
+ */
 UI_MESSAGE_Handle*
 ui_message_new(MESSENGER_Application *app,
 	       UI_MESSAGE_Type type);
 
+/**
+ * Refreshes the visual state of the read receipt
+ * from a given message handle.
+ *
+ * @param handle Message handle
+ */
 void
 ui_message_refresh(UI_MESSAGE_Handle *handle);
 
+/**
+ * Updates a given message handle with the
+ * current data from a messenger application
+ * and a selected chat message.
+ *
+ * @param handle Message handle
+ * @param app Messenger application
+ * @param message Chat message
+ */
 void
 ui_message_update(UI_MESSAGE_Handle *handle,
 		  MESSENGER_Application *app,
 		  const struct GNUNET_CHAT_Message *message);
 
+/**
+ * Frees its resources and destroys a given
+ * message handle.
+ *
+ * @param handle Message handle
+ */
 void
 ui_message_delete(UI_MESSAGE_Handle *handle);
 

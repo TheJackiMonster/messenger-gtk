@@ -56,10 +56,23 @@ typedef struct UI_NEW_CONTACT_Handle
   guint idle_processing;
 } UI_NEW_CONTACT_Handle;
 
+/**
+ * Initializes a handle for the new contact dialog
+ * of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle New contact dialog handle
+ */
 void
 ui_new_contact_dialog_init(MESSENGER_Application *app,
 			   UI_NEW_CONTACT_Handle *handle);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given new contact dialog handle.
+ *
+ * @param handle New contact dialog handle
+ */
 void
 ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle);
 

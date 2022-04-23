@@ -47,17 +47,50 @@ typedef struct UI_CHAT_ENTRY_Handle
   GtkImage *read_receipt_image;
 } UI_CHAT_ENTRY_Handle;
 
+/**
+ * Allocates and creates a new chat entry
+ * handle to manage a chat in a list for
+ * a given messenger application.
+ *
+ * @param app Messenger application
+ * @return New chat entry handle
+ */
 UI_CHAT_ENTRY_Handle*
 ui_chat_entry_new(MESSENGER_Application *app);
 
+/**
+ * Updates a given chat entry handle with the
+ * current state of a messenger application and
+ * the chat context the chat entry is
+ * representing.
+ *
+ * @param handle Chat entry handle
+ * @param app Messenger application
+ * @param context Chat context
+ */
 void
 ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 		     MESSENGER_Application *app,
 		     struct GNUNET_CHAT_Context *context);
 
+/**
+ * Frees its resources and destroys a given
+ * chat entry handle.
+ *
+ * @param handle Chat entry handle
+ */
 void
 ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle);
 
+/**
+ * Fully disposes all resources and handles
+ * which are linked to a given chat entry
+ * handle by a messenger application. The chat
+ * entry handle will be deleted as well.
+ *
+ * @param handle Chat entry handle
+ * @param app Messenger application
+ */
 void
 ui_chat_entry_dispose(UI_CHAT_ENTRY_Handle *handle,
 		      MESSENGER_Application *app);

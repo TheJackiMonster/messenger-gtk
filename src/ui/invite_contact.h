@@ -39,10 +39,23 @@ typedef struct UI_INVITE_CONTACT_Handle
   GtkButton *close_button;
 } UI_INVITE_CONTACT_Handle;
 
+/**
+ * Initializes a handle for the invite contact dialog
+ * of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle Invite contact dialog handle
+ */
 void
 ui_invite_contact_dialog_init(MESSENGER_Application *app,
 			      UI_INVITE_CONTACT_Handle *handle);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given invite contact dialog handle.
+ *
+ * @param handle Invite contact dialog handle
+ */
 void
 ui_invite_contact_dialog_cleanup(UI_INVITE_CONTACT_Handle *handle);
 

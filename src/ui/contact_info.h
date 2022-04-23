@@ -63,15 +63,38 @@ typedef struct UI_CONTACT_INFO_Handle
   QRcode *qr;
 } UI_CONTACT_INFO_Handle;
 
+/**
+ * Initializes a handle for the contact info dialog
+ * of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle Contact info dialog handle
+ */
 void
 ui_contact_info_dialog_init(MESSENGER_Application *app,
 			    UI_CONTACT_INFO_Handle *handle);
 
+/**
+ * Updates a given contact info dialog handle with
+ * current data of a certain chat contact and whether
+ * their identity should be visually revealed in the
+ * dialog.
+ *
+ * @param handle Contact info dialog handle
+ * @param contact Chat contact
+ * @param reveal Flag to reveal QR code of identity key
+ */
 void
 ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
 			      struct GNUNET_CHAT_Contact *contact,
 			      gboolean reveal);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given contact info dialog handle.
+ *
+ * @param handle Contact info dialog handle
+ */
 void
 ui_contact_info_dialog_cleanup(UI_CONTACT_INFO_Handle *handle);
 

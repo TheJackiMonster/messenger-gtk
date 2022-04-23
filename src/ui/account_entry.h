@@ -37,17 +37,47 @@ typedef struct UI_ACCOUNT_ENTRY_Handle
   GtkLabel *entry_label;
 } UI_ACCOUNT_ENTRY_Handle;
 
+/**
+ * Allocates and creates a new account entry
+ * handle to manage an account in a list for
+ * a given messenger application.
+ *
+ * @param app Messenger application
+ * @return New account entry handle
+ */
 UI_ACCOUNT_ENTRY_Handle*
 ui_account_entry_new(MESSENGER_Application *app);
 
+/**
+ * Sets the content of the given account entry
+ * handle respectively to visually represent a
+ * selected chat account.
+ *
+ * @param handle Account entry handle
+ * @param account Chat account
+ */
 void
 ui_account_entry_set_account(UI_ACCOUNT_ENTRY_Handle* handle,
 			     const struct GNUNET_CHAT_Account *account);
 
+/**
+ * Sets the content of the given account entry
+ * handle respectively to visually represent a
+ * selected chat contact.
+ *
+ * @param handle Account entry handle
+ * @param contact Chat contact
+ */
 void
 ui_account_entry_set_contact(UI_ACCOUNT_ENTRY_Handle* handle,
 			     const struct GNUNET_CHAT_Contact *contact);
 
+/**
+ * Frees its resources and destroys a given
+ * account entry handle.
+ *
+ * @param handle Account entry handle
+ */
 void
 ui_account_entry_delete(UI_ACCOUNT_ENTRY_Handle *handle);
 

@@ -50,15 +50,37 @@ typedef struct UI_DELETE_MESSAGES_Handle
   GtkButton *confirm_button;
 } UI_DELETE_MESSAGES_Handle;
 
+/**
+ * Initializes a handle for the delete messages
+ * dialog of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle Delete messages dialog handle
+ */
 void
 ui_delete_messages_dialog_init(MESSENGER_Application *app,
 			       UI_DELETE_MESSAGES_Handle *handle);
 
+/**
+ * Links a custom list and a callback to a
+ * given delete messages dialog which will be
+ * used to handle the event of deletion.
+ *
+ * @param handle Delete messages dialog handle
+ * @param callback Delete messages callback
+ * @param selected Selected messages
+ */
 void
 ui_delete_messages_dialog_link(UI_DELETE_MESSAGES_Handle *handle,
 			       UI_DELETE_MESSAGES_Callback callback,
 			       GList *selected);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given delete messages dialog handle.
+ *
+ * @param handle Delete messages dialog handle
+ */
 void
 ui_delete_messages_dialog_cleanup(UI_DELETE_MESSAGES_Handle *handle);
 

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -52,10 +52,23 @@ typedef struct UI_SETTINGS_Handle
   GtkButton *leave_chats_button;
 } UI_SETTINGS_Handle;
 
+/**
+ * Initializes a handle for the settings dialog
+ * of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle Settings dialog handle
+ */
 void
 ui_settings_dialog_init(MESSENGER_Application *app,
 			UI_SETTINGS_Handle *handle);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given settings dialog handle.
+ *
+ * @param handle Settings dialog handle
+ */
 void
 ui_settings_dialog_cleanup(UI_SETTINGS_Handle *handle);
 

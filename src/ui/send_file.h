@@ -49,14 +49,35 @@ typedef struct UI_SEND_FILE_Handle
   guint redraw_animation;
 } UI_SEND_FILE_Handle;
 
+/**
+ * Initializes a handle for the send file dialog
+ * of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle Send file dialog handle
+ */
 void
 ui_send_file_dialog_init(MESSENGER_Application *app,
 			 UI_SEND_FILE_Handle *handle);
 
+/**
+ * Updates a given send file dialog handle with
+ * a certain filename to pre-determine which file
+ * gets selected by the dialog as default.
+ *
+ * @param handle Send file dialog handle
+ * @param filename Custom filename
+ */
 void
 ui_send_file_dialog_update(UI_SEND_FILE_Handle *handle,
 			   const gchar *filename);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given send file dialog handle.
+ *
+ * @param handle Send file dialog handle
+ */
 void
 ui_send_file_dialog_cleanup(UI_SEND_FILE_Handle *handle);
 

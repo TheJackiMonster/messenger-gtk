@@ -47,9 +47,23 @@ typedef struct UI_FILE_LOAD_ENTRY_Handle
   GtkButton *cancel_button;
 } UI_FILE_LOAD_ENTRY_Handle;
 
+/**
+ * Allocates and creates a new file load entry
+ * handle to manage loading files for a given
+ * messenger application.
+ *
+ * @param app Messenger application
+ * @return New file load entry handle
+ */
 UI_FILE_LOAD_ENTRY_Handle*
 ui_file_load_entry_new(MESSENGER_Application *app);
 
+/**
+ * Frees its resources and destroys a given file
+ * load entry handle.
+ *
+ * @param handle File load entry handle
+ */
 void
 ui_file_load_entry_delete(UI_FILE_LOAD_ENTRY_Handle *handle);
 

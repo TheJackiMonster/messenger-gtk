@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -57,10 +57,25 @@ typedef struct UI_PICKER_Handle
   GtkButton *settings_button;
 } UI_PICKER_Handle;
 
+/**
+ * Allocates and creates a new picker handle to
+ * manage emoji selection in a chat for a given
+ * messenger application.
+ *
+ * @param app Messenger application
+ * @param chat Chat handle
+ * @return New picker handle
+ */
 UI_PICKER_Handle*
 ui_picker_new(MESSENGER_Application *app,
 	      UI_CHAT_Handle *chat);
 
+/**
+ * Frees its resources and destroys a given picker
+ * handle.
+ *
+ * @param handle Picker handle
+ */
 void
 ui_picker_delete(UI_PICKER_Handle *handle);
 

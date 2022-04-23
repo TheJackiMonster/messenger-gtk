@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -39,13 +39,35 @@ typedef struct UI_CONTACT_ENTRY_Handle
   GtkLabel *subtitle_label;
 } UI_CONTACT_ENTRY_Handle;
 
+/**
+ * Allocates and creates a new contact entry
+ * handle to manage a contact in a list for
+ * a given messenger application.
+ *
+ * @param app Messenger application
+ * @return New contact entry handle
+ */
 UI_CONTACT_ENTRY_Handle*
 ui_contact_entry_new(MESSENGER_Application *app);
 
+/**
+ * Sets the content of the given contact entry
+ * handle respectively to visually represent a
+ * selected chat contact.
+ *
+ * @param handle Contact entry handle
+ * @param contact Chat contact
+ */
 void
 ui_contact_entry_set_contact(UI_CONTACT_ENTRY_Handle* handle,
 			     const struct GNUNET_CHAT_Contact *contact);
 
+/**
+ * Frees its resources and destroys a given
+ * contact entry handle.
+ *
+ * @param handle Contact entry handle
+ */
 void
 ui_contact_entry_delete(UI_CONTACT_ENTRY_Handle *handle);
 

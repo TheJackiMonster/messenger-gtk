@@ -61,10 +61,23 @@ typedef struct UI_NEW_LOBBY_Handle
   QRcode *qr;
 } UI_NEW_LOBBY_Handle;
 
+/**
+ * Initializes a handle for the new lobby dialog
+ * of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle New lobby dialog handle
+ */
 void
 ui_new_lobby_dialog_init(MESSENGER_Application *app,
 			 UI_NEW_LOBBY_Handle *handle);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given new lobby dialog handle.
+ *
+ * @param handle New lobby dialog handle
+ */
 void
 ui_new_lobby_dialog_cleanup(UI_NEW_LOBBY_Handle *handle);
 

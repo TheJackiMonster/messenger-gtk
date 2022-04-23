@@ -35,10 +35,23 @@ typedef struct UI_ABOUT_Handle
   GtkButton *close_button;
 } UI_ABOUT_Handle;
 
+/**
+ * Initializes a handle for the about dialog of
+ * a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle About dialog handle
+ */
 void
 ui_about_dialog_init(MESSENGER_Application *app,
 		     UI_ABOUT_Handle *handle);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given about dialog handle.
+ *
+ * @param handle About dialog handle
+ */
 void
 ui_about_dialog_cleanup(UI_ABOUT_Handle *handle);
 

@@ -43,10 +43,23 @@ typedef struct UI_NEW_ACCOUNT_Handle
   GtkButton *confirm_button;
 } UI_NEW_ACCOUNT_Handle;
 
+/**
+ * Initializes a handle for the new account dialog
+ * of a given messenger application.
+ *
+ * @param app Messenger application
+ * @param handle New account dialog handle
+ */
 void
 ui_new_account_dialog_init(MESSENGER_Application *app,
 			   UI_NEW_ACCOUNT_Handle *handle);
 
+/**
+ * Cleans up the allocated resources and resets the
+ * state of a given new account dialog handle.
+ *
+ * @param handle New account dialog handle
+ */
 void
 ui_new_account_dialog_cleanup(UI_NEW_ACCOUNT_Handle *handle);
 
