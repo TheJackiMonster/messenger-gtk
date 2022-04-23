@@ -55,7 +55,7 @@
   "A GTK based GUI for the Messenger service of GNUnet."
 #define MESSENGER_APPLICATION_TITLE "Messenger"
 #define MESSENGER_APPLICATION_SUBTITLE "GNUnet"
-#define MESSENGER_APPLICATION_VERSION "0.0.1"
+#define MESSENGER_APPLICATION_VERSION "0.7.0"
 
 typedef enum MESSENGER_ApplicationSignal
 {

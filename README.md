@@ -2,6 +2,12 @@
 
 A GTK based GUI for the Messenger service of GNUnet.
 
+![Screenshot of the about page](screenshots/about-page.png "The GNUnet messenger application")
+![Screenshot of the account selection](screenshots/account-selection.png "Select an account")
+![Screenshot of the contact information view](screenshots/contact-info.png "Look at contact information")
+![Screenshot of the delete messages dialog](screenshots/delete-messages.png "Delete messages with a custom delay")
+![Screenshot of the voice recording preview](screenshots/voice-recording.png "Listen to the preview of voice recordings before sending")
+
 ## Features
 
 Messenger-GTK is a convergent GTK messaging application using the GNUnet Messenger service. The goal is to provide private and secure communication between any group of devices.
