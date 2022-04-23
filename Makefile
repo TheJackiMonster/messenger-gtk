@@ -1,11 +1,14 @@
 
-APP_ID = org.gnunet.Messenger
+VERSION     = 0.7.0
+APP_ID      = org.gnunet.Messenger
+TARGET_NAME = messenger-gtk
 
 RESOURCES_DIR = resources/
 SOURCE_DIR    = src/
 INSTALL_DIR  ?= /usr/local/
 
-BINARY  = messenger-gtk
+PACKAGE = $(TARGET_NAME)
+BINARY  = $(TARGET_NAME)
 SOURCES = messenger_gtk.c\
 		  application.c\
 		  contact.c\
@@ -50,12 +53,21 @@ PACKAGES  = gnunetutil\
 			libnotify\
 			libqrencode\
 			zbar
-			
+
 INCLUDES  = submodules/gnome-characters/lib
 
-GNU_CC ?= gcc
-GNU_LD ?= gcc
-GNU_RM ?= rm
+DIST_FILES = submodules/gnome-characters/lib/emoji.h\
+             Makefile\
+             AUTHORS\
+			 CHANGES.md\
+             COPYING\
+             README.md
+
+GNU_CC  ?= gcc
+GNU_LD  ?= gcc
+GNU_RM  ?= rm
+GNU_CP  ?= cp
+GNU_TAR ?= tar
 
 GLIB_COMPILE_RESOURCES ?= glib-compile-resources
 
@@ -64,6 +76,9 @@ LDFLAGS +=
 
 DEBUGFLAGS   = -O0 -D _DEBUG
 RELEASEFLAGS = -O2 -D NDEBUG
+
+DIST_DIR = $(PACKAGE)-$(VERSION)/
+DIST_TAR = $(PACKAGE)-$(VERSION).tar.gz
 
 ICON_SIZES = 32\
 			 64\
@@ -139,9 +154,22 @@ uninstall:
 	$(GNU_RM) -f $(addsuffix $(APP_ID).desktop, $(addprefix $(INSTALL_DIR), share/applications/))
 	$(GNU_RM) -f $(addsuffix $(APP_ID).appdata.xml, $(addprefix $(INSTALL_DIR), share/appdata/))
 
+.PHONY: dist
+
+dist: clean
+	mkdir $(DIST_DIR)
+	$(foreach INCLUDE_DIR,$(INCLUDES),mkdir -p $(addprefix $(DIST_DIR), $(INCLUDE_DIR));)
+	$(GNU_CP) -r $(SOURCE_DIR) $(DIST_DIR)
+	$(GNU_CP) -r $(RESOURCES_DIR) $(DIST_DIR)
+	$(GNU_RM) -f $(addprefix $(addprefix $(DIST_DIR), $(RESOURCES_DIR)), ui/*.ui~)
+	$(foreach DIST_FILE,$(DIST_FILES),$(GNU_CP) $(DIST_FILE) $(addprefix $(DIST_DIR), $(DIST_FILE));)
+	$(GNU_TAR) -czf $(DIST_TAR) $(DIST_DIR)
+	$(GNU_RM) -r $(DIST_DIR)
+
 .PHONY: clean
 
 clean:
 	$(GNU_RM) -f $(BINARY)
 	$(GNU_RM) -f $(OBJECT_FILES)
 	$(GNU_RM) -f $(RESOURCES_HEADERS)
+	$(GNU_RM) -f $(DIST_TAR)
