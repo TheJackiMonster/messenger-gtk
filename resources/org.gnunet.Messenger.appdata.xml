@@ -5,6 +5,7 @@
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>AGPL-3.0</project_license>
 	<content_rating type="oars-1.1" />
+	<developer_name>GNUnet e.V.</developer_name>
 
 	<name>GNUnet Messenger</name>
 	<summary>A GTK based GUI for the Messenger service of GNUnet.</summary>
@@ -44,9 +45,16 @@
 			<image>https://gitlab.com/gnunet-messenger/messenger-gtk/-/raw/master/screenshots/voice-recording.png</image>
 		</screenshot>
 	</screenshots>
-
+	
 	<url type="homepage">https://www.gnunet.org</url>
-
+	<url type="bugtracker">https://bugs.gnunet.org/my_view_page.php</url>
+	<url type="faq">https://www.gnunet.org/en/faq.html</url>
+	<url type="donation">https://www.gnunet.org/en/ev.html</url>
+	<url type="contact">https://www.gnunet.org/en/contact.html</url>
+	
+	<url type="vcs-browser">https://git.gnunet.org/messenger-gtk.git</url>
+	<url type="contribute">https://git.gnunet.org/messenger-gtk.git/tree/README.md</url>
+	
 	<update_contact>thejackimonster_at_gmail.com</update_contact>
 
 	<launchable type="desktop-id">org.gnunet.Messenger.desktop</launchable>
