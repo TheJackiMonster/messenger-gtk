@@ -34,6 +34,8 @@ contact_create_info(struct GNUNET_CHAT_Contact *contact)
 
   MESSENGER_ContactInfo* info = g_malloc(sizeof(MESSENGER_ContactInfo));
 
+  info->last_message = NULL;
+
   info->name_labels = NULL;
   info->name_avatars = NULL;
 
