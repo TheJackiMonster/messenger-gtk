@@ -28,6 +28,18 @@
 		<p>Chats will generally created as opt-in. So you can decide who may contact you directly and who does not, accepting to a direct chat. Leaving a chat is also always possible.</p>
 	</description>
 
+	<supports>
+		<control>pointing</control>
+		<control>keyboard</control>
+		<control>touch</control>
+	</supports>
+		
+	<supports>
+		<display_length>small</display_length>
+		<display_length>medium</display_length>
+		<display_length>large</display_length>
+	</supports>
+
 	<screenshots>
 		<screenshot>
 			<image>https://gitlab.com/gnunet-messenger/messenger-gtk/-/raw/master/screenshots/about-page.png</image>
