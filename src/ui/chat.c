@@ -897,64 +897,15 @@ handle_play_bus_watch(UNUSED GstBus *bus,
 }
 
 static void
-_play_pad_added(UNUSED GstElement *element,
-		GstPad *pad,
-		gpointer data)
-{
-  GstElement *decoder = (GstElement*) data;
-
-  GstPad *sinkpad = gst_element_get_static_pad(decoder, "sink");
-  gst_pad_link(pad, sinkpad);
-  gst_object_unref (sinkpad);
-}
-
-static void
 _setup_gst_pipelines(UI_CHAT_Handle *handle)
 {
-  handle->record_pipeline = gst_pipeline_new("audio-recorder");
-
-  GstElement *audio_source = gst_element_factory_make(
-      "autoaudiosrc",
-      "audio-input"
-  );
-
-  GstElement *audio_converter = gst_element_factory_make(
-      "audioconvert",
-      "audio-converter"
-  );
-
-  GstElement *vorbis_encoder = gst_element_factory_make(
-      "vorbisenc",
-      "vorbis-encoder"
-  );
-
-  GstElement *ogg_muxer = gst_element_factory_make(
-      "oggmux",
-      "ogg-muxer"
-  );
-
-  handle->record_sink = gst_element_factory_make(
-      "filesink",
-      "file-output"
-  );
-
-  gst_bin_add_many(
-      GST_BIN(handle->record_pipeline),
-      audio_source,
-      audio_converter,
-      vorbis_encoder,
-      ogg_muxer,
-      handle->record_sink,
+  handle->record_pipeline = gst_parse_launch(
+      "autoaudiosrc ! audioconvert ! vorbisenc ! oggmux ! filesink name=sink",
       NULL
   );
 
-  gst_element_link_many(
-      audio_source,
-      audio_converter,
-      vorbis_encoder,
-      ogg_muxer,
-      handle->record_sink,
-      NULL
+  handle->record_sink = gst_bin_get_by_name(
+      GST_BIN(handle->record_pipeline), "sink"
   );
 
   {
@@ -969,60 +920,13 @@ _setup_gst_pipelines(UI_CHAT_Handle *handle)
     gst_object_unref(bus);
   }
 
-  handle->play_pipeline = gst_pipeline_new("audio-previewer");
-
-  handle->play_source = gst_element_factory_make(
-      "filesrc",
-      "file-input"
-  );
-
-  GstElement *ogg_demuxer = gst_element_factory_make(
-      "oggdemux",
-      "ogg-demuxer"
-  );
-
-  GstElement *vorbis_decoder = gst_element_factory_make(
-      "vorbisdec",
-      "vorbis-decoder"
-  );
-
-  GstElement *audio_play_converter = gst_element_factory_make(
-      "audioconvert",
-      "audio-converter"
-  );
-
-  GstElement *audio_sink = gst_element_factory_make(
-      "autoaudiosink",
-      "audio-output"
-  );
-
-  gst_bin_add_many(
-      GST_BIN(handle->play_pipeline),
-      handle->play_source,
-      ogg_demuxer,
-      vorbis_decoder,
-      audio_play_converter,
-      audio_sink,
+  handle->play_pipeline = gst_parse_launch(
+      "filesrc name=source ! oggdemux ! vorbisdec ! audioconvert ! autoaudiosink",
       NULL
   );
 
-  gst_element_link(
-      handle->play_source,
-      ogg_demuxer
-  );
-
-  gst_element_link_many(
-      vorbis_decoder,
-      audio_play_converter,
-      audio_sink,
-      NULL
-  );
-
-  g_signal_connect(
-      ogg_demuxer,
-      "pad-added",
-      G_CALLBACK(_play_pad_added),
-      vorbis_decoder
+  handle->play_source = gst_bin_get_by_name(
+      GST_BIN(handle->play_pipeline), "source"
   );
 
   {
@@ -1605,13 +1509,13 @@ ui_chat_delete(UI_CHAT_Handle *handle)
 
   if (handle->record_pipeline)
   {
-    gst_element_set_state (handle->record_pipeline, GST_STATE_NULL);
+    gst_element_set_state(handle->record_pipeline, GST_STATE_NULL);
     gst_object_unref(GST_OBJECT(handle->record_pipeline));
   }
 
   if (handle->play_pipeline)
   {
-    gst_element_set_state (handle->play_pipeline, GST_STATE_NULL);
+    gst_element_set_state(handle->play_pipeline, GST_STATE_NULL);
     gst_object_unref(GST_OBJECT(handle->play_pipeline));
   }
 
