@@ -235,19 +235,11 @@ msg_error_cb(UNUSED GstBus *bus,
   if (!error)
     fprintf(stderr, "ERROR: Unknown error\n");
   else if (error->message)
-    fprintf(stderr, "ERROR: %s (%d)", error->message, error->code);
+    fprintf(stderr, "ERROR: %s (%d)\n", error->message, error->code);
   else
     fprintf(stderr, "ERROR: Unknown error (%d)\n", error->code);
 
-  gst_element_set_state(handle->pipeline, GST_STATE_READY);
-
-  if (!(handle->preview_stack))
-    return;
-
-  gtk_stack_set_visible_child(
-      handle->preview_stack,
-      handle->fail_box
-  );
+  _disable_video_processing(handle, TRUE);
 }
 
 static void
