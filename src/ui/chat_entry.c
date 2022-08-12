@@ -168,6 +168,8 @@ void
 ui_chat_entry_dispose(UI_CHAT_ENTRY_Handle *handle,
 		      MESSENGER_Application *app)
 {
+  GNUNET_assert((handle) && (handle->entry_box));
+
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
 
   ui->chat_entries = g_list_remove(ui->chat_entries, handle);

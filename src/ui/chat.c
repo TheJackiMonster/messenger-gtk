@@ -1536,7 +1536,7 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
 		    MESSENGER_Application *app,
 		    UI_MESSAGE_Handle *message)
 {
-  GNUNET_assert((handle) && (message));
+  GNUNET_assert((handle) && (message) && (message->message_box));
 
   gtk_container_add(
       GTK_CONTAINER(handle->messages_listbox),
@@ -1557,7 +1557,7 @@ ui_chat_remove_message(UI_CHAT_Handle *handle,
 		       UNUSED MESSENGER_Application *app,
 		       UI_MESSAGE_Handle *message)
 {
-  GNUNET_assert((handle) && (message));
+  GNUNET_assert((handle) && (message) && (message->message_box));
 
   handle->messages = g_list_remove(handle->messages, message);
 
@@ -1590,7 +1590,8 @@ void
 ui_chat_remove_file_load(UI_CHAT_Handle *handle,
 			 UI_FILE_LOAD_ENTRY_Handle *file_load)
 {
-  GNUNET_assert((handle) && (file_load) && (handle == file_load->chat));
+  GNUNET_assert((handle) && (file_load) && (handle == file_load->chat) &&
+		(file_load->entry_box));
 
   handle->loads = g_list_remove(handle->loads, file_load);
 

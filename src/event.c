@@ -367,7 +367,7 @@ event_update_chats(MESSENGER_Application *app,
 	  context
       );
   }
-  else if (handle)
+  else if ((handle) && (handle->entry_box))
     _clear_chat_entry(gtk_widget_get_parent(handle->entry_box), app);
 
   contact_create_info(GNUNET_CHAT_message_get_sender(msg));
