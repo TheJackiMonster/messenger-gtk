@@ -29,14 +29,19 @@
 
 #include <cairo/cairo.h>
 #include <gdk/gdkpixbuf.h>
+#include <gstreamer-1.0/gst/gst.h>
 #include <pthread.h>
-#include <zbar.h>
 
 typedef struct UI_NEW_CONTACT_Handle
 {
-  zbar_video_t *video;
-  zbar_image_t *image;
-  zbar_image_scanner_t *scanner;
+  GstElement *pipeline;
+  GstElement *source;
+  GstElement *scanner;
+  GstElement *sink;
+
+  guint bus_watch;
+
+  GdkPixbuf *image;
 
   GtkBuilder *builder;
   GtkDialog *dialog;

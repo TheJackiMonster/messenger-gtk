@@ -24,6 +24,8 @@
 
 #include "new_contact.h"
 
+#include <gstreamer-1.0/gst/app/gstappsink.h>
+
 #include "../application.h"
 
 static void
@@ -89,61 +91,25 @@ handle_id_drawing_area_draw(GtkWidget* drawing_area,
 
   gtk_render_background(context, cairo, 0, 0, width, height);
 
-  GdkPixbuf *image = NULL;
-
   if (!(handle->image))
     return FALSE;
 
   uint w, h;
-  zbar_image_get_size(handle->image, &w, &h);
+  w = gdk_pixbuf_get_width(handle->image);
+  h = gdk_pixbuf_get_height(handle->image);
 
-  uint x, y, min_size;
-  min_size = (w < h? w : h);
-  x = (w - min_size) / 2;
-  y = (h - min_size) / 2;
+  uint min_size = (w < h? w : h);
 
-  const void* data = (const void*) (
-      (const char*) zbar_image_get_data(handle->image) +
-      (x + y * w) * 3
-  );
-
-  image = gdk_pixbuf_new_from_data(
-    data,
-    GDK_COLORSPACE_RGB,
-    FALSE,
-    8,
-    min_size,
-    min_size,
-    w * 3,
-    NULL,
-    NULL
-  );
-
-  GString *scan_result = (GString*) zbar_image_get_userdata(handle->image);
-
-  if (!scan_result)
-    goto render_image;
-
-  gtk_entry_set_text(handle->id_entry, scan_result->str);
-  g_string_free(scan_result, TRUE);
-
-render_image:
-  if (!image)
-    return FALSE;
-
-  int dwidth = gdk_pixbuf_get_width(image);
-  int dheight = gdk_pixbuf_get_height(image);
-
-  double ratio_width = 1.0 * width / dwidth;
-  double ratio_height = 1.0 * height / dheight;
+  double ratio_width = 1.0 * width / min_size;
+  double ratio_height = 1.0 * height / min_size;
 
   const double ratio = ratio_width < ratio_height? ratio_width : ratio_height;
 
-  dwidth = (int) (dwidth * ratio);
-  dheight = (int) (dheight * ratio);
+  w = (uint) (min_size * ratio);
+  h = (uint) (min_size * ratio);
 
-  double dx = (width - dwidth) * 0.5;
-  double dy = (height - dheight) * 0.5;
+  double dx = (width - w) * 0.5;
+  double dy = (height - h) * 0.5;
 
   const int interp_type = (ratio >= 1.0?
       GDK_INTERP_NEAREST :
@@ -151,9 +117,9 @@ render_image:
   );
 
   GdkPixbuf* scaled = gdk_pixbuf_scale_simple(
-      image,
-      dwidth,
-      dheight,
+      handle->image,
+      w,
+      h,
       interp_type
   );
 
@@ -162,36 +128,78 @@ render_image:
   cairo_fill(cairo);
 
   g_object_unref(scaled);
-  g_object_unref(image);
-
-  zbar_image_destroy(handle->image);
-  handle->image = NULL;
-
   return FALSE;
 }
 
 static void
-_disable_video_processing(UI_NEW_CONTACT_Handle *handle)
+_disable_video_processing(UI_NEW_CONTACT_Handle *handle,
+			  gboolean drop_pipeline)
 {
   gtk_stack_set_visible_child(handle->preview_stack, handle->fail_box);
 
-  if (!(handle->video))
-    return;
-
-  const zbar_error_t error_code = zbar_video_get_error_code(handle->video);
-
-  if (ZBAR_OK != error_code)
-  {
-    const char *error_msg = zbar_video_error_string(handle->video, 0);
-
-    if (error_msg)
-      fprintf(stderr, "%s", error_msg);
-    else
-      fprintf(stderr, "ERROR: Unknown error with zbar (%d)\n",
-	      (int) error_code);
-  }
+  if (0 != handle->idle_processing)
+    g_source_remove(handle->idle_processing);
 
   handle->idle_processing = 0;
+
+  if ((!(handle->pipeline)) || (!drop_pipeline))
+    return;
+
+  gst_element_set_state(handle->pipeline, GST_STATE_NULL);
+}
+
+static void
+_handle_video_sample(UI_NEW_CONTACT_Handle *handle,
+		     GstAppSink *appsink)
+{
+  GstSample *sample = gst_app_sink_try_pull_sample(appsink, 10);
+
+  if (!sample)
+    return;
+
+  GstCaps *caps = gst_sample_get_caps(sample);
+
+  GstStructure *s = gst_caps_get_structure(caps, 0);
+
+  gint width, height;
+  gst_structure_get_int(s, "width", &width);
+  gst_structure_get_int(s, "height", &height);
+
+  uint x, y, min_size;
+  min_size = (width < height? width : height);
+  x = (width - min_size) / 2;
+  y = (height - min_size) / 2;
+
+  GstBuffer *buffer = gst_sample_get_buffer(sample);
+  GstMapInfo map;
+
+  gst_buffer_map(buffer, &map, GST_MAP_READ);
+
+  if (handle->image)
+    g_object_unref(handle->image);
+
+  const void* data = (const void*) (
+      (const char*) (map.data) + (x + y * width) * 3
+  );
+
+  handle->image = gdk_pixbuf_new_from_data(
+      data,
+      GDK_COLORSPACE_RGB,
+      FALSE,
+      8,
+      min_size,
+      min_size,
+      width * 3,
+      NULL,
+      NULL
+  );
+
+  gst_buffer_unmap(buffer, &map);
+
+  if (handle->id_drawing_area)
+    gtk_widget_queue_draw(GTK_WIDGET(handle->id_drawing_area));
+
+  gst_sample_unref(sample);
 }
 
 static gboolean
@@ -202,72 +210,168 @@ idle_video_processing(gpointer user_data)
   if (0 == handle->idle_processing)
     return FALSE;
 
-  zbar_image_t *image = zbar_video_next_image(handle->video);
+  GstAppSink *appsink = GST_APP_SINK(handle->sink);
 
-  if (!image)
+  if (!appsink)
   {
-    _disable_video_processing(handle);
+    _disable_video_processing(handle, TRUE);
     return FALSE;
   }
 
-  GString *scan_result = NULL;
-
-  zbar_image_t *y8 = zbar_image_convert(
-      image,
-      zbar_fourcc('Y', '8', '0', '0')
-  );
-
-  if (zbar_scan_image(handle->scanner, y8) <= 0)
-    goto cleanup_scan;
-
-  const zbar_symbol_set_t* set = zbar_image_scanner_get_results(
-      handle->scanner
-  );
-
-  const zbar_symbol_t* symbol = zbar_symbol_set_first_symbol(set);
-
-  if (!symbol)
-    goto cleanup_scan;
-
-  uint data_len = 0;
-  const char *data = NULL;
-
-  for (; symbol; symbol = zbar_symbol_next(symbol))
-  {
-    if (zbar_symbol_get_count(symbol))
-      continue;
-
-    data_len = zbar_symbol_get_data_length(symbol);
-    data = zbar_symbol_get_data(symbol);
-  }
-
-  if ((data_len > 0) && (data))
-    scan_result = g_string_new_len(data, data_len);
-
-cleanup_scan:
-  zbar_image_destroy(y8);
-
-  zbar_image_t *rgb = zbar_image_convert(
-      image,
-      zbar_fourcc('R', 'G', 'B', '3')
-  );
-
-  if (!rgb)
-    goto cleanup_image;
-
-  zbar_image_set_userdata(rgb, scan_result);
-
-  if (handle->image)
-    zbar_image_destroy(handle->image);
-
-  handle->image = rgb;
-
-  if (handle->id_drawing_area)
-    gtk_widget_queue_draw(GTK_WIDGET(handle->id_drawing_area));
-
-cleanup_image:
-  zbar_image_destroy(image);
+  _handle_video_sample(handle, appsink);
   return TRUE;
+}
+
+static void
+msg_error_cb(UNUSED GstBus *bus,
+	     GstMessage *msg,
+	     gpointer *data)
+{
+  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
+
+  GError* error;
+  gst_message_parse_error(msg, &error, NULL);
+
+  if (!error)
+    fprintf(stderr, "ERROR: Unknown error\n");
+  else if (error->message)
+    fprintf(stderr, "ERROR: %s (%d)", error->message, error->code);
+  else
+    fprintf(stderr, "ERROR: Unknown error (%d)\n", error->code);
+
+  gst_element_set_state(handle->pipeline, GST_STATE_READY);
+
+  if (!(handle->preview_stack))
+    return;
+
+  gtk_stack_set_visible_child(
+      handle->preview_stack,
+      handle->fail_box
+  );
+}
+
+static void
+msg_eos_cb(UNUSED GstBus *bus,
+	   UNUSED GstMessage *msg,
+	   gpointer *data)
+{
+  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
+
+  if (GST_MESSAGE_SRC(msg) == GST_OBJECT(handle->pipeline))
+    _disable_video_processing(handle, TRUE);
+}
+
+static void
+msg_state_changed_cb(UNUSED GstBus *bus,
+		     GstMessage *msg,
+		     gpointer *data)
+{
+  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
+
+  GstState old_state, new_state, pending_state;
+  gst_message_parse_state_changed(msg, &old_state, &new_state, &pending_state);
+
+  if ((GST_MESSAGE_SRC(msg) != GST_OBJECT(handle->pipeline)) ||
+      (new_state == old_state) || (!(handle->preview_stack)))
+    return;
+
+  if (GST_STATE_PLAYING == new_state)
+  {
+    gtk_stack_set_visible_child(
+	handle->preview_stack,
+	GTK_WIDGET(handle->id_drawing_area)
+    );
+
+    if (0 == handle->idle_processing)
+      handle->idle_processing = g_idle_add(idle_video_processing, handle);
+  }
+  else if (GST_STATE_PAUSED == new_state)
+    _disable_video_processing(handle, FALSE);
+}
+
+static void
+msg_barcode_cb(UNUSED GstBus *bus,
+	       GstMessage *msg,
+	       gpointer *data)
+{
+  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
+  GstMessageType msg_type = GST_MESSAGE_TYPE(msg);
+
+  if ((GST_MESSAGE_SRC(msg) != GST_OBJECT(handle->scanner)) ||
+      (GST_MESSAGE_ELEMENT != msg_type))
+    return;
+
+  const GstStructure *s = gst_message_get_structure(msg);
+
+  if (!s)
+    return;
+
+  const gchar *type = gst_structure_get_string(s, "type");
+  const gchar *symbol = gst_structure_get_string(s, "symbol");
+
+  if ((!type) || (!symbol) || (0 != g_strcmp0(type, "QR-Code")))
+    return;
+
+  if (handle->id_entry)
+    gtk_entry_set_text(handle->id_entry, symbol);
+}
+
+static void
+_setup_gst_pipeline(UI_NEW_CONTACT_Handle *handle)
+{
+  handle->pipeline = gst_parse_launch(
+      "v4l2src name=source ! videoconvert ! zbar name=scanner"
+      " ! videoconvert ! video/x-raw,format=RGB ! videoconvert ! appsink name=sink",
+      NULL
+  );
+
+  handle->source = gst_bin_get_by_name(
+      GST_BIN(handle->pipeline), "source"
+  );
+
+  handle->scanner = gst_bin_get_by_name(
+      GST_BIN(handle->pipeline), "scanner"
+  );
+
+  handle->sink = gst_bin_get_by_name(
+      GST_BIN(handle->pipeline), "sink"
+  );
+
+  gst_app_sink_set_drop(GST_APP_SINK(handle->sink), TRUE);
+
+  GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(handle->pipeline));
+
+  gst_bus_add_signal_watch(bus);
+
+  g_signal_connect(
+      G_OBJECT(bus),
+      "message::error",
+      (GCallback) msg_error_cb,
+      handle
+  );
+
+  g_signal_connect(
+      G_OBJECT(bus),
+      "message::eos",
+      (GCallback) msg_eos_cb,
+      handle
+  );
+
+  g_signal_connect(
+      G_OBJECT(bus),
+      "message::state-changed",
+      (GCallback) msg_state_changed_cb,
+      handle
+  );
+
+  g_signal_connect(
+      G_OBJECT(bus),
+      "message",
+      (GCallback) msg_barcode_cb,
+      handle
+  );
+
+  gst_object_unref(bus);
 }
 
 static void*
@@ -275,31 +379,17 @@ _ui_new_contact_video_thread(void *args)
 {
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) args;
 
-  if (0 != zbar_video_open(handle->video, ""))
-  {
-    _disable_video_processing(handle);
+  if (!(handle->pipeline))
     return NULL;
-  }
 
-  if (0 != zbar_video_enable(handle->video, 1))
-  {
-    _disable_video_processing(handle);
-    return NULL;
-  }
-
-  zbar_image_scanner_set_config(
-      handle->scanner,
-      ZBAR_QRCODE,
-      ZBAR_CFG_ENABLE,
-      TRUE
+  GstStateChangeReturn ret = gst_element_set_state(
+      handle->pipeline,
+      GST_STATE_PLAYING
   );
 
-  gtk_stack_set_visible_child(
-      handle->preview_stack,
-      GTK_WIDGET(handle->id_drawing_area)
-  );
+  if (GST_STATE_CHANGE_FAILURE == ret)
+    _disable_video_processing(handle, TRUE);
 
-  handle->idle_processing = g_idle_add(idle_video_processing, handle);
   return NULL;
 }
 
@@ -307,8 +397,16 @@ void
 ui_new_contact_dialog_init(MESSENGER_Application *app,
 			   UI_NEW_CONTACT_Handle *handle)
 {
-  handle->video = zbar_video_create();
-  handle->scanner = zbar_image_scanner_create();
+  _setup_gst_pipeline(handle);
+
+  handle->image = NULL;
+
+  pthread_create(
+      &(handle->video_tid),
+      NULL,
+      _ui_new_contact_video_thread,
+      handle
+  );
 
   handle->builder = gtk_builder_new_from_resource(
       application_get_resource_path(app, "ui/new_contact.ui")
@@ -333,13 +431,6 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
 
   handle->id_drawing_area = GTK_DRAWING_AREA(
       gtk_builder_get_object(handle->builder, "id_drawing_area")
-  );
-
-  pthread_create(
-      &(handle->video_tid),
-      NULL,
-      _ui_new_contact_video_thread,
-      handle
   );
 
   handle->id_draw_signal = g_signal_connect(
@@ -398,13 +489,16 @@ ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle)
       handle->id_draw_signal
   );
 
+  if (handle->image)
+    g_object_unref(handle->image);
+
   g_object_unref(handle->builder);
 
-  if (handle->image)
-    zbar_image_destroy(handle->image);
-
-  zbar_image_scanner_destroy(handle->scanner);
-  zbar_video_destroy(handle->video);
+  if (handle->pipeline)
+  {
+    gst_element_set_state(handle->pipeline, GST_STATE_NULL);
+    gst_object_unref(GST_OBJECT(handle->pipeline));
+  }
 
   memset(handle, 0, sizeof(*handle));
 }
