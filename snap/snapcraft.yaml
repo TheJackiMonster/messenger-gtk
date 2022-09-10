@@ -1,0 +1,152 @@
+name: messenger-gtk
+version: 0.7.0
+title: GNUnet Messenger
+summary: A GTK based GUI for the Messenger service of GNUnet.
+description: |
+  Messenger-GTK is a convergent GTK messaging application using the GNUnet Messenger service. The goal is to provide private and secure communication between any group of devices.
+  
+  The application provides the following features:
+  * Creating direct chats and group chats
+  * Managing your contacts and groups
+  * Invite contacts to a group
+  * Sending text messages
+  * Sending voice recordings
+  * Sharing files privately
+  * Deleting messages with any custom delay
+  * Renaming contacts
+  * Exchanging contact details physically
+  * Verifying contact identities
+  * Switching between different accounts
+  
+  Chats will generally created as opt-in. So you can decide who may contact you directly and who does not, accepting to a direct chat. Leaving a chat is also always possible.
+adopt-info: messenger-gtk
+grade: stable
+confinement: strict
+base: core22
+icon: resources/icon/full_color.svg
+apps:
+  messenger-gtk:
+    command: bin/desktop-launch $SNAP/usr/bin/messenger-gtk
+    plugs:
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - home
+      - network
+      - network-bind
+      - camera
+      - audio-playback
+      - audio-record
+      - gsettings
+
+plugs:
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/share/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/share/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/share/sounds
+    default-provider: gtk-common-themes
+
+parts:
+  desktop-gtk3:
+    build-packages:
+     - build-essential
+     - libgtk-3-dev
+     - dpkg-dev
+    make-parameters:
+      - FLAVOR=gtk3
+    plugin: make
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: gtk
+    stage-packages:
+      - dmz-cursor-theme
+      - light-themes
+      - adwaita-icon-theme
+      - sound-theme-freedesktop
+      - gnome-themes-standard
+      - gnome-icon-theme
+      - fonts-emojione
+      - shared-mime-info
+      - locales-all
+      - xdg-user-dirs
+      - gobject-introspection
+      - libxcursor1
+      - libgtk-3-0
+      - libltdl7
+      
+  gnunet:
+    build-packages:
+      - build-essential
+      - libgcrypt20-dev
+      - recutils
+      - libjansson-dev
+      - libsodium-dev
+      - libcurl4-gnutls-dev
+      - libidn2-dev
+      - libunistring-dev
+      - libsqlite3-dev
+      - libmicrohttpd-dev
+    stage-packages:
+      - libgcrypt20
+      - recutils
+      - libjansson4
+      - libsodium23
+      - libcurl3-gnutls
+      - libidn2-0
+      - libunistring2
+      - libsqlite3-0
+      - libmicrohttpd12
+    source: http://ftpmirror.gnu.org/gnunet/gnunet-0.17.5.tar.gz
+    plugin: autotools
+    autotools-configure-parameters: [ '--disable-documentation', '--prefix=/usr' ]
+  libgnunetchat:
+    after: [ gnunet ]
+    source: http://ftpmirror.gnu.org/gnunet/libgnunetchat-0.1.0.tar.gz
+    plugin: make
+    override-build: |
+      make release
+      mkdir -p "$SNAPCRAFT_PART_INSTALL/usr/lib"
+      export INSTALL_DIR="$SNAPCRAFT_PART_INSTALL/usr/"
+      make install
+  messenger-gtk:
+    after: [ desktop-gtk3, gnunet, libgnunetchat ]
+    build-packages:
+      - libglib2.0-dev
+      - libgdk-pixbuf-2.0-dev
+      - libhandy-1-dev
+      - libnotify-dev
+      - libqrencode-dev
+      - libzbar-dev
+      - libgstreamer1.0-dev
+      - libgstreamer-plugins-base1.0-dev
+      - desktop-file-utils
+    stage-packages:
+      - libglib2.0-0
+      - libgdk-pixbuf-2.0-0
+      - libhandy-1-0
+      - libnotify4
+      - libqrencode4
+      - libzbar0
+      - libgstreamer1.0-0
+      - libgstreamer-plugins-base1.0-0 
+      - gir1.2-gtk-3.0
+      - gir1.2-handy-1
+      - gir1.2-pango-1.0
+    source: http://ftpmirror.gnu.org/gnunet/messenger-gtk-0.7.0.tar.gz
+    plugin: make
+    override-build: |
+      export LD_LIBRARY_PATH="$SNAPCRAFT_STAGE/usr/lib"
+      make release
+      mkdir -p "$SNAPCRAFT_PART_INSTALL/usr/bin"
+      mkdir -p "$SNAPCRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps"
+      mkdir -p "$SNAPCRAFT_PART_INSTALL/usr/share/applications"
+      mkdir -p "$SNAPCRAFT_PART_INSTALL/usr/share/appdata"
+      export INSTALL_DIR="$SNAPCRAFT_PART_INSTALL/usr/"
+      make install
