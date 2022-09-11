@@ -80,6 +80,7 @@ parts:
       - libxcursor1
       - libgtk-3-0
       - libltdl7
+      - libc6
       
   gnunet:
     build-packages:
