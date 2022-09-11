@@ -160,5 +160,5 @@ parts:
       make install
     override-prime: |
       snapcraftctl prime
-      rm -f usr/lib/x86_64-linux-gnu/libc_malloc_debug.so
-      ln -s libc_malloc_debug.so.0 usr/lib/x86_64-linux-gnu/libc_malloc_debug.so
+      rm -f "usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libc_malloc_debug.so"
+      ln -s libc_malloc_debug.so.0 "usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libc_malloc_debug.so"
