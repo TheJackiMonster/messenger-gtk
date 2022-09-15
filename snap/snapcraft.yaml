@@ -23,12 +23,6 @@ adopt-info: messenger-gtk
 grade: stable
 confinement: strict
 base: core22
-architectures:
-  - amd64
-  - arm64
-  - armhf
-  - ppc64el
-  - i386
 icon: resources/icon/full_color.svg
 apps:
   messenger-gtk:
