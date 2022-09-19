@@ -99,8 +99,8 @@ HEADER_FILES  = $(addprefix $(SOURCE_DIR), $(HEADERS))
 
 OBJECT_FILES  = $(SOURCE_FILES:%.c=%.o)
 
-LIBRARY_FLAGS = $(addprefix -l, $(LIBRARIES))
-PACKAGE_FLAGS = $(shell pkg-config --cflags --libs $(PACKAGES))
+LIBRARY_FLAGS = $(addprefix -l, $(LIBRARIES)) $(shell pkg-config --libs $(PACKAGES))
+PACKAGE_FLAGS = $(shell pkg-config --cflags $(PACKAGES))
 INCLUDE_FLAGS = $(addprefix -I, $(INCLUDES))
 
 all: $(BINARY)
@@ -116,10 +116,10 @@ release: CFLAGS += $(RELEASEFLAGS)
 release: $(BINARY)
 
 %.o: %.c
-	$(GNU_CC) $(CFLAGS) -c $< -o $@ $(LIBRARY_FLAGS) $(PACKAGE_FLAGS) $(INCLUDE_FLAGS)
+	$(GNU_CC) $(CFLAGS) -c $< -o $@ $(PACKAGE_FLAGS) $(INCLUDE_FLAGS)
 
 $(BINARY): $(OBJECT_FILES)
-	$(GNU_LD) $(LDFLAGS) $^ -o $@ $(LIBRARY_FLAGS) $(PACKAGE_FLAGS)
+	$(GNU_LD) $(LDFLAGS) $^ -o $@ $(LIBRARY_FLAGS)
 
 .PHONY: mobile
 
