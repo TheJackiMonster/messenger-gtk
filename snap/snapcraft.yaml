@@ -106,7 +106,7 @@ parts:
       - libunistring2
       - libsqlite3-0
       - libmicrohttpd12
-    source: http://ftpmirror.gnu.org/gnunet/gnunet-0.17.5.tar.gz
+    source: http://ftpmirror.gnu.org/gnunet/gnunet-0.17.6.tar.gz
     plugin: autotools
     autotools-configure-parameters: [ '--disable-documentation', '--prefix=/usr' ]
   libgnunetchat:
