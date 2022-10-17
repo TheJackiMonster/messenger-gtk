@@ -1,6 +1,6 @@
 # This Makefile.am is in the public domain
 
-%.c: %.gresource.xml
+css.c ui.c: %.c: %.gresource.xml
 	glib-compile-resources --sourcedir=$(top_srcdir)/resources $< --generate-source
 	glib-compile-resources --sourcedir=$(top_srcdir)/resources $< --generate-header
 
@@ -12,7 +12,7 @@ AM_CFLAGS = \
   -I$(top_srcdir)/resources \
   @GLIB_CFLAGS@
 
-lib_LIBRARIES = libresources.a
+noinst_LIBRARIES = libresources.a
 
 libresources_a_SOURCES = \
   css.c css.h \

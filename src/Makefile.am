@@ -31,9 +31,7 @@ messenger_gtk_SOURCES = \
 messenger_gtk_LDADD = \
   ../resources/libresources.a \
   chat/libchat.a \
-  ui/libui.a
-
-messenger_gtk_LDFLAGS = \
+  ui/libui.a \
   -lgnunetchat \
   -lgnunetutil \
   @GLIB_LIBS@ \

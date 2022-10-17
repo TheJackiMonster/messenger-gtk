@@ -11,7 +11,7 @@ AM_CFLAGS = \
   @NOTIFY_CFLAGS@ \
   @QRENCODE_CFLAGS@
 
-lib_LIBRARIES = libui.a
+noinst_LIBRARIES = libui.a
 
 libui_a_SOURCES = \
   about.c about.h \
