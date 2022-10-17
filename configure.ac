@@ -1,0 +1,82 @@
+# This file is part of GNUnet.
+# Copyright (C) 2022 GNUnet e.V.
+#
+# GNUnet is free software: you can redistribute it and/or modify it
+# under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License,
+# or (at your option) any later version.
+#
+# GNUnet is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: AGPL3.0-or-later
+#
+# Process this file with autoconf to produce a configure script.
+#
+#
+AC_INIT([messenger-gtk],[m4_esyscmd_s(sh contrib/get_version.sh)],[bug-gnunet@gnu.org])
+
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIRS([m4])
+
+AC_CONFIG_HEADERS([
+  src/messenger_gtk_config.h
+])
+
+AC_CANONICAL_TARGET
+AC_CANONICAL_HOST
+
+AM_INIT_AUTOMAKE
+AM_SILENT_RULES
+
+# maybe use AC_USE_SYSTEM_EXTENSIONS?
+AH_TOP([#define _GNU_SOURCE 1])
+
+AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_CC_C_O
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_MKDIR_P
+PKG_PROG_PKG_CONFIG([0.29.2])
+
+AC_DISABLE_STATIC
+LT_INIT
+
+AC_ARG_ENABLE([debug],
+[  --enable-debug          turn on debugging],
+[case "${enableval}" in
+  yes) debug=true ;;
+  no)  debug=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac],[debug=false])
+AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
+
+AC_CONFIG_FILES([
+  Makefile
+  resources/Makefile
+  src/Makefile
+  src/chat/Makefile
+  src/ui/Makefile
+])
+
+PKG_CHECK_MODULES([GLIB], [glib-2.0])
+PKG_CHECK_MODULES([GTK], [gtk+-3.0])
+PKG_CHECK_MODULES([HANDY], [libhandy-1])
+PKG_CHECK_MODULES([GNUNET], [gnunetutil >= 0.9.0])
+PKG_CHECK_MODULES([GST], [gstreamer-1.0])
+PKG_CHECK_MODULES([GST_APP], [gstreamer-app-1.0])
+PKG_CHECK_MODULES([NOTIFY], [libnotify])
+PKG_CHECK_MODULES([QRENCODE], [libqrencode])
+
+CFLAGS="$CFLAGS $GTK_CFLAGS $GST_CFLAGS"
+CPPFLAGS="$CPPFLAGS $GTK_CFLAGS $GST_CFLAGS"
+LIBS="$LIBS $GTK_LIBS $GST_LIBS"
+
+AC_OUTPUT

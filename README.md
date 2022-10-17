@@ -47,13 +47,21 @@ Here is the list of the used submodules:
 
  - [gnome-characters](https://gitlab.gnome.org/GNOME/gnome-characters): For the emoji picker
 
-Then you can simply use the provided Makefile as follows:
+Then you can simply use [Autotools](https://www.gnu.org/software/automake/) as follows:
+```
+./bootstrap        # Generate the configure script
+./configure        # Configure the Makefiles for your system
+make               # Build the library using the Makefiles
+sudo make install  # Install the library
+```
+
+Here is a list of some useful build targets in the Makefile:
 
  - `make` to just compile everything with default parameters
  - `make clean` to cleanup build files in case you want to recompile
- - `make debug` to compile everything with debug parameters
- - `make release` to compile everything with build optimizations enabled
  - `make install` to install the compiled files (you might need sudo permissions to install)
+
+If you want to change the installation location, use the `--prefix=` parameter in the `configure` script. Also you can enable debugging builds by adding `--enable-debug` as parameter when running the `configure` script.
 
 ## Contribution
 
