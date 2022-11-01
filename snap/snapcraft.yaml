@@ -106,7 +106,7 @@ parts:
       - libunistring2
       - libsqlite3-0
       - libmicrohttpd12
-    source: http://ftpmirror.gnu.org/gnunet/gnunet-0.17.6.tar.gz
+    source: http://ftpmirror.gnu.org/gnunet/gnunet-0.18.0.tar.gz
     plugin: autotools
     autotools-configure-parameters: [ '--disable-documentation', '--prefix=/usr' ]
   libgnunetchat:
@@ -114,13 +114,9 @@ parts:
     build-packages:
       - build-essential
       - libc6-dev
-    source: http://ftpmirror.gnu.org/gnunet/libgnunetchat-0.1.0.tar.gz
-    plugin: make
-    override-build: |
-      make release
-      mkdir -p "$SNAPCRAFT_PART_INSTALL/usr/lib"
-      export INSTALL_DIR="$SNAPCRAFT_PART_INSTALL/usr/"
-      make install
+    source: http://ftpmirror.gnu.org/gnunet/libgnunetchat-0.1.1.tar.gz
+    plugin: autotools
+    autotools-configure-parameters: [ '--prefix=/usr' ]
   messenger-gtk:
     after: [ desktop-gtk3, gnunet, libgnunetchat ]
     build-packages:
