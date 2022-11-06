@@ -121,6 +121,7 @@ parts:
     plugin: autotools
     override-build: |
       ./configure --prefix=/usr --enable-fast-install=no
+      export LD_LIBRARY_PATH="$SNAPCRAFT_STAGE/usr/lib"
       make
       make install DESTDIR="$SNAPCRAFT_STAGE"
   messenger-gtk:
