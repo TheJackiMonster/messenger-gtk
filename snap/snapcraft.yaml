@@ -108,7 +108,9 @@ parts:
       - libmicrohttpd12
     source: http://ftpmirror.gnu.org/gnunet/gnunet-0.18.1.tar.gz
     plugin: autotools
-    autotools-configure-parameters: [ '--disable-documentation', '--prefix=/usr' ]
+    autotools-configure-parameters:
+      - --disable-documentation
+      - --prefix="$SNAPCRAFT_STAGE/usr"
   libgnunetchat:
     after: [ gnunet ]
     build-packages:
@@ -116,7 +118,8 @@ parts:
       - libc6-dev
     source: http://ftpmirror.gnu.org/gnunet/libgnunetchat-0.1.1.tar.gz
     plugin: autotools
-    autotools-configure-parameters: [ '--prefix=/usr' ]
+    autotools-configure-parameters:
+      - --prefix="$SNAPCRAFT_STAGE/usr"
   messenger-gtk:
     after: [ desktop-gtk3, gnunet, libgnunetchat ]
     build-packages:
