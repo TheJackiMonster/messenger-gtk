@@ -108,10 +108,9 @@ parts:
       - libmicrohttpd12
     source: http://ftpmirror.gnu.org/gnunet/gnunet-0.18.1.tar.gz
     plugin: autotools
-    override-build: |
-      ./configure --disable-documentation --prefix=/usr --enable-fast-install=no
-      make
-      make install DESTDIR="$SNAPCRAFT_STAGE"
+    autotools-configure-parameters:
+      - --prefix=/usr
+      - --disable-documentation
   libgnunetchat:
     after: [ gnunet ]
     build-packages:
@@ -119,11 +118,20 @@ parts:
       - libc6-dev
     source: http://ftpmirror.gnu.org/gnunet/libgnunetchat-0.1.1.tar.gz
     plugin: autotools
+    autotools-configure-parameters:
+      - --prefix=/usr
     override-build: |
-      ./configure --prefix=/usr --enable-fast-install=no
-      export LD_LIBRARY_PATH="$SNAPCRAFT_STAGE/usr/lib"
+      mkdir -p snap_fix
+      for f in $(ls $SNAPCRAFT_STAGE/usr/lib | grep libgnunet.*\.la); do
+        mv $SNAPCRAFT_STAGE/usr/lib/$f snap_fix/$f
+      done
+      ./configure --prefix=$SNAPCRAFT_STAGE/usr
       make
-      make install DESTDIR="$SNAPCRAFT_STAGE"
+      make install
+      for f in $(ls snap_fix); do
+        mv snap_fix/$f $SNAPCRAFT_STAGE/usr/lib/$f
+      done
+      rm -r snap_fix
   messenger-gtk:
     after: [ desktop-gtk3, gnunet, libgnunetchat ]
     build-packages:
@@ -153,6 +161,9 @@ parts:
     source: http://ftpmirror.gnu.org/gnunet/messenger-gtk-0.7.0.tar.gz
     plugin: make
     override-build: |
+      for f in $(ls $SNAPCRAFT_STAGE/usr/lib | grep libgnunetchat); do
+        cp $SNAPCRAFT_STAGE/usr/lib/$f $SNAPCRAFT_PART_INSTALL/usr/lib/$f
+      done
       export LD_LIBRARY_PATH="$SNAPCRAFT_STAGE/usr/lib"
       make release
       mkdir -p "$SNAPCRAFT_PART_INSTALL/usr/bin"
