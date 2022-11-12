@@ -74,152 +74,16 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
   ui_new_contact_dialog_cleanup((UI_NEW_CONTACT_Handle*) user_data);
 }
 
-static gboolean
-handle_id_drawing_area_draw(GtkWidget* drawing_area,
-			    cairo_t* cairo,
-			    gpointer user_data)
-{
-  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) user_data;
-
-  GtkStyleContext* context = gtk_widget_get_style_context(drawing_area);
-
-  if (!context)
-    return FALSE;
-
-  const guint width = gtk_widget_get_allocated_width(drawing_area);
-  const guint height = gtk_widget_get_allocated_height(drawing_area);
-
-  gtk_render_background(context, cairo, 0, 0, width, height);
-
-  if (!(handle->image))
-    return FALSE;
-
-  uint w, h;
-  w = gdk_pixbuf_get_width(handle->image);
-  h = gdk_pixbuf_get_height(handle->image);
-
-  uint min_size = (w < h? w : h);
-
-  double ratio_width = 1.0 * width / min_size;
-  double ratio_height = 1.0 * height / min_size;
-
-  const double ratio = ratio_width < ratio_height? ratio_width : ratio_height;
-
-  w = (uint) (min_size * ratio);
-  h = (uint) (min_size * ratio);
-
-  double dx = (width - w) * 0.5;
-  double dy = (height - h) * 0.5;
-
-  const int interp_type = (ratio >= 1.0?
-      GDK_INTERP_NEAREST :
-      GDK_INTERP_BILINEAR
-  );
-
-  GdkPixbuf* scaled = gdk_pixbuf_scale_simple(
-      handle->image,
-      w,
-      h,
-      interp_type
-  );
-
-  gtk_render_icon(context, cairo, scaled, dx, dy);
-
-  cairo_fill(cairo);
-
-  g_object_unref(scaled);
-  return FALSE;
-}
-
 static void
 _disable_video_processing(UI_NEW_CONTACT_Handle *handle,
 			  gboolean drop_pipeline)
 {
   gtk_stack_set_visible_child(handle->preview_stack, handle->fail_box);
 
-  if (0 != handle->idle_processing)
-    g_source_remove(handle->idle_processing);
-
-  handle->idle_processing = 0;
-
   if ((!(handle->pipeline)) || (!drop_pipeline))
     return;
 
   gst_element_set_state(handle->pipeline, GST_STATE_NULL);
-}
-
-static void
-_handle_video_sample(UI_NEW_CONTACT_Handle *handle,
-		     GstAppSink *appsink)
-{
-  GstSample *sample = gst_app_sink_try_pull_sample(appsink, 10);
-
-  if (!sample)
-    return;
-
-  GstCaps *caps = gst_sample_get_caps(sample);
-
-  GstStructure *s = gst_caps_get_structure(caps, 0);
-
-  gint width, height;
-  gst_structure_get_int(s, "width", &width);
-  gst_structure_get_int(s, "height", &height);
-
-  uint x, y, min_size;
-  min_size = (width < height? width : height);
-  x = (width - min_size) / 2;
-  y = (height - min_size) / 2;
-
-  GstBuffer *buffer = gst_sample_get_buffer(sample);
-  GstMapInfo map;
-
-  gst_buffer_map(buffer, &map, GST_MAP_READ);
-
-  if (handle->image)
-    g_object_unref(handle->image);
-
-  const void* data = (const void*) (
-      (const char*) (map.data) + (x + y * width) * 3
-  );
-
-  handle->image = gdk_pixbuf_new_from_data(
-      data,
-      GDK_COLORSPACE_RGB,
-      FALSE,
-      8,
-      min_size,
-      min_size,
-      width * 3,
-      NULL,
-      NULL
-  );
-
-  gst_buffer_unmap(buffer, &map);
-
-  if (handle->id_drawing_area)
-    gtk_widget_queue_draw(GTK_WIDGET(handle->id_drawing_area));
-
-  gst_sample_unref(sample);
-}
-
-static gboolean
-idle_video_processing(gpointer user_data)
-{
-  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) user_data;
-
-  if (0 == handle->idle_processing)
-    return FALSE;
-
-  GstAppSink *appsink = GST_APP_SINK(handle->sink);
-
-  if (!appsink)
-  {
-    _disable_video_processing(handle, TRUE);
-    return FALSE;
-  }
-
-  _handle_video_sample(handle, appsink);
-  return TRUE;
 }
 
 static void
@@ -267,18 +131,13 @@ msg_state_changed_cb(UNUSED GstBus *bus,
       (new_state == old_state) || (!(handle->preview_stack)))
     return;
 
-  if (GST_STATE_PLAYING == new_state)
-  {
+  if ((GST_STATE_PAUSED == new_state) || (!(handle->sink)))
+    _disable_video_processing(handle, FALSE);
+  else if (GST_STATE_PLAYING == new_state)
     gtk_stack_set_visible_child(
 	handle->preview_stack,
-	GTK_WIDGET(handle->id_drawing_area)
+	handle->video_box
     );
-
-    if (0 == handle->idle_processing)
-      handle->idle_processing = g_idle_add(idle_video_processing, handle);
-  }
-  else if (GST_STATE_PAUSED == new_state)
-    _disable_video_processing(handle, FALSE);
 }
 
 static void
@@ -313,7 +172,9 @@ _setup_gst_pipeline(UI_NEW_CONTACT_Handle *handle)
 {
   handle->pipeline = gst_parse_launch(
       "v4l2src name=source ! videoconvert ! zbar name=scanner"
-      " ! videoconvert ! video/x-raw,format=RGB ! videoconvert ! appsink name=sink",
+      " ! videoconvert ! aspectratiocrop aspect-ratio=1/1"
+      " ! videoconvert ! video/x-raw,format=RGB"
+      " ! videoconvert ! gtksink name=sink",
       NULL
   );
 
@@ -328,8 +189,6 @@ _setup_gst_pipeline(UI_NEW_CONTACT_Handle *handle)
   handle->sink = gst_bin_get_by_name(
       GST_BIN(handle->pipeline), "sink"
   );
-
-  gst_app_sink_set_drop(GST_APP_SINK(handle->sink), TRUE);
 
   GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(handle->pipeline));
 
@@ -391,8 +250,6 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
 {
   _setup_gst_pipeline(handle);
 
-  handle->image = NULL;
-
   pthread_create(
       &(handle->video_tid),
       NULL,
@@ -421,16 +278,31 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "fail_box")
   );
 
-  handle->id_drawing_area = GTK_DRAWING_AREA(
-      gtk_builder_get_object(handle->builder, "id_drawing_area")
+  handle->video_box = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder, "video_box")
   );
 
-  handle->id_draw_signal = g_signal_connect(
-      handle->id_drawing_area,
-      "draw",
-      G_CALLBACK(handle_id_drawing_area_draw),
-      handle
-  );
+  GtkWidget *widget;
+  if (handle->sink)
+    g_object_get(handle->sink, "widget", &widget, NULL);
+  else
+    widget = NULL;
+
+  if (widget)
+  {
+    gtk_box_pack_start(
+	GTK_BOX(handle->video_box),
+	widget,
+	true,
+	true,
+	0
+    );
+
+    g_object_unref(widget);
+    gtk_widget_realize(widget);
+
+    gtk_widget_show_all(handle->video_box);
+  }
 
   handle->id_entry = GTK_ENTRY(
       gtk_builder_get_object(handle->builder, "id_entry")
@@ -464,25 +336,12 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
       G_CALLBACK(handle_dialog_destroy),
       handle
   );
-
-  handle->idle_processing = 0;
 }
 
 void
 ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle)
 {
   pthread_join(handle->video_tid, NULL);
-
-  if (0 != handle->idle_processing)
-    g_source_remove(handle->idle_processing);
-
-  g_signal_handler_disconnect(
-      handle->id_drawing_area,
-      handle->id_draw_signal
-  );
-
-  if (handle->image)
-    g_object_unref(handle->image);
 
   g_object_unref(handle->builder);
 

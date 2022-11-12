@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
+<!-- Generated with glade 3.40.0 
 
 Copyright (C) 2021‑‑2022 GNUnet e.V.
 
@@ -123,10 +123,14 @@ Author: Tobias Frisch
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkDrawingArea" id="id_drawing_area">
+                  <object class="GtkBox" id="video_box">
                     <property name="height-request">250</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <placeholder/>
+                    </child>
                   </object>
                   <packing>
                     <property name="name">page_drawing</property>

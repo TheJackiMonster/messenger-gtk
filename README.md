@@ -63,6 +63,25 @@ Here is a list of some useful build targets in the Makefile:
 
 If you want to change the installation location, use the `--prefix=` parameter in the `configure` script. Also you can enable debugging builds by adding `--enable-debug` as parameter when running the `configure` script.
 
+## Runtime
+
+The application will utilize gstreamer to scan a video feed from your camera for QR codes to add new contacts conveniently. This feature requires some gstreamer plugins to be installed:
+
+ - [aspectratiocrop](https://gstreamer.freedesktop.org/documentation/videocrop/aspectratiocrop.html?gi-language=c)
+ - [audioconvert](https://gstreamer.freedesktop.org/documentation/audioconvert/index.html?gi-language=c)
+ - [autoaudiosink](https://gstreamer.freedesktop.org/documentation/autodetect/autoaudiosink.html?gi-language=c)
+ - [autoaudiosrc](https://gstreamer.freedesktop.org/documentation/autodetect/autoaudiosrc.html?gi-language=c)
+ - [gtksink](https://gstreamer.freedesktop.org/documentation/gtk/gtksink.html?gi-language=c)
+ - [oggdemux](https://gstreamer.freedesktop.org/documentation/ogg/oggdemux.html?gi-language=c)
+ - [oggmux](https://gstreamer.freedesktop.org/documentation/ogg/oggmux.html?gi-language=c)
+ - [v4l2src](https://gstreamer.freedesktop.org/documentation/video4linux2/v4l2src.html?gi-language=c)
+ - [videoconvert](https://gstreamer.freedesktop.org/documentation/videoconvertscale/videoconvert.html?gi-language=c)
+ - [vorbisdec](https://gstreamer.freedesktop.org/documentation/vorbis/vorbisdec.html?gi-language=c)
+ - [vorbisenc](https://gstreamer.freedesktop.org/documentation/vorbis/vorbisenc.html?gi-language=c)
+ - [zbar](https://gstreamer.freedesktop.org/documentation/zbar/index.html?gi-language=c)
+
+Install packages depending on your distribution to be able to use those plugins.
+
 ## Contribution
 
 If you want to contribute to this project as well, the following options are available:

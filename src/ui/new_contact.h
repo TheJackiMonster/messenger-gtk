@@ -41,24 +41,19 @@ typedef struct UI_NEW_CONTACT_Handle
 
   guint bus_watch;
 
-  GdkPixbuf *image;
-
   GtkBuilder *builder;
   GtkDialog *dialog;
 
   GtkStack *preview_stack;
   GtkWidget *fail_box;
 
-  GtkDrawingArea *id_drawing_area;
+  GtkWidget *video_box;
   GtkEntry *id_entry;
-
-  gulong id_draw_signal;
 
   GtkButton *cancel_button;
   GtkButton *confirm_button;
 
   pthread_t video_tid;
-  guint idle_processing;
 } UI_NEW_CONTACT_Handle;
 
 /**
