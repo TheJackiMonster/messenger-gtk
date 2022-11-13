@@ -61,6 +61,7 @@ AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
 AC_CONFIG_FILES([
   Makefile
   resources/Makefile
+  resources/icon/Makefile
   src/Makefile
   src/chat/Makefile
   src/ui/Makefile
