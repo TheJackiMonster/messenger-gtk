@@ -79,11 +79,17 @@ parts:
       - xdg-user-dirs
       - gobject-introspection
       - libxcursor1
+      - libgtk2.0-0
       - libgtk-3-0
+      - libevent-2.1-7
       - libltdl7
       - libc6
-      
+      - libgdk-pixbuf-2.0-0
+      - libcanberra-gtk-module
+      - libcanberra-gtk3-module
+      - locales-all
   gnunet:
+    after: [ desktop-gtk3 ]
     build-packages:
       - build-essential
       - libc6-dev
@@ -106,6 +112,8 @@ parts:
       - libunistring2
       - libsqlite3-0
       - libmicrohttpd12
+      - libgnutls-dane0
+      - libunbound8
     source: http://ftpmirror.gnu.org/gnunet/gnunet-0.18.1.tar.gz
     plugin: autotools
     autotools-configure-parameters:
@@ -125,9 +133,7 @@ parts:
       for f in $(ls $SNAPCRAFT_STAGE/usr/lib | grep libgnunet.*\.la); do
         mv $SNAPCRAFT_STAGE/usr/lib/$f snap_fix/$f
       done
-      ./configure --prefix=$SNAPCRAFT_STAGE/usr
-      make
-      make install
+      snapcraftctl build
       for f in $(ls snap_fix); do
         mv snap_fix/$f $SNAPCRAFT_STAGE/usr/lib/$f
       done
@@ -148,7 +154,6 @@ parts:
       - desktop-file-utils
     stage-packages:
       - libglib2.0-0
-      - libgdk-pixbuf-2.0-0
       - libhandy-1-0
       - libnotify4
       - libqrencode4
@@ -158,12 +163,10 @@ parts:
       - gir1.2-gtk-3.0
       - gir1.2-handy-1
       - gir1.2-pango-1.0
+      - locales
     source: http://ftpmirror.gnu.org/gnunet/messenger-gtk-0.7.0.tar.gz
     plugin: make
     override-build: |
-      for f in $(ls $SNAPCRAFT_STAGE/usr/lib | grep libgnunetchat); do
-        cp $SNAPCRAFT_STAGE/usr/lib/$f $SNAPCRAFT_PART_INSTALL/usr/lib/$f
-      done
       export LD_LIBRARY_PATH="$SNAPCRAFT_STAGE/usr/lib"
       make release
       mkdir -p "$SNAPCRAFT_PART_INSTALL/usr/bin"
