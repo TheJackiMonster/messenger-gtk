@@ -72,7 +72,6 @@ PKG_CHECK_MODULES([GTK], [gtk+-3.0])
 PKG_CHECK_MODULES([HANDY], [libhandy-1])
 PKG_CHECK_MODULES([GNUNET], [gnunetutil >= 0.9.0])
 PKG_CHECK_MODULES([GST], [gstreamer-1.0])
-PKG_CHECK_MODULES([GST_APP], [gstreamer-app-1.0])
 PKG_CHECK_MODULES([NOTIFY], [libnotify])
 PKG_CHECK_MODULES([QRENCODE], [libqrencode])
 

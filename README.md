@@ -38,7 +38,6 @@ The following dependencies are required and need to be installed to build the ap
  - [libhandy](https://gitlab.gnome.org/GNOME/libhandy): For responsive UI widgets
  - [libnotify](https://gitlab.gnome.org/GNOME/libnotify): For notifications
  - [qrencode](https://github.com/fukuchi/libqrencode): For generating QR codes to share credentials
- - [zbar](https://github.com/mchehab/zbar): For scanning QR codes via camera
  - [gstreamer](https://gitlab.freedesktop.org/gstreamer): For recording and playing voice messages
 
 As additional step you will need to load all required git submodules via `git submodule init` and `git submodule update`. It is also possible to just add the `--recursive` flag while cloning the repository to do that automatically.

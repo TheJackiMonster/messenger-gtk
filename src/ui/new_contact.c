@@ -24,8 +24,6 @@
 
 #include "new_contact.h"
 
-#include <gstreamer-1.0/gst/app/gstappsink.h>
-
 #include "../application.h"
 
 static void

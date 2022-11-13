@@ -12,7 +12,6 @@ AM_CFLAGS = \
   @GNUNET_CFLAGS@ \
   @HANDY_CFLAGS@ \
   @GST_CFLAGS@ \
-  @GST_APP_CFLAGS@ \
   @NOTIFY_CFLAGS@ \
   @QRENCODE_CFLAGS@
 
@@ -38,7 +37,6 @@ messenger_gtk_LDADD = \
   @GTK_LIBS@ \
   @HANDY_LIBS@ \
   @GST_LIBS@ \
-  @GST_APP_LIBS@ \
   @NOTIFY_LIBS@ \
   @QRENCODE_LIBS@
 
