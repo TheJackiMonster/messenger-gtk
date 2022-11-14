@@ -176,6 +176,9 @@ _setup_gst_pipeline(UI_NEW_CONTACT_Handle *handle)
       NULL
   );
 
+  if (!(handle->pipeline))
+    return;
+
   handle->source = gst_bin_get_by_name(
       GST_BIN(handle->pipeline), "source"
   );
@@ -189,6 +192,9 @@ _setup_gst_pipeline(UI_NEW_CONTACT_Handle *handle)
   );
 
   GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(handle->pipeline));
+
+  if (!bus)
+    return;
 
   gst_bus_add_signal_watch(bus);
 

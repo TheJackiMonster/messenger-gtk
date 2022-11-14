@@ -51,9 +51,13 @@ _add_emoji_buttons(GtkFlowBox *flow_box,
     GString *string = g_string_new("");
     g_string_append_unichar(string, (gunichar) characters[i]);
 
+    gchar *_text = g_locale_to_utf8(string->str, string->len, NULL, NULL, NULL);
+
     GtkButton *emoji_button = GTK_BUTTON(
       gtk_button_new_with_label(string->str)
     );
+
+    g_free(_text);
 
     gtk_button_set_relief(emoji_button, GTK_RELIEF_NONE);
 
