@@ -95,8 +95,17 @@ handle_search_button_click(UNUSED GtkButton *button,
     );
 }
 
+static void
+handle_settings_button_click(UNUSED GtkButton *button,
+			     gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+  ui_play_media_window_init(app, &(app->ui.play_media));
+  gtk_widget_show(GTK_WIDGET(app->ui.play_media.window));
+}
+
 UI_PICKER_Handle*
-ui_picker_new(UNUSED MESSENGER_Application *app,
+ui_picker_new(MESSENGER_Application *app,
 	      UI_CHAT_Handle *chat)
 {
   UI_PICKER_Handle *handle = g_malloc(sizeof(UI_PICKER_Handle));
@@ -242,6 +251,13 @@ ui_picker_new(UNUSED MESSENGER_Application *app,
 
   handle->settings_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "settings_button")
+  );
+
+  g_signal_connect(
+      handle->settings_button,
+      "clicked",
+      G_CALLBACK(handle_settings_button_click),
+      app
   );
 
   return handle;

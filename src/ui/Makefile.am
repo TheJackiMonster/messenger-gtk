@@ -32,6 +32,7 @@ libui_a_SOURCES = \
   new_lobby.c new_lobby.h \
   new_platform.c new_platform.h \
   picker.c picker.h \
+  play_media.c play_media.h \
   send_file.c send_file.h \
   settings.c settings.h
 
