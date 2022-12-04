@@ -25,7 +25,7 @@ Author: Tobias Frisch
   <requires lib="libhandy" version="1.2"/>
   <object class="HdyWindow" id="play_media_window">
     <property name="width-request">250</property>
-    <property name="height-request">180</property>
+    <property name="height-request">250</property>
     <property name="can-focus">False</property>
     <property name="modal">True</property>
     <property name="window-position">center-on-parent</property>
@@ -82,11 +82,64 @@ Author: Tobias Frisch
             <property name="flap-position">end</property>
             <property name="modal">False</property>
             <child type="content">
-              <object class="GtkImage">
+              <object class="GtkStack" id="preview_stack">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="icon-name">folder-videos-symbolic</property>
-                <property name="icon_size">6</property>
+                <child>
+                  <object class="GtkBox" id="video_box">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="name">page0</property>
+                    <property name="title" translatable="yes">page0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="fail_box">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">8</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="pixel-size">64</property>
+                        <property name="icon-name">action-unavailable-symbolic</property>
+                        <property name="icon_size">3</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Video source invalid!</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="name">page1</property>
+                    <property name="title" translatable="yes">page1</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
               </object>
             </child>
             <child type="separator">
@@ -109,6 +162,7 @@ Author: Tobias Frisch
                     <child>
                       <object class="GtkButton" id="play_pause_button">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="relief">none</property>
@@ -119,6 +173,7 @@ Author: Tobias Frisch
                             <child>
                               <object class="GtkImage">
                                 <property name="visible">True</property>
+                                <property name="sensitive">False</property>
                                 <property name="can-focus">False</property>
                                 <property name="icon-name">media-playback-start-symbolic</property>
                               </object>
@@ -149,6 +204,7 @@ Author: Tobias Frisch
                     <child>
                       <object class="GtkVolumeButton" id="volume_button">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="focus-on-click">False</property>
                         <property name="receives-default">True</property>

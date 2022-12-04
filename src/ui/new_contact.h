@@ -39,8 +39,6 @@ typedef struct UI_NEW_CONTACT_Handle
   GstElement *scanner;
   GstElement *sink;
 
-  guint bus_watch;
-
   GtkBuilder *builder;
   GtkDialog *dialog;
 

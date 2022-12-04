@@ -27,10 +27,19 @@
 
 #include "messenger.h"
 
+#include <gstreamer-1.0/gst/gst.h>
+#include <pthread.h>
+
 typedef struct UI_PLAY_MEDIA_Handle
 {
   gboolean playing;
   gboolean fullscreen;
+
+  GstElement *pipeline;
+  GstElement *source;
+  GstElement *decode;
+  GstElement *sink;
+  GstElement *vol;
 
   GtkWindow *parent;
 
@@ -42,18 +51,27 @@ typedef struct UI_PLAY_MEDIA_Handle
   GtkButton *back_button;
 
   HdyFlap *controls_flap;
+
+  GtkStack *preview_stack;
+  GtkWidget *fail_box;
+  GtkWidget *video_box;
+
   GtkButton *play_pause_button;
   GtkStack *play_symbol_stack;
 
   GtkVolumeButton *volume_button;
   GtkLabel *timeline_label;
+  GtkProgressBar *timeline_progress_bar;
 
   GtkButton *settings_button;
 
   GtkButton *fullscreen_button;
   GtkStack *fullscreen_symbol_stack;
 
+  guint timeline;
   guint motion_lost;
+
+  pthread_t video_tid;
 } UI_PLAY_MEDIA_Handle;
 
 /**

@@ -76,7 +76,10 @@ static void
 _disable_video_processing(UI_NEW_CONTACT_Handle *handle,
 			  gboolean drop_pipeline)
 {
-  gtk_stack_set_visible_child(handle->preview_stack, handle->fail_box);
+  GNUNET_assert(handle);
+
+  if (handle->preview_stack)
+    gtk_stack_set_visible_child(handle->preview_stack, handle->fail_box);
 
   if ((!(handle->pipeline)) || (!drop_pipeline))
     return;
@@ -252,6 +255,8 @@ void
 ui_new_contact_dialog_init(MESSENGER_Application *app,
 			   UI_NEW_CONTACT_Handle *handle)
 {
+  GNUNET_assert((app) && (handle));
+
   _setup_gst_pipeline(handle);
 
   pthread_create(
@@ -345,6 +350,8 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
 void
 ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle)
 {
+  GNUNET_assert(handle);
+
   pthread_join(handle->video_tid, NULL);
 
   g_object_unref(handle->builder);

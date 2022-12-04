@@ -27,6 +27,8 @@
 #include "../application.h"
 #include "../ui.h"
 
+#include <gst/gst.h>
+
 static void
 handle_back_button_click(GtkButton *button,
 			 gpointer user_data)
@@ -36,19 +38,131 @@ handle_back_button_click(GtkButton *button,
 }
 
 static void
+_disable_video_processing(UI_PLAY_MEDIA_Handle *handle,
+			  gboolean drop_pipeline)
+{
+  GNUNET_assert(handle);
+
+  if (handle->preview_stack)
+    gtk_stack_set_visible_child(handle->preview_stack, handle->fail_box);
+
+  if ((!(handle->pipeline)) || (!drop_pipeline))
+    return;
+
+  gst_element_set_state(handle->pipeline, GST_STATE_NULL);
+}
+
+static gboolean
+_adjust_playing_media_position(UI_PLAY_MEDIA_Handle *handle)
+{
+  gint64 pos, len;
+
+  if (!(handle->pipeline))
+    return FALSE;
+
+  if (!gst_element_query_position(handle->pipeline, GST_FORMAT_TIME, &pos))
+    return FALSE;
+
+  if (!gst_element_query_duration(handle->pipeline, GST_FORMAT_TIME, &len))
+    return FALSE;
+
+  if (handle->timeline_label)
+  {
+    GString *str = g_string_new(NULL);
+
+    guint pos_seconds = GST_TIME_AS_SECONDS(pos);
+    guint len_seconds = GST_TIME_AS_SECONDS(len);
+
+    g_string_append_printf(
+	str,
+	"%u:%02u / %u:%02u",
+	pos_seconds / 60,
+	pos_seconds % 60,
+	len_seconds / 60,
+	len_seconds % 60
+    );
+
+    ui_label_set_text(handle->timeline_label, str->str);
+    g_string_free(str, TRUE);
+  }
+
+  if (handle->timeline_progress_bar)
+    gtk_progress_bar_set_fraction(
+	handle->timeline_progress_bar,
+	1.0 * pos / len
+    );
+
+  return TRUE;
+}
+
+static void
+_adjust_playing_media_state(UI_PLAY_MEDIA_Handle *handle,
+			    gboolean playing)
+{
+  handle->playing = playing;
+
+  if (!(handle->play_symbol_stack))
+    return;
+
+  gtk_stack_set_visible_child_name(
+      handle->play_symbol_stack,
+      handle->playing? "pause_page" : "play_page"
+  );
+
+  if (handle->timeline)
+    g_source_remove(handle->timeline);
+
+  if (handle->playing)
+    handle->timeline = g_timeout_add(
+	1000,
+	G_SOURCE_FUNC(_adjust_playing_media_position),
+	handle
+    );
+  else
+    handle->timeline = 0;
+
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->play_pause_button), TRUE);
+
+  gtk_stack_set_visible_child(
+      handle->preview_stack,
+      handle->video_box
+  );
+}
+
+static void
 _pause_playing_media(UI_PLAY_MEDIA_Handle *handle)
 {
-  //
+  if (!(handle->pipeline))
+    _adjust_playing_media_state(handle, FALSE);
 
-  handle->playing = FALSE;
+  GstStateChangeReturn ret = gst_element_set_state(
+      handle->pipeline,
+      GST_STATE_PAUSED
+  );
+
+  if (GST_STATE_CHANGE_FAILURE == ret)
+  {
+    _disable_video_processing(handle, TRUE);
+    return;
+  }
 }
 
 static void
 _continue_playing_media(UI_PLAY_MEDIA_Handle *handle)
 {
-  //
+  if (!(handle->pipeline))
+    _adjust_playing_media_state(handle, TRUE);
 
-  handle->playing = TRUE;
+  GstStateChangeReturn ret = gst_element_set_state(
+      handle->pipeline,
+      GST_STATE_PLAYING
+  );
+
+  if (GST_STATE_CHANGE_FAILURE == ret)
+  {
+    _disable_video_processing(handle, TRUE);
+    return;
+  }
 }
 
 static void
@@ -57,14 +171,36 @@ handle_play_pause_button_click(GtkButton *button,
 {
   UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) user_data;
 
+  gtk_widget_set_sensitive(GTK_WIDGET(button), FALSE);
+
   if (handle->playing)
     _pause_playing_media(handle);
   else
     _continue_playing_media(handle);
+}
 
-  gtk_stack_set_visible_child_name(
-      handle->play_symbol_stack,
-      handle->playing? "pause_page" : "play_page"
+static void
+handle_volume_button_value_changed(GtkScaleButton *button,
+				   double value,
+				   gpointer user_data)
+{
+  UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) user_data;
+
+  if (!(handle->vol))
+    return;
+
+  g_object_set(
+      G_OBJECT(handle->vol),
+      "volume",
+      value,
+      NULL
+  );
+
+  g_object_set(
+      G_OBJECT(handle->vol),
+      "mute",
+      (value <= 0.0),
+      NULL
   );
 }
 
@@ -157,11 +293,154 @@ handle_window_destroy(UNUSED GtkWidget *window,
   ui_play_media_window_cleanup((UI_PLAY_MEDIA_Handle*) user_data);
 }
 
+static void
+msg_error_cb(UNUSED GstBus *bus,
+	     GstMessage *msg,
+	     gpointer *data)
+{
+  UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) data;
+
+  GError* error;
+  gst_message_parse_error(msg, &error, NULL);
+
+  if (!error)
+    fprintf(stderr, "ERROR: Unknown error\n");
+  else if (error->message)
+    fprintf(stderr, "ERROR: %s (%d)\n", error->message, error->code);
+  else
+    fprintf(stderr, "ERROR: Unknown error (%d)\n", error->code);
+
+  _disable_video_processing(handle, TRUE);
+}
+
+static void
+msg_eos_cb(UNUSED GstBus *bus,
+	   UNUSED GstMessage *msg,
+	   gpointer *data)
+{
+  UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) data;
+
+  if (GST_MESSAGE_SRC(msg) == GST_OBJECT(handle->pipeline))
+    _adjust_playing_media_state(handle, FALSE);
+}
+
+static void
+msg_state_changed_cb(UNUSED GstBus *bus,
+		     GstMessage *msg,
+		     gpointer *data)
+{
+  UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) data;
+
+  GstState old_state, new_state, pending_state;
+  gst_message_parse_state_changed(msg, &old_state, &new_state, &pending_state);
+
+  if ((GST_MESSAGE_SRC(msg) != GST_OBJECT(handle->pipeline)) ||
+      (new_state == old_state) || (!(handle->preview_stack)))
+    return;
+
+  if (!(handle->sink))
+    _disable_video_processing(handle, FALSE);
+  else if (GST_STATE_PLAYING == new_state)
+    _adjust_playing_media_state(handle, TRUE);
+  else if (GST_STATE_PAUSED == new_state)
+    _adjust_playing_media_state(handle, FALSE);
+}
+
+static void
+_setup_gst_pipeline(UI_PLAY_MEDIA_Handle *handle)
+{
+  handle->pipeline = gst_parse_launch(
+      "filesrc name=source"
+      " ! decodebin name=decode"
+      " ! videoconvert ! video/x-raw,format=RGB"
+      " ! videoconvert ! gtksink name=vsink decode."
+      " ! audioconvert ! audioresample"
+      " ! volume name=vol ! autoaudiosink",
+      NULL
+  );
+
+  if (!(handle->pipeline))
+    return;
+
+  handle->source = gst_bin_get_by_name(
+      GST_BIN(handle->pipeline), "source"
+  );
+
+  g_object_set(
+      G_OBJECT(handle->source),
+      "location",
+      "", // absolute path to video file
+      NULL
+  );
+
+  handle->decode = gst_bin_get_by_name(
+      GST_BIN(handle->pipeline), "decode"
+  );
+
+  handle->sink = gst_bin_get_by_name(
+      GST_BIN(handle->pipeline), "vsink"
+  );
+
+  handle->vol = gst_bin_get_by_name(
+      GST_BIN(handle->pipeline), "vol"
+  );
+
+  GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(handle->pipeline));
+
+  if (!bus)
+    return;
+
+  gst_bus_add_signal_watch(bus);
+
+  g_signal_connect(
+      G_OBJECT(bus),
+      "message::error",
+      (GCallback) msg_error_cb,
+      handle
+  );
+
+  g_signal_connect(
+      G_OBJECT(bus),
+      "message::eos",
+      (GCallback) msg_eos_cb,
+      handle
+  );
+
+  g_signal_connect(
+      G_OBJECT(bus),
+      "message::state-changed",
+      (GCallback) msg_state_changed_cb,
+      handle
+  );
+
+  gst_object_unref(bus);
+}
+
+static void*
+_ui_play_media_video_thread(void *args)
+{
+  UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) args;
+
+  if (!handle->playing)
+    _continue_playing_media(handle);
+
+  return NULL;
+}
+
 void
 ui_play_media_window_init(MESSENGER_Application *app,
 			  UI_PLAY_MEDIA_Handle *handle)
 {
   GNUNET_assert((app) && (handle));
+
+  _setup_gst_pipeline(handle);
+
+  pthread_create(
+      &(handle->video_tid),
+      NULL,
+      _ui_play_media_video_thread,
+      handle
+  );
 
   handle->parent = GTK_WINDOW(app->ui.messenger.main_window);
 
@@ -208,6 +487,40 @@ ui_play_media_window_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "controls_flap")
   );
 
+  handle->preview_stack = GTK_STACK(
+      gtk_builder_get_object(handle->builder, "preview_stack")
+  );
+
+  handle->fail_box = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder, "fail_box")
+  );
+
+  handle->video_box = GTK_WIDGET(
+      gtk_builder_get_object(handle->builder, "video_box")
+  );
+
+  GtkWidget *widget;
+  if (handle->sink)
+    g_object_get(handle->sink, "widget", &widget, NULL);
+  else
+    widget = NULL;
+
+  if (widget)
+  {
+    gtk_box_pack_start(
+      GTK_BOX(handle->video_box),
+      widget,
+      true,
+      true,
+      0
+    );
+
+    g_object_unref(widget);
+    gtk_widget_realize(widget);
+
+    gtk_widget_show_all(handle->video_box);
+  }
+
   handle->play_pause_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "play_pause_button")
   );
@@ -227,8 +540,19 @@ ui_play_media_window_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "volume_button")
   );
 
+  g_signal_connect(
+      handle->volume_button,
+      "value-changed",
+      G_CALLBACK(handle_volume_button_value_changed),
+      handle
+  );
+
   handle->timeline_label = GTK_LABEL(
       gtk_builder_get_object(handle->builder, "timeline_label")
+  );
+
+  handle->timeline_progress_bar = GTK_PROGRESS_BAR(
+      gtk_builder_get_object(handle->builder, "timeline_progress_bar")
   );
 
   handle->settings_button = GTK_BUTTON(
@@ -270,6 +594,11 @@ ui_play_media_window_init(MESSENGER_Application *app,
       handle
   );
 
+  gtk_scale_button_set_value(
+      GTK_SCALE_BUTTON(handle->volume_button),
+      1.0
+  );
+
   gtk_widget_show_all(GTK_WIDGET(handle->window));
 }
 
@@ -278,10 +607,21 @@ ui_play_media_window_cleanup(UI_PLAY_MEDIA_Handle *handle)
 {
   GNUNET_assert(handle);
 
+  pthread_join(handle->video_tid, NULL);
+
   g_object_unref(handle->builder);
+
+  if (handle->timeline)
+    g_source_remove(handle->timeline);
 
   if (handle->motion_lost)
     g_source_remove(handle->motion_lost);
+
+  if (handle->pipeline)
+  {
+    gst_element_set_state(handle->pipeline, GST_STATE_NULL);
+    gst_object_unref(GST_OBJECT(handle->pipeline));
+  }
 
   memset(handle, 0, sizeof(*handle));
 }
