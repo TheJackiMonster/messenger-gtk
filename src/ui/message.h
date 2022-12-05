@@ -44,6 +44,7 @@ typedef enum UI_MESSAGE_Type
 typedef struct UI_MESSAGE_Handle
 {
   UI_MESSAGE_Type type;
+  gboolean media;
 
   struct GNUNET_TIME_Absolute timestamp;
   const struct GNUNET_CHAT_Message *msg;

@@ -746,8 +746,11 @@ ui_play_media_window_init(MESSENGER_Application *app,
 
 void
 ui_play_media_window_update(UI_PLAY_MEDIA_Handle *handle,
-			    const gchar *uri)
+			    const gchar *uri,
+			    const struct GNUNET_CHAT_File *file)
 {
+  GNUNET_assert((handle) && (uri));
+
   if (handle->video_tid)
     pthread_join(handle->video_tid, NULL);
 
@@ -756,6 +759,18 @@ ui_play_media_window_update(UI_PLAY_MEDIA_Handle *handle,
 
   _disable_video_processing(handle, TRUE);
   g_object_set(G_OBJECT(handle->pipeline), "uri", uri, NULL);
+
+  const gchar *filename;
+
+  if (file)
+    filename = GNUNET_CHAT_file_get_name(file);
+  else
+    filename = uri;
+
+  hdy_header_bar_set_subtitle(
+      handle->title_bar,
+      filename? filename : ""
+  );
 
   pthread_create(
       &(handle->video_tid),

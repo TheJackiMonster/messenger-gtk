@@ -101,7 +101,19 @@ handle_file_button_click(GtkButton *button,
     GString* uri = g_string_new("file://");
     g_string_append(uri, preview);
 
-    if (!g_app_info_launch_default_for_uri(uri->str, NULL, NULL))
+    if (handle->media)
+    {
+      ui_play_media_window_init(app, &(app->ui.play_media));
+
+      ui_play_media_window_update(
+	  &(app->ui.play_media),
+	  uri->str,
+	  file
+      );
+
+      gtk_widget_show(GTK_WIDGET(app->ui.play_media.window));
+    }
+    else if (!g_app_info_launch_default_for_uri(uri->str, NULL, NULL))
       GNUNET_CHAT_file_close_preview(file);
 
     g_string_free(uri, TRUE);
@@ -248,6 +260,7 @@ ui_message_new(MESSENGER_Application *app,
   UI_MESSAGE_Handle* handle = g_malloc(sizeof(UI_MESSAGE_Handle));
 
   handle->type = type;
+  handle->media = FALSE;
 
   handle->timestamp = GNUNET_TIME_absolute_get_zero_();
   handle->msg = NULL;
@@ -472,7 +485,7 @@ _update_file_message(UI_MESSAGE_Handle *handle,
   if (!(handle->preview_animation))
     handle->preview_image = gdk_pixbuf_new_from_file(preview, NULL);
 
-  if ((handle->preview_animation) || (handle->preview_animation))
+  if ((handle->preview_animation) || (handle->preview_image))
   {
     gtk_widget_set_size_request(
       GTK_WIDGET(handle->preview_drawing_area),
@@ -489,6 +502,14 @@ _update_file_message(UI_MESSAGE_Handle *handle,
     return;
   }
 
+  const char* extension = strrchr(filename, '.');
+
+  if (0 == g_strcmp0(extension, ".mp4"))
+  {
+    handle->media = TRUE;
+    goto file_progress;
+  }
+
   GNUNET_CHAT_file_close_preview(file);
 
 file_progress:
@@ -496,7 +517,7 @@ file_progress:
 
   gtk_image_set_from_icon_name(
       handle->file_status_image,
-      "document-open-symbolic",
+      (handle->media? "video-x-generic-symbolic" : "document-open-symbolic"),
       GTK_ICON_SIZE_BUTTON
   );
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
+<!-- Generated with glade 3.40.0 
 
 Copyright (C) 2021‑‑2022 GNUnet e.V.
 
@@ -81,6 +81,7 @@ Author: Tobias Frisch
             <property name="wrap">True</property>
             <property name="max-width-chars">64</property>
             <property name="xalign">0</property>
+            <property name="yalign">1</property>
           </object>
           <packing>
             <property name="name">text_page</property>
@@ -100,16 +101,19 @@ Author: Tobias Frisch
                   <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="valign">center</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">4</property>
                     <child>
                       <object class="GtkLabel" id="filename_label">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">
+</property>
+                        <property name="xalign">0</property>
+                        <property name="yalign">1</property>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
+                        <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
@@ -122,6 +126,7 @@ Author: Tobias Frisch
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
+                        <property name="pack-type">end</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -137,8 +142,7 @@ Author: Tobias Frisch
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="halign">center</property>
-                    <property name="valign">center</property>
+                    <property name="valign">end</property>
                     <property name="relief">none</property>
                     <child>
                       <object class="GtkImage" id="file_status_image">
@@ -182,6 +186,7 @@ Author: Tobias Frisch
               <object class="GtkImage">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="valign">end</property>
                 <property name="icon-name">face-shutmouth-symbolic</property>
               </object>
               <packing>
@@ -196,6 +201,7 @@ Author: Tobias Frisch
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">whispering...</property>
                 <property name="xalign">0</property>
+                <property name="yalign">1</property>
                 <attributes>
                   <attribute name="style" value="italic"/>
                 </attributes>

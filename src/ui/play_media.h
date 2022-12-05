@@ -91,10 +91,12 @@ ui_play_media_window_init(MESSENGER_Application *app,
  *
  * @param handle Play media window handle
  * @param uri URI of media file
+ * @param file Media file handle or NULL
  */
 void
 ui_play_media_window_update(UI_PLAY_MEDIA_Handle *handle,
-			    const gchar *uri);
+			    const gchar *uri,
+			    const struct GNUNET_CHAT_File *file);
 
 /**
  * Cleans up the allocated resources and resets the
