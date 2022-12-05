@@ -44,7 +44,6 @@ typedef enum UI_MESSAGE_Type
 typedef struct UI_MESSAGE_Handle
 {
   UI_MESSAGE_Type type;
-  gboolean media;
 
   struct GNUNET_TIME_Absolute timestamp;
   const struct GNUNET_CHAT_Message *msg;
@@ -77,6 +76,12 @@ typedef struct UI_MESSAGE_Handle
   GtkDrawingArea *preview_drawing_area;
 
   GtkWidget *whisper_box;
+
+  GtkRevealer *media_revealer;
+  GtkImage *media_type_image;
+  GtkLabel *media_label;
+  GtkProgressBar *media_progress_bar;
+  GtkButton *media_button;
 
   GdkPixbuf *preview_image;
   GdkPixbufAnimation *preview_animation;

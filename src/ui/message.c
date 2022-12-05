@@ -101,23 +101,51 @@ handle_file_button_click(GtkButton *button,
     GString* uri = g_string_new("file://");
     g_string_append(uri, preview);
 
-    if (handle->media)
-    {
-      ui_play_media_window_init(app, &(app->ui.play_media));
-
-      ui_play_media_window_update(
-	  &(app->ui.play_media),
-	  uri->str,
-	  file
-      );
-
-      gtk_widget_show(GTK_WIDGET(app->ui.play_media.window));
-    }
-    else if (!g_app_info_launch_default_for_uri(uri->str, NULL, NULL))
+    if (!g_app_info_launch_default_for_uri(uri->str, NULL, NULL))
       GNUNET_CHAT_file_close_preview(file);
 
     g_string_free(uri, TRUE);
   }
+}
+
+static void
+handle_media_button_click(GtkButton *button,
+			  gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  UI_MESSAGE_Handle* handle = (UI_MESSAGE_Handle*) (
+      g_object_get_qdata(G_OBJECT(button), app->quarks.ui)
+  );
+
+  if (!handle)
+    return;
+
+  struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File*) (
+      g_object_get_qdata(G_OBJECT(handle->media_progress_bar), app->quarks.data)
+  );
+
+  if (!file)
+    return;
+
+  const gchar *preview = GNUNET_CHAT_file_open_preview(file);
+
+  if (!preview)
+    return;
+
+  ui_play_media_window_init(app, &(app->ui.play_media));
+
+  GString* uri = g_string_new("file://");
+  g_string_append(uri, preview);
+
+  ui_play_media_window_update(
+      &(app->ui.play_media),
+      uri->str,
+      file
+  );
+
+  gtk_widget_show(GTK_WIDGET(app->ui.play_media.window));
+  g_string_free(uri, TRUE);
 }
 
 static int
@@ -260,7 +288,6 @@ ui_message_new(MESSENGER_Application *app,
   UI_MESSAGE_Handle* handle = g_malloc(sizeof(UI_MESSAGE_Handle));
 
   handle->type = type;
-  handle->media = FALSE;
 
   handle->timestamp = GNUNET_TIME_absolute_get_zero_();
   handle->msg = NULL;
@@ -391,6 +418,35 @@ ui_message_new(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder[1], "whisper_box")
   );
 
+  handle->media_revealer = GTK_REVEALER(
+      gtk_builder_get_object(handle->builder[1], "media_revealer")
+  );
+
+  handle->media_type_image = GTK_IMAGE(
+      gtk_builder_get_object(handle->builder[1], "media_type_image")
+  );
+
+  handle->media_label = GTK_LABEL(
+      gtk_builder_get_object(handle->builder[1], "media_label")
+  );
+
+  handle->media_progress_bar = GTK_PROGRESS_BAR(
+      gtk_builder_get_object(handle->builder[1], "media_progress_bar")
+  );
+
+  handle->media_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder[1], "media_button")
+  );
+
+  g_signal_connect(
+      handle->media_button,
+      "clicked",
+      G_CALLBACK(handle_media_button_click),
+      app
+  );
+
+  g_object_set_qdata(G_OBJECT(handle->media_button), app->quarks.ui, handle);
+
   switch (handle->type)
   {
     case UI_MESSAGE_STATUS:
@@ -441,6 +497,23 @@ ui_message_refresh(UI_MESSAGE_Handle *handle)
     gtk_widget_show(GTK_WIDGET(handle->read_receipt_image));
   else
     gtk_widget_hide(GTK_WIDGET(handle->read_receipt_image));
+}
+
+gboolean
+_message_media_supports_file_extension(const gchar *filename)
+{
+  if (!filename)
+    return FALSE;
+
+  const char* extension = strrchr(filename, '.');
+
+  if (!extension)
+    return FALSE;
+
+  if (0 == g_strcmp0(extension, ".ogg"))
+    return TRUE;
+
+  return FALSE;
 }
 
 static void
@@ -502,20 +575,46 @@ _update_file_message(UI_MESSAGE_Handle *handle,
     return;
   }
 
-  if (ui_play_media_window_supports_file_extension(filename))
+  GNUNET_CHAT_file_close_preview(file);
+
+  if (_message_media_supports_file_extension(filename))
   {
-    handle->media = TRUE;
-    goto file_progress;
+    gtk_image_set_from_icon_name(
+	handle->media_type_image,
+	"audio-x-generic-symbolic",
+	GTK_ICON_SIZE_DND
+    );
+
+    goto media_content;
   }
 
-  GNUNET_CHAT_file_close_preview(file);
+  if (!ui_play_media_window_supports_file_extension(filename))
+    goto file_progress;
+
+media_content:
+  ui_label_set_text(handle->media_label, filename);
+
+  gtk_stack_set_visible_child(
+      handle->content_stack,
+      GTK_WIDGET(handle->media_revealer)
+  );
+
+  gtk_revealer_set_reveal_child(handle->media_revealer, TRUE);
+
+  g_object_set_qdata(
+      G_OBJECT(handle->media_progress_bar),
+      app->quarks.data,
+      file
+  );
+
+  return;
 
 file_progress:
   gtk_progress_bar_set_fraction(handle->file_progress_bar, 1.0);
 
   gtk_image_set_from_icon_name(
       handle->file_status_image,
-      (handle->media? "video-x-generic-symbolic" : "document-open-symbolic"),
+      "document-open-symbolic",
       GTK_ICON_SIZE_BUTTON
   );
 
