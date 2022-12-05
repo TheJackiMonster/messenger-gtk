@@ -75,6 +75,17 @@ typedef struct UI_PLAY_MEDIA_Handle
 } UI_PLAY_MEDIA_Handle;
 
 /**
+ * Returns whether the file extension of a given
+ * filename is supported for playing the type of
+ * media.
+ *
+ * @param filename Filename of potential media file
+ * @return TRUE if the extension is supported for playback, otherwise FALSE
+ */
+gboolean
+ui_play_media_window_supports_file_extension(const gchar *filename);
+
+/**
  * Initializes a handle for the play media window
  * of a given messenger application.
  *

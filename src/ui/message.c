@@ -502,9 +502,7 @@ _update_file_message(UI_MESSAGE_Handle *handle,
     return;
   }
 
-  const char* extension = strrchr(filename, '.');
-
-  if (0 == g_strcmp0(extension, ".mp4"))
+  if (ui_play_media_window_supports_file_extension(filename))
   {
     handle->media = TRUE;
     goto file_progress;

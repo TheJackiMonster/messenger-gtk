@@ -27,6 +27,27 @@
 #include "../application.h"
 #include "../ui.h"
 
+gboolean
+ui_play_media_window_supports_file_extension(const gchar *filename)
+{
+  if (!filename)
+    return FALSE;
+
+  const char* extension = strrchr(filename, '.');
+
+  if (!extension)
+    return FALSE;
+
+  if (0 == g_strcmp0(extension, ".mkv"))
+    return TRUE;
+  if (0 == g_strcmp0(extension, ".mp4"))
+    return TRUE;
+  if (0 == g_strcmp0(extension, ".webm"))
+    return TRUE;
+
+  return FALSE;
+}
+
 static void
 handle_back_button_click(GtkButton *button,
 			 gpointer user_data)
