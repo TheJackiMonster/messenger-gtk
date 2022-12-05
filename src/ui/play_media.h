@@ -27,19 +27,16 @@
 
 #include "messenger.h"
 
+#include <glib-2.0/glib.h>
 #include <gstreamer-1.0/gst/gst.h>
 #include <pthread.h>
 
 typedef struct UI_PLAY_MEDIA_Handle
 {
-  gboolean playing;
   gboolean fullscreen;
 
   GstElement *pipeline;
-  GstElement *source;
-  GstElement *decode;
   GstElement *sink;
-  GstElement *vol;
 
   GtkWindow *parent;
 
@@ -62,6 +59,7 @@ typedef struct UI_PLAY_MEDIA_Handle
   GtkVolumeButton *volume_button;
   GtkLabel *timeline_label;
   GtkProgressBar *timeline_progress_bar;
+  GtkScale* timeline_scale;
 
   GtkButton *settings_button;
 
@@ -70,6 +68,8 @@ typedef struct UI_PLAY_MEDIA_Handle
 
   guint timeline;
   guint motion_lost;
+
+  guint timeline_signal;
 
   pthread_t video_tid;
 } UI_PLAY_MEDIA_Handle;
@@ -84,6 +84,17 @@ typedef struct UI_PLAY_MEDIA_Handle
 void
 ui_play_media_window_init(MESSENGER_Application *app,
 			  UI_PLAY_MEDIA_Handle *handle);
+
+/**
+ * Updates a handle for the play media window with
+ * a specific uri to play a media file from.
+ *
+ * @param handle Play media window handle
+ * @param uri URI of media file
+ */
+void
+ui_play_media_window_update(UI_PLAY_MEDIA_Handle *handle,
+			    const gchar *uri);
 
 /**
  * Cleans up the allocated resources and resets the

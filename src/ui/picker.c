@@ -101,6 +101,12 @@ handle_settings_button_click(UNUSED GtkButton *button,
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
   ui_play_media_window_init(app, &(app->ui.play_media));
+
+  ui_play_media_window_update(
+      &(app->ui.play_media),
+      "TODO" // uri path to video file
+  );
+
   gtk_widget_show(GTK_WIDGET(app->ui.play_media.window));
 }
 

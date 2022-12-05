@@ -90,7 +90,7 @@ _disable_video_processing(UI_NEW_CONTACT_Handle *handle,
 static void
 msg_error_cb(UNUSED GstBus *bus,
 	     GstMessage *msg,
-	     gpointer *data)
+	     gpointer data)
 {
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
 
@@ -110,7 +110,7 @@ msg_error_cb(UNUSED GstBus *bus,
 static void
 msg_eos_cb(UNUSED GstBus *bus,
 	   UNUSED GstMessage *msg,
-	   gpointer *data)
+	   gpointer data)
 {
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
 
@@ -121,7 +121,7 @@ msg_eos_cb(UNUSED GstBus *bus,
 static void
 msg_state_changed_cb(UNUSED GstBus *bus,
 		     GstMessage *msg,
-		     gpointer *data)
+		     gpointer data)
 {
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
 
@@ -144,7 +144,7 @@ msg_state_changed_cb(UNUSED GstBus *bus,
 static void
 msg_barcode_cb(UNUSED GstBus *bus,
 	       GstMessage *msg,
-	       gpointer *data)
+	       gpointer data)
 {
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
   GstMessageType msg_type = GST_MESSAGE_TYPE(msg);
