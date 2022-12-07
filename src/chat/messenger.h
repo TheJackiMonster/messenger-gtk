@@ -28,7 +28,7 @@
 #include <gnunet/platform.h>
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
-#include <gnunet/gnunet_program_lib.h>
+#include <gnunet/gnunet_util_lib.h>
 
 typedef struct MESSENGER_Application MESSENGER_Application;
 
