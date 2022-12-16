@@ -27,4 +27,6 @@
 
 #define UNUSED __attribute__((unused))
 
+#define _(String) ((const char*) String)
+
 #endif /* UTIL_H_ */
