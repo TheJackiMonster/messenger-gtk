@@ -19,6 +19,7 @@ Makefile
 .cproject
 .project
 .settings/
+.vscode/
 
 # Binary files:
 *.o
