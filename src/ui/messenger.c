@@ -373,6 +373,14 @@ ui_messenger_init(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder, "title_bar")
   );
 
+  GtkLabel* application_name_label = GTK_LABEL(
+      gtk_builder_get_object(handle->builder, "application-name-label")
+  );
+  
+  GtkLabel* application_version_label = GTK_LABEL(
+      gtk_builder_get_object(handle->builder, "application-version-label")
+  );
+
   hdy_header_bar_set_title(
       handle->title_bar,
       MESSENGER_APPLICATION_TITLE
@@ -381,6 +389,16 @@ ui_messenger_init(MESSENGER_Application *app,
   hdy_header_bar_set_subtitle(
       handle->title_bar,
       MESSENGER_APPLICATION_SUBTITLE
+  );
+
+  gtk_label_set_text(
+      application_name_label,
+      MESSENGER_APPLICATION_APPNAME
+  );
+  
+  gtk_label_set_text(
+      application_version_label,
+      MESSENGER_APPLICATION_VERSION
   );
 
   g_object_bind_property(

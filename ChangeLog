@@ -1,3 +1,11 @@
+## Version 0.8.0
+* Fixes multiple segmentation faults and crashes
+* Fixes issues regarding changes in header usage from GNUnet 0.19.0
+* Replaces build system finally with Meson increasing platform support
+* Dependency on zbar gets replaced with more stable GStreamer pipelines
+* Videos and audio files can be played with an embedded media viewer
+* Improve general software availability via snap and flatpak packaging
+
 ## Version 0.7.0
 * The version iteration will be inherited by cadet-gtk as logical successor.
 >  More information here: https://gitlab.com/gnunet-messenger/cadet-gtk/-/issues/10
