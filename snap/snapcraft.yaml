@@ -25,6 +25,8 @@ grade: stable
 confinement: strict
 base: core22
 
+architectures: [arm64, armhf, amd64]
+
 slots:
   messenger-gtk:
     interface: dbus
