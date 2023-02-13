@@ -40,6 +40,16 @@
 		<display_length>large</display_length>
 	</supports>
 
+	<recommends>
+		<control>keyboard</control>
+		<control>pointing</control>
+		<control>touch</control>
+	</recommends>
+
+	<requires>
+		<display_length compare="ge">small</display_length>
+	</requires>
+
 	<screenshots>
 		<screenshot>
 			<image>https://gitlab.com/gnunet-messenger/messenger-gtk/-/raw/master/screenshots/about-page.png</image>
