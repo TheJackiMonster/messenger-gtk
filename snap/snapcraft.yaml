@@ -98,7 +98,7 @@ parts:
       - libmicrohttpd12
       - libgnutls-dane0
       - libunbound8
-    source: http://ftpmirror.gnu.org/gnunet/gnunet-0.19.3.tar.gz
+    source: http://ftpmirror.gnu.org/gnunet/gnunet-0.19.4.tar.gz
     plugin: autotools
     autotools-configure-parameters:
       - --prefix=/usr
