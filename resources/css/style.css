@@ -8,11 +8,11 @@
 }
 
 .header-subtitle {
-	font-size: small;
+	font-size: 14px;
 }
 
 .profile-key {
-	font-size: xx-small;
+	font-size: 10px;
 }
 
 .account-entry {
@@ -35,7 +35,7 @@
 	border-radius: 12px;
 	padding: 8px 12px;
 	margin: 4px;
-	font-size: small;
+	font-size: 14px;
 }
 
 .message-box:not(.sent) {
@@ -62,7 +62,7 @@
 }
 
 .timestamp-label {
-	font-size: x-small;
+	font-size: 12px;
 }
 
 .picker-switcher-box {
@@ -70,7 +70,7 @@
 }
 
 .emoji-flow-box {
-	font-size: large;
+	font-size: 24px;
 }
 
 .settings-entry, .details-entry {
