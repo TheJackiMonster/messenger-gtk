@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -49,14 +49,11 @@
 #include "util.h"
 
 #define MESSENGER_APPLICATION_APPNAME "GNUnet Messenger"
-#define MESSENGER_APPLICATION_BINARY "messenger-gtk"
-#define MESSENGER_APPLICATION_ID "org.gnunet.Messenger"
 #define MESSENGER_APPLICATION_NAME "Messenger-GTK"
 #define MESSENGER_APPLICATION_DESCRIPTION \
   "A GTK based GUI for the Messenger service of GNUnet."
 #define MESSENGER_APPLICATION_TITLE "Messenger"
 #define MESSENGER_APPLICATION_SUBTITLE "GNUnet"
-#define MESSENGER_APPLICATION_VERSION "0.8.0"
 
 typedef enum MESSENGER_ApplicationSignal
 {

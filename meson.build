@@ -1,6 +1,6 @@
 #
 # This file is part of GNUnet.
-# Copyright (C) 2023 GNUnet e.V.
+# Copyright (C) 2023--2024 GNUnet e.V.
 #
 # GNUnet is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License as published
@@ -48,8 +48,13 @@ subdir('resources')
 subdir('src')
 
 messenger_gtk_exec = executable(
-    'messenger-gtk',
+    meson.project_name(),
     messenger_gtk_resources + messenger_gtk_sources,
+    c_args : [
+        '-DMESSENGER_APPLICATION_BINARY="@0@"'.format(meson.project_name()),
+        '-DMESSENGER_APPLICATION_ID="@0@"'.format(messenger_gtk_id),
+        '-DMESSENGER_APPLICATION_VERSION="@0@"'.format(meson.project_version()),
+    ],
     install: true,
     dependencies: messenger_gtk_deps,
     extra_files: submodules_headers,
