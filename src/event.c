@@ -28,9 +28,7 @@
 #include "file.h"
 #include "ui.h"
 
-#include "ui/account_entry.h"
 #include "ui/chat_entry.h"
-#include "ui/contact_entry.h"
 #include "ui/message.h"
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
@@ -415,6 +413,7 @@ event_presence_contact(MESSENGER_Application *app,
   struct GNUNET_CHAT_Group *group = GNUNET_CHAT_context_get_group(context);
 
   UI_MESSAGE_Handle *message = NULL;
+  gboolean previous_presence = FALSE;
 
   if (group)
     message = (UI_MESSAGE_Handle*) (
@@ -424,7 +423,10 @@ event_presence_contact(MESSENGER_Application *app,
     message = (UI_MESSAGE_Handle*) contact_get_last_message_from_info(contact);
 
   if (message)
+  {
     ui_chat_remove_message(handle->chat, app, message);
+    previous_presence = TRUE;
+  }
 
   message = ui_message_new(app, UI_MESSAGE_STATUS);
   ui_message_update(message, app, msg);
@@ -442,7 +444,9 @@ event_presence_contact(MESSENGER_Application *app,
       GNUNET_CHAT_KIND_JOIN == kind? _("joined the chat") : _("left the chat")
   );
 
-  if (!ui_messenger_is_context_active(&(app->ui.messenger), context))
+  if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
+      ((!previous_presence) || (GNUNET_CHAT_KIND_LEAVE == kind)) &&
+      (GNUNET_YES == GNUNET_CHAT_message_is_recent(msg)))
     _show_notification(
       app,
       context,
@@ -544,7 +548,8 @@ event_invitation(MESSENGER_Application *app,
 
   const char *invite_message = _("invited you to a chat");
 
-  if (!ui_messenger_is_context_active(&(app->ui.messenger), context))
+  if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
+      (GNUNET_YES == GNUNET_CHAT_message_is_recent(msg)))
     _show_notification(
 	    app,
       context,
@@ -640,6 +645,7 @@ event_receive_message(MESSENGER_Application *app,
   const char *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
 
   if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
+      (GNUNET_YES == GNUNET_CHAT_message_is_recent(msg)) &&
       (GNUNET_YES != sent))
     _show_notification(
       app,
