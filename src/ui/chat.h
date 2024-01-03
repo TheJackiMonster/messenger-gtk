@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -95,6 +95,9 @@ typedef struct UI_CHAT_Handle
   HdyAvatar *chat_details_avatar;
 
   GtkButton *reveal_identity_button;
+  GtkStack *block_stack;
+  GtkButton *block_button;
+  GtkButton *unblock_button;
   GtkButton *leave_chat_button;
 
   GtkSwitch *chat_notifications_switch;

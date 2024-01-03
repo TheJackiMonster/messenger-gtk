@@ -25,6 +25,7 @@
 #include "chat.h"
 
 #include <gdk/gdkkeysyms.h>
+#include <gnunet/gnunet_chat_lib.h>
 #include <stdlib.h>
 
 #include "chat_entry.h"
@@ -184,6 +185,42 @@ handle_reveal_identity_button_click(GtkButton *button,
 }
 
 static void
+handle_block_button_click(UNUSED GtkButton *button,
+                          gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
+      g_object_get_qdata(G_OBJECT(handle->block_stack), handle->app->quarks.data)
+  );
+
+  if (!contact)
+    return;
+
+  GNUNET_CHAT_contact_set_blocked(contact, GNUNET_YES);
+
+  gtk_stack_set_visible_child(handle->block_stack, GTK_WIDGET(handle->unblock_button));
+}
+
+static void
+handle_unblock_button_click(UNUSED GtkButton *button,
+                            gpointer user_data)
+{
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
+      g_object_get_qdata(G_OBJECT(handle->block_stack), handle->app->quarks.data)
+  );
+
+  if (!contact)
+    return;
+
+  GNUNET_CHAT_contact_set_blocked(contact, GNUNET_NO);
+
+  gtk_stack_set_visible_child(handle->block_stack, GTK_WIDGET(handle->block_button));
+}
+
+static void
 handle_leave_chat_button_click(UNUSED GtkButton *button,
 			       gpointer user_data)
 {
@@ -194,8 +231,8 @@ handle_leave_chat_button_click(UNUSED GtkButton *button,
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
       g_object_get_qdata(
-	G_OBJECT(handle->send_text_view),
-	handle->app->quarks.data
+	        G_OBJECT(handle->send_text_view),
+	        handle->app->quarks.data
       )
   );
 
@@ -1081,6 +1118,32 @@ ui_chat_new(MESSENGER_Application *app)
       handle
   );
 
+  handle->block_stack = GTK_STACK(
+      gtk_builder_get_object(handle->builder, "block_stack")
+  );
+
+  handle->block_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "block_button")
+  );
+
+  g_signal_connect(
+      handle->block_button,
+      "clicked",
+      G_CALLBACK(handle_block_button_click),
+      handle
+  );
+
+  handle->unblock_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "unblock_button")
+  );
+
+  g_signal_connect(
+      handle->unblock_button,
+      "clicked",
+      G_CALLBACK(handle_unblock_button_click),
+      handle
+  );
+
   handle->leave_chat_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "leave_chat_button")
   );
@@ -1452,6 +1515,22 @@ ui_chat_update(UI_CHAT_Handle *handle,
 
   gtk_widget_set_visible(
       GTK_WIDGET(handle->reveal_identity_button),
+      contact? TRUE : FALSE
+  );
+
+  g_object_set_qdata(
+      G_OBJECT(handle->block_stack),
+      app->quarks.data,
+      contact
+  );
+
+  if (GNUNET_YES == GNUNET_CHAT_contact_is_blocked(contact))
+    gtk_stack_set_visible_child(handle->block_stack, GTK_WIDGET(handle->unblock_button));
+  else
+    gtk_stack_set_visible_child(handle->block_stack, GTK_WIDGET(handle->block_button));
+
+  gtk_widget_set_visible(
+      GTK_WIDGET(handle->block_stack),
       contact? TRUE : FALSE
   );
 

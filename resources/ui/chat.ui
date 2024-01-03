@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
+<!-- Generated with glade 3.40.0 
 
 Copyright (C) 2021‑‑2022 GNUnet e.V.
 
@@ -674,6 +674,110 @@ Author: Tobias Frisch
                               </packing>
                             </child>
                             <child>
+                              <object class="GtkStack" id="block_stack">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <child>
+                                  <object class="GtkButton" id="block_button">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                    <property name="relief">none</property>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="border-width">4</property>
+                                        <property name="spacing">16</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="icon-name">mail-mark-junk-symbolic</property>
+                                            <property name="icon_size">3</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="label" translatable="yes">Block Contact</property>
+                                            <property name="xalign">0</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="pack-type">end</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="name">page_block</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="unblock_button">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                    <property name="relief">none</property>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="border-width">4</property>
+                                        <property name="spacing">16</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="icon-name">mail-mark-notjunk-symbolic</property>
+                                            <property name="icon_size">3</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="label" translatable="yes">Unblock Contact</property>
+                                            <property name="xalign">0</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="pack-type">end</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="name">page_unblock</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
                               <object class="GtkButton" id="leave_chat_button">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
@@ -720,7 +824,7 @@ Author: Tobias Frisch
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">1</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                             <style>
