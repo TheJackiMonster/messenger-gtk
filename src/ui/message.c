@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -25,6 +25,7 @@
 #include "message.h"
 
 #include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_common.h>
 
 #include "../application.h"
 #include "../file.h"
@@ -283,7 +284,7 @@ _clear_message_preview_data(UI_MESSAGE_Handle *handle)
 
 UI_MESSAGE_Handle*
 ui_message_new(MESSENGER_Application *app,
-	       UI_MESSAGE_Type type)
+	             UI_MESSAGE_Type type)
 {
   UI_MESSAGE_Handle* handle = g_malloc(sizeof(UI_MESSAGE_Handle));
 
@@ -326,7 +327,7 @@ ui_message_new(MESSENGER_Application *app,
   if (UI_MESSAGE_STATUS == handle->type)
   {
     handle->deny_revealer = GTK_REVEALER(
-	gtk_builder_get_object(handle->builder[0], "deny_revealer")
+	    gtk_builder_get_object(handle->builder[0], "deny_revealer")
     );
 
     handle->accept_revealer = GTK_REVEALER(
@@ -334,11 +335,11 @@ ui_message_new(MESSENGER_Application *app,
     );
 
     handle->deny_button = GTK_BUTTON(
-	gtk_builder_get_object(handle->builder[0], "deny_button")
+	    gtk_builder_get_object(handle->builder[0], "deny_button")
     );
 
     handle->accept_button = GTK_BUTTON(
-	gtk_builder_get_object(handle->builder[0], "accept_button")
+	    gtk_builder_get_object(handle->builder[0], "accept_button")
     );
   }
   else
@@ -517,9 +518,46 @@ _message_media_supports_file_extension(const gchar *filename)
 }
 
 static void
+_update_invitation_message(UI_MESSAGE_Handle *handle,
+		                       MESSENGER_Application *app,
+                           struct GNUNET_CHAT_Invitation *invitation)
+{
+  enum GNUNET_GenericReturnValue accepted;
+  accepted = GNUNET_CHAT_invitation_is_accepted(invitation);
+
+  if (handle->deny_button)
+    gtk_widget_set_sensitive(
+        GTK_WIDGET(handle->deny_button), 
+        GNUNET_YES == accepted? FALSE : TRUE
+    );
+
+  if (handle->accept_button)
+    gtk_widget_set_sensitive(
+        GTK_WIDGET(handle->accept_button), 
+        GNUNET_YES == accepted? FALSE : TRUE
+    );
+
+  if (handle->deny_revealer)
+    gtk_revealer_set_reveal_child(
+        GTK_REVEALER(handle->deny_revealer),
+        GNUNET_YES == accepted? FALSE : TRUE
+    );
+
+  if (handle->accept_revealer)
+    gtk_revealer_set_reveal_child(
+        GTK_REVEALER(handle->accept_revealer),
+        GNUNET_YES == accepted? FALSE : TRUE
+    );
+
+  if ((app->settings.accept_all_invitations) &&
+      (GNUNET_NO == accepted) && (handle->accept_button))
+    gtk_button_clicked(handle->accept_button);
+}
+
+static void
 _update_file_message(UI_MESSAGE_Handle *handle,
-		     MESSENGER_Application *app,
-		     struct GNUNET_CHAT_File *file)
+		                 MESSENGER_Application *app,
+		                 struct GNUNET_CHAT_File *file)
 {
   const char *filename = GNUNET_CHAT_file_get_name(file);
 
@@ -580,9 +618,9 @@ _update_file_message(UI_MESSAGE_Handle *handle,
   if (_message_media_supports_file_extension(filename))
   {
     gtk_image_set_from_icon_name(
-	handle->media_type_image,
-	"audio-x-generic-symbolic",
-	GTK_ICON_SIZE_DND
+      handle->media_type_image,
+      "audio-x-generic-symbolic",
+      GTK_ICON_SIZE_DND
     );
 
     goto media_content;
@@ -644,6 +682,7 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 		  const struct GNUNET_CHAT_Message *msg)
 {
   struct GNUNET_CHAT_File *file = NULL;
+  struct GNUNET_CHAT_Invitation *invitation = NULL;
 
   handle->msg = msg;
 
@@ -653,25 +692,37 @@ ui_message_update(UI_MESSAGE_Handle *handle,
   {
     if (GNUNET_CHAT_KIND_WHISPER == GNUNET_CHAT_message_get_kind(msg))
       gtk_stack_set_visible_child(
-	  handle->content_stack,
-	  GTK_WIDGET(handle->whisper_box)
+	      handle->content_stack,
+	      GTK_WIDGET(handle->whisper_box)
       );
-
+    
+    invitation = GNUNET_CHAT_message_get_invitation(msg);
     file = GNUNET_CHAT_message_get_file(msg);
 
     handle->timestamp = GNUNET_CHAT_message_get_timestamp(msg);
 
+    if (handle->accept_button)
+      g_object_set_qdata(G_OBJECT(handle->accept_button), app->quarks.data, invitation);
+
     g_object_set_qdata(G_OBJECT(handle->message_box), app->quarks.data, file);
   }
   else
+  {
+    if (handle->accept_button)
+      invitation = (struct GNUNET_CHAT_Invitation*) (
+        g_object_get_qdata(G_OBJECT(handle->accept_button), app->quarks.data)
+      );
+
     file = (struct GNUNET_CHAT_File*) (
-	g_object_get_qdata(G_OBJECT(handle->message_box), app->quarks.data)
+	    g_object_get_qdata(G_OBJECT(handle->message_box), app->quarks.data)
     );
+  }
 
-  if (!file)
-    return;
+  if (invitation)
+    _update_invitation_message(handle, app, invitation);
 
-  _update_file_message(handle, app, file);
+  if (file)
+    _update_file_message(handle, app, file);
 }
 
 void

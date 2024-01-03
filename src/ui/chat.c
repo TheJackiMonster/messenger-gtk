@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -1392,9 +1392,9 @@ ui_chat_update(UI_CHAT_Handle *handle,
       icon = "system-users-symbolic";
 
     g_string_append_printf(
-	subtitle,
-	_("%d members"),
-	GNUNET_CHAT_group_iterate_contacts(group, NULL, NULL)
+      subtitle,
+      _("%d members"),
+      GNUNET_CHAT_group_iterate_contacts(group, NULL, NULL)
     );
   }
 
@@ -1421,8 +1421,8 @@ ui_chat_update(UI_CHAT_Handle *handle,
     children = children->next;
 
     gtk_container_remove(
-	GTK_CONTAINER(handle->chat_contacts_listbox),
-	widget
+      GTK_CONTAINER(handle->chat_contacts_listbox),
+      widget
     );
   }
 
@@ -1433,9 +1433,9 @@ ui_chat_update(UI_CHAT_Handle *handle,
     closure.listbox = handle->chat_contacts_listbox;
 
     GNUNET_CHAT_group_iterate_contacts(
-	group,
-	iterate_ui_chat_update_group_contacts,
-	&closure
+	    group,
+      iterate_ui_chat_update_group_contacts,
+      &closure
     );
   }
 

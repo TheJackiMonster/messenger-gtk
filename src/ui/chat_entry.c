@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -124,13 +124,13 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
   if (group)
   {
     GString *message_text = g_string_new(
-	gtk_label_get_text(message->sender_label)
+	    gtk_label_get_text(message->sender_label)
     );
 
     g_string_append_printf(
-	message_text,
-    	_(": %s"),
-	text
+      message_text,
+      _(": %s"),
+      text
     );
 
     gtk_label_set_text(handle->text_label, message_text->str);
@@ -144,7 +144,7 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
   gtk_widget_set_visible(
       GTK_WIDGET(handle->read_receipt_image),
       message->read_receipt_image? gtk_widget_is_visible(
-	  GTK_WIDGET(message->read_receipt_image)
+	      GTK_WIDGET(message->read_receipt_image)
       ) : FALSE
   );
 

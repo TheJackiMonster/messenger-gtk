@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
+<!-- Generated with glade 3.40.0 
 
 Copyright (C) 2021 GNUnet e.V.
 
@@ -43,9 +43,9 @@ Author: Tobias Frisch
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="transition-type">slide-left</property>
-                <property name="reveal-child">True</property>
                 <child>
                   <object class="GtkButton" id="deny_button">
+                    <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
                     <property name="relief">none</property>
@@ -85,9 +85,9 @@ Author: Tobias Frisch
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="transition-type">slide-right</property>
-                <property name="reveal-child">True</property>
                 <child>
                   <object class="GtkButton" id="accept_button">
+                    <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
                     <property name="relief">none</property>

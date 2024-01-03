@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -32,6 +32,8 @@
 #include "ui/chat_entry.h"
 #include "ui/contact_entry.h"
 #include "ui/message.h"
+#include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_common.h>
 
 static void
 _close_notification(NotifyNotification* notification,
@@ -179,8 +181,8 @@ _idle_chat_entry_update(gpointer user_data)
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
       g_object_get_qdata(
-	  G_OBJECT(entry->chat->send_text_view),
-	  entry->chat->app->quarks.data
+        G_OBJECT(entry->chat->send_text_view),
+        entry->chat->app->quarks.data
       )
   );
 
@@ -362,9 +364,9 @@ event_update_chats(MESSENGER_Application *app,
 
     if (app->settings.leave_chats_delay > 0)
       g_timeout_add_seconds(
-	  app->settings.leave_chats_delay,
-	  _delayed_context_drop,
-	  context
+        app->settings.leave_chats_delay,
+        _delayed_context_drop,
+        context
       );
   }
   else if ((handle) && (handle->entry_box))
@@ -442,12 +444,12 @@ event_presence_contact(MESSENGER_Application *app,
 
   if (!ui_messenger_is_context_active(&(app->ui.messenger), context))
     _show_notification(
-	app,
-	context,
-	contact,
-	text,
-	"avatar-default-symbolic",
-	"presence.online"
+      app,
+      context,
+      contact,
+      text,
+      "avatar-default-symbolic",
+      "presence.online"
     );
 
   struct GNUNET_TIME_Absolute timestamp = GNUNET_CHAT_message_get_timestamp(
@@ -494,7 +496,7 @@ event_update_contacts(UNUSED MESSENGER_Application *app,
 
 static void
 _event_invitation_accept_click(UNUSED GtkButton *button,
-			       gpointer user_data)
+			                         gpointer user_data)
 {
   struct GNUNET_CHAT_Invitation *invitation = (
       (struct GNUNET_CHAT_Invitation*) user_data
@@ -521,8 +523,8 @@ event_invitation(MESSENGER_Application *app,
 
   if (app->settings.delete_invitations_delay > 0)
     GNUNET_CHAT_message_delete(msg, GNUNET_TIME_relative_multiply(
-	GNUNET_TIME_relative_get_second_(),
-	app->settings.delete_invitations_delay
+      GNUNET_TIME_relative_get_second_(),
+      app->settings.delete_invitations_delay
     ));
 
   const int sent = GNUNET_CHAT_message_is_sent(msg);
@@ -544,12 +546,12 @@ event_invitation(MESSENGER_Application *app,
 
   if (!ui_messenger_is_context_active(&(app->ui.messenger), context))
     _show_notification(
-	app,
-	context,
-	contact,
-	invite_message,
-	"mail-message-new-symbolic",
-	"im.received"
+	    app,
+      context,
+      contact,
+      invite_message,
+      "mail-message-new-symbolic",
+      "im.received"
     );
 
   ui_label_set_text(message->text_label, invite_message);
@@ -561,13 +563,7 @@ event_invitation(MESSENGER_Application *app,
       invitation
   );
 
-  gtk_widget_show(GTK_WIDGET(message->deny_button));
-  gtk_widget_show(GTK_WIDGET(message->accept_button));
-
   ui_chat_add_message(handle->chat, app, message);
-
-  if (app->settings.accept_all_invitations)
-    gtk_button_clicked(message->accept_button);
 
   enqueue_chat_entry_update(handle);
 }
@@ -623,8 +619,8 @@ event_receive_message(MESSENGER_Application *app,
 
     if (app->settings.delete_files_delay > 0)
       GNUNET_CHAT_message_delete(msg, GNUNET_TIME_relative_multiply(
-	  GNUNET_TIME_relative_get_second_(),
-	  app->settings.delete_files_delay
+        GNUNET_TIME_relative_get_second_(),
+        app->settings.delete_files_delay
       ));
   }
 
@@ -646,12 +642,12 @@ event_receive_message(MESSENGER_Application *app,
   if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
       (GNUNET_YES != sent))
     _show_notification(
-	app,
-	context,
-	contact,
-	text,
-	"mail-unread-symbolic",
-	"im.received"
+      app,
+      context,
+      contact,
+      text,
+      "mail-unread-symbolic",
+      "im.received"
     );
 
   ui_label_set_text(message->text_label, text);
