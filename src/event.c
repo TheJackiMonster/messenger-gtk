@@ -395,13 +395,10 @@ _update_contact_context(struct GNUNET_CHAT_Contact *contact)
 
 void
 event_presence_contact(MESSENGER_Application *app,
-		       struct GNUNET_CHAT_Context *context,
-		       const struct GNUNET_CHAT_Message *msg)
+		                   struct GNUNET_CHAT_Context *context,
+		                   const struct GNUNET_CHAT_Message *msg)
 {
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
-
-  if (!handle)
-    return;
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
       msg
@@ -410,19 +407,18 @@ event_presence_contact(MESSENGER_Application *app,
   if (!contact)
     return;
 
-  const enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(
-      msg
-  );
+  contact_create_info(contact);
+
+  if (!handle)
+    return;
 
   struct GNUNET_CHAT_Group *group = GNUNET_CHAT_context_get_group(context);
 
   UI_MESSAGE_Handle *message = NULL;
 
-  contact_create_info(contact);
-
   if (group)
     message = (UI_MESSAGE_Handle*) (
-	GNUNET_CHAT_member_get_user_pointer(group, contact)
+	    GNUNET_CHAT_member_get_user_pointer(group, contact)
     );
   else
     message = (UI_MESSAGE_Handle*) contact_get_last_message_from_info(contact);
@@ -437,6 +433,10 @@ event_presence_contact(MESSENGER_Application *app,
 
   contact_add_name_avatar_to_info(contact, message->sender_avatar);
   contact_add_name_label_to_info(contact, message->sender_label);
+
+  const enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(
+      msg
+  );
 
   const char *text = (
       GNUNET_CHAT_KIND_JOIN == kind? _("joined the chat") : _("left the chat")
@@ -473,8 +473,8 @@ event_presence_contact(MESSENGER_Application *app,
 
 void
 event_update_contacts(UNUSED MESSENGER_Application *app,
-		      struct GNUNET_CHAT_Context *context,
-		      const struct GNUNET_CHAT_Message *msg)
+		                  struct GNUNET_CHAT_Context *context,
+		                  const struct GNUNET_CHAT_Message *msg)
 {
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
       msg

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -86,7 +86,7 @@ contact_get_last_message_from_info(const struct GNUNET_CHAT_Contact *contact)
 
 void
 contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
-			       GtkLabel *label)
+			                         GtkLabel *label)
 {
   MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
 
@@ -102,12 +102,12 @@ contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
 
 void
 contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
-				HdyAvatar *avatar)
+			                          HdyAvatar *avatar)
 {
   MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
 
   if ((!info) || (!avatar))
-   return;
+    return;
 
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
