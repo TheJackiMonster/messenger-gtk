@@ -53,6 +53,7 @@ typedef struct UI_MESSAGE_Handle
 
   HdyAvatar *sender_avatar;
   GtkLabel *sender_label;
+  GtkImage *private_image;
 
   GtkRevealer *deny_revealer;
   GtkRevealer *accept_revealer;

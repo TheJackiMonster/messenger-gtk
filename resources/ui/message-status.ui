@@ -116,9 +116,11 @@ Author: Tobias Frisch
           <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="hexpand">True</property>
             <property name="spacing">4</property>
             <child>
               <object class="HdyAvatar" id="sender_avatar">
+                <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="size">24</property>
               </object>
@@ -141,6 +143,18 @@ Author: Tobias Frisch
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="private_image">
+                <property name="can-focus">False</property>
+                <property name="icon-name">network-wireless-encrypted-symbolic</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack-type">end</property>
+                <property name="position">3</property>
               </packing>
             </child>
           </object>

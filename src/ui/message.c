@@ -324,6 +324,10 @@ ui_message_new(MESSENGER_Application *app,
       gtk_builder_get_object(handle->builder[0], "sender_label")
   );
 
+  handle->private_image = GTK_IMAGE(
+      gtk_builder_get_object(handle->builder[0], "private_image")
+  );
+
   if (UI_MESSAGE_STATUS == handle->type)
   {
     handle->deny_revealer = GTK_REVEALER(
@@ -678,8 +682,8 @@ file_content:
 
 void
 ui_message_update(UI_MESSAGE_Handle *handle,
-		  MESSENGER_Application *app,
-		  const struct GNUNET_CHAT_Message *msg)
+		              MESSENGER_Application *app,
+		              const struct GNUNET_CHAT_Message *msg)
 {
   struct GNUNET_CHAT_File *file = NULL;
   struct GNUNET_CHAT_Invitation *invitation = NULL;
@@ -695,6 +699,8 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 	      handle->content_stack,
 	      GTK_WIDGET(handle->whisper_box)
       );
+    else if (GNUNET_YES == GNUNET_CHAT_message_is_private(msg))
+      gtk_widget_show(GTK_WIDGET(handle->private_image));
     
     invitation = GNUNET_CHAT_message_get_invitation(msg);
     file = GNUNET_CHAT_message_get_file(msg);
