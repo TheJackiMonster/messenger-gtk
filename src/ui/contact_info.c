@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -28,6 +28,7 @@
 
 #include "../application.h"
 #include "../ui.h"
+#include <gnunet/gnunet_chat_lib.h>
 
 static void
 handle_contact_edit_button_click(UNUSED GtkButton *button,
@@ -59,8 +60,8 @@ handle_contact_edit_button_click(UNUSED GtkButton *button,
     if (GNUNET_YES != GNUNET_CHAT_set_name(handle->app->chat.messenger.handle,
 					   name))
       gtk_entry_set_text(
-	  handle->contact_name_entry,
-	  GNUNET_CHAT_contact_get_name(contact)
+	      handle->contact_name_entry,
+	      GNUNET_CHAT_contact_get_name(contact)
       );
   }
   else
@@ -70,8 +71,8 @@ skip_change_name:
   gtk_image_set_from_icon_name(
       handle->contact_edit_symbol,
       editable?
-	  "document-edit-symbolic" :
-	  "emblem-ok-symbolic",
+	    "document-edit-symbolic" :
+	    "emblem-ok-symbolic",
       GTK_ICON_SIZE_BUTTON
   );
 
@@ -83,7 +84,7 @@ skip_change_name:
 
 static void
 handle_contact_name_entry_activate(UNUSED GtkEntry *entry,
-				   gpointer user_data)
+				                           gpointer user_data)
 {
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
@@ -103,22 +104,70 @@ _contact_info_reveal_identity(UI_CONTACT_INFO_Handle *handle)
 
 static void
 handle_reveal_identity_button_click(UNUSED GtkButton *button,
-				    gpointer user_data)
+                                    gpointer user_data)
 {
   _contact_info_reveal_identity((UI_CONTACT_INFO_Handle*) user_data);
 }
 
 static void
-handle_open_chat_button_click(UNUSED GtkButton *button,
-			      gpointer user_data)
+handle_block_button_click(UNUSED GtkButton *button,
+                          gpointer user_data)
 {
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
   struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
-      g_object_get_qdata(
-	G_OBJECT(handle->contact_name_entry),
-	handle->app->quarks.data
-      )
+    g_object_get_qdata(
+	    G_OBJECT(handle->block_stack),
+	    handle->app->quarks.data
+    )
+  );
+
+  if (!contact)
+    return;
+
+  GNUNET_CHAT_contact_set_blocked(contact, GNUNET_YES);
+
+  gtk_stack_set_visible_child(
+      handle->block_stack,
+      GTK_WIDGET(handle->unblock_button)
+  );
+}
+
+static void
+handle_unblock_button_click(UNUSED GtkButton *button,
+                            gpointer user_data)
+{
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+
+  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
+    g_object_get_qdata(
+	    G_OBJECT(handle->block_stack),
+	    handle->app->quarks.data
+    )
+  );
+
+  if (!contact)
+    return;
+
+  GNUNET_CHAT_contact_set_blocked(contact, GNUNET_NO);
+
+  gtk_stack_set_visible_child(
+      handle->block_stack, 
+      GTK_WIDGET(handle->block_button)
+  );
+}
+
+static void
+handle_open_chat_button_click(UNUSED GtkButton *button,
+			                        gpointer user_data)
+{
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+
+  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
+    g_object_get_qdata(
+	    G_OBJECT(handle->contact_name_entry),
+	    handle->app->quarks.data
+    )
   );
 
   if (!contact)
@@ -160,7 +209,7 @@ close_dialog:
 
 static void
 handle_back_button_click(UNUSED GtkButton *button,
-			 gpointer user_data)
+			                   gpointer user_data)
 {
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
@@ -349,6 +398,32 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
       handle
   );
 
+  handle->block_stack = GTK_STACK(
+      gtk_builder_get_object(handle->builder, "block_stack")
+  );
+
+  handle->block_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "block_button")
+  );
+
+  g_signal_connect(
+      handle->block_button,
+      "clicked",
+      G_CALLBACK(handle_block_button_click),
+      handle
+  );
+
+  handle->unblock_button = GTK_BUTTON(
+      gtk_builder_get_object(handle->builder, "unblock_button")
+  );
+
+  g_signal_connect(
+      handle->unblock_button,
+      "clicked",
+      G_CALLBACK(handle_unblock_button_click),
+      handle
+  );
+
   handle->open_chat_button = GTK_BUTTON(
       gtk_builder_get_object(handle->builder, "open_chat_button")
   );
@@ -415,8 +490,8 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
 
 void
 ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
-			      struct GNUNET_CHAT_Contact *contact,
-			      gboolean reveal)
+                              struct GNUNET_CHAT_Contact *contact,
+                              gboolean reveal)
 {
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
@@ -455,6 +530,19 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
   gtk_widget_set_sensitive(
       GTK_WIDGET(handle->reveal_identity_button),
       key? TRUE : FALSE
+  );
+
+  gtk_stack_set_visible_child(
+      handle->block_stack,
+      GNUNET_YES == GNUNET_CHAT_contact_is_blocked(contact)?
+      GTK_WIDGET(handle->unblock_button) :
+      GTK_WIDGET(handle->block_button)
+  );
+
+  g_object_set_qdata(
+      G_OBJECT(handle->block_stack),
+      handle->app->quarks.data,
+      contact
   );
 
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(

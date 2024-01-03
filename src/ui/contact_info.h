@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -48,6 +48,9 @@ typedef struct UI_CONTACT_INFO_Handle
   GtkImage *contact_edit_symbol;
 
   GtkButton *reveal_identity_button;
+  GtkStack *block_stack;
+  GtkButton *block_button;
+  GtkButton *unblock_button;
   GtkButton *open_chat_button;
 
   GtkWidget *identity_box;
