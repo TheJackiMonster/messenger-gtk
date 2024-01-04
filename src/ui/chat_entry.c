@@ -29,6 +29,8 @@
 #include "../application.h"
 #include "../contact.h"
 #include "../ui.h"
+#include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_time_lib.h>
 
 UI_CHAT_ENTRY_Handle*
 ui_chat_entry_new(MESSENGER_Application *app)
@@ -41,31 +43,31 @@ ui_chat_entry_new(MESSENGER_Application *app)
 
   handle->chat = ui_chat_new(app);
   handle->builder = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/chat_entry.ui")
+    application_get_resource_path(app, "ui/chat_entry.ui")
   );
 
   handle->entry_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder, "entry_box")
+    gtk_builder_get_object(handle->builder, "entry_box")
   );
 
   handle->entry_avatar = HDY_AVATAR(
-      gtk_builder_get_object(handle->builder, "entry_avatar")
+    gtk_builder_get_object(handle->builder, "entry_avatar")
   );
 
   handle->title_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder, "title_label")
+    gtk_builder_get_object(handle->builder, "title_label")
   );
 
   handle->timestamp_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder, "timestamp_label")
+    gtk_builder_get_object(handle->builder, "timestamp_label")
   );
 
   handle->text_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder, "text_label")
+    gtk_builder_get_object(handle->builder, "text_label")
   );
 
   handle->read_receipt_image = GTK_IMAGE(
-      gtk_builder_get_object(handle->builder, "read_receipt_image")
+    gtk_builder_get_object(handle->builder, "read_receipt_image")
   );
 
   return handle;
@@ -73,8 +75,8 @@ ui_chat_entry_new(MESSENGER_Application *app)
 
 void
 ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
-		     MESSENGER_Application *app,
-		     struct GNUNET_CHAT_Context *context)
+		                 MESSENGER_Application *app,
+		                 struct GNUNET_CHAT_Context *context)
 {
   const struct GNUNET_CHAT_Contact* contact;
   const struct GNUNET_CHAT_Group* group;
@@ -113,7 +115,7 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
     return;
 
   UI_MESSAGE_Handle *message = (
-      (UI_MESSAGE_Handle*) handle->chat->messages->data
+    (UI_MESSAGE_Handle*) handle->chat->messages->data
   );
 
   handle->timestamp = message->timestamp;
@@ -142,10 +144,10 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
   gtk_label_set_text(handle->timestamp_label, time);
 
   gtk_widget_set_visible(
-      GTK_WIDGET(handle->read_receipt_image),
-      message->read_receipt_image? gtk_widget_is_visible(
-	      GTK_WIDGET(message->read_receipt_image)
-      ) : FALSE
+    GTK_WIDGET(handle->read_receipt_image),
+    message->read_receipt_image? gtk_widget_is_visible(
+      GTK_WIDGET(message->read_receipt_image)
+    ) : FALSE
   );
 
   gtk_list_box_invalidate_sort(app->ui.messenger.chats_listbox);
@@ -166,7 +168,7 @@ ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle)
 
 void
 ui_chat_entry_dispose(UI_CHAT_ENTRY_Handle *handle,
-		      MESSENGER_Application *app)
+		                  MESSENGER_Application *app)
 {
   GNUNET_assert((handle) && (handle->entry_box));
 
@@ -175,23 +177,23 @@ ui_chat_entry_dispose(UI_CHAT_ENTRY_Handle *handle,
   ui->chat_entries = g_list_remove(ui->chat_entries, handle);
 
   gtk_container_remove(
-      GTK_CONTAINER(ui->chats_listbox),
-      gtk_widget_get_parent(handle->entry_box)
+    GTK_CONTAINER(ui->chats_listbox),
+    gtk_widget_get_parent(handle->entry_box)
   );
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-      g_object_get_qdata(
-	G_OBJECT(handle->chat->send_text_view),
-	app->quarks.data
-      )
+    g_object_get_qdata(
+      G_OBJECT(handle->chat->send_text_view),
+      app->quarks.data
+    )
   );
 
   if (context)
     GNUNET_CHAT_context_set_user_pointer(context, NULL);
 
   gtk_container_remove(
-      GTK_CONTAINER(ui->chats_stack),
-      handle->chat->chat_box
+    GTK_CONTAINER(ui->chats_stack),
+    handle->chat->chat_box
   );
 
   ui_chat_entry_delete(handle);
