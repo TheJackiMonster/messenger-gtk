@@ -27,6 +27,7 @@
 #include "../application.h"
 
 #include <emoji.h>
+#include <glib-2.0/glib.h>
 
 static void
 handle_emoji_button_click(GtkButton *button,
@@ -47,31 +48,37 @@ _add_emoji_buttons(GtkFlowBox *flow_box,
 		   size_t characters_count,
 		   const uint32_t *characters)
 {
+  glong items_written;
+  GError *error;
+  gchar *utf8;
+  
   for (size_t i = 0; i < characters_count; i++) {
-    GString *string = g_string_new("");
-    g_string_append_unichar(string, (gunichar) characters[i]);
+    utf8 = g_ucs4_to_utf8(characters + i, 1, NULL, &items_written, &error);
 
-    gchar *_text = g_locale_to_utf8(string->str, string->len, NULL, NULL, NULL);
+    if (!utf8)
+    {
+      fprintf(stderr, "ERROR: %s\n", error->message);
+      g_error_free(error);
+      continue;
+    }
 
     GtkButton *emoji_button = GTK_BUTTON(
-      gtk_button_new_with_label(string->str)
+      gtk_button_new_with_label(utf8)
     );
 
-    g_free(_text);
+    g_free(utf8);
 
     gtk_button_set_relief(emoji_button, GTK_RELIEF_NONE);
 
     g_signal_connect(
-	emoji_button,
-	"clicked",
-	G_CALLBACK(handle_emoji_button_click),
-	text_view
+      emoji_button,
+      "clicked",
+      G_CALLBACK(handle_emoji_button_click),
+      text_view
     );
 
     gtk_flow_box_insert(flow_box, GTK_WIDGET(emoji_button), -1);
     gtk_widget_show(GTK_WIDGET(emoji_button));
-
-    g_string_free(string, TRUE);
   }
 }
 
