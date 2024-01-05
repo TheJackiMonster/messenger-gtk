@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
+<!-- Generated with glade 3.40.0 
 
 Copyright (C) 2021 GNUnet e.V.
 
@@ -80,9 +80,10 @@ Author: Tobias Frisch
                           <object class="GtkFlowBox" id="recent_flow_box">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="valign">start</property>
                             <property name="border-width">8</property>
                             <property name="homogeneous">True</property>
-                            <property name="max-children-per-line">8</property>
+                            <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
                               <class name="emoji-flow-box"/>
@@ -110,9 +111,10 @@ Author: Tobias Frisch
                           <object class="GtkFlowBox" id="people_flow_box">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="valign">start</property>
                             <property name="border-width">8</property>
                             <property name="homogeneous">True</property>
-                            <property name="max-children-per-line">8</property>
+                            <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
                               <class name="emoji-flow-box"/>
@@ -141,9 +143,10 @@ Author: Tobias Frisch
                           <object class="GtkFlowBox" id="nature_flow_box">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="valign">start</property>
                             <property name="border-width">8</property>
                             <property name="homogeneous">True</property>
-                            <property name="max-children-per-line">8</property>
+                            <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
                               <class name="emoji-flow-box"/>
@@ -172,9 +175,10 @@ Author: Tobias Frisch
                           <object class="GtkFlowBox" id="food_flow_box">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="valign">start</property>
                             <property name="border-width">8</property>
                             <property name="homogeneous">True</property>
-                            <property name="max-children-per-line">8</property>
+                            <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
                               <class name="emoji-flow-box"/>
@@ -203,9 +207,10 @@ Author: Tobias Frisch
                           <object class="GtkFlowBox" id="activities_flow_box">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="valign">start</property>
                             <property name="border-width">8</property>
                             <property name="homogeneous">True</property>
-                            <property name="max-children-per-line">8</property>
+                            <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
                               <class name="emoji-flow-box"/>
@@ -234,9 +239,10 @@ Author: Tobias Frisch
                           <object class="GtkFlowBox" id="travel_flow_box">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="valign">start</property>
                             <property name="border-width">8</property>
                             <property name="homogeneous">True</property>
-                            <property name="max-children-per-line">8</property>
+                            <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
                               <class name="emoji-flow-box"/>
@@ -265,9 +271,10 @@ Author: Tobias Frisch
                           <object class="GtkFlowBox" id="objects_flow_box">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="valign">start</property>
                             <property name="border-width">8</property>
                             <property name="homogeneous">True</property>
-                            <property name="max-children-per-line">8</property>
+                            <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
                               <class name="emoji-flow-box"/>
@@ -296,9 +303,10 @@ Author: Tobias Frisch
                           <object class="GtkFlowBox" id="symbols_flow_box">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="valign">start</property>
                             <property name="border-width">8</property>
                             <property name="homogeneous">True</property>
-                            <property name="max-children-per-line">8</property>
+                            <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
                               <class name="emoji-flow-box"/>
@@ -327,9 +335,10 @@ Author: Tobias Frisch
                           <object class="GtkFlowBox" id="flags_flow_box">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="valign">start</property>
                             <property name="border-width">8</property>
                             <property name="homogeneous">True</property>
-                            <property name="max-children-per-line">8</property>
+                            <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
                               <class name="emoji-flow-box"/>
