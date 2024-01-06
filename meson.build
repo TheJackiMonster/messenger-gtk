@@ -42,6 +42,7 @@ messenger_gtk_deps = [
     dependency('gstreamer-1.0'),
     dependency('libnotify'),
     dependency('libqrencode'),
+    declare_dependency(link_args: '-lunistring'),
 ]
 
 subdir('resources')
