@@ -8,7 +8,7 @@
 	<developer_name>GNUnet e.V.</developer_name>
 
 	<name>GNUnet Messenger</name>
-	<summary>A GTK based GUI for the Messenger service of GNUnet.</summary>
+	<summary>Private and secure communication</summary>
 	<description>
 		<p>Messenger-GTK is a convergent GTK messaging application using the GNUnet Messenger service. The goal is to provide private and secure communication between any group of devices.</p>
 		<p>The application provides the following features:</p>
