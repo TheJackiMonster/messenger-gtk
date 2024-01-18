@@ -351,6 +351,8 @@ _request_background_callback(GObject *source_object,
     portal, result, &error
   );
 
+  request_drop(request);
+
   if (error) {
     g_printerr("ERROR: %s\n", error->message);
     g_error_free(error);

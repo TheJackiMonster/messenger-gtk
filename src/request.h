@@ -36,29 +36,87 @@ typedef struct MESSENGER_Request {
   gpointer user_data;
 } MESSENGER_Request;
 
+/**
+ * Creates a new request for the messsenger
+ * application for a certain permission.
+ *
+ * The request object will automatically be
+ * added to the list of the messenger application.
+ *
+ * @param application Messenger application
+ * @param cancellable Cancellable object (optional)
+ * @param user_data User data (optional)
+ * @return New request object
+ */
 MESSENGER_Request*
 request_new(MESSENGER_Application *application,
             GCancellable *cancellable,
             gpointer user_data);
 
+/**
+ * Creates a new request for the messsenger
+ * application for a background permission.
+ *
+ * @param application Messenger application
+ * @param flags Background flags
+ * @param callback Callback
+ * @param user_data User data
+ * @return New background request object
+ */
 MESSENGER_Request*
 request_new_background(MESSENGER_Application *application,
                        XdpBackgroundFlags flags,
                        GAsyncReadyCallback callback,
                        gpointer user_data);
 
+/**
+ * Creates a new request for the messsenger
+ * application for a camera permission.
+ *
+ * @param application Messenger application
+ * @param flags Camera flags
+ * @param callback Callback
+ * @param user_data User data
+ * @return New camera request object
+ */
 MESSENGER_Request*
 request_new_camera(MESSENGER_Application *application,
                    XdpCameraFlags flags,
                    GAsyncReadyCallback callback,
                    gpointer user_data);
 
+/**
+ * Cancel a request object if possible.
+ *
+ * @param request Request object
+ */
 void
 request_cancel(MESSENGER_Request *request);
 
+/**
+ * Cleanup a request object and its owned
+ * resources.
+ *
+ * @param request Request object
+ */
 void
 request_cleanup(MESSENGER_Request *request);
 
+/**
+ * Drop a request object from the messenger
+ * application list of requests.
+ *
+ * @param request Request object
+ */
+void
+request_drop(MESSENGER_Request *request);
+
+/**
+ * Delete a request object and its owned 
+ * resources.
+ *
+ * @param request Request object
+ */
 void
 request_delete(MESSENGER_Request *request);
 

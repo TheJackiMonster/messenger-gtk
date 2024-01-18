@@ -63,7 +63,7 @@ contact_destroy_info(struct GNUNET_CHAT_Contact *contact);
  */
 void
 contact_set_last_message_to_info(const struct GNUNET_CHAT_Contact *contact,
-				 void *message);
+				                         void *message);
 
 /**
  * Returns the latest join/leave UI message handle of

@@ -118,6 +118,18 @@ request_cleanup(MESSENGER_Request *request)
 }
 
 void
+request_drop(MESSENGER_Request *request)
+{
+  if (request->application->requests)
+    request->application->requests = g_list_remove(
+      request->application->requests,
+      request
+    );
+
+  request_delete(request);
+}
+
+void
 request_delete(MESSENGER_Request *request)
 {
   request_cleanup(request);
