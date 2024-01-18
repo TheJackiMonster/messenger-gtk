@@ -517,6 +517,10 @@ _message_media_supports_file_extension(const gchar *filename)
 
   if (0 == g_strcmp0(extension, ".ogg"))
     return TRUE;
+  if (0 == g_strcmp0(extension, ".mp3"))
+    return TRUE;
+  if (0 == g_strcmp0(extension, ".wav"))
+    return TRUE;
 
   return FALSE;
 }

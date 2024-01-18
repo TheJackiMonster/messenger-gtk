@@ -472,7 +472,9 @@ handle_send_text_buffer_changed(GtkTextBuffer *buffer,
 
 static gboolean
 _send_text_from_view(MESSENGER_Application *app,
-		                 GtkTextView *text_view)
+		                 UI_CHAT_Handle *handle,
+		                 GtkTextView *text_view,
+                     gint64 action_time)
 {
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
 
@@ -484,6 +486,12 @@ _send_text_from_view(MESSENGER_Application *app,
 
   if (0 == strlen(text))
     return FALSE;
+
+  if (action_time >= UI_CHAT_SEND_BUTTON_HOLD_INTERVAL)
+  {
+    gtk_popover_popup(handle->send_popover);
+    return FALSE;
+  }
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
     g_object_get_qdata(G_OBJECT(text_view), app->quarks.data)
@@ -589,7 +597,51 @@ handle_send_record_button_click(GtkButton *button,
     g_object_get_qdata(G_OBJECT(button), app->quarks.widget)
   );
 
-  _send_text_from_view(app, text_view);
+  _send_text_from_view(app, handle, text_view, handle->send_pressed_time);
+}
+
+static void
+handle_send_later_button_click(GtkButton *button,
+				                       gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
+    g_object_get_qdata(G_OBJECT(button), app->quarks.ui)
+  );
+
+  handle->send_pressed_time = 0;
+
+  if (gtk_widget_is_visible(GTK_WIDGET(handle->send_popover)))
+    gtk_popover_popdown(handle->send_popover);
+
+  if (gtk_stack_get_visible_child(handle->send_stack) != handle->send_text_box)
+    return;
+
+  // TODO
+}
+
+static void
+handle_send_now_button_click(GtkButton *button,
+				                     gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
+    g_object_get_qdata(G_OBJECT(button), app->quarks.ui)
+  );
+
+  if (gtk_widget_is_visible(GTK_WIDGET(handle->send_popover)))
+    gtk_popover_popdown(handle->send_popover);
+
+  if (gtk_stack_get_visible_child(handle->send_stack) != handle->send_text_box)
+    return;
+
+  GtkTextView *text_view = GTK_TEXT_VIEW(
+    g_object_get_qdata(G_OBJECT(handle->send_record_button), app->quarks.widget)
+  );
+
+  _send_text_from_view(app, handle, text_view, 0);
 }
 
 static gboolean
@@ -603,6 +655,12 @@ handle_send_record_button_pressed(GtkWidget *widget,
     g_object_get_qdata(G_OBJECT(widget), app->quarks.widget)
   );
 
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
+    g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
+  );
+
+  handle->send_pressed_time = g_get_monotonic_time();
+
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
 
   GtkTextIter start, end;
@@ -613,10 +671,6 @@ handle_send_record_button_pressed(GtkWidget *widget,
 
   if (0 < strlen(text))
     return FALSE;
-
-  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
-    g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
-  );
 
   if ((handle->recorded) || (!(handle->record_pipeline)) ||
       (handle->recording_filename[0]) ||
@@ -680,6 +734,12 @@ handle_send_record_button_released(GtkWidget *widget,
     g_object_get_qdata(G_OBJECT(widget), app->quarks.widget)
   );
 
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
+    g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
+  );
+
+  handle->send_pressed_time = g_get_monotonic_time() - handle->send_pressed_time;
+
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
 
   GtkTextIter start, end;
@@ -690,10 +750,6 @@ handle_send_record_button_released(GtkWidget *widget,
 
   if (0 < strlen(text))
     return FALSE;
-
-  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
-    g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
-  );
 
   if ((handle->recorded) || (!(handle->record_pipeline)) ||
       (!(handle->recording_filename[0])) ||
@@ -728,8 +784,12 @@ handle_send_text_key_press (GtkWidget *widget,
       ((event->keyval != GDK_KEY_Return) &&
        (event->keyval != GDK_KEY_KP_Enter)))
     return FALSE;
+  
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
+    g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
+  );
 
-  return _send_text_from_view(app, GTK_TEXT_VIEW(widget));
+  return _send_text_from_view(app, handle, GTK_TEXT_VIEW(widget), 0);
 }
 
 static void
@@ -1269,6 +1329,18 @@ ui_chat_new(MESSENGER_Application *app)
     gtk_builder_get_object(handle->builder, "send_record_symbol")
   );
 
+  handle->send_popover = GTK_POPOVER(
+    gtk_builder_get_object(handle->builder, "send_popover")
+  );
+
+  handle->send_now_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "send_now_button")
+  );
+
+  handle->send_later_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "send_later_button")
+  );
+
   GtkTextBuffer *send_text_buffer = gtk_text_view_get_buffer(
     handle->send_text_view
   );
@@ -1284,6 +1356,20 @@ ui_chat_new(MESSENGER_Application *app)
     handle->send_record_button,
     "clicked",
     G_CALLBACK(handle_send_record_button_click),
+    app
+  );
+
+  g_signal_connect(
+    handle->send_later_button,
+    "clicked",
+    G_CALLBACK(handle_send_later_button_click),
+    app
+  );
+
+  g_signal_connect(
+    handle->send_now_button,
+    "clicked",
+    G_CALLBACK(handle_send_now_button_click),
     app
   );
 
@@ -1327,7 +1413,25 @@ ui_chat_new(MESSENGER_Application *app)
   );
 
   g_object_set_qdata(
+    G_OBJECT(handle->send_text_view),
+    app->quarks.ui,
+    handle
+  );
+
+  g_object_set_qdata(
     G_OBJECT(handle->send_record_button),
+    app->quarks.ui,
+    handle
+  );
+
+  g_object_set_qdata(
+    G_OBJECT(handle->send_later_button),
+    app->quarks.ui,
+    handle
+  );
+
+  g_object_set_qdata(
+    G_OBJECT(handle->send_now_button),
     app->quarks.ui,
     handle
   );

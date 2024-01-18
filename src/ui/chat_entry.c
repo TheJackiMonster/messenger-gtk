@@ -27,7 +27,6 @@
 #include "message.h"
 
 #include "../application.h"
-#include "../contact.h"
 #include "../ui.h"
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_time_lib.h>

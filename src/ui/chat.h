@@ -33,6 +33,8 @@
 
 #include <gnunet/gnunet_chat_lib.h>
 
+#define UI_CHAT_SEND_BUTTON_HOLD_INTERVAL 500000 // in microseconds
+
 typedef struct MESSENGER_Application MESSENGER_Application;
 typedef struct UI_MESSAGE_Handle UI_MESSAGE_Handle;
 typedef struct UI_PICKER_Handle UI_PICKER_Handle;
@@ -40,6 +42,8 @@ typedef struct UI_FILE_LOAD_ENTRY_Handle UI_FILE_LOAD_ENTRY_Handle;
 
 typedef struct UI_CHAT_Handle
 {
+  gint64 send_pressed_time;
+
   gboolean recorded;
   gboolean playing;
 
@@ -121,6 +125,10 @@ typedef struct UI_CHAT_Handle
   GtkButton *emoji_button;
   GtkButton *send_record_button;
   GtkImage *send_record_symbol;
+
+  GtkPopover *send_popover;
+  GtkButton *send_later_button;
+  GtkButton *send_now_button;
 
   GtkButton *recording_close_button;
   GtkButton *recording_play_button;

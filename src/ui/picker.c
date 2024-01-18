@@ -32,7 +32,7 @@
 
 static void
 handle_emoji_button_click(GtkButton *button,
-			              gpointer user_data)
+			                    gpointer user_data)
 {
   GtkTextView *text_view = GTK_TEXT_VIEW(user_data);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
@@ -45,9 +45,9 @@ handle_emoji_button_click(GtkButton *button,
 
 static void
 _add_emoji_buttons(GtkFlowBox *flow_box,
-		           GtkTextView *text_view,
-		           size_t characters_count,
-		           const uint32_t *characters)
+		               GtkTextView *text_view,
+		               size_t characters_count,
+		               const uint32_t *characters)
 {
   glong items_written;
   GError *error;
