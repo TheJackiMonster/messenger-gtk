@@ -25,30 +25,99 @@
 #include "settings.h"
 
 #include "../application.h"
+#include "../request.h"
+
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
+#include <libportal/background.h>
 
 static gboolean
 handle_general_switch_state(UNUSED GtkSwitch *widget,
-			    gboolean state,
-			    gpointer user_data)
+                            gboolean state,
+                            gpointer user_data)
 {
   gboolean *setting = (gboolean*) user_data;
   *setting = state;
   return FALSE;
 }
 
+static void
+_request_background_callback(GObject *source_object,
+                             GAsyncResult *result,
+                             gpointer user_data)
+{
+  XdpPortal *portal = XDP_PORTAL(source_object);
+  MESSENGER_Request *request = (MESSENGER_Request*) user_data;
+
+  request_cleanup(request);
+
+  MESSENGER_Application *app = request->application;
+  GtkSwitch *widget = GTK_SWITCH(request->user_data);
+  
+  GError *error = NULL;
+  gboolean success = xdp_portal_request_background_finish(
+    portal, result, &error
+  );
+
+  if (!success) {
+    g_printerr("ERROR: %s\n", error->message);
+    g_error_free(error);
+
+    gtk_widget_set_sensitive(GTK_WIDGET(widget), TRUE);
+    gtk_switch_set_active(widget, FALSE);
+    return;
+  }
+  
+  gboolean *setting = (gboolean*) (
+    g_object_get_qdata(G_OBJECT(widget), app->quarks.data)
+  );
+
+  handle_general_switch_state(widget, success, setting);
+}
+
+static gboolean
+handle_background_switch_state(GtkSwitch *widget,
+			                         gboolean state,
+			                         gpointer user_data)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  gboolean *setting = (gboolean*) (
+    g_object_get_qdata(G_OBJECT(widget), app->quarks.data)
+  );
+
+  if ((!state) || (!gtk_widget_is_sensitive(GTK_WIDGET(widget))))
+    return handle_general_switch_state(widget, state, setting);
+
+  XdpBackgroundFlags flags = XDP_BACKGROUND_FLAG_NONE;
+
+  if (&(app->settings.autostart) == setting)
+    flags |= XDP_BACKGROUND_FLAG_AUTOSTART;
+  if (&(app->settings.background_task) == setting)
+    flags |= XDP_BACKGROUND_FLAG_ACTIVATABLE;
+
+  request_new_background(
+    app,
+    flags,
+    _request_background_callback,
+    widget
+  );
+
+  gtk_widget_set_sensitive(GTK_WIDGET(widget), FALSE);
+  return FALSE;
+}
+
 static gboolean
 handle_inverted_switch_state(GtkSwitch *widget,
-			    gboolean state,
-			    gpointer user_data)
+                             gboolean state,
+                             gpointer user_data)
 {
   return handle_general_switch_state(widget, !state, user_data);
 }
 
 static void
 handle_general_combo_box_change(GtkComboBox *widget,
-				gpointer user_data)
+				                        gpointer user_data)
 {
   gulong *delay = (gulong*) user_data;
   GtkTreeModel *model = gtk_combo_box_get_model(widget);
@@ -60,8 +129,8 @@ handle_general_combo_box_change(GtkComboBox *widget,
 
 int
 _leave_group_iteration(UNUSED void *cls,
-		       UNUSED struct GNUNET_CHAT_Handle *handle,
-		       struct GNUNET_CHAT_Group *group)
+                       UNUSED struct GNUNET_CHAT_Handle *handle,
+                       struct GNUNET_CHAT_Group *group)
 {
   GNUNET_CHAT_group_leave(group);
   return GNUNET_YES;
@@ -69,8 +138,8 @@ _leave_group_iteration(UNUSED void *cls,
 
 int
 _delete_contact_iteration(UNUSED void *cls,
-			  UNUSED struct GNUNET_CHAT_Handle *handle,
-			  struct GNUNET_CHAT_Contact *contact)
+                          UNUSED struct GNUNET_CHAT_Handle *handle,
+                          struct GNUNET_CHAT_Contact *contact)
 {
   GNUNET_CHAT_contact_delete(contact);
   return GNUNET_YES;
@@ -78,20 +147,20 @@ _delete_contact_iteration(UNUSED void *cls,
 
 static void
 handle_leave_chats_button_click(UNUSED GtkButton* button,
-				gpointer user_data)
+				                        gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GNUNET_CHAT_iterate_groups(
-      app->chat.messenger.handle,
-      _leave_group_iteration,
-      NULL
+    app->chat.messenger.handle,
+    _leave_group_iteration,
+    NULL
   );
 
   GNUNET_CHAT_iterate_contacts(
-      app->chat.messenger.handle,
-      _delete_contact_iteration,
-      NULL
+    app->chat.messenger.handle,
+    _delete_contact_iteration,
+    NULL
   );
 }
 
@@ -145,218 +214,272 @@ ui_settings_dialog_init(MESSENGER_Application *app,
                         UI_SETTINGS_Handle *handle)
 {
   handle->builder = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/settings.ui")
+    application_get_resource_path(app, "ui/settings.ui")
   );
 
   handle->dialog = HDY_PREFERENCES_WINDOW(
-      gtk_builder_get_object(handle->builder, "settings_dialog")
+    gtk_builder_get_object(handle->builder, "settings_dialog")
   );
 
   gtk_window_set_transient_for(
-      GTK_WINDOW(handle->dialog),
-      GTK_WINDOW(app->ui.messenger.main_window)
+    GTK_WINDOW(handle->dialog),
+    GTK_WINDOW(app->ui.messenger.main_window)
   );
 
-  handle->enable_notifications_switch = GTK_SWITCH(
-      gtk_builder_get_object(handle->builder, "enable_notifications_switch")
+  handle->start_on_login_switch = GTK_SWITCH(
+    gtk_builder_get_object(handle->builder, "start_on_login_switch")
   );
 
   gtk_switch_set_active(
-      handle->enable_notifications_switch,
-      !(app->settings.disable_notifications)
+    handle->start_on_login_switch,
+    app->settings.autostart
+  );
+
+  gtk_widget_set_sensitive(
+    GTK_WIDGET(handle->start_on_login_switch),
+    !(app->settings.autostart)
+  );
+
+  g_object_set_qdata(
+    G_OBJECT(handle->start_on_login_switch),
+    app->quarks.data,
+    &(app->settings.autostart)
   );
 
   g_signal_connect(
-      handle->enable_notifications_switch,
-      "state-set",
-      G_CALLBACK(handle_inverted_switch_state),
-      &(app->settings.disable_notifications)
+    handle->start_on_login_switch,
+    "state-set",
+    G_CALLBACK(handle_background_switch_state),
+    app
+  );
+
+  handle->run_in_background_switch = GTK_SWITCH(
+    gtk_builder_get_object(handle->builder, "run_in_background_switch")
+  );
+
+  gtk_switch_set_active(
+    handle->run_in_background_switch,
+    app->settings.background_task
+  );
+
+  gtk_widget_set_sensitive(
+    GTK_WIDGET(handle->run_in_background_switch),
+    !(app->settings.background_task)
+  );
+
+  g_object_set_qdata(
+    G_OBJECT(handle->run_in_background_switch),
+    app->quarks.data,
+    &(app->settings.background_task)
+  );
+
+  g_signal_connect(
+    handle->run_in_background_switch,
+    "state-set",
+    G_CALLBACK(handle_background_switch_state),
+    app
+  );
+
+  handle->enable_notifications_switch = GTK_SWITCH(
+    gtk_builder_get_object(handle->builder, "enable_notifications_switch")
+  );
+
+  gtk_switch_set_active(
+    handle->enable_notifications_switch,
+    !(app->settings.disable_notifications)
+  );
+
+  g_signal_connect(
+    handle->enable_notifications_switch,
+    "state-set",
+    G_CALLBACK(handle_inverted_switch_state),
+    &(app->settings.disable_notifications)
   );
 
   handle->blocked_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder, "blocked_label")
+    gtk_builder_get_object(handle->builder, "blocked_label")
   );
 
   guint blocked_count = 0;
   GNUNET_CHAT_iterate_contacts(
-      app->chat.messenger.handle,
-      _count_blocked_contacts,
-      &blocked_count
+    app->chat.messenger.handle,
+    _count_blocked_contacts,
+    &blocked_count
   );
 
   GString *blocked_text = g_string_new(NULL);
   if (blocked_text)
   {
     g_string_printf(
-        blocked_text,
-        "%u blocked contacts",
-        blocked_count
+      blocked_text,
+      "%u blocked contacts",
+      blocked_count
     );
 
     gtk_label_set_text(
-        handle->blocked_label,
-        blocked_text->str
+      handle->blocked_label,
+      blocked_text->str
     );
 
     g_string_free(blocked_text, TRUE);
   }
 
   handle->read_receipts_switch = GTK_SWITCH(
-      gtk_builder_get_object(handle->builder, "read_receipts_switch")
+    gtk_builder_get_object(handle->builder, "read_receipts_switch")
   );
 
   gtk_switch_set_active(
-      handle->read_receipts_switch,
-      app->settings.send_read_receipts
+    handle->read_receipts_switch,
+    app->settings.send_read_receipts
   );
 
   g_signal_connect(
-      handle->read_receipts_switch,
-      "state-set",
-      G_CALLBACK(handle_general_switch_state),
-      &(app->settings.send_read_receipts)
+    handle->read_receipts_switch,
+    "state-set",
+    G_CALLBACK(handle_general_switch_state),
+    &(app->settings.send_read_receipts)
   );
 
   handle->whispering_switch = GTK_SWITCH(
-      gtk_builder_get_object(handle->builder, "whispering_switch")
+    gtk_builder_get_object(handle->builder, "whispering_switch")
   );
 
   gtk_switch_set_active(
-      handle->whispering_switch,
-      app->settings.show_whispering
+    handle->whispering_switch,
+    app->settings.show_whispering
   );
 
   g_signal_connect(
-      handle->whispering_switch,
-      "state-set",
-      G_CALLBACK(handle_general_switch_state),
-      &(app->settings.show_whispering)
+    handle->whispering_switch,
+    "state-set",
+    G_CALLBACK(handle_general_switch_state),
+    &(app->settings.show_whispering)
   );
 
   handle->auto_delete_combo_box = GTK_COMBO_BOX(
-      gtk_builder_get_object(handle->builder, "auto_delete_combo_box")
+    gtk_builder_get_object(handle->builder, "auto_delete_combo_box")
   );
 
   _set_combobox_to_active_by_delay(
-      handle->auto_delete_combo_box,
-      app->settings.auto_delete_delay
+    handle->auto_delete_combo_box,
+    app->settings.auto_delete_delay
   );
 
   g_signal_connect(
-      handle->auto_delete_combo_box,
-      "changed",
-      G_CALLBACK(handle_general_combo_box_change),
-      &(app->settings.auto_delete_delay)
+    handle->auto_delete_combo_box,
+    "changed",
+    G_CALLBACK(handle_general_combo_box_change),
+    &(app->settings.auto_delete_delay)
   );
 
   handle->auto_accept_invitations_switch = GTK_SWITCH(
-      gtk_builder_get_object(handle->builder, "auto_accept_invitations_switch")
+    gtk_builder_get_object(handle->builder, "auto_accept_invitations_switch")
   );
 
   gtk_switch_set_active(
-      handle->auto_accept_invitations_switch,
-      app->settings.accept_all_invitations
+    handle->auto_accept_invitations_switch,
+    app->settings.accept_all_invitations
   );
 
   g_signal_connect(
-      handle->auto_accept_invitations_switch,
-      "state-set",
-      G_CALLBACK(handle_general_switch_state),
-      &(app->settings.accept_all_invitations)
+    handle->auto_accept_invitations_switch,
+    "state-set",
+    G_CALLBACK(handle_general_switch_state),
+    &(app->settings.accept_all_invitations)
   );
 
   handle->delete_invitations_combo_box = GTK_COMBO_BOX(
-      gtk_builder_get_object(handle->builder, "delete_invitations_combo_box")
+    gtk_builder_get_object(handle->builder, "delete_invitations_combo_box")
   );
 
   _set_combobox_to_active_by_delay(
-      handle->delete_invitations_combo_box,
-      app->settings.delete_invitations_delay
+    handle->delete_invitations_combo_box,
+    app->settings.delete_invitations_delay
   );
 
   g_signal_connect(
-      handle->delete_invitations_combo_box,
-      "changed",
-      G_CALLBACK(handle_general_combo_box_change),
-      &(app->settings.delete_invitations_delay)
+    handle->delete_invitations_combo_box,
+    "changed",
+    G_CALLBACK(handle_general_combo_box_change),
+    &(app->settings.delete_invitations_delay)
   );
 
   handle->delete_invitations_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "delete_invitations_button")
+    gtk_builder_get_object(handle->builder, "delete_invitations_button")
   );
 
   handle->auto_accept_files_switch = GTK_SWITCH(
-      gtk_builder_get_object(handle->builder, "auto_accept_files_switch")
+    gtk_builder_get_object(handle->builder, "auto_accept_files_switch")
   );
 
   gtk_switch_set_active(
-      handle->auto_accept_files_switch,
-      app->settings.accept_all_files
+    handle->auto_accept_files_switch,
+    app->settings.accept_all_files
   );
 
   g_signal_connect(
-      handle->auto_accept_files_switch,
-      "state-set",
-      G_CALLBACK(handle_general_switch_state),
-      &(app->settings.accept_all_files)
+    handle->auto_accept_files_switch,
+    "state-set",
+    G_CALLBACK(handle_general_switch_state),
+    &(app->settings.accept_all_files)
   );
 
   handle->download_folder_button = GTK_FILE_CHOOSER_BUTTON(
-      gtk_builder_get_object(handle->builder, "download_folder_button")
+    gtk_builder_get_object(handle->builder, "download_folder_button")
   );
 
   handle->delete_files_combo_box = GTK_COMBO_BOX(
-      gtk_builder_get_object(handle->builder, "delete_files_combo_box")
+    gtk_builder_get_object(handle->builder, "delete_files_combo_box")
   );
 
   _set_combobox_to_active_by_delay(
-      handle->delete_files_combo_box,
-      app->settings.delete_files_delay
+    handle->delete_files_combo_box,
+    app->settings.delete_files_delay
   );
 
   g_signal_connect(
-      handle->delete_files_combo_box,
-      "changed",
-      G_CALLBACK(handle_general_combo_box_change),
-      &(app->settings.delete_files_delay)
+    handle->delete_files_combo_box,
+    "changed",
+    G_CALLBACK(handle_general_combo_box_change),
+    &(app->settings.delete_files_delay)
   );
 
   handle->delete_files_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "delete_files_button")
+    gtk_builder_get_object(handle->builder, "delete_files_button")
   );
 
   handle->leave_chats_combo_box = GTK_COMBO_BOX(
-      gtk_builder_get_object(handle->builder, "leave_chats_combo_box")
+    gtk_builder_get_object(handle->builder, "leave_chats_combo_box")
   );
 
   _set_combobox_to_active_by_delay(
-      handle->leave_chats_combo_box,
-      app->settings.leave_chats_delay
+    handle->leave_chats_combo_box,
+    app->settings.leave_chats_delay
   );
 
   g_signal_connect(
-      handle->leave_chats_combo_box,
-      "changed",
-      G_CALLBACK(handle_general_combo_box_change),
-      &(app->settings.leave_chats_delay)
+    handle->leave_chats_combo_box,
+    "changed",
+    G_CALLBACK(handle_general_combo_box_change),
+    &(app->settings.leave_chats_delay)
   );
 
   handle->leave_chats_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "leave_chats_button")
+    gtk_builder_get_object(handle->builder, "leave_chats_button")
   );
 
   g_signal_connect(
-      handle->leave_chats_button,
-      "clicked",
-      G_CALLBACK(handle_leave_chats_button_click),
-      app
+    handle->leave_chats_button,
+    "clicked",
+    G_CALLBACK(handle_leave_chats_button_click),
+    app
   );
 
   g_signal_connect(
-      handle->dialog,
-      "destroy",
-      G_CALLBACK(handle_dialog_destroy),
-      handle
+    handle->dialog,
+    "destroy",
+    G_CALLBACK(handle_dialog_destroy),
+    handle
   );
 }
 

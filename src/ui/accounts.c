@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -29,7 +29,7 @@
 
 static void
 handle_close_button_click(UNUSED GtkButton *button,
-			  gpointer user_data)
+			                    gpointer user_data)
 {
   GtkDialog *dialog = GTK_DIALOG(user_data);
   gtk_window_close(GTK_WINDOW(dialog));
@@ -54,14 +54,14 @@ _show_messenger_main_window(gpointer user_data)
   // Refresh the account list
   ui_messenger_refresh(app, &(app->ui.messenger));
 
-  gtk_widget_show(GTK_WIDGET(app->ui.messenger.main_window));
+  application_show_window(app);
   return FALSE;
 }
 
 static void
 handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
-				      GtkListBoxRow* row,
-				      gpointer user_data)
+                                      GtkListBoxRow* row,
+                                      gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
@@ -69,14 +69,14 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   if (!gtk_list_box_row_get_selectable(row))
   {
     app->ui.accounts.show_queued = g_idle_add(
-	G_SOURCE_FUNC(_open_new_account_dialog), app
+	    G_SOURCE_FUNC(_open_new_account_dialog), app
     );
 
     goto close_dialog;
   }
 
   struct GNUNET_CHAT_Account *account = (struct GNUNET_CHAT_Account*) (
-      g_object_get_qdata(G_OBJECT(row), app->quarks.data)
+    g_object_get_qdata(G_OBJECT(row), app->quarks.data)
   );
 
   if (!account)
@@ -85,7 +85,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   // Handle the GUI swap asyncronously
   if (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
     app->ui.accounts.show_queued = g_idle_add(
-	G_SOURCE_FUNC(_show_messenger_main_window), app
+	    G_SOURCE_FUNC(_show_messenger_main_window), app
     );
 
   GNUNET_CHAT_connect(app->chat.messenger.handle, account);
@@ -96,7 +96,7 @@ close_dialog:
 
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
-		      gpointer user_data)
+		                  gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
@@ -109,8 +109,8 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
 
 static int
 _iterate_accounts(void *cls,
-		  UNUSED const struct GNUNET_CHAT_Handle *handle,
-		  struct GNUNET_CHAT_Account *account)
+                  UNUSED const struct GNUNET_CHAT_Handle *handle,
+                  struct GNUNET_CHAT_Account *account)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
@@ -121,16 +121,16 @@ _iterate_accounts(void *cls,
   gtk_list_box_prepend(app->ui.accounts.accounts_listbox, entry->entry_box);
 
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
-      gtk_widget_get_parent(entry->entry_box)
+    gtk_widget_get_parent(entry->entry_box)
   );
 
   g_object_set_qdata(G_OBJECT(row), app->quarks.data, account);
 
   g_object_set_qdata_full(
-      G_OBJECT(row),
-      app->quarks.ui,
-      entry,
-      (GDestroyNotify) ui_account_entry_delete
+    G_OBJECT(row),
+    app->quarks.ui,
+    entry,
+    (GDestroyNotify) ui_account_entry_delete
   );
 
   return GNUNET_YES;
@@ -138,62 +138,62 @@ _iterate_accounts(void *cls,
 
 void
 ui_accounts_dialog_init(MESSENGER_Application *app,
-			UI_ACCOUNTS_Handle *handle)
+			                  UI_ACCOUNTS_Handle *handle)
 {
   handle->show_queued = 0;
 
   handle->builder = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/accounts.ui")
+    application_get_resource_path(app, "ui/accounts.ui")
   );
 
   handle->dialog = GTK_DIALOG(
-      gtk_builder_get_object(handle->builder, "accounts_dialog")
+    gtk_builder_get_object(handle->builder, "accounts_dialog")
   );
 
   gtk_window_set_transient_for(
-      GTK_WINDOW(handle->dialog),
-      GTK_WINDOW(app->ui.messenger.main_window)
+    GTK_WINDOW(handle->dialog),
+    GTK_WINDOW(app->ui.messenger.main_window)
   );
 
   handle->accounts_listbox = GTK_LIST_BOX(
-      gtk_builder_get_object(handle->builder, "accounts_listbox")
+    gtk_builder_get_object(handle->builder, "accounts_listbox")
   );
 
   g_signal_connect(
-      handle->accounts_listbox,
-      "row-activated",
-      G_CALLBACK(handle_accounts_listbox_row_activated),
-      app
+    handle->accounts_listbox,
+    "row-activated",
+    G_CALLBACK(handle_accounts_listbox_row_activated),
+    app
   );
 
   handle->close_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "close_button")
+    gtk_builder_get_object(handle->builder, "close_button")
   );
 
   g_signal_connect(
-      handle->close_button,
-      "clicked",
-      G_CALLBACK(handle_close_button_click),
-      handle->dialog
+    handle->close_button,
+    "clicked",
+    G_CALLBACK(handle_close_button_click),
+    handle->dialog
   );
 
   g_signal_connect(
-      handle->dialog,
-      "destroy",
-      G_CALLBACK(handle_dialog_destroy),
-      app
+    handle->dialog,
+    "destroy",
+    G_CALLBACK(handle_dialog_destroy),
+    app
   );
 }
 
 void
 ui_accounts_dialog_refresh(MESSENGER_Application *app,
-			   UI_ACCOUNTS_Handle *handle)
+			                     UI_ACCOUNTS_Handle *handle)
 {
   if (!(handle->accounts_listbox))
     return;
 
   GList *list = gtk_container_get_children(
-      GTK_CONTAINER(handle->accounts_listbox)
+    GTK_CONTAINER(handle->accounts_listbox)
   );
 
   while (list)
@@ -204,8 +204,8 @@ ui_accounts_dialog_refresh(MESSENGER_Application *app,
       goto skip_row;
 
     gtk_container_remove(
-	GTK_CONTAINER(handle->accounts_listbox),
-	GTK_WIDGET(row)
+      GTK_CONTAINER(handle->accounts_listbox),
+      GTK_WIDGET(row)
     );
 
   skip_row:
@@ -213,9 +213,9 @@ ui_accounts_dialog_refresh(MESSENGER_Application *app,
   }
 
   GNUNET_CHAT_iterate_accounts(
-      app->chat.messenger.handle,
-      _iterate_accounts,
-      app
+    app->chat.messenger.handle,
+    _iterate_accounts,
+    app
   );
 }
 

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -23,11 +23,13 @@
  */
 
 #include "application.h"
+#include "request.h"
 #include "resources.h"
 
 #include <gstreamer-1.0/gst/gst.h>
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
+#include <libportal-gtk3/portal-gtk3.h>
 #include <libnotify/notify.h>
 
 static void
@@ -37,14 +39,14 @@ _load_ui_stylesheets(MESSENGER_Application *app)
   GtkCssProvider* provider = gtk_css_provider_new();
 
   gtk_css_provider_load_from_resource(
-      provider,
-      application_get_resource_path(app, "css/style.css")
+    provider,
+    application_get_resource_path(app, "css/style.css")
   );
 
   gtk_style_context_add_provider_for_screen(
-      screen,
-      GTK_STYLE_PROVIDER(provider),
-      GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+    screen,
+    GTK_STYLE_PROVIDER(provider),
+    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
   );
 }
 
@@ -67,15 +69,18 @@ _application_init(MESSENGER_Application *app)
 {
   ui_messenger_init(app, &(app->ui.messenger));
 
+  if (app->portal)
+    app->parent = xdp_parent_new_gtk(GTK_WINDOW(app->ui.messenger.main_window));
+
   if (app->chat.identity)
-    gtk_widget_show(GTK_WIDGET(app->ui.messenger.main_window));
+    application_show_window(app);
   else
     app->init = g_idle_add(G_SOURCE_FUNC(_application_accounts), app);
 }
 
 static void
 _application_activate(GApplication* application,
-		      gpointer user_data)
+		                  gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
@@ -88,10 +93,10 @@ _application_activate(GApplication* application,
 
 static void
 _application_open(GApplication* application,
-		  GFile **files,
-		  gint n_files,
-		  UNUSED gchar* hint,
-		  gpointer user_data)
+                  GFile **files,
+                  gint n_files,
+                  UNUSED gchar* hint,
+                  gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
@@ -132,8 +137,8 @@ _application_open(GApplication* application,
 
 void
 application_init(MESSENGER_Application *app,
-		 int argc,
-		 char **argv)
+                 int argc,
+                 char **argv)
 {
   memset(app, 0, sizeof(*app));
 
@@ -145,15 +150,25 @@ application_init(MESSENGER_Application *app,
   hdy_init();
 
   app->application = gtk_application_new(
-      MESSENGER_APPLICATION_ID,
-      G_APPLICATION_HANDLES_OPEN |
-      G_APPLICATION_NON_UNIQUE
+    MESSENGER_APPLICATION_ID,
+    G_APPLICATION_HANDLES_OPEN |
+    G_APPLICATION_NON_UNIQUE
   );
 
   resources_register();
 
+  GError *error = NULL;
+  app->portal = xdp_portal_initable_new(&error);
+
+  if (!app->portal)
+  {
+    g_printerr("ERROR: %s\n", error->message);
+    g_error_free(error);
+  }
+
   notify_init(MESSENGER_APPLICATION_NAME);
   app->notifications = NULL;
+  app->requests = NULL;
 
   _load_ui_stylesheets(app);
 
@@ -168,48 +183,48 @@ application_init(MESSENGER_Application *app,
   app->quarks.ui = g_quark_from_string("messenger_ui");
 
   g_application_add_main_option(
-      G_APPLICATION(app->application),
-      "mobile",
-      'm',
-      G_OPTION_FLAG_NONE,
-      G_OPTION_ARG_NONE,
-      "Optimize UI spacing for mobile devices",
-      NULL
+    G_APPLICATION(app->application),
+    "mobile",
+    'm',
+    G_OPTION_FLAG_NONE,
+    G_OPTION_ARG_NONE,
+    "Optimize UI spacing for mobile devices",
+    NULL
   );
 
   g_application_add_main_option(
-      G_APPLICATION(app->application),
-      "ego",
-      'e',
-      G_OPTION_FLAG_NONE,
-      G_OPTION_ARG_STRING,
-      "Identity to select for messaging",
-      "IDENTITY"
+    G_APPLICATION(app->application),
+    "ego",
+    'e',
+    G_OPTION_FLAG_NONE,
+    G_OPTION_ARG_STRING,
+    "Identity to select for messaging",
+    "IDENTITY"
   );
 
   g_signal_connect(
-      app->application,
-      "activate",
-      G_CALLBACK(_application_activate),
-      app
+    app->application,
+    "activate",
+    G_CALLBACK(_application_activate),
+    app
   );
 
   g_signal_connect(
-      app->application,
-      "open",
-      G_CALLBACK(_application_open),
-      app
+    app->application,
+    "open",
+    G_CALLBACK(_application_open),
+    app
   );
 }
 
 const gchar*
 application_get_resource_path(MESSENGER_Application *app,
-			      const char *path)
+			                        const char *path)
 {
   static gchar resource_path [PATH_MAX];
 
   const gchar *base_path = g_application_get_resource_base_path(
-      G_APPLICATION(app->application)
+    G_APPLICATION(app->application)
   );
 
   snprintf(resource_path, PATH_MAX, "%s/%s", base_path, path);
@@ -222,30 +237,30 @@ _application_chat_thread(void *args)
   MESSENGER_Application *app = (MESSENGER_Application*) args;
 
   struct GNUNET_GETOPT_CommandLineOption options[] = {
-      GNUNET_GETOPT_option_flag (
-	  'm',
-	  "mobile",
-	  "Optimize UI spacing for mobile devices",
-	  &(app->settings.mobile_design)
-      ),
-      GNUNET_GETOPT_option_string (
-	  'e',
-      	  "ego",
-	  "IDENTITY",
-	  "Identity to select for messaging",
-      	  &(app->chat.identity)
-      ),
-      GNUNET_GETOPT_OPTION_END
+    GNUNET_GETOPT_option_flag (
+  'm',
+  "mobile",
+  "Optimize UI spacing for mobile devices",
+  &(app->settings.mobile_design)
+    ),
+    GNUNET_GETOPT_option_string (
+'e',
+      "ego",
+"IDENTITY",
+"Identity to select for messaging",
+      &(app->chat.identity)
+    ),
+    GNUNET_GETOPT_OPTION_END
   };
 
   app->chat.status = (GNUNET_PROGRAM_run(
-      app->argc,
-      app->argv,
-      MESSENGER_APPLICATION_BINARY,
-      gettext_noop(MESSENGER_APPLICATION_DESCRIPTION),
-      options,
-      &chat_messenger_run,
-      app
+    app->argc,
+    app->argv,
+    MESSENGER_APPLICATION_BINARY,
+    gettext_noop(MESSENGER_APPLICATION_DESCRIPTION),
+    options,
+    &chat_messenger_run,
+    app
   ) == GNUNET_OK? EXIT_SUCCESS : EXIT_FAILURE);
 
   return NULL;
@@ -255,12 +270,17 @@ void
 application_run(MESSENGER_Application *app)
 {
   // Start thread to run GNUnet scheduler
-  pthread_create(&(app->chat.tid), NULL, _application_chat_thread, app);
+  pthread_create(
+    &(app->chat.tid),
+    NULL,
+    _application_chat_thread,
+    app
+  );
 
   app->ui.status = g_application_run(
-      G_APPLICATION(app->application),
-      app->argc,
-      app->argv
+    G_APPLICATION(app->application),
+    app->argc,
+    app->argv
   );
 
   if (app->ui.status != 0)
@@ -274,15 +294,35 @@ application_run(MESSENGER_Application *app)
 
   pthread_mutex_destroy(&(app->chat.mutex));
 
-  // Get rid of open notifications
-  GList *list = app->notifications;
+  GList *list;
+  
+  // Get rid of open requests
+  list = app->requests;
 
-  while (list) {
+  while (list)
+  {
+    if (list->data)
+    {
+      request_cancel((MESSENGER_Request*) list->data);
+      request_delete((MESSENGER_Request*) list->data);
+    }
+
+    list = list->next;
+  }
+  
+  // Get rid of open notifications
+  list = app->notifications;
+
+  while (list)
+  {
     if (list->data)
       notify_notification_close(NOTIFY_NOTIFICATION(list->data), NULL);
 
     list = list->next;
   }
+
+  if (app->requests)
+    g_list_free(app->requests);
 
   if (app->notifications)
     g_list_free(app->notifications);
@@ -292,6 +332,51 @@ application_run(MESSENGER_Application *app)
   resources_unregister();
 
   g_object_unref(app->application);
+}
+
+static void
+_request_background_callback(GObject *source_object,
+                             GAsyncResult *result,
+                             gpointer user_data)
+{
+  XdpPortal *portal = XDP_PORTAL(source_object);
+  MESSENGER_Request *request = (MESSENGER_Request*) user_data;
+
+  request_cleanup(request);
+
+  gboolean *setting = (gboolean*) (request->user_data);
+
+  GError *error = NULL;
+  gboolean success = xdp_portal_request_background_finish(
+    portal, result, &error
+  );
+
+  if (!success) {
+    g_printerr("ERROR: %s\n", error->message);
+    g_error_free(error);
+  }
+
+  *setting = success;
+}
+
+void
+application_show_window(MESSENGER_Application *app)
+{
+  gtk_widget_show(GTK_WIDGET(app->ui.messenger.main_window));
+
+  request_new_background(
+    app,
+    XDP_BACKGROUND_FLAG_AUTOSTART,
+    _request_background_callback,
+    &(app->settings.autostart)
+  );
+
+  request_new_background(
+    app,
+    XDP_BACKGROUND_FLAG_ACTIVATABLE,
+    _request_background_callback,
+    &(app->settings.background_task)
+  );
 }
 
 typedef struct MESSENGER_ApplicationEventCall
@@ -318,12 +403,12 @@ _application_event_call(gpointer user_data)
 
 void
 application_call_event(MESSENGER_Application *app,
-		       MESSENGER_ApplicationEvent event)
+		                   MESSENGER_ApplicationEvent event)
 {
   MESSENGER_ApplicationEventCall *call;
 
   call = (MESSENGER_ApplicationEventCall*) GNUNET_malloc(
-      sizeof(MESSENGER_ApplicationEventCall)
+    sizeof(MESSENGER_ApplicationEventCall)
   );
 
   call->app = app;
@@ -359,8 +444,8 @@ _application_message_event_call(gpointer user_data)
 
 void
 application_call_message_event(MESSENGER_Application *app,
-			       MESSENGER_ApplicationMessageEvent event,
-			       struct GNUNET_CHAT_Context *context,
+                               MESSENGER_ApplicationMessageEvent event,
+                               struct GNUNET_CHAT_Context *context,
                                const struct GNUNET_CHAT_Message *message)
 {
   MESSENGER_ApplicationMessageEventCall *call;
@@ -369,7 +454,7 @@ application_call_message_event(MESSENGER_Application *app,
     return;
 
   call = (MESSENGER_ApplicationMessageEventCall*) GNUNET_malloc(
-      sizeof(MESSENGER_ApplicationMessageEventCall)
+    sizeof(MESSENGER_ApplicationMessageEventCall)
   );
 
   call->app = app;
@@ -383,11 +468,16 @@ application_call_message_event(MESSENGER_Application *app,
 
 void
 application_exit(MESSENGER_Application *app,
-		 MESSENGER_ApplicationSignal signal)
+		             MESSENGER_ApplicationSignal signal)
 {
   // Forward a signal to the other thread causing it to shutdown the
   // GNUnet handles of the application.
   write(app->chat.pipe[1], &signal, sizeof(signal));
+
+  if (app->portal)
+    g_free(app->portal);
+
+  app->portal = NULL;
 }
 
 int

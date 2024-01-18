@@ -40,6 +40,8 @@ messenger_gtk_deps = [
     dependency('gtk+-3.0'),
     dependency('libhandy-1'),
     dependency('gstreamer-1.0'),
+    dependency('libportal'),
+    dependency('libportal-gtk3'),
     dependency('libnotify'),
     dependency('libqrencode'),
     declare_dependency(link_args: '-lunistring'),

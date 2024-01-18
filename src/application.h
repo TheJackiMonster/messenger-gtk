@@ -25,6 +25,8 @@
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 
+#include <libportal/portal.h>
+
 #include <pthread.h>
 #include <gnunet/gnunet_chat_lib.h>
 
@@ -69,7 +71,11 @@ typedef struct MESSENGER_Application
 
   GtkApplication *application;
   GList *notifications;
+  GList *requests;
   guint init;
+
+  XdpPortal *portal;
+  XdpParent *parent;
 
   struct {
     GQuark widget;
@@ -114,6 +120,9 @@ typedef struct MESSENGER_Application
   struct {
     gboolean mobile_design;
     gboolean hide_delete_dialog;
+
+    gboolean autostart;
+    gboolean background_task;
 
     gboolean disable_notifications;
 
@@ -167,6 +176,14 @@ application_get_resource_path(MESSENGER_Application *app,
  */
 void
 application_run(MESSENGER_Application *app);
+
+/**
+ * Shows the messenger application main window.
+ *
+ * @param app Messenger application
+ */
+void
+application_show_window(MESSENGER_Application *app);
 
 typedef void (*MESSENGER_ApplicationEvent) (
     MESSENGER_Application *app

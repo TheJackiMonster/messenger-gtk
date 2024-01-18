@@ -1,6 +1,6 @@
 #
 # This file is part of GNUnet.
-# Copyright (C) 2023 GNUnet e.V.
+# Copyright (C) 2023--2024 GNUnet e.V.
 #
 # GNUnet is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License as published
@@ -26,6 +26,7 @@ messenger_gtk_sources = files([
     'contact.c', 'contact.h',
     'event.c', 'event.h',
     'file.c', 'file.h',
+    'request.c', 'request.h',
     'resources.c', 'resources.h',
     'ui.c', 'ui.h',
     'util.h',

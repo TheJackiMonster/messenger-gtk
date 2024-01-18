@@ -32,6 +32,9 @@ typedef struct UI_SETTINGS_Handle
   GtkBuilder *builder;
   HdyPreferencesWindow *dialog;
 
+  GtkSwitch *start_on_login_switch;
+  GtkSwitch *run_in_background_switch;
+
   GtkSwitch *enable_notifications_switch;
 
   GtkLabel *blocked_label;

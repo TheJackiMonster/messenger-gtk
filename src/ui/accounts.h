@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -48,7 +48,7 @@ typedef struct UI_ACCOUNTS_Handle
  */
 void
 ui_accounts_dialog_init(MESSENGER_Application *app,
-			UI_ACCOUNTS_Handle *handle);
+			                  UI_ACCOUNTS_Handle *handle);
 
 /**
  * Refreshes a given accounts dialog handle with the
@@ -59,7 +59,7 @@ ui_accounts_dialog_init(MESSENGER_Application *app,
  */
 void
 ui_accounts_dialog_refresh(MESSENGER_Application *app,
-			   UI_ACCOUNTS_Handle *handle);
+			                     UI_ACCOUNTS_Handle *handle);
 
 /**
  * Cleans up the allocated resources and resets the

@@ -209,7 +209,7 @@ handle_emoji_search_entry_search_changed(GtkSearchEntry *entry,
 
 static void
 handle_search_button_click(UNUSED GtkButton *button,
-			               gpointer user_data)
+			                     gpointer user_data)
 {
   UI_PICKER_Handle *handle = (UI_PICKER_Handle*) user_data;
 
@@ -222,17 +222,16 @@ handle_search_button_click(UNUSED GtkButton *button,
 
   if (search_bar)
     hdy_search_bar_set_search_mode(
-	  search_bar,
-	  !hdy_search_bar_get_search_mode(search_bar)
+	    search_bar,
+	    !hdy_search_bar_get_search_mode(search_bar)
     );
 }
 
 static void
 handle_settings_button_click(UNUSED GtkButton *button,
-			                 gpointer user_data)
+			                       UNUSED gpointer user_data)
 {
-  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
-
+  // MESSENGER_Application *app = (MESSENGER_Application*) user_data;
   // TODO
 }
 
