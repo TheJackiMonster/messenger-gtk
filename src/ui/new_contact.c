@@ -25,10 +25,11 @@
 #include "new_contact.h"
 
 #include "../application.h"
+#include "../request.h"
 
 static void
 handle_cancel_button_click(UNUSED GtkButton *button,
-			   gpointer user_data)
+			                     gpointer user_data)
 {
   GtkDialog *dialog = GTK_DIALOG(user_data);
   gtk_window_close(GTK_WINDOW(dialog));
@@ -36,7 +37,7 @@ handle_cancel_button_click(UNUSED GtkButton *button,
 
 static void
 handle_confirm_button_click(UNUSED GtkButton *button,
-			    gpointer user_data)
+			                      gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
@@ -67,14 +68,14 @@ close_dialog:
 
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
-		      gpointer user_data)
+		                  gpointer user_data)
 {
   ui_new_contact_dialog_cleanup((UI_NEW_CONTACT_Handle*) user_data);
 }
 
 static void
 _disable_video_processing(UI_NEW_CONTACT_Handle *handle,
-			  gboolean drop_pipeline)
+			                    gboolean drop_pipeline)
 {
   GNUNET_assert(handle);
 
@@ -89,8 +90,8 @@ _disable_video_processing(UI_NEW_CONTACT_Handle *handle,
 
 static void
 msg_error_cb(UNUSED GstBus *bus,
-	     GstMessage *msg,
-	     gpointer data)
+             GstMessage *msg,
+             gpointer data)
 {
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
 
@@ -109,8 +110,8 @@ msg_error_cb(UNUSED GstBus *bus,
 
 static void
 msg_eos_cb(UNUSED GstBus *bus,
-	   UNUSED GstMessage *msg,
-	   gpointer data)
+           UNUSED GstMessage *msg,
+           gpointer data)
 {
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
 
@@ -120,8 +121,8 @@ msg_eos_cb(UNUSED GstBus *bus,
 
 static void
 msg_state_changed_cb(UNUSED GstBus *bus,
-		     GstMessage *msg,
-		     gpointer data)
+                     GstMessage *msg,
+                     gpointer data)
 {
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
 
@@ -136,15 +137,15 @@ msg_state_changed_cb(UNUSED GstBus *bus,
     _disable_video_processing(handle, FALSE);
   else if (GST_STATE_PLAYING == new_state)
     gtk_stack_set_visible_child(
-	handle->preview_stack,
-	handle->video_box
+      handle->preview_stack,
+      handle->video_box
     );
 }
 
 static void
 msg_barcode_cb(UNUSED GstBus *bus,
-	       GstMessage *msg,
-	       gpointer data)
+               GstMessage *msg,
+               gpointer data)
 {
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
   GstMessageType msg_type = GST_MESSAGE_TYPE(msg);
@@ -172,26 +173,26 @@ static void
 _setup_gst_pipeline(UI_NEW_CONTACT_Handle *handle)
 {
   handle->pipeline = gst_parse_launch(
-      "v4l2src name=source ! videoconvert ! zbar name=scanner"
-      " ! videoconvert ! aspectratiocrop aspect-ratio=1/1"
-      " ! videoconvert ! video/x-raw,format=RGB"
-      " ! videoconvert ! gtksink name=sink",
-      NULL
+    "pipewiresrc name=source ! videoconvert ! zbar name=scanner"
+    " ! videoconvert ! aspectratiocrop aspect-ratio=1/1"
+    " ! videoconvert ! video/x-raw,format=RGB"
+    " ! videoconvert ! gtksink name=sink",
+    NULL
   );
 
   if (!(handle->pipeline))
     return;
 
   handle->source = gst_bin_get_by_name(
-      GST_BIN(handle->pipeline), "source"
+    GST_BIN(handle->pipeline), "source"
   );
 
   handle->scanner = gst_bin_get_by_name(
-      GST_BIN(handle->pipeline), "scanner"
+    GST_BIN(handle->pipeline), "scanner"
   );
 
   handle->sink = gst_bin_get_by_name(
-      GST_BIN(handle->pipeline), "sink"
+    GST_BIN(handle->pipeline), "sink"
   );
 
   GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(handle->pipeline));
@@ -202,31 +203,31 @@ _setup_gst_pipeline(UI_NEW_CONTACT_Handle *handle)
   gst_bus_add_signal_watch(bus);
 
   g_signal_connect(
-      G_OBJECT(bus),
-      "message::error",
-      (GCallback) msg_error_cb,
-      handle
+    G_OBJECT(bus),
+    "message::error",
+    (GCallback) msg_error_cb,
+    handle
   );
 
   g_signal_connect(
-      G_OBJECT(bus),
-      "message::eos",
-      (GCallback) msg_eos_cb,
-      handle
+    G_OBJECT(bus),
+    "message::eos",
+    (GCallback) msg_eos_cb,
+    handle
   );
 
   g_signal_connect(
-      G_OBJECT(bus),
-      "message::state-changed",
-      (GCallback) msg_state_changed_cb,
-      handle
+    G_OBJECT(bus),
+    "message::state-changed",
+    (GCallback) msg_state_changed_cb,
+    handle
   );
 
   g_signal_connect(
-      G_OBJECT(bus),
-      "message",
-      (GCallback) msg_barcode_cb,
-      handle
+    G_OBJECT(bus),
+    "message",
+    (GCallback) msg_barcode_cb,
+    handle
   );
 
   gst_object_unref(bus);
@@ -241,8 +242,8 @@ _ui_new_contact_video_thread(void *args)
     return NULL;
 
   GstStateChangeReturn ret = gst_element_set_state(
-      handle->pipeline,
-      GST_STATE_PLAYING
+    handle->pipeline,
+    GST_STATE_PLAYING
   );
 
   if (GST_STATE_CHANGE_FAILURE == ret)
@@ -251,44 +252,96 @@ _ui_new_contact_video_thread(void *args)
   return NULL;
 }
 
+static void
+_init_camera_pipeline(MESSENGER_Application *app,
+                      UI_NEW_CONTACT_Handle *handle,
+                      gboolean access)
+{
+  if ((app->portal) && ((access) || xdp_portal_is_camera_present(app->portal)))
+    g_object_set(
+      G_OBJECT(handle->source),
+      "fd",
+      xdp_portal_open_pipewire_remote_for_camera(app->portal),
+      NULL
+    );
+
+  pthread_create(
+    &(handle->video_tid),
+    NULL,
+    _ui_new_contact_video_thread,
+    handle
+  );
+}
+
+static void
+_request_camera_callback(GObject *source_object,
+                             GAsyncResult *result,
+                             gpointer user_data)
+{
+  XdpPortal *portal = (XdpPortal*) source_object;
+  MESSENGER_Request *request = (MESSENGER_Request*) user_data;
+
+  request_cleanup(request);
+
+  MESSENGER_Application *app = request->application;
+  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) request->user_data;
+
+  GError *error = NULL;
+  gboolean success = xdp_portal_access_camera_finish(
+    portal, result, &error
+  );
+
+  if (!success) {
+    g_printerr("ERROR: %s\n", error->message);
+    g_error_free(error);
+  }
+
+  _init_camera_pipeline(app, handle, success);
+}
+
 void
 ui_new_contact_dialog_init(MESSENGER_Application *app,
-			   UI_NEW_CONTACT_Handle *handle)
+			                     UI_NEW_CONTACT_Handle *handle)
 {
   GNUNET_assert((app) && (handle));
 
   _setup_gst_pipeline(handle);
 
-  pthread_create(
-      &(handle->video_tid),
-      NULL,
-      _ui_new_contact_video_thread,
+  if (app->portal)
+  {
+    request_new_camera(
+      app,
+      XDP_CAMERA_FLAG_NONE,
+      _request_camera_callback,
       handle
-  );
+    );
+  }
+  else
+    _init_camera_pipeline(app, handle, false);
 
   handle->builder = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/new_contact.ui")
+    application_get_resource_path(app, "ui/new_contact.ui")
   );
 
   handle->dialog = GTK_DIALOG(
-      gtk_builder_get_object(handle->builder, "new_contact_dialog")
+    gtk_builder_get_object(handle->builder, "new_contact_dialog")
   );
 
   gtk_window_set_transient_for(
-      GTK_WINDOW(handle->dialog),
-      GTK_WINDOW(app->ui.messenger.main_window)
+    GTK_WINDOW(handle->dialog),
+    GTK_WINDOW(app->ui.messenger.main_window)
   );
 
   handle->preview_stack = GTK_STACK(
-      gtk_builder_get_object(handle->builder, "preview_stack")
+    gtk_builder_get_object(handle->builder, "preview_stack")
   );
 
   handle->fail_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder, "fail_box")
+    gtk_builder_get_object(handle->builder, "fail_box")
   );
 
   handle->video_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder, "video_box")
+    gtk_builder_get_object(handle->builder, "video_box")
   );
 
   GtkWidget *widget;
@@ -300,11 +353,11 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
   if (widget)
   {
     gtk_box_pack_start(
-	GTK_BOX(handle->video_box),
-	widget,
-	true,
-	true,
-	0
+      GTK_BOX(handle->video_box),
+      widget,
+      true,
+      true,
+      0
     );
 
     g_object_unref(widget);
@@ -314,36 +367,36 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
   }
 
   handle->id_entry = GTK_ENTRY(
-      gtk_builder_get_object(handle->builder, "id_entry")
+    gtk_builder_get_object(handle->builder, "id_entry")
   );
 
   handle->cancel_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "cancel_button")
+    gtk_builder_get_object(handle->builder, "cancel_button")
   );
 
   g_signal_connect(
-      handle->cancel_button,
-      "clicked",
-      G_CALLBACK(handle_cancel_button_click),
-      handle->dialog
+    handle->cancel_button,
+    "clicked",
+    G_CALLBACK(handle_cancel_button_click),
+    handle->dialog
   );
 
   handle->confirm_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "confirm_button")
+    gtk_builder_get_object(handle->builder, "confirm_button")
   );
 
   g_signal_connect(
-      handle->confirm_button,
-      "clicked",
-      G_CALLBACK(handle_confirm_button_click),
-      app
+    handle->confirm_button,
+    "clicked",
+    G_CALLBACK(handle_confirm_button_click),
+    app
   );
 
   g_signal_connect(
-      handle->dialog,
-      "destroy",
-      G_CALLBACK(handle_dialog_destroy),
-      handle
+    handle->dialog,
+    "destroy",
+    G_CALLBACK(handle_dialog_destroy),
+    handle
   );
 }
 

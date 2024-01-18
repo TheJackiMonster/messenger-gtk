@@ -71,6 +71,32 @@ request_new_background(MESSENGER_Application *application,
   return request;
 }
 
+MESSENGER_Request*
+request_new_camera(MESSENGER_Application *application,
+                   XdpCameraFlags flags,
+                   GAsyncReadyCallback callback,
+                   gpointer user_data)
+{
+  GCancellable* cancellable = g_cancellable_new();
+
+  MESSENGER_Request* request = request_new(
+    application,
+    cancellable,
+    user_data
+  );
+
+  xdp_portal_access_camera(
+    application->portal,
+    application->parent,
+    flags,
+    cancellable,
+    callback,
+    request
+  );
+
+  return request;
+}
+
 void
 request_cancel(MESSENGER_Request *request)
 {

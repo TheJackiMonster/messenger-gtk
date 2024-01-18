@@ -47,6 +47,12 @@ request_new_background(MESSENGER_Application *application,
                        GAsyncReadyCallback callback,
                        gpointer user_data);
 
+MESSENGER_Request*
+request_new_camera(MESSENGER_Application *application,
+                   XdpCameraFlags flags,
+                   GAsyncReadyCallback callback,
+                   gpointer user_data);
+
 void
 request_cancel(MESSENGER_Request *request);
 
