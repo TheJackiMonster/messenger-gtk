@@ -59,12 +59,12 @@ _request_background_callback(GObject *source_object,
     portal, result, &error
   );
 
-  if (!success) {
+  if (error) {
     g_printerr("ERROR: %s\n", error->message);
     g_error_free(error);
 
-    gtk_widget_set_sensitive(GTK_WIDGET(widget), TRUE);
-    gtk_switch_set_active(widget, FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(widget), !success);
+    gtk_switch_set_active(widget, success);
     return;
   }
   

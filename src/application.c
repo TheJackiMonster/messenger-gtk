@@ -160,7 +160,7 @@ application_init(MESSENGER_Application *app,
   GError *error = NULL;
   app->portal = xdp_portal_initable_new(&error);
 
-  if (!app->portal)
+  if (error)
   {
     g_printerr("ERROR: %s\n", error->message);
     g_error_free(error);
@@ -351,7 +351,7 @@ _request_background_callback(GObject *source_object,
     portal, result, &error
   );
 
-  if (!success) {
+  if (error) {
     g_printerr("ERROR: %s\n", error->message);
     g_error_free(error);
   }

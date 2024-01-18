@@ -291,7 +291,7 @@ _request_camera_callback(GObject *source_object,
     portal, result, &error
   );
 
-  if (!success) {
+  if (error) {
     g_printerr("ERROR: %s\n", error->message);
     g_error_free(error);
   }
