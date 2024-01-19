@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -26,6 +26,8 @@
 
 #include "../application.h"
 #include "../request.h"
+
+#include <pipewire/pipewire.h>
 
 static void
 handle_cancel_button_click(UNUSED GtkButton *button,
@@ -71,6 +73,41 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
 		                  gpointer user_data)
 {
   ui_new_contact_dialog_cleanup((UI_NEW_CONTACT_Handle*) user_data);
+}
+
+static void
+handle_camera_combo_box_change(GtkComboBox *widget,
+			                         gpointer user_data)
+{
+  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) user_data;
+  gchar *name = NULL;
+
+  GtkTreeIter iter;
+  if (gtk_combo_box_get_active_iter(widget, &iter))
+    gtk_tree_model_get(
+      GTK_TREE_MODEL(handle->camera_list_store),
+      &iter,
+      0, &name,
+      -1
+    );
+  
+  if (!name)
+    return;
+
+  g_object_set(
+    G_OBJECT(handle->source),
+    "target-object",
+    name,
+    NULL
+  );
+
+  g_free(name);
+
+  if (!handle->pipeline)
+    return;
+
+  gst_element_set_state(handle->pipeline, GST_STATE_PAUSED);
+  gst_element_set_state(handle->pipeline, GST_STATE_PLAYING);
 }
 
 static void
@@ -252,18 +289,72 @@ _ui_new_contact_video_thread(void *args)
   return NULL;
 }
 
+static int
+iterate_global(void *obj,
+               void *data)
+{
+  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
+  struct pw_properties *properties = (struct pw_properties*) obj;
+
+  if (!properties)
+    return 0;
+
+  struct spa_dict *props = &(properties->dict);
+
+  if ((!props) || (!props->n_items))
+    return 0;
+
+  gboolean is_camera = FALSE;
+  const char *name = NULL;
+  const char *nick = NULL;
+
+  const struct spa_dict_item *item;
+  spa_dict_for_each(item, props)
+  {
+    if (0 == g_strcmp0(item->key, "node.name"))
+      name = item->value;
+
+    if (0 == g_strcmp0(item->key, "node.nick"))
+      nick = item->value;
+
+    if (0 != g_strcmp0(item->key, "media.role"))
+      continue;
+
+    if (0 != g_strcmp0(item->value, "Camera"))
+      continue;
+
+    is_camera = TRUE;
+	}
+
+  if ((!is_camera) || (!name) || (!nick))
+    return 0;
+
+  GtkTreeIter iter;
+  gtk_list_store_append(handle->camera_list_store, &iter);
+  gtk_list_store_set(
+    handle->camera_list_store,
+    &iter,
+    0, name,
+    1, nick,
+    -1
+  );
+
+	return 0;
+}
+
 static void
 _init_camera_pipeline(MESSENGER_Application *app,
                       UI_NEW_CONTACT_Handle *handle,
                       gboolean access)
 {
   if ((app->portal) && ((access) || xdp_portal_is_camera_present(app->portal)))
-    g_object_set(
-      G_OBJECT(handle->source),
-      "fd",
-      xdp_portal_open_pipewire_remote_for_camera(app->portal),
-      NULL
-    );
+  {
+    pw_map_for_each(&(app->pw.globals), iterate_global, handle);
+
+    GtkTreeIter iter;
+    if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(handle->camera_list_store), &iter))
+      gtk_combo_box_set_active(handle->camera_combo_box, 0);
+  }
 
   pthread_create(
     &(handle->video_tid),
@@ -332,6 +423,21 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
   gtk_window_set_transient_for(
     GTK_WINDOW(handle->dialog),
     GTK_WINDOW(app->ui.messenger.main_window)
+  );
+
+  handle->camera_combo_box = GTK_COMBO_BOX(
+    gtk_builder_get_object(handle->builder, "camera_combo_box")
+  );
+
+  handle->camera_list_store = GTK_LIST_STORE(
+    gtk_builder_get_object(handle->builder, "camera_list_store")
+  );
+
+  g_signal_connect(
+    handle->camera_combo_box,
+    "changed",
+    G_CALLBACK(handle_camera_combo_box_change),
+    handle
   );
 
   handle->preview_stack = GTK_STACK(

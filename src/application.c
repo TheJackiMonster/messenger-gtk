@@ -31,6 +31,7 @@
 #include <libhandy-1/handy.h>
 #include <libportal-gtk3/portal-gtk3.h>
 #include <libnotify/notify.h>
+#include <pipewire/impl.h>
 
 static void
 _load_ui_stylesheets(MESSENGER_Application *app)
@@ -135,6 +136,84 @@ _application_open(GApplication* application,
   g_application_release(application);
 }
 
+static void
+on_core_done(void *data,
+             UNUSED uint32_t id,
+             int seq)
+{
+	MESSENGER_Application *app = (MESSENGER_Application*) data;
+
+	if (seq == app->pw.pending)
+		pw_main_loop_quit(app->pw.main_loop);
+}
+
+static void
+on_core_error(void *data,
+              UNUSED uint32_t id,
+              int seq,
+              int res,
+              const char *message)
+{
+	MESSENGER_Application *app = (MESSENGER_Application*) data;
+
+  g_printerr("ERROR: %s\n", message);
+
+	if (id == PW_ID_CORE && res == -EPIPE)
+		pw_main_loop_quit(app->pw.main_loop);
+}
+
+static const struct pw_core_events remote_core_events = {
+	PW_VERSION_CORE_EVENTS,
+	.done = on_core_done,
+	.error = on_core_error,
+};
+
+static void
+registry_event_global(void *data,
+                      uint32_t id,
+                      uint32_t permissions,
+                      const char *type,
+                      uint32_t version,
+                      const struct spa_dict *props)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) data;
+
+	if (!props)
+    return;
+
+  struct pw_properties *properties = pw_properties_new_dict(props);
+  if (!properties)
+    return;
+
+  size_t size = pw_map_get_size(&(app->pw.globals));
+	while (id > size)
+		pw_map_insert_at(&(app->pw.globals), size++, NULL);
+
+	pw_map_insert_at(&(app->pw.globals), id, properties);
+
+  app->pw.pending = pw_core_sync(app->pw.core, 0, 0);
+}
+
+static void
+registry_event_global_remove(void *data,
+                             uint32_t id)
+{
+  MESSENGER_Application *app = (MESSENGER_Application*) data;
+
+  struct pw_properties *properties = pw_map_lookup(&(app->pw.globals), id);
+  if (!properties)
+    return;
+
+  pw_map_insert_at(&(app->pw.globals), id, NULL);
+	pw_properties_free(properties);
+}
+
+static const struct pw_registry_events registry_events = {
+	PW_VERSION_REGISTRY_EVENTS,
+	.global = registry_event_global,
+	.global_remove = registry_event_global_remove,
+};
+
 void
 application_init(MESSENGER_Application *app,
                  int argc,
@@ -145,6 +224,7 @@ application_init(MESSENGER_Application *app,
   app->argc = argc;
   app->argv = argv;
 
+  pw_init(&argc, &argv);
   gst_init(&argc, &argv);
   gtk_init(&argc, &argv);
   hdy_init();
@@ -181,6 +261,44 @@ application_init(MESSENGER_Application *app,
   app->quarks.widget = g_quark_from_string("messenger_widget");
   app->quarks.data = g_quark_from_string("messenger_data");
   app->quarks.ui = g_quark_from_string("messenger_ui");
+
+  app->pw.main_loop = pw_main_loop_new(NULL);
+  app->pw.loop = pw_main_loop_get_loop(app->pw.main_loop);
+
+  app->pw.context = pw_context_new(
+    app->pw.loop,
+    pw_properties_new(
+      PW_KEY_CORE_DAEMON,
+      NULL,
+      NULL
+    ),
+    0
+  );
+
+  pw_context_load_module(app->pw.context, "libpipewire-module-link-factory", NULL, NULL);
+
+  app->pw.core = pw_context_connect(app->pw.context, NULL, 0);
+  app->pw.registry = pw_core_get_registry(app->pw.core, PW_VERSION_REGISTRY, 0);
+
+  pw_map_init(&(app->pw.globals), 64, 16);
+
+  pw_core_add_listener(
+    app->pw.core,
+    &(app->pw.core_listener),
+    &remote_core_events,
+    app
+  );
+
+	pw_registry_add_listener(
+    app->pw.registry,
+		&(app->pw.registry_listener),
+		&registry_events,
+    app
+  );
+
+  app->pw.pending = pw_core_sync(app->pw.core, 0, 0);
+
+  pw_main_loop_run(app->pw.main_loop);
 
   g_application_add_main_option(
     G_APPLICATION(app->application),
@@ -468,6 +586,15 @@ application_call_message_event(MESSENGER_Application *app,
   g_idle_add(G_SOURCE_FUNC(_application_message_event_call), call);
 }
 
+static int
+destroy_global(void *obj,
+               void *data)
+{
+  struct pw_properties *properties = (struct pw_properties*) obj;
+	pw_properties_free(properties);
+	return 0;
+}
+
 void
 application_exit(MESSENGER_Application *app,
 		             MESSENGER_ApplicationSignal signal)
@@ -480,6 +607,23 @@ application_exit(MESSENGER_Application *app,
     g_free(app->portal);
 
   app->portal = NULL;
+
+  if (app->pw.core)
+  {
+    pw_map_for_each(&(app->pw.globals), destroy_global, NULL);
+	  pw_map_clear(&(app->pw.globals));
+  }
+
+  if (app->pw.context)
+    pw_context_destroy(app->pw.context);
+
+	if (app->pw.main_loop)
+  {
+    pw_main_loop_quit(app->pw.main_loop);
+    pw_main_loop_destroy(app->pw.main_loop);
+  }
+
+  pw_deinit();
 }
 
 int

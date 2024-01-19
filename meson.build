@@ -44,6 +44,7 @@ messenger_gtk_deps = [
     dependency('libportal-gtk3'),
     dependency('libnotify'),
     dependency('libqrencode'),
+    dependency('libpipewire-0.3'),
     declare_dependency(link_args: '-lunistring'),
 ]
 

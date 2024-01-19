@@ -26,8 +26,9 @@
 #define APPLICATION_H_
 
 #include <libportal/portal.h>
-
+#include <pipewire/pipewire.h>
 #include <pthread.h>
+
 #include <gnunet/gnunet_chat_lib.h>
 
 #include "chat/messenger.h"
@@ -82,6 +83,18 @@ typedef struct MESSENGER_Application
     GQuark data;
     GQuark ui;
   } quarks;
+
+  struct {
+    struct pw_main_loop *main_loop;
+    struct pw_loop *loop;
+    struct pw_context *context;
+    struct pw_core *core;
+    struct pw_registry *registry;
+    struct spa_hook core_listener;
+	  struct spa_hook registry_listener;
+    struct pw_map globals;
+    int pending;
+  } pw;
 
   struct {
     int status;
