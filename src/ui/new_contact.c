@@ -306,7 +306,7 @@ iterate_global(void *obj,
 
   gboolean is_camera = FALSE;
   const char *name = NULL;
-  const char *nick = NULL;
+  const char *description = NULL;
 
   const struct spa_dict_item *item;
   spa_dict_for_each(item, props)
@@ -314,8 +314,8 @@ iterate_global(void *obj,
     if (0 == g_strcmp0(item->key, "node.name"))
       name = item->value;
 
-    if (0 == g_strcmp0(item->key, "node.nick"))
-      nick = item->value;
+    if (0 == g_strcmp0(item->key, "node.description"))
+      description = item->value;
 
     if (0 != g_strcmp0(item->key, "media.role"))
       continue;
@@ -326,7 +326,7 @@ iterate_global(void *obj,
     is_camera = TRUE;
 	}
 
-  if ((!is_camera) || (!name) || (!nick))
+  if ((!is_camera) || (!name) || (!description))
     return 0;
 
   GtkTreeIter iter;
@@ -335,7 +335,7 @@ iterate_global(void *obj,
     handle->camera_list_store,
     &iter,
     0, name,
-    1, nick,
+    1, description,
     -1
   );
 
