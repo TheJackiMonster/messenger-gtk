@@ -106,7 +106,7 @@ handle_camera_combo_box_change(GtkComboBox *widget,
   if (!handle->pipeline)
     return;
 
-  gst_element_set_state(handle->pipeline, GST_STATE_PAUSED);
+  gst_element_set_state(handle->pipeline, GST_STATE_NULL);
   gst_element_set_state(handle->pipeline, GST_STATE_PLAYING);
 }
 
@@ -349,6 +349,9 @@ _init_camera_pipeline(MESSENGER_Application *app,
 {
   if ((app->portal) && ((access) || xdp_portal_is_camera_present(app->portal)))
   {
+    app->pw.pending = pw_core_sync(app->pw.core, 0, 0);
+
+    pw_main_loop_run(app->pw.main_loop);
     pw_map_for_each(&(app->pw.globals), iterate_global, handle);
 
     GtkTreeIter iter;
