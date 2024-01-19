@@ -339,6 +339,7 @@ iterate_global(void *obj,
     -1
   );
 
+  handle->camera_count++;
 	return 0;
 }
 
@@ -347,6 +348,8 @@ _init_camera_pipeline(MESSENGER_Application *app,
                       UI_NEW_CONTACT_Handle *handle,
                       gboolean access)
 {
+  handle->camera_count = 0;
+
   if ((app->portal) && ((access) || xdp_portal_is_camera_present(app->portal)))
   {
     app->pw.pending = pw_core_sync(app->pw.core, 0, 0);
@@ -354,10 +357,14 @@ _init_camera_pipeline(MESSENGER_Application *app,
     pw_main_loop_run(app->pw.main_loop);
     pw_map_for_each(&(app->pw.globals), iterate_global, handle);
 
-    GtkTreeIter iter;
-    if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(handle->camera_list_store), &iter))
+    if (handle->camera_count)
       gtk_combo_box_set_active(handle->camera_combo_box, 0);
   }
+
+  gtk_revealer_set_reveal_child(
+    handle->camera_combo_box_revealer,
+    handle->camera_count > 1
+  );
 
   pthread_create(
     &(handle->video_tid),
@@ -426,6 +433,10 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
   gtk_window_set_transient_for(
     GTK_WINDOW(handle->dialog),
     GTK_WINDOW(app->ui.messenger.main_window)
+  );
+
+  handle->camera_combo_box_revealer = GTK_REVEALER(
+    gtk_builder_get_object(handle->builder, "camera_combo_box_revealer")
   );
 
   handle->camera_combo_box = GTK_COMBO_BOX(

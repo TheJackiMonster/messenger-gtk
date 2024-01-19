@@ -90,16 +90,15 @@ Author: Tobias Frisch
             <property name="orientation">vertical</property>
             <property name="spacing">4</property>
             <child>
-              <object class="GtkRevealer">
+              <object class="GtkRevealer" id="camera_combo_box_revealer">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="margin-start">8</property>
                 <property name="margin-end">8</property>
                 <property name="margin-bottom">8</property>
-                <property name="transition-type">none</property>
-                <property name="reveal-child">True</property>
                 <child>
                   <object class="GtkComboBox" id="camera_combo_box">
+                    <property name="width-request">250</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">center</property>

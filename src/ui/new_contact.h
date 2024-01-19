@@ -34,6 +34,8 @@
 
 typedef struct UI_NEW_CONTACT_Handle
 {
+  guint camera_count;
+
   GstElement *pipeline;
   GstElement *source;
   GstElement *scanner;
@@ -42,6 +44,7 @@ typedef struct UI_NEW_CONTACT_Handle
   GtkBuilder *builder;
   GtkDialog *dialog;
 
+  GtkRevealer *camera_combo_box_revealer;
   GtkComboBox *camera_combo_box;
   GtkListStore *camera_list_store;
 
