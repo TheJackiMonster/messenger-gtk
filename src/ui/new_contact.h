@@ -49,7 +49,9 @@ typedef struct UI_NEW_CONTACT_Handle
   GtkListStore *camera_list_store;
 
   GtkStack *preview_stack;
+  GtkWidget *loading_box;
   GtkWidget *fail_box;
+  GtkWidget *no_camera_box;
 
   GtkWidget *video_box;
   GtkEntry *id_entry;

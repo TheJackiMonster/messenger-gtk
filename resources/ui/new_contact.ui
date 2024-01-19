@@ -123,6 +123,33 @@ Author: Tobias Frisch
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
+                  <object class="GtkBox" id="loading_box">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">8</property>
+                    <child>
+                      <object class="GtkSpinner">
+                        <property name="width-request">64</property>
+                        <property name="height-request">64</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="active">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="name">loading_page</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkBox" id="fail_box">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -159,6 +186,47 @@ Author: Tobias Frisch
                   </object>
                   <packing>
                     <property name="name">page_fail</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="no_camera_box">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">8</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="pixel-size">64</property>
+                        <property name="icon-name">camera-photo-symbolic</property>
+                        <property name="icon_size">3</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">No camera found!</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="name">page_none</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
@@ -173,7 +241,7 @@ Author: Tobias Frisch
                   </object>
                   <packing>
                     <property name="name">page_drawing</property>
-                    <property name="position">1</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
               </object>

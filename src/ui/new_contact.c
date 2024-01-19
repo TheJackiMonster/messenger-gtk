@@ -106,6 +106,8 @@ handle_camera_combo_box_change(GtkComboBox *widget,
   if (!handle->pipeline)
     return;
 
+  gtk_stack_set_visible_child(handle->preview_stack, handle->loading_box);
+
   gst_element_set_state(handle->pipeline, GST_STATE_NULL);
   gst_element_set_state(handle->pipeline, GST_STATE_PLAYING);
 }
@@ -117,8 +119,14 @@ _disable_video_processing(UI_NEW_CONTACT_Handle *handle,
   GNUNET_assert(handle);
 
   if (handle->preview_stack)
-    gtk_stack_set_visible_child(handle->preview_stack, handle->fail_box);
+    goto skip_stack;
 
+  if (handle->camera_count)
+    gtk_stack_set_visible_child(handle->preview_stack, handle->fail_box);
+  else
+    gtk_stack_set_visible_child(handle->preview_stack, handle->no_camera_box);
+
+skip_stack:
   if ((!(handle->pipeline)) || (!drop_pipeline))
     return;
 
@@ -408,6 +416,8 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
 {
   GNUNET_assert((app) && (handle));
 
+  handle->camera_count = 0;
+
   _setup_gst_pipeline(handle);
 
   if (app->portal)
@@ -458,13 +468,23 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "preview_stack")
   );
 
+  handle->loading_box = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "loading_box")
+  );
+
   handle->fail_box = GTK_WIDGET(
     gtk_builder_get_object(handle->builder, "fail_box")
+  );
+
+  handle->no_camera_box = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "no_camera_box")
   );
 
   handle->video_box = GTK_WIDGET(
     gtk_builder_get_object(handle->builder, "video_box")
   );
+
+  gtk_stack_set_visible_child(handle->preview_stack, handle->loading_box);
 
   GtkWidget *widget;
   if (handle->sink)
