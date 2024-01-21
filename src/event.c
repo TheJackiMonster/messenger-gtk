@@ -539,27 +539,39 @@ event_invitation(MESSENGER_Application *app,
   UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
   ui_message_update(message, app, msg);
 
-  const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
+  const struct GNUNET_CHAT_Contact *sender = GNUNET_CHAT_message_get_sender(
     msg
   );
 
-  contact_add_name_avatar_to_info(contact, message->sender_avatar);
-  contact_add_name_label_to_info(contact, message->sender_label);
+  const struct GNUNET_CHAT_Contact *recipient = GNUNET_CHAT_message_get_recipient(
+    msg
+  );
 
-  const char *invite_message = _("invited you to a chat");
+  contact_add_name_avatar_to_info(sender, message->sender_avatar);
+  contact_add_name_label_to_info(sender, message->sender_label);
+
+  const char *invite_message = _("invited %s to a chat");
+  const char *recipient_name = (
+    (recipient) && 
+    (GNUNET_YES != GNUNET_CHAT_contact_is_owned(recipient))
+  )? GNUNET_CHAT_contact_get_name(recipient) : _("you");
+
+  GString *message_string = g_string_new(NULL);
+  g_string_printf(message_string, invite_message, recipient_name);
 
   if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
       (GNUNET_YES == GNUNET_CHAT_message_is_recent(msg)))
     _show_notification(
 	    app,
       context,
-      contact,
-      invite_message,
+      sender,
+      message_string->str,
       "mail-message-new-symbolic",
       "im.received"
     );
 
-  ui_label_set_text(message->text_label, invite_message);
+  ui_label_set_text(message->text_label, message_string->str);
+  g_string_free(message_string, TRUE);
 
   g_signal_connect(
     message->accept_button,
