@@ -33,9 +33,9 @@
 
 static void
 handle_downloading_file(void *cls,
-			const struct GNUNET_CHAT_File *file,
-			uint64_t completed,
-			uint64_t size)
+                        const struct GNUNET_CHAT_File *file,
+                        uint64_t completed,
+                        uint64_t size)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
@@ -47,7 +47,7 @@ handle_downloading_file(void *cls,
 
 static void
 handle_file_button_click(GtkButton *button,
-			 gpointer user_data)
+			                   gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
@@ -111,7 +111,7 @@ handle_file_button_click(GtkButton *button,
 
 static void
 handle_media_button_click(GtkButton *button,
-			  gpointer user_data)
+			                    gpointer user_data)
 {
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
@@ -276,9 +276,9 @@ _clear_message_preview_data(UI_MESSAGE_Handle *handle)
 
   if (handle->preview_drawing_area)
     gtk_widget_set_size_request(
-	GTK_WIDGET(handle->preview_drawing_area),
-	-1,
-	-1
+      GTK_WIDGET(handle->preview_drawing_area),
+      -1,
+      -1
     );
 }
 
@@ -309,23 +309,23 @@ ui_message_new(MESSENGER_Application *app,
   }
 
   handle->builder[0] = gtk_builder_new_from_resource(
-      application_get_resource_path(app, ui_builder_file)
+    application_get_resource_path(app, ui_builder_file)
   );
 
   handle->message_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder[0], "message_box")
+    gtk_builder_get_object(handle->builder[0], "message_box")
   );
 
   handle->sender_avatar = HDY_AVATAR(
-      gtk_builder_get_object(handle->builder[0], "sender_avatar")
+    gtk_builder_get_object(handle->builder[0], "sender_avatar")
   );
 
   handle->sender_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder[0], "sender_label")
+    gtk_builder_get_object(handle->builder[0], "sender_label")
   );
 
   handle->private_image = GTK_IMAGE(
-      gtk_builder_get_object(handle->builder[0], "private_image")
+    gtk_builder_get_object(handle->builder[0], "private_image")
   );
 
   if (UI_MESSAGE_STATUS == handle->type)
@@ -356,94 +356,94 @@ ui_message_new(MESSENGER_Application *app,
   }
 
   GtkContainer *content_box = GTK_CONTAINER(
-      gtk_builder_get_object(handle->builder[0], "content_box")
+    gtk_builder_get_object(handle->builder[0], "content_box")
   );
 
   handle->builder[1] = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/message_content.ui")
+    application_get_resource_path(app, "ui/message_content.ui")
   );
 
   handle->timestamp_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder[1], "timestamp_label")
+    gtk_builder_get_object(handle->builder[1], "timestamp_label")
   );
 
   handle->read_receipt_image = GTK_IMAGE(
-      gtk_builder_get_object(handle->builder[1], "read_receipt_image")
+    gtk_builder_get_object(handle->builder[1], "read_receipt_image")
   );
 
   handle->content_stack = GTK_STACK(
-      gtk_builder_get_object(handle->builder[1], "content_stack")
+    gtk_builder_get_object(handle->builder[1], "content_stack")
   );
 
   handle->text_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder[1], "text_label")
+    gtk_builder_get_object(handle->builder[1], "text_label")
   );
 
   handle->file_revealer = GTK_REVEALER(
-      gtk_builder_get_object(handle->builder[1], "file_revealer")
+    gtk_builder_get_object(handle->builder[1], "file_revealer")
   );
 
   handle->filename_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder[1], "filename_label")
+    gtk_builder_get_object(handle->builder[1], "filename_label")
   );
 
   handle->file_progress_bar = GTK_PROGRESS_BAR(
-      gtk_builder_get_object(handle->builder[1], "file_progress_bar")
+    gtk_builder_get_object(handle->builder[1], "file_progress_bar")
   );
 
   handle->file_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder[1], "file_button")
+    gtk_builder_get_object(handle->builder[1], "file_button")
   );
 
   g_signal_connect(
-      handle->file_button,
-      "clicked",
-      G_CALLBACK(handle_file_button_click),
-      app
+    handle->file_button,
+    "clicked",
+    G_CALLBACK(handle_file_button_click),
+    app
   );
 
   handle->file_status_image = GTK_IMAGE(
-      gtk_builder_get_object(handle->builder[1], "file_status_image")
+    gtk_builder_get_object(handle->builder[1], "file_status_image")
   );
 
   g_object_set_qdata(G_OBJECT(handle->file_button), app->quarks.ui, handle);
 
   handle->preview_drawing_area = GTK_DRAWING_AREA(
-      gtk_builder_get_object(handle->builder[1], "preview_drawing_area")
+    gtk_builder_get_object(handle->builder[1], "preview_drawing_area")
   );
 
   g_signal_connect(
-      handle->preview_drawing_area,
-      "draw",
-      G_CALLBACK(handle_preview_drawing_area_draw),
-      handle
+    handle->preview_drawing_area,
+    "draw",
+    G_CALLBACK(handle_preview_drawing_area_draw),
+    handle
   );
 
   handle->media_revealer = GTK_REVEALER(
-      gtk_builder_get_object(handle->builder[1], "media_revealer")
+    gtk_builder_get_object(handle->builder[1], "media_revealer")
   );
 
   handle->media_type_image = GTK_IMAGE(
-      gtk_builder_get_object(handle->builder[1], "media_type_image")
+    gtk_builder_get_object(handle->builder[1], "media_type_image")
   );
 
   handle->media_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder[1], "media_label")
+    gtk_builder_get_object(handle->builder[1], "media_label")
   );
 
   handle->media_progress_bar = GTK_PROGRESS_BAR(
-      gtk_builder_get_object(handle->builder[1], "media_progress_bar")
+    gtk_builder_get_object(handle->builder[1], "media_progress_bar")
   );
 
   handle->media_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder[1], "media_button")
+    gtk_builder_get_object(handle->builder[1], "media_button")
   );
 
   g_signal_connect(
-      handle->media_button,
-      "clicked",
-      G_CALLBACK(handle_media_button_click),
-      app
+    handle->media_button,
+    "clicked",
+    G_CALLBACK(handle_media_button_click),
+    app
   );
 
   g_object_set_qdata(G_OBJECT(handle->media_button), app->quarks.ui, handle);
@@ -458,7 +458,7 @@ ui_message_new(MESSENGER_Application *app,
   }
 
   gtk_container_add(content_box, GTK_WIDGET(
-      gtk_builder_get_object(handle->builder[1], "message_content_box")
+    gtk_builder_get_object(handle->builder[1], "message_content_box")
   ));
 
   handle->preview_image = NULL;
@@ -472,9 +472,9 @@ ui_message_new(MESSENGER_Application *app,
 
 static int
 _iterate_read_receipts(void *cls,
-		       UNUSED const struct GNUNET_CHAT_Message *message,
-		       const struct GNUNET_CHAT_Contact *contact,
-		       int read_receipt)
+                       UNUSED const struct GNUNET_CHAT_Message *message,
+                       const struct GNUNET_CHAT_Contact *contact,
+                       int read_receipt)
 {
   int *count_read_receipts = (int*) cls;
 
@@ -526,31 +526,32 @@ _update_invitation_message(UI_MESSAGE_Handle *handle,
 		                       MESSENGER_Application *app,
                            struct GNUNET_CHAT_Invitation *invitation)
 {
-  enum GNUNET_GenericReturnValue accepted;
+  enum GNUNET_GenericReturnValue accepted, rejected;
   accepted = GNUNET_CHAT_invitation_is_accepted(invitation);
+  rejected = GNUNET_CHAT_invitation_is_rejected(invitation);
 
   if (handle->deny_button)
     gtk_widget_set_sensitive(
-        GTK_WIDGET(handle->deny_button), 
-        GNUNET_YES == accepted? FALSE : TRUE
+      GTK_WIDGET(handle->deny_button), 
+      GNUNET_YES == accepted || GNUNET_YES == rejected? FALSE : TRUE
     );
 
   if (handle->accept_button)
     gtk_widget_set_sensitive(
-        GTK_WIDGET(handle->accept_button), 
-        GNUNET_YES == accepted? FALSE : TRUE
+      GTK_WIDGET(handle->accept_button), 
+      GNUNET_YES == accepted || GNUNET_YES == rejected? FALSE : TRUE
     );
 
   if (handle->deny_revealer)
     gtk_revealer_set_reveal_child(
-        GTK_REVEALER(handle->deny_revealer),
-        GNUNET_YES == accepted? FALSE : TRUE
+      GTK_REVEALER(handle->deny_revealer),
+      GNUNET_YES == accepted || GNUNET_YES == rejected? FALSE : TRUE
     );
 
   if (handle->accept_revealer)
     gtk_revealer_set_reveal_child(
-        GTK_REVEALER(handle->accept_revealer),
-        GNUNET_YES == accepted? FALSE : TRUE
+      GTK_REVEALER(handle->accept_revealer),
+      GNUNET_YES == accepted || GNUNET_YES == rejected? FALSE : TRUE
     );
 
   if ((app->settings.accept_all_invitations) &&
@@ -579,7 +580,7 @@ _update_file_message(UI_MESSAGE_Handle *handle,
     );
 
     if ((app->settings.accept_all_files) &&
-      (!GNUNET_CHAT_file_is_downloading(file)))
+        (!GNUNET_CHAT_file_is_downloading(file)))
       autostart_download = TRUE;
 
     goto file_content;
@@ -637,16 +638,16 @@ media_content:
   ui_label_set_text(handle->media_label, filename);
 
   gtk_stack_set_visible_child(
-      handle->content_stack,
-      GTK_WIDGET(handle->media_revealer)
+    handle->content_stack,
+    GTK_WIDGET(handle->media_revealer)
   );
 
   gtk_revealer_set_reveal_child(handle->media_revealer, TRUE);
 
   g_object_set_qdata(
-      G_OBJECT(handle->media_progress_bar),
-      app->quarks.data,
-      file
+    G_OBJECT(handle->media_progress_bar),
+    app->quarks.data,
+    file
   );
 
   return;
@@ -655,25 +656,25 @@ file_progress:
   gtk_progress_bar_set_fraction(handle->file_progress_bar, 1.0);
 
   gtk_image_set_from_icon_name(
-      handle->file_status_image,
-      "document-open-symbolic",
-      GTK_ICON_SIZE_BUTTON
+    handle->file_status_image,
+    "document-open-symbolic",
+    GTK_ICON_SIZE_BUTTON
   );
 
 file_content:
   ui_label_set_text(handle->filename_label, filename);
 
   gtk_stack_set_visible_child(
-      handle->content_stack,
-      GTK_WIDGET(handle->file_revealer)
+    handle->content_stack,
+    GTK_WIDGET(handle->file_revealer)
   );
 
   gtk_revealer_set_reveal_child(handle->file_revealer, TRUE);
 
   g_object_set_qdata(
-      G_OBJECT(handle->file_progress_bar),
-      app->quarks.data,
-      file
+    G_OBJECT(handle->file_progress_bar),
+    app->quarks.data,
+    file
   );
 
   if (autostart_download)

@@ -509,6 +509,17 @@ _event_invitation_accept_click(UNUSED GtkButton *button,
   GNUNET_CHAT_invitation_accept(invitation);
 }
 
+static void
+_event_invitation_deny_click(UNUSED GtkButton *button,
+                             gpointer user_data)
+{
+  struct GNUNET_CHAT_Invitation *invitation = (
+    (struct GNUNET_CHAT_Invitation*) user_data
+  );
+
+  GNUNET_CHAT_invitation_reject(invitation);
+}
+
 void
 event_invitation(MESSENGER_Application *app,
                  struct GNUNET_CHAT_Context *context,
@@ -577,6 +588,13 @@ event_invitation(MESSENGER_Application *app,
     message->accept_button,
     "clicked",
     G_CALLBACK(_event_invitation_accept_click),
+    invitation
+  );
+
+  g_signal_connect(
+    message->deny_button,
+    "clicked",
+    G_CALLBACK(_event_invitation_deny_click),
     invitation
   );
 
