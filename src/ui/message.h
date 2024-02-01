@@ -76,8 +76,6 @@ typedef struct UI_MESSAGE_Handle
 
   GtkDrawingArea *preview_drawing_area;
 
-  GtkWidget *whisper_box;
-
   GtkRevealer *media_revealer;
   GtkImage *media_type_image;
   GtkLabel *media_label;

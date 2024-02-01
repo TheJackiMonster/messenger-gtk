@@ -39,7 +39,6 @@ typedef struct UI_SETTINGS_Handle
 
   GtkLabel *blocked_label;
   GtkSwitch *read_receipts_switch;
-  GtkSwitch *whispering_switch;
 
   GtkComboBox *auto_delete_combo_box;
 

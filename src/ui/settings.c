@@ -342,22 +342,6 @@ ui_settings_dialog_init(MESSENGER_Application *app,
     &(app->settings.send_read_receipts)
   );
 
-  handle->whispering_switch = GTK_SWITCH(
-    gtk_builder_get_object(handle->builder, "whispering_switch")
-  );
-
-  gtk_switch_set_active(
-    handle->whispering_switch,
-    app->settings.show_whispering
-  );
-
-  g_signal_connect(
-    handle->whispering_switch,
-    "state-set",
-    G_CALLBACK(handle_general_switch_state),
-    &(app->settings.show_whispering)
-  );
-
   handle->auto_delete_combo_box = GTK_COMBO_BOX(
     gtk_builder_get_object(handle->builder, "auto_delete_combo_box")
   );

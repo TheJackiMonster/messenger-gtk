@@ -419,10 +419,6 @@ ui_message_new(MESSENGER_Application *app,
       handle
   );
 
-  handle->whisper_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder[1], "whisper_box")
-  );
-
   handle->media_revealer = GTK_REVEALER(
       gtk_builder_get_object(handle->builder[1], "media_revealer")
   );
@@ -698,12 +694,7 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 
   if (msg)
   {
-    if (GNUNET_CHAT_KIND_WHISPER == GNUNET_CHAT_message_get_kind(msg))
-      gtk_stack_set_visible_child(
-	      handle->content_stack,
-	      GTK_WIDGET(handle->whisper_box)
-      );
-    else if (GNUNET_YES == GNUNET_CHAT_message_is_private(msg))
+    if (GNUNET_YES == GNUNET_CHAT_message_is_private(msg))
       gtk_widget_show(GTK_WIDGET(handle->private_image));
     
     invitation = GNUNET_CHAT_message_get_invitation(msg);

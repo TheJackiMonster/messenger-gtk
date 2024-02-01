@@ -157,7 +157,6 @@ _chat_messenger_message(void *cls,
     }
     case GNUNET_CHAT_KIND_TEXT:
     case GNUNET_CHAT_KIND_FILE:
-    case GNUNET_CHAT_KIND_WHISPER:
     {
       application_call_message_event(
           app,

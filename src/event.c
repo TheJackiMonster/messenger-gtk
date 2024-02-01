@@ -603,17 +603,7 @@ event_receive_message(MESSENGER_Application *app,
       app->settings.auto_delete_delay
     ));
 
-  const gboolean whispering = (
-    GNUNET_CHAT_KIND_WHISPER == GNUNET_CHAT_message_get_kind(msg)
-  );
-
-  if ((whispering) && (!(app->settings.show_whispering)))
-    return;
-
   const gchar *text = GNUNET_CHAT_message_get_text(msg);
-
-  if (whispering)
-    text = _("whispers...");
 
   if ((text) && (!(*text)))
     goto skip_message;

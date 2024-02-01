@@ -140,7 +140,6 @@ typedef struct MESSENGER_Application
     gboolean disable_notifications;
 
     gboolean send_read_receipts;
-    gboolean show_whispering;
 
     gulong auto_delete_delay;
 
