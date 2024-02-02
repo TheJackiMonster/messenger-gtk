@@ -140,4 +140,17 @@ event_delete_message(MESSENGER_Application *app,
 		     struct GNUNET_CHAT_Context *context,
 		     const struct GNUNET_CHAT_Message *msg);
 
+/**
+ * Event for the UI to be called whenever a message
+ * gets tagged in a given context.
+ *
+ * @param app Messenger application
+ * @param context Chat context
+ * @param msg Tag message
+ */
+void
+event_tag_message(MESSENGER_Application *app,
+                  struct GNUNET_CHAT_Context *context,
+                  const struct GNUNET_CHAT_Message *msg);
+
 #endif /* EVENT_H_ */
