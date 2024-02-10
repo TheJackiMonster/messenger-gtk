@@ -61,6 +61,15 @@ void
 event_update_profile(MESSENGER_Application *app);
 
 /**
+ * Event for the UI to be called whenever the user
+ * disconnects the current account.
+ *
+ * @param app Messenger application
+ */
+void
+event_cleanup_profile(MESSENGER_Application *app);
+
+/**
  * Event for the UI to be called whenever a the user
  * joins or leaves a chat (context) via message.
  *

@@ -332,6 +332,24 @@ event_update_profile(MESSENGER_Application *app)
   GNUNET_CHAT_iterate_groups(chat->handle, _iterate_profile_groups, app);
 }
 
+static int
+_cleanup_profile_contacts(void *cls,
+			                    UNUSED struct GNUNET_CHAT_Handle *handle,
+			                    struct GNUNET_CHAT_Contact *contact)
+{
+  if (contact)
+    contact_destroy_info(contact);
+  return GNUNET_YES;
+}
+
+void
+event_cleanup_profile(MESSENGER_Application *app)
+{
+  CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
+
+  GNUNET_CHAT_iterate_contacts(chat->handle, _cleanup_profile_contacts, NULL);
+}
+
 gboolean
 _delayed_context_drop(gpointer user_data)
 {

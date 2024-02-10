@@ -24,19 +24,8 @@
 
 #include "messenger.h"
 
-#include "../contact.h"
 #include "../event.h"
 #include <gnunet/gnunet_chat_lib.h>
-
-int
-_chat_messenger_destroy_contacts(UNUSED void *cls,
-				 UNUSED struct GNUNET_CHAT_Handle *handle,
-				 struct GNUNET_CHAT_Contact *contact)
-{
-  if (contact)
-    contact_destroy_info(contact);
-  return GNUNET_YES;
-}
 
 static void
 _chat_messenger_quit(void *cls)
@@ -52,13 +41,7 @@ _chat_messenger_quit(void *cls)
   if (received < 0)
     signal = MESSENGER_FAIL;
 
-  // Free contact infos
-  GNUNET_CHAT_iterate_contacts(
-      app->chat.messenger.handle,
-      _chat_messenger_destroy_contacts,
-      NULL
-  );
-
+  GNUNET_CHAT_disconnect(app->chat.messenger.handle);
   GNUNET_CHAT_stop(app->chat.messenger.handle);
   app->chat.messenger.handle = NULL;
 
@@ -109,6 +92,11 @@ _chat_messenger_message(void *cls,
     case GNUNET_CHAT_KIND_LOGIN:
     {
       application_call_event(app, event_update_profile);
+      break;
+    }
+    case GNUNET_CHAT_KIND_LOGOUT:
+    {
+      application_call_event(app, event_cleanup_profile);
       break;
     }
     case GNUNET_CHAT_KIND_UPDATE:
