@@ -57,9 +57,9 @@ handle_confirm_button_click(UNUSED GtkButton *button,
 
   if (app->ui.delete_messages.callback)
     app->ui.delete_messages.callback(
-	app,
-	app->ui.delete_messages.selected,
-	delay
+      app,
+      app->ui.delete_messages.selected,
+      delay
     );
 
   gtk_window_close(GTK_WINDOW(app->ui.delete_messages.dialog));
@@ -138,8 +138,8 @@ ui_delete_messages_dialog_init(MESSENGER_Application *app,
 
 void
 ui_delete_messages_dialog_link(UI_DELETE_MESSAGES_Handle *handle,
-			       UI_DELETE_MESSAGES_Callback callback,
-			       GList *selected)
+                               UI_DELETE_MESSAGES_Callback callback,
+                               GList *selected)
 {
   handle->selected = selected;
   handle->callback = callback;
@@ -149,6 +149,9 @@ void
 ui_delete_messages_dialog_cleanup(UI_DELETE_MESSAGES_Handle *handle)
 {
   g_object_unref(handle->builder);
+
+  if (handle->selected)
+    g_list_free(handle->selected);
 
   memset(handle, 0, sizeof(*handle));
 }

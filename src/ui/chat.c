@@ -376,7 +376,12 @@ handle_chat_selection_delete_button_click(UNUSED GtkButton *button,
   GList *selected = gtk_list_box_get_selected_rows(handle->messages_listbox);
 
   if (app->settings.hide_delete_dialog)
+  {
     _delete_messages_callback(app, selected, 0);
+    
+    if (selected)
+      g_list_free(selected);
+  }
   else
   {
     ui_delete_messages_dialog_init(app, &(app->ui.delete_messages));
@@ -389,9 +394,6 @@ handle_chat_selection_delete_button_click(UNUSED GtkButton *button,
 
     gtk_widget_show(GTK_WIDGET(app->ui.delete_messages.dialog));
   }
-
-  if (selected)
-    g_list_free(selected);
 }
 
 static void
