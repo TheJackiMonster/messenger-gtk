@@ -232,9 +232,11 @@ handle_chats_listbox_row_activated(UNUSED GtkListBox* listbox,
 
   GList *children = gtk_container_get_children(GTK_CONTAINER(leaflet));
 
-  if ((children) && (children->next)) {
+  if ((children) && (children->next))
     hdy_leaflet_set_visible_child(leaflet, GTK_WIDGET(children->next->data));
-  }
+
+  if (children)
+    g_list_free(children);
 
   gtk_stack_set_visible_child(stack, entry->chat->chat_box);
 }

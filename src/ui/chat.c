@@ -160,6 +160,7 @@ handle_back_button_click(UNUSED GtkButton *button,
 
   if (children) {
     hdy_leaflet_set_visible_child(leaflet, GTK_WIDGET(children->data));
+    g_list_free(children);
   }
 }
 
@@ -299,11 +300,15 @@ handle_chat_messages_selected_rows_changed(GtkListBox *listbox,
   GList *selected = gtk_list_box_get_selected_rows(listbox);
   uint32_t count = 0;
 
-  while (selected)
+  GList *item = selected;
+  while (item)
   {
     count++;
-    selected = selected->next;
+    item = item->next;
   }
+
+  if (selected)
+    g_list_free(selected);
 
   GString *counter = g_string_new("");
   g_string_append_printf(counter, "%u", count);
@@ -384,6 +389,9 @@ handle_chat_selection_delete_button_click(UNUSED GtkButton *button,
 
     gtk_widget_show(GTK_WIDGET(app->ui.delete_messages.dialog));
   }
+
+  if (selected)
+    g_list_free(selected);
 }
 
 static void
@@ -1584,15 +1592,19 @@ ui_chat_update(UI_CHAT_Handle *handle,
     GTK_CONTAINER(handle->chat_contacts_listbox)
   );
 
-  while ((children) && (children->next)) {
-    GtkWidget *widget = GTK_WIDGET(children->data);
-    children = children->next;
+  GList *item = children;
+  while ((item) && (item->next)) {
+    GtkWidget *widget = GTK_WIDGET(item->data);
+    item = item->next;
 
     gtk_container_remove(
       GTK_CONTAINER(handle->chat_contacts_listbox),
       widget
     );
   }
+
+  if (children)
+    g_list_free(children);
 
   if (group)
   {
@@ -1658,7 +1670,6 @@ ui_chat_update(UI_CHAT_Handle *handle,
     return;
 
   GList *list = handle->messages;
-
   while (list)
   {
     ui_message_refresh((UI_MESSAGE_Handle*) list->data);

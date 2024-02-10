@@ -97,6 +97,7 @@ _filter_emoji_buttons(GtkWidget* widget,
     return;
   
   GtkButton *emoji_button = GTK_BUTTON(list->data);
+  g_list_free(list);
 
   list = gtk_container_get_children(GTK_CONTAINER(emoji_button));
 
@@ -104,6 +105,7 @@ _filter_emoji_buttons(GtkWidget* widget,
     return;
   
   GtkLabel *label = GTK_LABEL(list->data);
+  g_list_free(list);
 
   const gchar *text = gtk_label_get_text(label);
 

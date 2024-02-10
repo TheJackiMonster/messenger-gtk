@@ -44,21 +44,25 @@ _open_new_group(GtkEntry *entry,
 
   GList *selected = gtk_list_box_get_selected_rows(listbox);
 
-  while (selected)
+  GList *item = selected;
+  while (item)
   {
-    if (selected->data)
+    if (item->data)
     {
-      GtkListBoxRow *row = GTK_LIST_BOX_ROW(selected->data);
+      GtkListBoxRow *row = GTK_LIST_BOX_ROW(item->data);
 
       struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
-	  g_object_get_qdata(G_OBJECT(row), app->quarks.data)
+	      g_object_get_qdata(G_OBJECT(row), app->quarks.data)
       );
 
       GNUNET_CHAT_group_invite_contact(group, contact);
     }
 
-    selected = selected->next;
+    item = item->next;
   }
+
+  if (selected)
+    g_list_free(selected);
 }
 
 static void

@@ -196,9 +196,10 @@ ui_accounts_dialog_refresh(MESSENGER_Application *app,
     GTK_CONTAINER(handle->accounts_listbox)
   );
 
-  while (list)
+  GList *item = list;
+  while (item)
   {
-    GtkListBoxRow *row = GTK_LIST_BOX_ROW(list->data);
+    GtkListBoxRow *row = GTK_LIST_BOX_ROW(item->data);
 
     if ((!row) || (!gtk_list_box_row_get_selectable(row)))
       goto skip_row;
@@ -209,8 +210,11 @@ ui_accounts_dialog_refresh(MESSENGER_Application *app,
     );
 
   skip_row:
-    list = list->next;
+    item = item->next;
   }
+
+  if (list)
+    g_list_free(list);
 
   GNUNET_CHAT_iterate_accounts(
     app->chat.messenger.handle,

@@ -296,6 +296,12 @@ _clear_chat_entry(GtkWidget *widget,
     app->quarks.ui
   );
 
+  g_object_set_qdata(
+    G_OBJECT(entry->chat->send_text_view),
+    app->quarks.data,
+    NULL
+  );
+
   ui_chat_entry_dispose(entry, app);
 }
 

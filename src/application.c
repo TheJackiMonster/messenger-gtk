@@ -604,14 +604,19 @@ application_exit(MESSENGER_Application *app,
   write(app->chat.pipe[1], &signal, sizeof(signal));
 
   if (app->portal)
-    g_free(app->portal);
+    g_object_unref(app->portal);
 
   app->portal = NULL;
+
+  if (app->pw.registry)
+    pw_proxy_destroy((struct pw_proxy*) app->pw.registry);
 
   if (app->pw.core)
   {
     pw_map_for_each(&(app->pw.globals), destroy_global, NULL);
 	  pw_map_clear(&(app->pw.globals));
+
+    pw_core_disconnect(app->pw.core);
   }
 
   if (app->pw.context)
@@ -623,6 +628,7 @@ application_exit(MESSENGER_Application *app,
     pw_main_loop_destroy(app->pw.main_loop);
   }
 
+  gst_deinit();
   pw_deinit();
 }
 
