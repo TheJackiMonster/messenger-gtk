@@ -32,19 +32,19 @@
 
 static void
 handle_contact_edit_button_click(UNUSED GtkButton *button,
-				 gpointer user_data)
+				                         gpointer user_data)
 {
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
   gboolean editable = gtk_widget_is_sensitive(
-      GTK_WIDGET(handle->contact_name_entry)
+    GTK_WIDGET(handle->contact_name_entry)
   );
 
   struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
-      g_object_get_qdata(
-	  G_OBJECT(handle->contact_name_entry),
-	  handle->app->quarks.data
-      )
+    g_object_get_qdata(
+	    G_OBJECT(handle->contact_name_entry),
+	    handle->app->quarks.data
+    )
   );
 
   if ((!editable) || (!contact))
@@ -57,8 +57,7 @@ handle_contact_edit_button_click(UNUSED GtkButton *button,
 
   if (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
   {
-    if (GNUNET_YES != GNUNET_CHAT_set_name(handle->app->chat.messenger.handle,
-					   name))
+    if (GNUNET_YES != GNUNET_CHAT_set_name(handle->app->chat.messenger.handle, name))
       gtk_entry_set_text(
 	      handle->contact_name_entry,
 	      GNUNET_CHAT_contact_get_name(contact)
@@ -69,16 +68,16 @@ handle_contact_edit_button_click(UNUSED GtkButton *button,
 
 skip_change_name:
   gtk_image_set_from_icon_name(
-      handle->contact_edit_symbol,
-      editable?
-	    "document-edit-symbolic" :
-	    "emblem-ok-symbolic",
-      GTK_ICON_SIZE_BUTTON
+    handle->contact_edit_symbol,
+    editable?
+    "document-edit-symbolic" :
+    "emblem-ok-symbolic",
+    GTK_ICON_SIZE_BUTTON
   );
 
   gtk_widget_set_sensitive(
-      GTK_WIDGET(handle->contact_name_entry),
-      !editable
+    GTK_WIDGET(handle->contact_name_entry),
+    !editable
   );
 }
 
@@ -97,8 +96,8 @@ _contact_info_reveal_identity(UI_CONTACT_INFO_Handle *handle)
   gtk_widget_set_visible(GTK_WIDGET(handle->back_button), TRUE);
 
   gtk_stack_set_visible_child(
-      handle->contact_info_stack,
-      handle->identity_box
+    handle->contact_info_stack,
+    handle->identity_box
   );
 }
 
@@ -128,8 +127,8 @@ handle_block_button_click(UNUSED GtkButton *button,
   GNUNET_CHAT_contact_set_blocked(contact, GNUNET_YES);
 
   gtk_stack_set_visible_child(
-      handle->block_stack,
-      GTK_WIDGET(handle->unblock_button)
+    handle->block_stack,
+    GTK_WIDGET(handle->unblock_button)
   );
 }
 
@@ -152,8 +151,8 @@ handle_unblock_button_click(UNUSED GtkButton *button,
   GNUNET_CHAT_contact_set_blocked(contact, GNUNET_NO);
 
   gtk_stack_set_visible_child(
-      handle->block_stack, 
-      GTK_WIDGET(handle->block_button)
+    handle->block_stack, 
+    GTK_WIDGET(handle->block_button)
   );
 }
 
@@ -174,7 +173,7 @@ handle_open_chat_button_click(UNUSED GtkButton *button,
     return;
 
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
-      contact
+    contact
   );
 
   if (!context)
@@ -192,7 +191,7 @@ handle_open_chat_button_click(UNUSED GtkButton *button,
     return;
 
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
-      gtk_widget_get_parent(entry->entry_box)
+    gtk_widget_get_parent(entry->entry_box)
   );
 
   if (!row)
@@ -216,8 +215,8 @@ handle_back_button_click(UNUSED GtkButton *button,
   gtk_widget_set_visible(GTK_WIDGET(handle->back_button), FALSE);
 
   gtk_stack_set_visible_child(
-      handle->contact_info_stack,
-      handle->details_box
+    handle->contact_info_stack,
+    handle->details_box
   );
 }
 
@@ -269,24 +268,24 @@ handle_id_drawing_area_draw(GtkWidget* drawing_area,
       guchar value;
 
       if ((x >= m) && (y >= m) && (x - m < w) && (y - m < w))
-	value  = ((handle->qr->data[(y - m) * w + x - m]) & 1);
+	      value  = ((handle->qr->data[(y - m) * w + x - m]) & 1);
       else
-	value = 0;
+	      value = 0;
 
       for (z = 0; z < 3; z++)
-	pixels[(y * w2 + x) * 3 + z] = value? 0x00 : 0xff;
+	      pixels[(y * w2 + x) * 3 + z] = value? 0x00 : 0xff;
     }
 
   GdkPixbuf *image = gdk_pixbuf_new_from_data(
-      pixels,
-      GDK_COLORSPACE_RGB,
-      FALSE,
-      8,
-      w2,
-      w2,
-      w2 * 3,
-      NULL,
-      NULL
+    pixels,
+    GDK_COLORSPACE_RGB,
+    FALSE,
+    8,
+    w2,
+    w2,
+    w2 * 3,
+    NULL,
+    NULL
   );
 
   if (!image)
@@ -307,15 +306,15 @@ handle_id_drawing_area_draw(GtkWidget* drawing_area,
   double dy = (height - dheight) * 0.5;
 
   const int interp_type = (ratio >= 1.0?
-      GDK_INTERP_NEAREST :
-      GDK_INTERP_BILINEAR
+    GDK_INTERP_NEAREST :
+    GDK_INTERP_BILINEAR
   );
 
   GdkPixbuf* scaled = gdk_pixbuf_scale_simple(
-      image,
-      dwidth,
-      dheight,
-      interp_type
+    image,
+    dwidth,
+    dheight,
+    interp_type
   );
 
   gtk_render_icon(context, cairo, scaled, dx, dy);
@@ -337,154 +336,154 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
   handle->app = app;
 
   handle->builder = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/contact_info.ui")
+    application_get_resource_path(app, "ui/contact_info.ui")
   );
 
   handle->dialog = GTK_DIALOG(
-      gtk_builder_get_object(handle->builder, "contact_info_dialog")
+    gtk_builder_get_object(handle->builder, "contact_info_dialog")
   );
 
   gtk_window_set_transient_for(
-      GTK_WINDOW(handle->dialog),
-      GTK_WINDOW(app->ui.messenger.main_window)
+    GTK_WINDOW(handle->dialog),
+    GTK_WINDOW(app->ui.messenger.main_window)
   );
 
   handle->contact_info_stack = GTK_STACK(
-      gtk_builder_get_object(handle->builder, "contact_info_stack")
+    gtk_builder_get_object(handle->builder, "contact_info_stack")
   );
 
   handle->details_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder, "details_box")
+    gtk_builder_get_object(handle->builder, "details_box")
   );
 
   handle->contact_avatar = HDY_AVATAR(
-      gtk_builder_get_object(handle->builder, "contact_avatar")
+    gtk_builder_get_object(handle->builder, "contact_avatar")
   );
 
   handle->contact_name_entry = GTK_ENTRY(
-      gtk_builder_get_object(handle->builder, "contact_name")
+    gtk_builder_get_object(handle->builder, "contact_name")
   );
 
   handle->contact_edit_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "contact_edit_button")
+    gtk_builder_get_object(handle->builder, "contact_edit_button")
   );
 
   handle->contact_edit_symbol = GTK_IMAGE(
-      gtk_builder_get_object(handle->builder, "contact_edit_symbol")
+    gtk_builder_get_object(handle->builder, "contact_edit_symbol")
   );
 
   g_signal_connect(
-      handle->contact_name_entry,
-      "activate",
-      G_CALLBACK(handle_contact_name_entry_activate),
-      handle
+    handle->contact_name_entry,
+    "activate",
+    G_CALLBACK(handle_contact_name_entry_activate),
+    handle
   );
 
   g_signal_connect(
-      handle->contact_edit_button,
-      "clicked",
-      G_CALLBACK(handle_contact_edit_button_click),
-      handle
+    handle->contact_edit_button,
+    "clicked",
+    G_CALLBACK(handle_contact_edit_button_click),
+    handle
   );
 
   handle->reveal_identity_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "reveal_identity_button")
+    gtk_builder_get_object(handle->builder, "reveal_identity_button")
   );
 
   g_signal_connect(
-      handle->reveal_identity_button,
-      "clicked",
-      G_CALLBACK(handle_reveal_identity_button_click),
-      handle
+    handle->reveal_identity_button,
+    "clicked",
+    G_CALLBACK(handle_reveal_identity_button_click),
+    handle
   );
 
   handle->block_stack = GTK_STACK(
-      gtk_builder_get_object(handle->builder, "block_stack")
+    gtk_builder_get_object(handle->builder, "block_stack")
   );
 
   handle->block_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "block_button")
+    gtk_builder_get_object(handle->builder, "block_button")
   );
 
   g_signal_connect(
-      handle->block_button,
-      "clicked",
-      G_CALLBACK(handle_block_button_click),
-      handle
+    handle->block_button,
+    "clicked",
+    G_CALLBACK(handle_block_button_click),
+    handle
   );
 
   handle->unblock_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "unblock_button")
+    gtk_builder_get_object(handle->builder, "unblock_button")
   );
 
   g_signal_connect(
-      handle->unblock_button,
-      "clicked",
-      G_CALLBACK(handle_unblock_button_click),
-      handle
+    handle->unblock_button,
+    "clicked",
+    G_CALLBACK(handle_unblock_button_click),
+    handle
   );
 
   handle->open_chat_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "open_chat_button")
+    gtk_builder_get_object(handle->builder, "open_chat_button")
   );
 
   g_signal_connect(
-      handle->open_chat_button,
-      "clicked",
-      G_CALLBACK(handle_open_chat_button_click),
-      handle
+    handle->open_chat_button,
+    "clicked",
+    G_CALLBACK(handle_open_chat_button_click),
+    handle
   );
 
   handle->identity_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder, "identity_box")
+    gtk_builder_get_object(handle->builder, "identity_box")
   );
 
   handle->name_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder, "name_label")
+    gtk_builder_get_object(handle->builder, "name_label")
   );
 
   handle->id_drawing_area = GTK_DRAWING_AREA(
-      gtk_builder_get_object(handle->builder, "id_drawing_area")
+    gtk_builder_get_object(handle->builder, "id_drawing_area")
   );
 
   handle->id_draw_signal = g_signal_connect(
-      handle->id_drawing_area,
-      "draw",
-      G_CALLBACK(handle_id_drawing_area_draw),
-      handle
+    handle->id_drawing_area,
+    "draw",
+    G_CALLBACK(handle_id_drawing_area_draw),
+    handle
   );
 
   handle->id_entry = GTK_ENTRY(
-      gtk_builder_get_object(handle->builder, "id_entry")
+    gtk_builder_get_object(handle->builder, "id_entry")
   );
 
   handle->back_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "back_button")
+    gtk_builder_get_object(handle->builder, "back_button")
   );
 
   g_signal_connect(
-      handle->back_button,
-      "clicked",
-      G_CALLBACK(handle_back_button_click),
-      handle
+    handle->back_button,
+    "clicked",
+    G_CALLBACK(handle_back_button_click),
+    handle
   );
 
   handle->close_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "close_button")
+    gtk_builder_get_object(handle->builder, "close_button")
   );
 
   g_signal_connect(
-      handle->close_button,
-      "clicked",
-      G_CALLBACK(handle_close_button_click),
-      handle->dialog
+    handle->close_button,
+    "clicked",
+    G_CALLBACK(handle_close_button_click),
+    handle->dialog
   );
 
   g_signal_connect(
-      handle->dialog,
-      "destroy",
-      G_CALLBACK(handle_dialog_destroy),
-      handle
+    handle->dialog,
+    "destroy",
+    G_CALLBACK(handle_dialog_destroy),
+    handle
   );
 }
 
@@ -499,9 +498,9 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
   ui_entry_set_text(handle->contact_name_entry, name);
 
   g_object_set_qdata(
-      G_OBJECT(handle->contact_name_entry),
-      handle->app->quarks.data,
-      contact
+    G_OBJECT(handle->contact_name_entry),
+    handle->app->quarks.data,
+    contact
   );
 
   const char *key = GNUNET_CHAT_contact_get_key(contact);
@@ -511,11 +510,11 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
 
   if (key)
     handle->qr = QRcode_encodeString(
-	key,
-	0,
-	QR_ECLEVEL_L,
-	QR_MODE_8,
-	0
+      key,
+      0,
+      QR_ECLEVEL_L,
+      QR_MODE_8,
+      0
     );
   else
     handle->qr = NULL;
@@ -528,35 +527,35 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
   ui_entry_set_text(handle->id_entry, key);
 
   gtk_widget_set_sensitive(
-      GTK_WIDGET(handle->reveal_identity_button),
-      key? TRUE : FALSE
+    GTK_WIDGET(handle->reveal_identity_button),
+    key? TRUE : FALSE
   );
 
   gtk_stack_set_visible_child(
-      handle->block_stack,
-      GNUNET_YES == GNUNET_CHAT_contact_is_blocked(contact)?
-      GTK_WIDGET(handle->unblock_button) :
-      GTK_WIDGET(handle->block_button)
+    handle->block_stack,
+    GNUNET_YES == GNUNET_CHAT_contact_is_blocked(contact)?
+    GTK_WIDGET(handle->unblock_button) :
+    GTK_WIDGET(handle->block_button)
   );
 
   g_object_set_qdata(
-      G_OBJECT(handle->block_stack),
-      handle->app->quarks.data,
-      contact
+    G_OBJECT(handle->block_stack),
+    handle->app->quarks.data,
+    contact
   );
 
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
-      contact
+    contact
   );
 
   gtk_widget_set_sensitive(
-      GTK_WIDGET(handle->open_chat_button),
-      context? TRUE : FALSE
+    GTK_WIDGET(handle->open_chat_button),
+    context? TRUE : FALSE
   );
 
   gtk_widget_set_visible(
-      GTK_WIDGET(handle->open_chat_button),
-      GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact)
+    GTK_WIDGET(handle->open_chat_button),
+    GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact)
   );
 
   if (reveal)
@@ -567,8 +566,8 @@ void
 ui_contact_info_dialog_cleanup(UI_CONTACT_INFO_Handle *handle)
 {
   g_signal_handler_disconnect(
-      handle->id_drawing_area,
-      handle->id_draw_signal
+    handle->id_drawing_area,
+    handle->id_draw_signal
   );
 
   g_object_unref(handle->builder);

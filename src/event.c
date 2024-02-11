@@ -744,6 +744,17 @@ event_tag_message(MESSENGER_Application *app,
 {
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 
+  const struct GNUNET_CHAT_Message *target = GNUNET_CHAT_message_get_target(msg);
+
+  if (target)
+  {
+    const struct GNUNET_CHAT_Contact *contact;
+    contact = GNUNET_CHAT_message_get_sender(target);
+
+    if (contact)
+      contact_update_info(contact);
+  }
+
   if ((!handle) || (!(handle->chat)))
     return;
 
@@ -753,7 +764,7 @@ event_tag_message(MESSENGER_Application *app,
   {
     UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) (messages->data);
 
-    if ((message) && (message->msg == GNUNET_CHAT_message_get_target(msg)))
+    if ((message) && (message->msg == target))
     {
       ui_message_update(message, app, message->msg);
       break;
