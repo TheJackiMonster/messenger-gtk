@@ -573,7 +573,8 @@ ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle)
 {
   g_assert(handle);
 
-  pthread_join(handle->video_tid, NULL);
+  if (handle->video_tid)
+    pthread_join(handle->video_tid, NULL);
 
   g_object_unref(handle->builder);
 
