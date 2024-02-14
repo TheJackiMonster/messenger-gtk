@@ -71,7 +71,7 @@ typedef struct UI_NEW_CONTACT_Handle
  */
 void
 ui_new_contact_dialog_init(MESSENGER_Application *app,
-			   UI_NEW_CONTACT_Handle *handle);
+                           UI_NEW_CONTACT_Handle *handle);
 
 /**
  * Cleans up the allocated resources and resets the

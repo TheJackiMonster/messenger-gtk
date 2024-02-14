@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -28,16 +28,20 @@
 
 static void
 handle_cancel_button_click(UNUSED GtkButton *button,
-			   gpointer user_data)
+                           gpointer user_data)
 {
+  g_assert(user_data);
+
   GtkDialog *dialog = GTK_DIALOG(user_data);
   gtk_window_close(GTK_WINDOW(dialog));
 }
 
 static void
 handle_confirm_button_click(UNUSED GtkButton *button,
-			    gpointer user_data)
+                            gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   app->settings.hide_delete_dialog = gtk_toggle_button_get_active(
@@ -51,8 +55,7 @@ handle_confirm_button_click(UNUSED GtkButton *button,
   gulong delay = 0;
 
   GtkTreeIter iter;
-  if (gtk_combo_box_get_active_iter(app->ui.delete_messages.delay_combobox,
-				    &iter))
+  if (gtk_combo_box_get_active_iter(app->ui.delete_messages.delay_combobox, &iter))
     gtk_tree_model_get(model, &iter, 1, &delay, -1);
 
   if (app->ui.delete_messages.callback)
@@ -67,8 +70,10 @@ handle_confirm_button_click(UNUSED GtkButton *button,
 
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
-		      gpointer user_data)
+                      gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   ui_delete_messages_dialog_cleanup(&(app->ui.delete_messages));
@@ -76,63 +81,65 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
 
 void
 ui_delete_messages_dialog_init(MESSENGER_Application *app,
-			       UI_DELETE_MESSAGES_Handle *handle)
+                               UI_DELETE_MESSAGES_Handle *handle)
 {
+  g_assert((app) && (handle));
+
   handle->selected = NULL;
   handle->callback = NULL;
 
   handle->builder = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/delete_messages.ui")
+    application_get_resource_path(app, "ui/delete_messages.ui")
   );
 
   handle->dialog = GTK_DIALOG(
-      gtk_builder_get_object(handle->builder, "delete_messages_dialog")
+    gtk_builder_get_object(handle->builder, "delete_messages_dialog")
   );
 
   gtk_window_set_transient_for(
-      GTK_WINDOW(handle->dialog),
-      GTK_WINDOW(app->ui.messenger.main_window)
+    GTK_WINDOW(handle->dialog),
+    GTK_WINDOW(app->ui.messenger.main_window)
   );
 
   handle->delay_store = GTK_LIST_STORE(
-      gtk_builder_get_object(handle->builder, "delay_store")
+    gtk_builder_get_object(handle->builder, "delay_store")
   );
 
   handle->delay_combobox = GTK_COMBO_BOX(
-      gtk_builder_get_object(handle->builder, "delay_combobox")
+    gtk_builder_get_object(handle->builder, "delay_combobox")
   );
 
   handle->hide_checkbox = GTK_CHECK_BUTTON(
-      gtk_builder_get_object(handle->builder, "hide_checkbox")
+    gtk_builder_get_object(handle->builder, "hide_checkbox")
   );
 
   handle->cancel_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "cancel_button")
+    gtk_builder_get_object(handle->builder, "cancel_button")
   );
 
   g_signal_connect(
-      handle->cancel_button,
-      "clicked",
-      G_CALLBACK(handle_cancel_button_click),
-      handle->dialog
+    handle->cancel_button,
+    "clicked",
+    G_CALLBACK(handle_cancel_button_click),
+    handle->dialog
   );
 
   handle->confirm_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "confirm_button")
+    gtk_builder_get_object(handle->builder, "confirm_button")
   );
 
   g_signal_connect(
-      handle->confirm_button,
-      "clicked",
-      G_CALLBACK(handle_confirm_button_click),
-      app
+    handle->confirm_button,
+    "clicked",
+    G_CALLBACK(handle_confirm_button_click),
+    app
   );
 
   g_signal_connect(
-      handle->dialog,
-      "destroy",
-      G_CALLBACK(handle_dialog_destroy),
-      app
+    handle->dialog,
+    "destroy",
+    G_CALLBACK(handle_dialog_destroy),
+    app
   );
 }
 
@@ -141,6 +148,8 @@ ui_delete_messages_dialog_link(UI_DELETE_MESSAGES_Handle *handle,
                                UI_DELETE_MESSAGES_Callback callback,
                                GList *selected)
 {
+  g_assert((handle) && (callback));
+
   handle->selected = selected;
   handle->callback = callback;
 }
@@ -148,6 +157,8 @@ ui_delete_messages_dialog_link(UI_DELETE_MESSAGES_Handle *handle,
 void
 ui_delete_messages_dialog_cleanup(UI_DELETE_MESSAGES_Handle *handle)
 {
+  g_assert(handle);
+
   g_object_unref(handle->builder);
 
   if (handle->selected)

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -30,22 +30,25 @@
 
 #include "../application.h"
 #include "../file.h"
-#include "../ui.h"
 
 static void
 handle_cancel_button_click(UNUSED GtkButton *button,
-			   gpointer user_data)
+                           gpointer user_data)
 {
+  g_assert(user_data);
+
   GtkDialog *dialog = GTK_DIALOG(user_data);
   gtk_window_close(GTK_WINDOW(dialog));
 }
 
 static void
 handle_sending_upload_file(UNUSED void *cls,
-			   const struct GNUNET_CHAT_File *file,
-			   uint64_t completed,
-			   uint64_t size)
+                           const struct GNUNET_CHAT_File *file,
+                           uint64_t completed,
+                           uint64_t size)
 {
+  g_assert(file);
+
   UI_FILE_LOAD_ENTRY_Handle *file_load = cls;
 
   gtk_progress_bar_set_fraction(
@@ -61,26 +64,28 @@ handle_sending_upload_file(UNUSED void *cls,
 
 static void
 handle_send_button_click(GtkButton *button,
-			 gpointer user_data)
+                         gpointer user_data)
 {
+  g_assert((button) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
-      g_object_get_qdata(G_OBJECT(button), app->quarks.widget)
+    g_object_get_qdata(G_OBJECT(button), app->quarks.widget)
   );
 
   if (!text_view)
     return;
 
   gchar *filename = gtk_file_chooser_get_filename(
-      GTK_FILE_CHOOSER(app->ui.send_file.file_chooser_button)
+    GTK_FILE_CHOOSER(app->ui.send_file.file_chooser_button)
   );
 
   if (!filename)
     return;
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-      g_object_get_qdata(G_OBJECT(text_view), app->quarks.data)
+    g_object_get_qdata(G_OBJECT(text_view), app->quarks.data)
   );
 
   UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(context);
@@ -97,10 +102,10 @@ handle_send_button_click(GtkButton *button,
     gtk_progress_bar_set_fraction(file_load->load_progress_bar, 0.0);
 
     file = GNUNET_CHAT_context_send_file(
-	context,
-	filename,
-	handle_sending_upload_file,
-	file_load
+      context,
+      filename,
+      handle_sending_upload_file,
+      file_load
     );
   }
 
@@ -123,14 +128,18 @@ handle_send_button_click(GtkButton *button,
 
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
-		      gpointer user_data)
+                      gpointer user_data)
 {
+  g_assert(user_data);
+
   ui_send_file_dialog_cleanup((UI_SEND_FILE_Handle*) user_data);
 }
 
 static int
 handle_file_redraw_animation(gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_SEND_FILE_Handle *handle = (UI_SEND_FILE_Handle*) user_data;
 
   handle->redraw_animation = 0;
@@ -144,9 +153,11 @@ handle_file_redraw_animation(gpointer user_data)
 
 static gboolean
 handle_file_drawing_area_draw(GtkWidget* drawing_area,
-			      cairo_t* cairo,
-			      gpointer user_data)
+                              cairo_t* cairo,
+                              gpointer user_data)
 {
+  g_assert((drawing_area) && (cairo) && (user_data));
+
   UI_SEND_FILE_Handle *handle = (UI_SEND_FILE_Handle*) user_data;
 
   GtkStyleContext* context = gtk_widget_get_style_context(drawing_area);
@@ -165,17 +176,17 @@ handle_file_drawing_area_draw(GtkWidget* drawing_area,
     gdk_pixbuf_animation_iter_advance(handle->animation_iter, NULL);
   else
     handle->animation_iter = gdk_pixbuf_animation_get_iter(
-	handle->animation, NULL
+	    handle->animation, NULL
     );
 
   image = gdk_pixbuf_animation_iter_get_pixbuf(handle->animation_iter);
 
   const int delay = gdk_pixbuf_animation_iter_get_delay_time(
-      handle->animation_iter
+    handle->animation_iter
   );
 
   handle->redraw_animation = g_timeout_add(
-      delay, handle_file_redraw_animation, handle
+    delay, handle_file_redraw_animation, handle
   );
 
 render_image:
@@ -197,15 +208,15 @@ render_image:
   double dy = (height - dheight) * 0.5;
 
   const int interp_type = (ratio >= 1.0?
-      GDK_INTERP_NEAREST :
-      GDK_INTERP_BILINEAR
+    GDK_INTERP_NEAREST :
+    GDK_INTERP_BILINEAR
   );
 
   GdkPixbuf* scaled = gdk_pixbuf_scale_simple(
-      image,
-      dwidth,
-      dheight,
-      interp_type
+    image,
+    dwidth,
+    dheight,
+    interp_type
   );
 
   gtk_render_icon(context, cairo, scaled, dx, dy);
@@ -219,6 +230,8 @@ render_image:
 static void
 _clear_file_preview_data(UI_SEND_FILE_Handle *handle)
 {
+  g_assert(handle);
+
   if (handle->image)
   {
     g_object_unref(handle->image);
@@ -246,8 +259,10 @@ _clear_file_preview_data(UI_SEND_FILE_Handle *handle)
 
 static void
 handle_file_chooser_button_file_set(GtkFileChooserButton *file_chooser_button,
-				    gpointer user_data)
+                                    gpointer user_data)
 {
+  g_assert((file_chooser_button) && (user_data));
+
   UI_SEND_FILE_Handle *handle = (UI_SEND_FILE_Handle*) user_data;
 
   _clear_file_preview_data(handle);
@@ -272,75 +287,77 @@ handle_file_chooser_button_file_set(GtkFileChooserButton *file_chooser_button,
 
 void
 ui_send_file_dialog_init(MESSENGER_Application *app,
-			 UI_SEND_FILE_Handle *handle)
+                         UI_SEND_FILE_Handle *handle)
 {
+  g_assert((app) && (handle));
+
   handle->builder = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/send_file.ui")
+    application_get_resource_path(app, "ui/send_file.ui")
   );
 
   handle->dialog = GTK_DIALOG(
-      gtk_builder_get_object(handle->builder, "send_file_dialog")
+    gtk_builder_get_object(handle->builder, "send_file_dialog")
   );
 
   gtk_window_set_title(
-      GTK_WINDOW(handle->dialog),
-      _("Send File")
+    GTK_WINDOW(handle->dialog),
+    _("Send File")
   );
 
   gtk_window_set_transient_for(
-      GTK_WINDOW(handle->dialog),
-      GTK_WINDOW(app->ui.messenger.main_window)
+    GTK_WINDOW(handle->dialog),
+    GTK_WINDOW(app->ui.messenger.main_window)
   );
 
   handle->file_drawing_area = GTK_DRAWING_AREA(
-      gtk_builder_get_object(handle->builder, "file_drawing_area")
+    gtk_builder_get_object(handle->builder, "file_drawing_area")
   );
 
   handle->file_chooser_button = GTK_FILE_CHOOSER_BUTTON(
-      gtk_builder_get_object(handle->builder, "file_chooser_button")
+    gtk_builder_get_object(handle->builder, "file_chooser_button")
   );
 
   handle->file_draw_signal = g_signal_connect(
-      handle->file_drawing_area,
-      "draw",
-      G_CALLBACK(handle_file_drawing_area_draw),
-      handle
+    handle->file_drawing_area,
+    "draw",
+    G_CALLBACK(handle_file_drawing_area_draw),
+    handle
   );
 
   g_signal_connect(
-      handle->file_chooser_button,
-      "file-set",
-      G_CALLBACK(handle_file_chooser_button_file_set),
-      handle
+    handle->file_chooser_button,
+    "file-set",
+    G_CALLBACK(handle_file_chooser_button_file_set),
+    handle
   );
 
   handle->cancel_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "cancel_button")
+    gtk_builder_get_object(handle->builder, "cancel_button")
   );
 
   g_signal_connect(
-      handle->cancel_button,
-      "clicked",
-      G_CALLBACK(handle_cancel_button_click),
-      handle->dialog
+    handle->cancel_button,
+    "clicked",
+    G_CALLBACK(handle_cancel_button_click),
+    handle->dialog
   );
 
   handle->send_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "send_button")
+    gtk_builder_get_object(handle->builder, "send_button")
   );
 
   g_signal_connect(
-      handle->send_button,
-      "clicked",
-      G_CALLBACK(handle_send_button_click),
-      app
+    handle->send_button,
+    "clicked",
+    G_CALLBACK(handle_send_button_click),
+    app
   );
 
   g_signal_connect(
-      handle->dialog,
-      "destroy",
-      G_CALLBACK(handle_dialog_destroy),
-      handle
+    handle->dialog,
+    "destroy",
+    G_CALLBACK(handle_dialog_destroy),
+    handle
   );
 
   handle->image = NULL;
@@ -352,25 +369,29 @@ ui_send_file_dialog_init(MESSENGER_Application *app,
 
 void
 ui_send_file_dialog_update(UI_SEND_FILE_Handle *handle,
-			   const gchar *filename)
+                           const gchar *filename)
 {
+  g_assert((handle) && (filename));
+
   if (!(handle->file_chooser_button))
     return;
 
   gtk_file_chooser_set_filename(
-      GTK_FILE_CHOOSER(handle->file_chooser_button),
-      filename
+    GTK_FILE_CHOOSER(handle->file_chooser_button),
+    filename
   );
 
   handle_file_chooser_button_file_set(
-      handle->file_chooser_button,
-      handle
+    handle->file_chooser_button,
+    handle
   );
 }
 
 void
 ui_send_file_dialog_cleanup(UI_SEND_FILE_Handle *handle)
 {
+  g_assert(handle);
+
   _clear_file_preview_data(handle);
 
   g_signal_handler_disconnect(

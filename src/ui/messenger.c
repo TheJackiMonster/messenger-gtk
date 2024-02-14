@@ -42,6 +42,8 @@
 static gboolean
 _flap_user_details_reveal_switch(gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
   HdyFlap* flap = handle->flap_user_details;
 
@@ -60,6 +62,8 @@ static void
 handle_user_details_via_button_click(UNUSED GtkButton* button,
 				                             gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
 
   gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_search), FALSE);
@@ -74,6 +78,8 @@ static void
 handle_lobby_button_click(UNUSED GtkButton* button,
 			                    gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
@@ -87,6 +93,8 @@ static void
 _switch_details_revealer_visibility(UI_MESSENGER_Handle *handle,
 				                            gboolean state)
 {
+  g_assert(handle);
+
   GtkRevealer *revealer = handle->account_details_revealer;
   GtkImage *symbol = handle->account_details_symbol;
 
@@ -104,6 +112,8 @@ static void
 handle_account_details_button_click(UNUSED GtkButton* button,
 				                            gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
 
   GtkRevealer *revealer = handle->account_details_revealer;
@@ -118,6 +128,8 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
                                       GtkListBoxRow* row,
                                       gpointer user_data)
 {
+  g_assert((row) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   if (row == app->ui.messenger.add_account_listbox_row)
@@ -155,6 +167,8 @@ static void
 handle_new_contact_button_click(UNUSED GtkButton* button,
 				                        gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
@@ -166,6 +180,8 @@ static void
 handle_new_group_button_click(UNUSED GtkButton* button,
 			                        gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
@@ -177,6 +193,8 @@ static void
 handle_new_platform_button_click(UNUSED GtkButton* button,
 				                         gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
@@ -188,6 +206,8 @@ static void
 handle_contacts_button_click(UNUSED GtkButton* button,
 			                       gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
@@ -199,6 +219,8 @@ static void
 handle_settings_button_click(UNUSED GtkButton* button,
 			                       gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
@@ -210,6 +232,8 @@ static void
 handle_about_button_click(UNUSED GtkButton* button,
 			                    gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
@@ -222,6 +246,8 @@ handle_chats_listbox_row_activated(UNUSED GtkListBox* listbox,
                                    GtkListBoxRow* row,
                                    gpointer user_data)
 {
+  g_assert((row) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   if (!gtk_list_box_row_get_selectable(row))
@@ -253,10 +279,11 @@ handle_chats_listbox_sort_func(GtkListBoxRow* row0,
                                GtkListBoxRow* row1,
                                gpointer user_data)
 {
+  g_assert((row0) && (row1) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  if ((!row0) || (!row1) ||
-      (!gtk_list_box_row_get_selectable(row0)) ||
+  if ((!gtk_list_box_row_get_selectable(row0)) ||
       (!gtk_list_box_row_get_selectable(row1)))
     return 0;
 
@@ -286,9 +313,11 @@ static gboolean
 handle_chats_listbox_filter_func(GtkListBoxRow *row,
 				                         gpointer user_data)
 {
+  g_assert((row) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  if ((!row) || (!gtk_list_box_row_get_selectable(row)) ||
+  if ((!gtk_list_box_row_get_selectable(row)) ||
       (gtk_list_box_row_is_selected(row)))
     return TRUE;
 
@@ -318,6 +347,8 @@ static void
 handle_chats_search_changed(UNUSED GtkSearchEntry *search,
 			                      gpointer user_data)
 {
+  g_assert(user_data);
+
   GtkListBox *listbox = GTK_LIST_BOX(user_data);
 
   gtk_list_box_invalidate_filter(listbox);
@@ -327,6 +358,8 @@ static void
 handle_main_window_destroy(UNUSED GtkWidget *window,
 			                     gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   if (app->parent)
@@ -344,6 +377,8 @@ void
 ui_messenger_init(MESSENGER_Application *app,
 		              UI_MESSENGER_Handle *handle)
 {
+  g_assert((app) && (handle));
+
   memset(handle, 0, sizeof(*handle));
   handle->app = app;
 
@@ -635,6 +670,8 @@ _messenger_iterate_accounts(void *cls,
                             const struct GNUNET_CHAT_Handle *handle,
                             struct GNUNET_CHAT_Account *account)
 {
+  g_assert((cls) && (handle) && (account));
+
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
 
@@ -663,10 +700,12 @@ static void
 _clear_accounts_listbox(GtkWidget *widget,
 			                  gpointer data)
 {
+  g_assert((widget) && (data));
+
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(widget);
   GtkListBox *listbox = GTK_LIST_BOX(data);
 
-  if ((!row) || (!listbox) || (!gtk_list_box_row_get_selectable(row)))
+  if (!gtk_list_box_row_get_selectable(row))
     return;
 
   gtk_container_remove(
@@ -679,6 +718,8 @@ void
 ui_messenger_refresh(MESSENGER_Application *app,
 		                 UI_MESSENGER_Handle *handle)
 {
+  g_assert((app) && (handle));
+
   if (!(handle->accounts_listbox))
     return;
 
@@ -699,6 +740,8 @@ gboolean
 ui_messenger_is_context_active(UI_MESSENGER_Handle *handle,
 			                         struct GNUNET_CHAT_Context *context)
 {
+  g_assert((handle) && (context));
+
   if (!gtk_window_is_active(GTK_WINDOW(handle->main_window)))
     return FALSE;
 
@@ -720,6 +763,8 @@ ui_messenger_is_context_active(UI_MESSENGER_Handle *handle,
 void
 ui_messenger_cleanup(UI_MESSENGER_Handle *handle)
 {
+  g_assert(handle);
+
   g_object_unref(handle->builder);
 
   if (handle->chat_entries)

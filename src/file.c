@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -40,6 +40,8 @@ file_create_info(struct GNUNET_CHAT_File *file)
 void
 file_destroy_info(struct GNUNET_CHAT_File *file)
 {
+  g_assert(file);
+
   MESSENGER_FileInfo* info = GNUNET_CHAT_file_get_user_pointer(file);
 
   if (!info)
@@ -55,11 +57,13 @@ file_destroy_info(struct GNUNET_CHAT_File *file)
 
 void
 file_add_ui_message_to_info(const struct GNUNET_CHAT_File *file,
-			    UI_MESSAGE_Handle *message)
+                            UI_MESSAGE_Handle *message)
 {
+  g_assert(message);
+
   MESSENGER_FileInfo* info = GNUNET_CHAT_file_get_user_pointer(file);
 
-  if ((!info) || (!message))
+  if (!info)
    return;
 
   info->file_messages = g_list_append(info->file_messages, message);
@@ -67,8 +71,8 @@ file_add_ui_message_to_info(const struct GNUNET_CHAT_File *file,
 
 void
 file_update_upload_info(const struct GNUNET_CHAT_File *file,
-			uint64_t completed,
-			uint64_t size)
+                        uint64_t completed,
+                        uint64_t size)
 {
   MESSENGER_FileInfo* info = GNUNET_CHAT_file_get_user_pointer(file);
 
@@ -92,9 +96,9 @@ file_update_upload_info(const struct GNUNET_CHAT_File *file,
 
 void
 file_update_download_info(const struct GNUNET_CHAT_File *file,
-			  MESSENGER_Application *app,
-			  uint64_t completed,
-			  uint64_t size)
+                          MESSENGER_Application *app,
+                          uint64_t completed,
+                          uint64_t size)
 {
   MESSENGER_FileInfo* info = GNUNET_CHAT_file_get_user_pointer(file);
 
@@ -108,8 +112,8 @@ file_update_download_info(const struct GNUNET_CHAT_File *file,
     UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) list->data;
 
     gtk_progress_bar_set_fraction(
-	message->file_progress_bar,
-	1.0 * completed / size
+      message->file_progress_bar,
+      1.0 * completed / size
     );
 
     if (completed >= size)

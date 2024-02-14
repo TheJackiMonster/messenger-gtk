@@ -161,8 +161,8 @@ ui_chat_new(MESSENGER_Application *app);
  */
 void
 ui_chat_update(UI_CHAT_Handle *handle,
-	       MESSENGER_Application *app,
-	       struct GNUNET_CHAT_Context* context);
+               MESSENGER_Application *app,
+               struct GNUNET_CHAT_Context* context);
 
 /**
  * Frees its resources and destroys a given
@@ -184,8 +184,8 @@ ui_chat_delete(UI_CHAT_Handle *handle);
  */
 void
 ui_chat_add_message(UI_CHAT_Handle *handle,
-		    MESSENGER_Application *app,
-		    UI_MESSAGE_Handle *message);
+                    MESSENGER_Application *app,
+                    UI_MESSAGE_Handle *message);
 
 /**
  * Removes a message handle from a given chat
@@ -198,8 +198,8 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
  */
 void
 ui_chat_remove_message(UI_CHAT_Handle *handle,
-		       MESSENGER_Application *app,
-		       UI_MESSAGE_Handle *message);
+                       MESSENGER_Application *app,
+                       UI_MESSAGE_Handle *message);
 
 /**
  * Add a file load entry handle to a given chat
@@ -210,7 +210,7 @@ ui_chat_remove_message(UI_CHAT_Handle *handle,
  */
 void
 ui_chat_add_file_load(UI_CHAT_Handle *handle,
-		      UI_FILE_LOAD_ENTRY_Handle *file_load);
+                      UI_FILE_LOAD_ENTRY_Handle *file_load);
 
 /**
  * Removes a file load entry handle from a given
@@ -221,6 +221,6 @@ ui_chat_add_file_load(UI_CHAT_Handle *handle,
  */
 void
 ui_chat_remove_file_load(UI_CHAT_Handle *handle,
-			 UI_FILE_LOAD_ENTRY_Handle *file_load);
+                         UI_FILE_LOAD_ENTRY_Handle *file_load);
 
 #endif /* UI_CHAT_H_ */

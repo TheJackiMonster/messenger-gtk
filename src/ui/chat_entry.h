@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -70,8 +70,8 @@ ui_chat_entry_new(MESSENGER_Application *app);
  */
 void
 ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
-		     MESSENGER_Application *app,
-		     struct GNUNET_CHAT_Context *context);
+                     MESSENGER_Application *app,
+                     struct GNUNET_CHAT_Context *context);
 
 /**
  * Frees its resources and destroys a given
@@ -93,6 +93,6 @@ ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle);
  */
 void
 ui_chat_entry_dispose(UI_CHAT_ENTRY_Handle *handle,
-		      MESSENGER_Application *app);
+                      MESSENGER_Application *app);
 
 #endif /* UI_CHAT_ENTRY_H_ */

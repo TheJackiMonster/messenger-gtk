@@ -64,7 +64,7 @@ typedef struct UI_SETTINGS_Handle
  */
 void
 ui_settings_dialog_init(MESSENGER_Application *app,
-			UI_SETTINGS_Handle *handle);
+                        UI_SETTINGS_Handle *handle);
 
 /**
  * Cleans up the allocated resources and resets the

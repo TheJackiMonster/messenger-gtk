@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -58,7 +58,7 @@ ui_account_entry_new(MESSENGER_Application *app);
  */
 void
 ui_account_entry_set_account(UI_ACCOUNT_ENTRY_Handle* handle,
-			     const struct GNUNET_CHAT_Account *account);
+                             const struct GNUNET_CHAT_Account *account);
 
 /**
  * Sets the content of the given account entry
@@ -70,7 +70,7 @@ ui_account_entry_set_account(UI_ACCOUNT_ENTRY_Handle* handle,
  */
 void
 ui_account_entry_set_contact(UI_ACCOUNT_ENTRY_Handle* handle,
-			     const struct GNUNET_CHAT_Contact *contact);
+                             const struct GNUNET_CHAT_Contact *contact);
 
 /**
  * Frees its resources and destroys a given

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -27,6 +27,8 @@
 void
 ui_label_set_text(GtkLabel *label, const char *text)
 {
+  g_assert(label);
+
   if (!text)
   {
     gtk_label_set_text(label, "");
@@ -41,6 +43,8 @@ ui_label_set_text(GtkLabel *label, const char *text)
 void
 ui_entry_set_text(GtkEntry *entry, const char *text)
 {
+  g_assert(entry);
+
   if (!text)
   {
     gtk_entry_set_text(entry, "");
@@ -55,6 +59,8 @@ ui_entry_set_text(GtkEntry *entry, const char *text)
 void
 ui_avatar_set_text(HdyAvatar *avatar, const char *text)
 {
+  g_assert(avatar);
+
   if (!text)
   {
     const gchar *state = hdy_avatar_get_text(avatar);

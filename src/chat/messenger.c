@@ -30,6 +30,8 @@
 static void
 _chat_messenger_quit(void *cls)
 {
+  g_assert(cls);
+
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
   if (app->chat.messenger.idle)
@@ -51,6 +53,8 @@ _chat_messenger_quit(void *cls)
 static void
 _chat_messenger_idle(void *cls)
 {
+  g_assert(cls);
+
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
   // Idling until the application shuts down
@@ -65,9 +69,11 @@ _chat_messenger_idle(void *cls)
 
 static int
 _chat_messenger_message(void *cls,
-			struct GNUNET_CHAT_Context *context,
-			const struct GNUNET_CHAT_Message *message)
+                        struct GNUNET_CHAT_Context *context,
+                        const struct GNUNET_CHAT_Message *message)
 {
+  g_assert((cls) && (message));
+
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
   // Locking the mutex for synchronization
@@ -184,10 +190,12 @@ _chat_messenger_message(void *cls,
 
 void
 chat_messenger_run(void *cls,
-		   UNUSED char *const *args,
-		   UNUSED const char *cfgfile,
-		   const struct GNUNET_CONFIGURATION_Handle *cfg)
+                   UNUSED char *const *args,
+                   UNUSED const char *cfgfile,
+                   const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
+  g_assert((cls) && (cfg));
+
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
   // Start libgnunetchat handle

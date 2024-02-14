@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -39,8 +39,8 @@
  */
 void
 event_handle_warning(MESSENGER_Application *app,
-		     struct GNUNET_CHAT_Context *context,
-		     const struct GNUNET_CHAT_Message *msg);
+                     struct GNUNET_CHAT_Context *context,
+                     const struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever the accounts
@@ -79,8 +79,8 @@ event_cleanup_profile(MESSENGER_Application *app);
  */
 void
 event_update_chats(MESSENGER_Application *app,
-		   struct GNUNET_CHAT_Context *context,
-		   const struct GNUNET_CHAT_Message *msg);
+                   struct GNUNET_CHAT_Context *context,
+                   const struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a contact
@@ -92,8 +92,8 @@ event_update_chats(MESSENGER_Application *app,
  */
 void
 event_presence_contact(MESSENGER_Application *app,
-		       struct GNUNET_CHAT_Context *context,
-		       const struct GNUNET_CHAT_Message *msg);
+                       struct GNUNET_CHAT_Context *context,
+                       const struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a contact
@@ -106,8 +106,8 @@ event_presence_contact(MESSENGER_Application *app,
  */
 void
 event_update_contacts(MESSENGER_Application *app,
-		      struct GNUNET_CHAT_Context *context,
-		      const struct GNUNET_CHAT_Message *msg);
+                      struct GNUNET_CHAT_Context *context,
+                      const struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever an invitation
@@ -119,8 +119,8 @@ event_update_contacts(MESSENGER_Application *app,
  */
 void
 event_invitation(MESSENGER_Application *app,
-		 struct GNUNET_CHAT_Context *context,
-		 const struct GNUNET_CHAT_Message *msg);
+                 struct GNUNET_CHAT_Context *context,
+                 const struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a content
@@ -133,8 +133,8 @@ event_invitation(MESSENGER_Application *app,
  */
 void
 event_receive_message(MESSENGER_Application *app,
-		      struct GNUNET_CHAT_Context *context,
-		      const struct GNUNET_CHAT_Message *msg);
+                      struct GNUNET_CHAT_Context *context,
+                      const struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a message
@@ -146,8 +146,8 @@ event_receive_message(MESSENGER_Application *app,
  */
 void
 event_delete_message(MESSENGER_Application *app,
-		     struct GNUNET_CHAT_Context *context,
-		     const struct GNUNET_CHAT_Message *msg);
+                     struct GNUNET_CHAT_Context *context,
+                     const struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a message

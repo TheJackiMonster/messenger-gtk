@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -86,7 +86,7 @@ typedef struct UI_MESSENGER_Handle
  */
 void
 ui_messenger_init(MESSENGER_Application *app,
-		  UI_MESSENGER_Handle *handle);
+                  UI_MESSENGER_Handle *handle);
 
 /**
  * Refreshes a given messenger window handle with
@@ -98,7 +98,7 @@ ui_messenger_init(MESSENGER_Application *app,
  */
 void
 ui_messenger_refresh(MESSENGER_Application *app,
-		     UI_MESSENGER_Handle *handle);
+                     UI_MESSENGER_Handle *handle);
 
 /**
  * Returns whether a certain chat context is currently
@@ -110,7 +110,7 @@ ui_messenger_refresh(MESSENGER_Application *app,
  */
 gboolean
 ui_messenger_is_context_active(UI_MESSENGER_Handle *handle,
-			       struct GNUNET_CHAT_Context *context);
+                               struct GNUNET_CHAT_Context *context);
 
 /**
  * Cleans up the allocated resources and resets the

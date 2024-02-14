@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -58,7 +58,7 @@ typedef struct UI_SEND_FILE_Handle
  */
 void
 ui_send_file_dialog_init(MESSENGER_Application *app,
-			 UI_SEND_FILE_Handle *handle);
+                         UI_SEND_FILE_Handle *handle);
 
 /**
  * Updates a given send file dialog handle with
@@ -70,7 +70,7 @@ ui_send_file_dialog_init(MESSENGER_Application *app,
  */
 void
 ui_send_file_dialog_update(UI_SEND_FILE_Handle *handle,
-			   const gchar *filename);
+                           const gchar *filename);
 
 /**
  * Cleans up the allocated resources and resets the

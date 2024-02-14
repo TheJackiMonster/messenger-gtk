@@ -31,6 +31,8 @@ static void
 handle_close_button_click(UNUSED GtkButton *button,
 			                    gpointer user_data)
 {
+  g_assert(user_data);
+  
   GtkDialog *dialog = GTK_DIALOG(user_data);
   gtk_window_close(GTK_WINDOW(dialog));
 }
@@ -38,6 +40,8 @@ handle_close_button_click(UNUSED GtkButton *button,
 static gboolean
 _open_new_account_dialog(gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   ui_new_account_dialog_init(app, &(app->ui.new_account));
@@ -49,6 +53,8 @@ _open_new_account_dialog(gpointer user_data)
 static gboolean
 _show_messenger_main_window(gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   // Refresh the account list
@@ -63,6 +69,8 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
                                       GtkListBoxRow* row,
                                       gpointer user_data)
 {
+  g_assert((row) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   // Drop activations of rows which do not contain accounts
@@ -98,6 +106,8 @@ static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
 		                  gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   if ((app->ui.accounts.show_queued) ||
@@ -112,6 +122,8 @@ _iterate_accounts(void *cls,
                   UNUSED const struct GNUNET_CHAT_Handle *handle,
                   struct GNUNET_CHAT_Account *account)
 {
+  g_assert((cls) && (account));
+
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
   UI_ACCOUNT_ENTRY_Handle *entry = ui_account_entry_new(app);
@@ -140,6 +152,8 @@ void
 ui_accounts_dialog_init(MESSENGER_Application *app,
 			                  UI_ACCOUNTS_Handle *handle)
 {
+  g_assert((app) && (handle));
+
   handle->show_queued = 0;
 
   handle->builder = gtk_builder_new_from_resource(
@@ -189,6 +203,8 @@ void
 ui_accounts_dialog_refresh(MESSENGER_Application *app,
 			                     UI_ACCOUNTS_Handle *handle)
 {
+  g_assert((app) && (handle));
+
   if (!(handle->accounts_listbox))
     return;
 
@@ -226,6 +242,8 @@ ui_accounts_dialog_refresh(MESSENGER_Application *app,
 void
 ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle)
 {
+  g_assert(handle);
+
   g_object_unref(handle->builder);
 
   guint show = handle->show_queued;

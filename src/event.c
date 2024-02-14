@@ -38,7 +38,7 @@ static void
 _close_notification(NotifyNotification* notification,
 		                gpointer user_data)
 {
-  GNUNET_assert((notification) && (user_data));
+  g_assert((notification) && (user_data));
 
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
@@ -58,7 +58,7 @@ _show_notification(MESSENGER_Application *app,
                    const char *icon,
                    const char *category)
 {
-  GNUNET_assert(
+  g_assert(
     (app) && (context) && (contact) && 
     (text) && (icon) && (category)
   );
@@ -94,7 +94,7 @@ event_handle_warning(MESSENGER_Application *app,
 		                 struct GNUNET_CHAT_Context *context,
 		                 const struct GNUNET_CHAT_Message *msg)
 {
-  GNUNET_assert((app) && (context) && (msg));
+  g_assert((app) && (context) && (msg));
 
   const char *text = GNUNET_CHAT_message_get_text(msg);
 
@@ -117,7 +117,7 @@ event_handle_warning(MESSENGER_Application *app,
 static gboolean
 _idle_refresh_accounts(gpointer user_data)
 {
-  GNUNET_assert(user_data);
+  g_assert(user_data);
 
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
@@ -137,7 +137,7 @@ refresh_exit:
 void
 event_refresh_accounts(MESSENGER_Application *app)
 {
-  GNUNET_assert(app);
+  g_assert(app);
 
   if (app->ui.messenger.account_refresh)
     g_source_remove(app->ui.messenger.account_refresh);
@@ -154,7 +154,7 @@ event_refresh_accounts(MESSENGER_Application *app)
 static gboolean
 _select_chat_to_activate(gpointer user_data)
 {
-  GNUNET_assert(user_data);
+  g_assert(user_data);
 
   UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) user_data;
 
@@ -187,7 +187,7 @@ _select_chat_to_activate(gpointer user_data)
 static gboolean
 _idle_chat_entry_update(gpointer user_data)
 {
-  GNUNET_assert(user_data);
+  g_assert(user_data);
 
   UI_CHAT_ENTRY_Handle *entry = (UI_CHAT_ENTRY_Handle*) user_data;
 
@@ -212,7 +212,7 @@ update_exit:
 static void
 enqueue_chat_entry_update(UI_CHAT_ENTRY_Handle *entry)
 {
-  GNUNET_assert(entry);
+  g_assert(entry);
 
   if (entry->update)
     g_source_remove(entry->update);
@@ -227,7 +227,7 @@ static void
 _add_new_chat_entry(MESSENGER_Application *app,
 		                struct GNUNET_CHAT_Context *context)
 {
-  GNUNET_assert((app) && (context));
+  g_assert((app) && (context));
 
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new(app);
@@ -272,7 +272,7 @@ _iterate_profile_contacts(void *cls,
 			                    UNUSED struct GNUNET_CHAT_Handle *handle,
 			                    struct GNUNET_CHAT_Contact *contact)
 {
-  GNUNET_assert((cls) && (contact));
+  g_assert((cls) && (contact));
 
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
@@ -292,7 +292,7 @@ _iterate_profile_groups(void *cls,
 		                    UNUSED struct GNUNET_CHAT_Handle *handle,
 		                    UNUSED struct GNUNET_CHAT_Group *group)
 {
-  GNUNET_assert(cls);
+  g_assert(cls);
 
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
@@ -311,7 +311,7 @@ static void
 _clear_chat_entry(GtkWidget *widget,
 		              gpointer user_data)
 {
-  GNUNET_assert((widget) && (user_data));
+  g_assert((widget) && (user_data));
 
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
@@ -340,7 +340,7 @@ _clear_chat_entry(GtkWidget *widget,
 void
 event_update_profile(MESSENGER_Application *app)
 {
-  GNUNET_assert(app);
+  g_assert(app);
 
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
@@ -372,7 +372,7 @@ _cleanup_profile_contacts(void *cls,
 			                    UNUSED struct GNUNET_CHAT_Handle *handle,
 			                    struct GNUNET_CHAT_Contact *contact)
 {
-  GNUNET_assert((cls) && (contact));
+  g_assert((cls) && (contact));
 
   if (contact)
     contact_destroy_info(contact);
@@ -382,7 +382,7 @@ _cleanup_profile_contacts(void *cls,
 void
 event_cleanup_profile(MESSENGER_Application *app)
 {
-  GNUNET_assert(app);
+  g_assert(app);
 
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
 
@@ -392,7 +392,7 @@ event_cleanup_profile(MESSENGER_Application *app)
 gboolean
 _delayed_context_drop(gpointer user_data)
 {
-  GNUNET_assert(user_data);
+  g_assert(user_data);
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) user_data;
 
@@ -412,7 +412,7 @@ event_update_chats(MESSENGER_Application *app,
 		               struct GNUNET_CHAT_Context *context,
 		               const struct GNUNET_CHAT_Message *msg)
 {
-  GNUNET_assert((app) && (context) && (msg));
+  g_assert((app) && (context) && (msg));
 
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 
@@ -443,7 +443,7 @@ event_update_chats(MESSENGER_Application *app,
 static void
 _update_contact_context(struct GNUNET_CHAT_Contact *contact)
 {
-  GNUNET_assert(contact);
+  g_assert(contact);
 
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
     contact
@@ -465,7 +465,7 @@ event_presence_contact(MESSENGER_Application *app,
 		                   struct GNUNET_CHAT_Context *context,
 		                   const struct GNUNET_CHAT_Message *msg)
 {
-  GNUNET_assert((app) && (context) && (msg));
+  g_assert((app) && (context) && (msg));
 
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 
@@ -549,7 +549,7 @@ event_update_contacts(UNUSED MESSENGER_Application *app,
 		                  struct GNUNET_CHAT_Context *context,
 		                  const struct GNUNET_CHAT_Message *msg)
 {
-  GNUNET_assert((app) && (context) && (msg));
+  g_assert((app) && (context) && (msg));
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
     msg
@@ -573,7 +573,7 @@ static void
 _event_invitation_accept_click(UNUSED GtkButton *button,
 			                         gpointer user_data)
 {
-  GNUNET_assert(user_data);
+  g_assert(user_data);
 
   struct GNUNET_CHAT_Invitation *invitation = (
     (struct GNUNET_CHAT_Invitation*) user_data
@@ -586,7 +586,7 @@ static void
 _event_invitation_deny_click(UNUSED GtkButton *button,
                              gpointer user_data)
 {
-  GNUNET_assert(user_data);
+  g_assert(user_data);
 
   struct GNUNET_CHAT_Invitation *invitation = (
     (struct GNUNET_CHAT_Invitation*) user_data
@@ -600,7 +600,7 @@ event_invitation(MESSENGER_Application *app,
                  struct GNUNET_CHAT_Context *context,
                  const struct GNUNET_CHAT_Message *msg)
 {
-  GNUNET_assert((app) && (context) && (msg));
+  g_assert((app) && (context) && (msg));
 
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 
@@ -684,7 +684,7 @@ event_receive_message(MESSENGER_Application *app,
                       struct GNUNET_CHAT_Context *context,
                       const struct GNUNET_CHAT_Message *msg)
 {
-  GNUNET_assert((app) && (context) && (msg));
+  g_assert((app) && (context) && (msg));
 
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 
@@ -767,7 +767,7 @@ event_delete_message(MESSENGER_Application *app,
                      struct GNUNET_CHAT_Context *context,
                      const struct GNUNET_CHAT_Message *msg)
 {
-  GNUNET_assert((app) && (context) && (msg));
+  g_assert((app) && (context) && (msg));
 
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 
@@ -802,7 +802,7 @@ event_tag_message(MESSENGER_Application *app,
                   struct GNUNET_CHAT_Context *context,
                   const struct GNUNET_CHAT_Message *msg)
 {
-  GNUNET_assert((app) && (context) && (msg));
+  g_assert((app) && (context) && (msg));
 
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 

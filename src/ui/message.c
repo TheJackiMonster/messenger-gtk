@@ -38,7 +38,7 @@ handle_downloading_file(void *cls,
                         uint64_t completed,
                         uint64_t size)
 {
-  GNUNET_assert((cls) && (file));
+  g_assert((cls) && (file));
 
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
@@ -52,7 +52,7 @@ static void
 handle_file_button_click(GtkButton *button,
 			                   gpointer user_data)
 {
-  GNUNET_assert((button) && (user_data));
+  g_assert((button) && (user_data));
 
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
@@ -118,7 +118,7 @@ static void
 handle_media_button_click(GtkButton *button,
 			                    gpointer user_data)
 {
-  GNUNET_assert((button) && (user_data));
+  g_assert((button) && (user_data));
 
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
@@ -159,7 +159,7 @@ handle_media_button_click(GtkButton *button,
 static int
 handle_message_redraw_animation(gpointer user_data)
 {
-  GNUNET_assert(user_data);
+  g_assert(user_data);
 
   UI_MESSAGE_Handle *handle = (UI_MESSAGE_Handle*) user_data;
 
@@ -179,7 +179,7 @@ handle_preview_drawing_area_draw(GtkWidget* drawing_area,
                                  cairo_t* cairo,
                                  gpointer user_data)
 {
-  GNUNET_assert((drawing_area) && (cairo) && (user_data));
+  g_assert((drawing_area) && (cairo) && (user_data));
 
   UI_MESSAGE_Handle *handle = (UI_MESSAGE_Handle*) user_data;
 
@@ -261,7 +261,7 @@ render_image:
 static void
 _clear_message_preview_data(UI_MESSAGE_Handle *handle)
 {
-  GNUNET_assert(handle);
+  g_assert(handle);
 
   if (handle->preview_image)
   {
@@ -299,7 +299,7 @@ UI_MESSAGE_Handle*
 ui_message_new(MESSENGER_Application *app,
 	             UI_MESSAGE_Type type)
 {
-  GNUNET_assert(app);
+  g_assert(app);
 
   UI_MESSAGE_Handle* handle = g_malloc(sizeof(UI_MESSAGE_Handle));
 
@@ -492,7 +492,7 @@ _iterate_read_receipts(void *cls,
                        const struct GNUNET_CHAT_Contact *contact,
                        int read_receipt)
 {
-  GNUNET_assert((cls) && (message) && (contact));
+  g_assert((cls) && (message) && (contact));
 
   int *count_read_receipts = (int*) cls;
 
@@ -506,7 +506,7 @@ _iterate_read_receipts(void *cls,
 void
 ui_message_refresh(UI_MESSAGE_Handle *handle)
 {
-  GNUNET_assert(handle);
+  g_assert(handle);
 
   if ((!(handle->msg)) ||
       (GNUNET_YES != GNUNET_CHAT_message_is_sent(handle->msg)))
@@ -549,7 +549,7 @@ _update_invitation_message(UI_MESSAGE_Handle *handle,
 		                       MESSENGER_Application *app,
                            struct GNUNET_CHAT_Invitation *invitation)
 {
-  GNUNET_assert((handle) && (app) && (invitation));
+  g_assert((handle) && (app) && (invitation));
 
   enum GNUNET_GenericReturnValue accepted, rejected;
   accepted = GNUNET_CHAT_invitation_is_accepted(invitation);
@@ -589,7 +589,7 @@ _update_file_message(UI_MESSAGE_Handle *handle,
 		                 MESSENGER_Application *app,
 		                 struct GNUNET_CHAT_File *file)
 {
-  GNUNET_assert((handle) && (app) && (file));
+  g_assert((handle) && (app) && (file));
 
   const char *filename = GNUNET_CHAT_file_get_name(file);
 
@@ -713,7 +713,7 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 		              MESSENGER_Application *app,
 		              const struct GNUNET_CHAT_Message *msg)
 {
-  GNUNET_assert((handle) && (app) && (msg));
+  g_assert((handle) && (app) && (msg));
 
   struct GNUNET_CHAT_File *file = NULL;
   struct GNUNET_CHAT_Invitation *invitation = NULL;
@@ -760,7 +760,7 @@ void
 ui_message_set_contact(UI_MESSAGE_Handle *handle,
 		                   const struct GNUNET_CHAT_Contact *contact)
 {
-  GNUNET_assert(handle);
+  g_assert(handle);
 
   if (handle->contact)
   {
@@ -780,7 +780,7 @@ ui_message_set_contact(UI_MESSAGE_Handle *handle,
 void
 ui_message_delete(UI_MESSAGE_Handle *handle)
 {
-  GNUNET_assert(handle);
+  g_assert(handle);
 
   ui_message_set_contact(handle, NULL);
 

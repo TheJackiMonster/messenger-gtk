@@ -75,7 +75,7 @@ typedef struct UI_CONTACT_INFO_Handle
  */
 void
 ui_contact_info_dialog_init(MESSENGER_Application *app,
-			    UI_CONTACT_INFO_Handle *handle);
+                            UI_CONTACT_INFO_Handle *handle);
 
 /**
  * Updates a given contact info dialog handle with
@@ -89,8 +89,8 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
  */
 void
 ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
-			      struct GNUNET_CHAT_Contact *contact,
-			      gboolean reveal);
+                              struct GNUNET_CHAT_Contact *contact,
+                              gboolean reveal);
 
 /**
  * Cleans up the allocated resources and resets the

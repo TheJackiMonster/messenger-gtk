@@ -34,6 +34,8 @@ static void
 handle_emoji_button_click(GtkButton *button,
 			                    gpointer user_data)
 {
+  g_assert((button) && (user_data));
+
   GtkTextView *text_view = GTK_TEXT_VIEW(user_data);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
 
@@ -49,6 +51,8 @@ _add_emoji_buttons(GtkFlowBox *flow_box,
 		               size_t characters_count,
 		               const uint32_t *characters)
 {
+  g_assert((flow_box) && (text_view) && (characters));
+
   glong items_written;
   GError *error;
   gchar *utf8;
@@ -87,6 +91,8 @@ static void
 _filter_emoji_buttons(GtkWidget* widget,
                       gpointer user_data)
 {
+  g_assert((widget) && (user_data));
+
   GtkSearchEntry *entry = GTK_SEARCH_ENTRY(user_data);
 
   const gchar *filter = gtk_entry_get_text(GTK_ENTRY(entry));
@@ -152,6 +158,8 @@ static void
 handle_emoji_search_entry_search_changed(GtkSearchEntry *entry,
                                          gpointer user_data)
 {
+  g_assert((entry) && (user_data));
+
   UI_PICKER_Handle *handle = (UI_PICKER_Handle*) user_data;
 
   gtk_container_foreach(
@@ -213,6 +221,8 @@ static void
 handle_search_button_click(UNUSED GtkButton *button,
 			                     gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_PICKER_Handle *handle = (UI_PICKER_Handle*) user_data;
 
   const gchar* picked = gtk_stack_get_visible_child_name(handle->picker_stack);
@@ -233,6 +243,8 @@ static void
 handle_settings_button_click(UNUSED GtkButton *button,
 			                       UNUSED gpointer user_data)
 {
+  // g_assert(user_data);
+
   // MESSENGER_Application *app = (MESSENGER_Application*) user_data;
   // TODO
 }
@@ -241,6 +253,8 @@ UI_PICKER_Handle*
 ui_picker_new(MESSENGER_Application *app,
               UI_CHAT_Handle *chat)
 {
+  g_assert((app) && (chat));
+
   UI_PICKER_Handle *handle = g_malloc(sizeof(UI_PICKER_Handle));
 
   handle->builder = gtk_builder_new_from_resource(
@@ -406,6 +420,8 @@ ui_picker_new(MESSENGER_Application *app,
 void
 ui_picker_delete(UI_PICKER_Handle *handle)
 {
+  g_assert(handle);
+
   hdy_view_switcher_bar_set_stack(handle->picker_switcher_bar, NULL);
   hdy_view_switcher_bar_set_stack(handle->emoji_switcher_bar, NULL);
 

@@ -164,8 +164,8 @@ typedef struct MESSENGER_Application
  */
 void
 application_init(MESSENGER_Application *app,
-		 int argc,
-		 char **argv);
+                 int argc,
+                 char **argv);
 
 /**
  * Returns the path from resources of the
@@ -177,7 +177,7 @@ application_init(MESSENGER_Application *app,
  */
 const gchar*
 application_get_resource_path(MESSENGER_Application *app,
-			      const char *path);
+                              const char *path);
 
 /**
  * Runs the messenger application starting the
@@ -198,13 +198,13 @@ void
 application_show_window(MESSENGER_Application *app);
 
 typedef void (*MESSENGER_ApplicationEvent) (
-    MESSENGER_Application *app
+  MESSENGER_Application *app
 );
 
 typedef void (*MESSENGER_ApplicationMessageEvent) (
-    MESSENGER_Application *app,
-    struct GNUNET_CHAT_Context *context,
-    const struct GNUNET_CHAT_Message *msg
+  MESSENGER_Application *app,
+  struct GNUNET_CHAT_Context *context,
+  const struct GNUNET_CHAT_Message *msg
 );
 
 /**
@@ -216,7 +216,7 @@ typedef void (*MESSENGER_ApplicationMessageEvent) (
  */
 void
 application_call_event(MESSENGER_Application *app,
-		       MESSENGER_ApplicationEvent event);
+                       MESSENGER_ApplicationEvent event);
 
 /**
  * Calls a given message event with the messenger
@@ -230,8 +230,8 @@ application_call_event(MESSENGER_Application *app,
  */
 void
 application_call_message_event(MESSENGER_Application *app,
-			       MESSENGER_ApplicationMessageEvent event,
-			       struct GNUNET_CHAT_Context *context,
+                               MESSENGER_ApplicationMessageEvent event,
+                               struct GNUNET_CHAT_Context *context,
                                const struct GNUNET_CHAT_Message *message);
 
 /**
@@ -242,7 +242,7 @@ application_call_message_event(MESSENGER_Application *app,
  */
 void
 application_exit(MESSENGER_Application *app,
-		 MESSENGER_ApplicationSignal signal);
+                 MESSENGER_ApplicationSignal signal);
 
 /**
  * Returns the exit status of the messenger application.

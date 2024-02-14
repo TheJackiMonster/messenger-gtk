@@ -29,6 +29,8 @@ request_new(MESSENGER_Application *application,
             GCancellable *cancellable,
             gpointer user_data)
 {
+  g_assert((application) && (cancellable));
+
   MESSENGER_Request* request = g_malloc(sizeof(MESSENGER_Request));
 
   request->application = application;
@@ -49,7 +51,12 @@ request_new_background(MESSENGER_Application *application,
                        GAsyncReadyCallback callback,
                        gpointer user_data)
 {
+  g_assert((application) && (callback));
+
   GCancellable* cancellable = g_cancellable_new();
+
+  if (!cancellable)
+    return NULL;
 
   MESSENGER_Request* request = request_new(
     application,
@@ -77,7 +84,12 @@ request_new_camera(MESSENGER_Application *application,
                    GAsyncReadyCallback callback,
                    gpointer user_data)
 {
+  g_assert((application) && (callback));
+
   GCancellable* cancellable = g_cancellable_new();
+
+  if (!cancellable)
+    return NULL;
 
   MESSENGER_Request* request = request_new(
     application,
@@ -100,6 +112,8 @@ request_new_camera(MESSENGER_Application *application,
 void
 request_cancel(MESSENGER_Request *request)
 {
+  g_assert(request);
+
   if (!request->cancellable)
     return;
   
@@ -110,6 +124,8 @@ request_cancel(MESSENGER_Request *request)
 void
 request_cleanup(MESSENGER_Request *request)
 {
+  g_assert(request);
+
   if (!request->cancellable)
     return;
 
@@ -120,6 +136,8 @@ request_cleanup(MESSENGER_Request *request)
 void
 request_drop(MESSENGER_Request *request)
 {
+  g_assert(request);
+
   if (request->application->requests)
     request->application->requests = g_list_remove(
       request->application->requests,
@@ -132,6 +150,8 @@ request_drop(MESSENGER_Request *request)
 void
 request_delete(MESSENGER_Request *request)
 {
+  g_assert(request);
+
   request_cleanup(request);
   g_free(request);
 }

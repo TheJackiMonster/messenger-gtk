@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -26,6 +26,7 @@
 
 #include "../application.h"
 #include "../ui.h"
+#include "../util.h"
 
 gboolean
 ui_play_media_window_supports_file_extension(const gchar *filename)
@@ -49,17 +50,21 @@ ui_play_media_window_supports_file_extension(const gchar *filename)
 }
 
 static void
-handle_back_button_click(GtkButton *button,
-			 gpointer user_data)
+handle_back_button_click(UNUSED GtkButton *button,
+			                   gpointer user_data)
 {
+  g_assert(user_data);
+
   GtkWindow *window = GTK_WINDOW(user_data);
   gtk_window_close(window);
 }
 
 static void
 _set_media_controls_sensivity(UI_PLAY_MEDIA_Handle *handle,
-			      gboolean sensitive)
+			                        gboolean sensitive)
 {
+  g_assert(handle);
+
   if (handle->play_pause_button)
     gtk_widget_set_sensitive(
       GTK_WIDGET(handle->play_pause_button),
@@ -81,12 +86,14 @@ _set_media_controls_sensivity(UI_PLAY_MEDIA_Handle *handle,
 
 static void
 handle_timeline_scale_value_changed(GtkRange *range,
-				    gpointer user_data);
+				                            gpointer user_data);
 
 static void
 _set_signal_connection_of_timeline(UI_PLAY_MEDIA_Handle *handle,
-				   gboolean connected)
+				                           gboolean connected)
 {
+  g_assert(handle);
+
   if (!(handle->timeline_scale))
     return;
 
@@ -95,7 +102,7 @@ _set_signal_connection_of_timeline(UI_PLAY_MEDIA_Handle *handle,
 
   if (connected)
     handle->timeline_signal = g_signal_connect(
-	handle->timeline_scale,
+	    handle->timeline_scale,
     	"value-changed",
     	G_CALLBACK(handle_timeline_scale_value_changed),
     	handle
@@ -103,8 +110,8 @@ _set_signal_connection_of_timeline(UI_PLAY_MEDIA_Handle *handle,
   else
   {
     g_signal_handler_disconnect(
-	handle->timeline_scale,
-	handle->timeline_signal
+      handle->timeline_scale,
+      handle->timeline_signal
     );
 
     handle->timeline_signal = 0;
@@ -113,10 +120,12 @@ _set_signal_connection_of_timeline(UI_PLAY_MEDIA_Handle *handle,
 
 static void
 _set_media_position(UI_PLAY_MEDIA_Handle *handle,
-		    gint64 pos,
-		    gint64 len,
-		    gboolean include_scale)
+                    gint64 pos,
+                    gint64 len,
+                    gboolean include_scale)
 {
+  g_assert(handle);
+
   const gdouble position = (
       len > 0? 1.0 * pos / len : 0.0
   );
@@ -163,6 +172,8 @@ _set_media_position(UI_PLAY_MEDIA_Handle *handle,
 static gboolean
 _adjust_playing_media_position(UI_PLAY_MEDIA_Handle *handle)
 {
+  g_assert(handle);
+
   gint64 pos, len;
 
   if (!(handle->pipeline))
@@ -180,8 +191,10 @@ _adjust_playing_media_position(UI_PLAY_MEDIA_Handle *handle)
 
 static void
 _set_timeout_callback_of_timeline(UI_PLAY_MEDIA_Handle *handle,
-				  gboolean connected)
+				                          gboolean connected)
 {
+  g_assert(handle);
+  
   if (handle->timeline)
     g_source_remove(handle->timeline);
 
@@ -197,8 +210,10 @@ _set_timeout_callback_of_timeline(UI_PLAY_MEDIA_Handle *handle,
 
 static void
 _set_media_state(UI_PLAY_MEDIA_Handle *handle,
-		 gboolean playing)
+		             gboolean playing)
 {
+  g_assert(handle);
+  
   if (handle->play_symbol_stack)
     gtk_stack_set_visible_child_name(
         handle->play_symbol_stack,
@@ -210,9 +225,9 @@ _set_media_state(UI_PLAY_MEDIA_Handle *handle,
 
 static void
 _disable_video_processing(UI_PLAY_MEDIA_Handle *handle,
-			  gboolean drop_pipeline)
+			                    gboolean drop_pipeline)
 {
-  GNUNET_assert(handle);
+  g_assert(handle);
 
   if (handle->preview_stack)
     gtk_stack_set_visible_child(handle->preview_stack, handle->fail_box);
@@ -437,16 +452,20 @@ handle_media_motion_notify(GtkWidget *widget,
 
 static void
 handle_window_destroy(UNUSED GtkWidget *window,
-		      gpointer user_data)
+		                  gpointer user_data)
 {
+  g_assert(user_data);
+
   ui_play_media_window_cleanup((UI_PLAY_MEDIA_Handle*) user_data);
 }
 
 static void
 msg_error_cb(UNUSED GstBus *bus,
-	     GstMessage *msg,
-	     gpointer data)
+             GstMessage *msg,
+             gpointer data)
 {
+  g_assert((msg) && (data));
+
   UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) data;
 
   GError* error;
@@ -464,9 +483,11 @@ msg_error_cb(UNUSED GstBus *bus,
 
 static void
 msg_eos_cb(UNUSED GstBus *bus,
-	   UNUSED GstMessage *msg,
-	   gpointer data)
+           UNUSED GstMessage *msg,
+           gpointer data)
 {
+  g_assert(data);
+
   UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) data;
 
   if (GST_MESSAGE_SRC(msg) != GST_OBJECT(handle->pipeline))
@@ -480,9 +501,11 @@ msg_eos_cb(UNUSED GstBus *bus,
 
 static void
 msg_state_changed_cb(UNUSED GstBus *bus,
-		     GstMessage *msg,
-		     gpointer data)
+                     GstMessage *msg,
+                     gpointer data)
 {
+  g_assert((msg) && (data));
+
   UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) data;
 
   GstState old_state, new_state, pending_state;
@@ -508,9 +531,11 @@ msg_state_changed_cb(UNUSED GstBus *bus,
 
 static void
 msg_buffering_cb(UNUSED GstBus *bus,
-		 GstMessage *msg,
-		 gpointer data)
+                 GstMessage *msg,
+                 gpointer data)
 {
+  g_assert((msg) && (data));
+
   UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) data;
 
   gint percent = 0;
@@ -528,6 +553,8 @@ msg_buffering_cb(UNUSED GstBus *bus,
 static void
 _setup_gst_pipeline(UI_PLAY_MEDIA_Handle *handle)
 {
+  g_assert(handle);
+
   handle->pipeline = gst_element_factory_make("playbin", NULL);
 
   if (!(handle->pipeline))
@@ -586,6 +613,8 @@ _setup_gst_pipeline(UI_PLAY_MEDIA_Handle *handle)
 static void*
 _ui_play_media_video_thread(void *args)
 {
+  g_assert(args);
+
   UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) args;
   _continue_playing_media(handle);
   return NULL;
@@ -593,67 +622,67 @@ _ui_play_media_video_thread(void *args)
 
 void
 ui_play_media_window_init(MESSENGER_Application *app,
-			  UI_PLAY_MEDIA_Handle *handle)
+                          UI_PLAY_MEDIA_Handle *handle)
 {
-  GNUNET_assert((app) && (handle));
+  g_assert((app) && (handle));
 
   _setup_gst_pipeline(handle);
 
   handle->parent = GTK_WINDOW(app->ui.messenger.main_window);
 
   handle->builder = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/play_media.ui")
+    application_get_resource_path(app, "ui/play_media.ui")
   );
 
   handle->window = HDY_WINDOW(
-      gtk_builder_get_object(handle->builder, "play_media_window")
+    gtk_builder_get_object(handle->builder, "play_media_window")
   );
 
   gtk_window_set_position(
-      GTK_WINDOW(handle->window),
-      GTK_WIN_POS_CENTER_ON_PARENT
+    GTK_WINDOW(handle->window),
+    GTK_WIN_POS_CENTER_ON_PARENT
   );
 
   gtk_window_set_transient_for(
-      GTK_WINDOW(handle->window),
-      handle->parent
+    GTK_WINDOW(handle->window),
+    handle->parent
   );
 
   handle->header_revealer = GTK_REVEALER(
-      gtk_builder_get_object(handle->builder, "header_revealer")
+    gtk_builder_get_object(handle->builder, "header_revealer")
   );
 
   handle->title_bar = HDY_HEADER_BAR(
-      gtk_builder_get_object(handle->builder, "title_bar")
+    gtk_builder_get_object(handle->builder, "title_bar")
   );
 
   hdy_header_bar_set_title(handle->title_bar, _("Play Media"));
 
   handle->back_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "back_button")
+    gtk_builder_get_object(handle->builder, "back_button")
   );
 
   g_signal_connect(
-      handle->back_button,
-      "clicked",
-      G_CALLBACK(handle_back_button_click),
-      handle->window
+    handle->back_button,
+    "clicked",
+    G_CALLBACK(handle_back_button_click),
+    handle->window
   );
 
   handle->controls_flap = HDY_FLAP(
-      gtk_builder_get_object(handle->builder, "controls_flap")
+    gtk_builder_get_object(handle->builder, "controls_flap")
   );
 
   handle->preview_stack = GTK_STACK(
-      gtk_builder_get_object(handle->builder, "preview_stack")
+    gtk_builder_get_object(handle->builder, "preview_stack")
   );
 
   handle->fail_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder, "fail_box")
+    gtk_builder_get_object(handle->builder, "fail_box")
   );
 
   handle->video_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder, "video_box")
+    gtk_builder_get_object(handle->builder, "video_box")
   );
 
   GtkWidget *widget;
@@ -679,87 +708,87 @@ ui_play_media_window_init(MESSENGER_Application *app,
   }
 
   handle->play_pause_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "play_pause_button")
+    gtk_builder_get_object(handle->builder, "play_pause_button")
   );
 
   handle->play_symbol_stack = GTK_STACK(
-      gtk_builder_get_object(handle->builder, "play_symbol_stack")
+    gtk_builder_get_object(handle->builder, "play_symbol_stack")
   );
 
   g_signal_connect(
-      handle->play_pause_button,
-      "clicked",
-      G_CALLBACK(handle_play_pause_button_click),
-      handle
+    handle->play_pause_button,
+    "clicked",
+    G_CALLBACK(handle_play_pause_button_click),
+    handle
   );
 
   handle->volume_button = GTK_VOLUME_BUTTON(
-      gtk_builder_get_object(handle->builder, "volume_button")
+    gtk_builder_get_object(handle->builder, "volume_button")
   );
 
   g_signal_connect(
-      handle->volume_button,
-      "value-changed",
-      G_CALLBACK(handle_volume_button_value_changed),
-      handle
+    handle->volume_button,
+    "value-changed",
+    G_CALLBACK(handle_volume_button_value_changed),
+    handle
   );
 
   handle->timeline_label = GTK_LABEL(
-      gtk_builder_get_object(handle->builder, "timeline_label")
+    gtk_builder_get_object(handle->builder, "timeline_label")
   );
 
   handle->timeline_progress_bar = GTK_PROGRESS_BAR(
-      gtk_builder_get_object(handle->builder, "timeline_progress_bar")
+    gtk_builder_get_object(handle->builder, "timeline_progress_bar")
   );
 
   handle->timeline_scale = GTK_SCALE(
-      gtk_builder_get_object(handle->builder, "timeline_scale")
+    gtk_builder_get_object(handle->builder, "timeline_scale")
   );
 
   _set_signal_connection_of_timeline(handle, handle->sink? TRUE : FALSE);
 
   handle->settings_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "settings_button")
+    gtk_builder_get_object(handle->builder, "settings_button")
   );
 
   handle->fullscreen_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "fullscreen_button")
+    gtk_builder_get_object(handle->builder, "fullscreen_button")
   );
 
   handle->fullscreen_symbol_stack = GTK_STACK(
-      gtk_builder_get_object(handle->builder, "fullscreen_symbol_stack")
+    gtk_builder_get_object(handle->builder, "fullscreen_symbol_stack")
   );
 
   g_signal_connect(
-      handle->fullscreen_button,
-      "clicked",
-      G_CALLBACK(handle_fullscreen_button_click),
-      handle
+    handle->fullscreen_button,
+    "clicked",
+    G_CALLBACK(handle_fullscreen_button_click),
+    handle
   );
 
   g_signal_connect(
-      handle->window,
-      "motion-notify-event",
-      G_CALLBACK(handle_media_motion_notify),
-      handle
+    handle->window,
+    "motion-notify-event",
+    G_CALLBACK(handle_media_motion_notify),
+    handle
   );
 
   gtk_widget_add_events(
-      GTK_WIDGET(handle->window),
-      GDK_POINTER_MOTION_HINT_MASK |
-      GDK_POINTER_MOTION_MASK
+    GTK_WIDGET(handle->window),
+    GDK_POINTER_MOTION_HINT_MASK |
+    GDK_POINTER_MOTION_MASK
   );
 
   g_signal_connect(
-      handle->window,
-      "destroy",
-      G_CALLBACK(handle_window_destroy),
-      handle
+    handle->window,
+    "destroy",
+    G_CALLBACK(handle_window_destroy),
+    handle
   );
 
   gtk_scale_button_set_value(
-      GTK_SCALE_BUTTON(handle->volume_button),
-      1.0
+    GTK_SCALE_BUTTON(handle->volume_button),
+    1.0
   );
 
   gtk_widget_show_all(GTK_WIDGET(handle->window));
@@ -770,7 +799,7 @@ ui_play_media_window_update(UI_PLAY_MEDIA_Handle *handle,
 			    const gchar *uri,
 			    const struct GNUNET_CHAT_File *file)
 {
-  GNUNET_assert((handle) && (uri));
+  g_assert((handle) && (uri));
 
   if (handle->video_tid)
     pthread_join(handle->video_tid, NULL);
@@ -789,22 +818,22 @@ ui_play_media_window_update(UI_PLAY_MEDIA_Handle *handle,
     filename = uri;
 
   hdy_header_bar_set_subtitle(
-      handle->title_bar,
-      filename? filename : ""
+    handle->title_bar,
+    filename? filename : ""
   );
 
   pthread_create(
-      &(handle->video_tid),
-      NULL,
-      _ui_play_media_video_thread,
-      handle
+    &(handle->video_tid),
+    NULL,
+    _ui_play_media_video_thread,
+    handle
   );
 }
 
 void
 ui_play_media_window_cleanup(UI_PLAY_MEDIA_Handle *handle)
 {
-  GNUNET_assert(handle);
+  g_assert(handle);
 
   if (handle->video_tid)
     pthread_join(handle->video_tid, NULL);

@@ -36,6 +36,8 @@
 static void
 _load_ui_stylesheets(MESSENGER_Application *app)
 {
+  g_assert(app);
+
   GdkScreen* screen = gdk_screen_get_default();
   GtkCssProvider* provider = gtk_css_provider_new();
 
@@ -54,6 +56,8 @@ _load_ui_stylesheets(MESSENGER_Application *app)
 static gboolean
 _application_accounts(gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   app->init = 0;
@@ -68,6 +72,8 @@ _application_accounts(gpointer user_data)
 static void
 _application_init(MESSENGER_Application *app)
 {
+  g_assert(app);
+
   ui_messenger_init(app, &(app->ui.messenger));
 
   if (app->portal)
@@ -83,6 +89,8 @@ static void
 _application_activate(GApplication* application,
 		                  gpointer user_data)
 {
+  g_assert((application) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   g_application_hold(application);
@@ -99,6 +107,8 @@ _application_open(GApplication* application,
                   UNUSED gchar* hint,
                   gpointer user_data)
 {
+  g_assert((application) && (files) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   g_application_hold(application);
@@ -141,6 +151,8 @@ on_core_done(void *data,
              UNUSED uint32_t id,
              int seq)
 {
+  g_assert(data);
+
 	MESSENGER_Application *app = (MESSENGER_Application*) data;
 
 	if (seq == app->pw.pending)
@@ -150,15 +162,17 @@ on_core_done(void *data,
 static void
 on_core_error(void *data,
               UNUSED uint32_t id,
-              int seq,
+              UNUSED int seq,
               int res,
               const char *message)
 {
+  g_assert((data) && (message));
+
 	MESSENGER_Application *app = (MESSENGER_Application*) data;
 
   g_printerr("ERROR: %s\n", message);
 
-	if (id == PW_ID_CORE && res == -EPIPE)
+	if ((id == PW_ID_CORE) && (res == -EPIPE))
 		pw_main_loop_quit(app->pw.main_loop);
 }
 
@@ -176,6 +190,8 @@ registry_event_global(void *data,
                       uint32_t version,
                       const struct spa_dict *props)
 {
+  g_assert(data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) data;
 
 	if (!props)
@@ -198,6 +214,8 @@ static void
 registry_event_global_remove(void *data,
                              uint32_t id)
 {
+  g_assert(data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) data;
 
   struct pw_properties *properties = pw_map_lookup(&(app->pw.globals), id);
@@ -219,6 +237,8 @@ application_init(MESSENGER_Application *app,
                  int argc,
                  char **argv)
 {
+  g_assert((app) && (argv));
+
   memset(app, 0, sizeof(*app));
 
   app->argc = argc;
@@ -339,6 +359,8 @@ const gchar*
 application_get_resource_path(MESSENGER_Application *app,
 			                        const char *path)
 {
+  g_assert((app) && (path));
+
   static gchar resource_path [PATH_MAX];
 
   const gchar *base_path = g_application_get_resource_base_path(
@@ -352,6 +374,8 @@ application_get_resource_path(MESSENGER_Application *app,
 static void*
 _application_chat_thread(void *args)
 {
+  g_assert(args);
+
   MESSENGER_Application *app = (MESSENGER_Application*) args;
 
   struct GNUNET_GETOPT_CommandLineOption options[] = {
@@ -387,6 +411,8 @@ _application_chat_thread(void *args)
 void
 application_run(MESSENGER_Application *app)
 {
+  g_assert(app);
+
   // Start thread to run GNUnet scheduler
   pthread_create(
     &(app->chat.tid),
@@ -457,6 +483,8 @@ _request_background_callback(GObject *source_object,
                              GAsyncResult *result,
                              gpointer user_data)
 {
+  g_assert((source_object) && (result) && (user_data));
+
   XdpPortal *portal = XDP_PORTAL(source_object);
   MESSENGER_Request *request = (MESSENGER_Request*) user_data;
 
@@ -482,6 +510,8 @@ _request_background_callback(GObject *source_object,
 void
 application_show_window(MESSENGER_Application *app)
 {
+  g_assert(app);
+
   gtk_widget_show(GTK_WIDGET(app->ui.messenger.main_window));
 
   request_new_background(
@@ -508,6 +538,8 @@ typedef struct MESSENGER_ApplicationEventCall
 static gboolean
 _application_event_call(gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_ApplicationEventCall *call;
 
   call = (MESSENGER_ApplicationEventCall*) user_data;
@@ -525,6 +557,8 @@ void
 application_call_event(MESSENGER_Application *app,
 		                   MESSENGER_ApplicationEvent event)
 {
+  g_assert((app) && (event));
+
   MESSENGER_ApplicationEventCall *call;
 
   call = (MESSENGER_ApplicationEventCall*) GNUNET_malloc(
@@ -549,6 +583,8 @@ typedef struct MESSENGER_ApplicationMessageEventCall
 static gboolean
 _application_message_event_call(gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_ApplicationMessageEventCall *call;
 
   call = (MESSENGER_ApplicationMessageEventCall*) user_data;
@@ -568,10 +604,9 @@ application_call_message_event(MESSENGER_Application *app,
                                struct GNUNET_CHAT_Context *context,
                                const struct GNUNET_CHAT_Message *message)
 {
-  MESSENGER_ApplicationMessageEventCall *call;
+  g_assert((app) && (event) && (message));
 
-  if (!event)
-    return;
+  MESSENGER_ApplicationMessageEventCall *call;
 
   call = (MESSENGER_ApplicationMessageEventCall*) GNUNET_malloc(
     sizeof(MESSENGER_ApplicationMessageEventCall)
@@ -588,9 +623,13 @@ application_call_message_event(MESSENGER_Application *app,
 
 static int
 destroy_global(void *obj,
-               void *data)
+               UNUSED void *data)
 {
   struct pw_properties *properties = (struct pw_properties*) obj;
+
+  if (!properties)
+    return 0;
+
 	pw_properties_free(properties);
 	return 0;
 }
@@ -599,6 +638,8 @@ void
 application_exit(MESSENGER_Application *app,
 		             MESSENGER_ApplicationSignal signal)
 {
+  g_assert(app);
+
   // Forward a signal to the other thread causing it to shutdown the
   // GNUnet handles of the application.
   write(app->chat.pipe[1], &signal, sizeof(signal));
@@ -635,6 +676,8 @@ application_exit(MESSENGER_Application *app,
 int
 application_status(MESSENGER_Application *app)
 {
+  g_assert(app);
+  
   if (EXIT_SUCCESS != app->chat.status)
     return app->chat.status;
 

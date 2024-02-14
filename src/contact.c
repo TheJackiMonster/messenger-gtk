@@ -45,6 +45,8 @@ contact_create_info(struct GNUNET_CHAT_Contact *contact)
 void
 contact_destroy_info(struct GNUNET_CHAT_Contact *contact)
 {
+  g_assert(contact);
+
   MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
 
   if (!info)
@@ -88,9 +90,11 @@ void
 contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
 			                         GtkLabel *label)
 {
+  g_assert(label);
+
   MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
 
-  if ((!info) || (!label))
+  if (!info)
     return;
 
   const char *name = GNUNET_CHAT_contact_get_name(contact);
@@ -104,9 +108,11 @@ void
 contact_remove_name_label_from_info(const struct GNUNET_CHAT_Contact *contact,
 			                              GtkLabel *label)
 {
+  g_assert(label);
+
   MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
 
-  if ((!info) || (!label))
+  if (!info)
     return;
 
   if (info->name_labels)
@@ -117,9 +123,11 @@ void
 contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
 			                          HdyAvatar *avatar)
 {
+  g_assert(avatar);
+
   MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
 
-  if ((!info) || (!avatar))
+  if (!info)
     return;
 
   const char *name = GNUNET_CHAT_contact_get_name(contact);
@@ -133,9 +141,11 @@ void
 contact_remove_name_avatar_from_info(const struct GNUNET_CHAT_Contact *contact,
 			                               HdyAvatar *avatar)
 {
+  g_assert(avatar);
+
   MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
 
-  if ((!info) || (!avatar))
+  if (!info)
     return;
 
   if (info->name_avatars)

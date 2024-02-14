@@ -34,6 +34,8 @@
 UI_CHAT_ENTRY_Handle*
 ui_chat_entry_new(MESSENGER_Application *app)
 {
+  g_assert(app);
+
   UI_CHAT_ENTRY_Handle* handle = g_malloc(sizeof(UI_CHAT_ENTRY_Handle));
 
   memset(handle, 0, sizeof(*handle));
@@ -77,6 +79,8 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 		                 MESSENGER_Application *app,
 		                 struct GNUNET_CHAT_Context *context)
 {
+  g_assert((handle) && (app));
+
   const struct GNUNET_CHAT_Contact* contact;
   const struct GNUNET_CHAT_Group* group;
 
@@ -173,6 +177,8 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 void
 ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle)
 {
+  g_assert(handle);
+
   ui_chat_delete(handle->chat);
 
   g_object_unref(handle->builder);
@@ -187,7 +193,7 @@ void
 ui_chat_entry_dispose(UI_CHAT_ENTRY_Handle *handle,
 		                  MESSENGER_Application *app)
 {
-  GNUNET_assert((handle) && (handle->entry_box));
+  g_assert((handle) && (handle->entry_box));
 
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
 

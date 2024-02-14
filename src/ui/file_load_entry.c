@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -30,8 +30,10 @@
 
 static void
 handle_cancel_button_click(GNUNET_UNUSED GtkButton *button,
-			   gpointer user_data)
+                           gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_FILE_LOAD_ENTRY_Handle* handle = (UI_FILE_LOAD_ENTRY_Handle*) user_data;
 
   if (handle->chat)
@@ -43,6 +45,8 @@ handle_cancel_button_click(GNUNET_UNUSED GtkButton *button,
 UI_FILE_LOAD_ENTRY_Handle*
 ui_file_load_entry_new(MESSENGER_Application *app)
 {
+  g_assert(app);
+
   UI_FILE_LOAD_ENTRY_Handle* handle = g_malloc(sizeof(UI_FILE_LOAD_ENTRY_Handle));
 
   handle->chat = NULL;
@@ -84,6 +88,8 @@ ui_file_load_entry_new(MESSENGER_Application *app)
 void
 ui_file_load_entry_delete(UI_FILE_LOAD_ENTRY_Handle *handle)
 {
+  g_assert(handle);
+
   g_object_unref(handle->builder);
 
   g_free(handle);

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -27,15 +27,18 @@
 #include "../application.h"
 
 static void
-_open_new_platform(GtkEntry *entry, MESSENGER_Application *app)
+_open_new_platform(GtkEntry *entry,
+                   MESSENGER_Application *app)
 {
+  g_assert((entry) && (app));
+
   const gchar *topic = gtk_entry_get_text(entry);
 
   GString *topic_string = g_string_new(topic);
 
   struct GNUNET_CHAT_Group *group = GNUNET_CHAT_group_create(
-      app->chat.messenger.handle,
-      topic_string->str
+    app->chat.messenger.handle,
+    topic_string->str
   );
 
   g_string_prepend_c(topic_string, '#');
@@ -46,8 +49,10 @@ _open_new_platform(GtkEntry *entry, MESSENGER_Application *app)
 
 static void
 handle_platform_entry_changed(GtkEditable *editable,
-			      gpointer user_data)
+                              gpointer user_data)
 {
+  g_assert((editable) && (user_data));
+
   HdyAvatar *avatar = HDY_AVATAR(user_data);
   GtkEntry *entry = GTK_ENTRY(editable);
 
@@ -65,8 +70,10 @@ handle_platform_entry_changed(GtkEditable *editable,
 
 static void
 handle_platform_entry_activate(GtkEntry *entry,
-			       gpointer user_data)
+                               gpointer user_data)
 {
+  g_assert((entry) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   _open_new_platform(entry, app);
@@ -76,16 +83,20 @@ handle_platform_entry_activate(GtkEntry *entry,
 
 static void
 handle_cancel_button_click(UNUSED GtkButton *button,
-			   gpointer user_data)
+                           gpointer user_data)
 {
+  g_assert(user_data);
+
   GtkDialog *dialog = GTK_DIALOG(user_data);
   gtk_window_close(GTK_WINDOW(dialog));
 }
 
 static void
 handle_confirm_button_click(UNUSED GtkButton *button,
-			    gpointer user_data)
+                            gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   _open_new_platform(app->ui.new_platform.platform_entry, app);
@@ -95,87 +106,93 @@ handle_confirm_button_click(UNUSED GtkButton *button,
 
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
-		      gpointer user_data)
+                      gpointer user_data)
 {
+  g_assert(user_data);
+
   ui_new_platform_dialog_cleanup((UI_NEW_PLATFORM_Handle*) user_data);
 }
 
 void
 ui_new_platform_dialog_init(MESSENGER_Application *app,
-			    UI_NEW_PLATFORM_Handle *handle)
+                            UI_NEW_PLATFORM_Handle *handle)
 {
+  g_assert((app) && (handle));
+
   handle->builder = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/new_platform.ui")
+    application_get_resource_path(app, "ui/new_platform.ui")
   );
 
   handle->dialog = GTK_DIALOG(
-      gtk_builder_get_object(handle->builder, "new_platform_dialog")
+    gtk_builder_get_object(handle->builder, "new_platform_dialog")
   );
 
   gtk_window_set_transient_for(
-      GTK_WINDOW(handle->dialog),
-      GTK_WINDOW(app->ui.messenger.main_window)
+    GTK_WINDOW(handle->dialog),
+    GTK_WINDOW(app->ui.messenger.main_window)
   );
 
   handle->platform_avatar = HDY_AVATAR(
-      gtk_builder_get_object(handle->builder, "platform_avatar")
+    gtk_builder_get_object(handle->builder, "platform_avatar")
   );
 
   handle->platform_avatar_file = GTK_FILE_CHOOSER_BUTTON(
-      gtk_builder_get_object(handle->builder, "platform_avatar_file")
+    gtk_builder_get_object(handle->builder, "platform_avatar_file")
   );
 
   handle->platform_entry = GTK_ENTRY(
-      gtk_builder_get_object(handle->builder, "platform_entry")
+    gtk_builder_get_object(handle->builder, "platform_entry")
   );
 
   g_signal_connect(
-      handle->platform_entry,
-      "changed",
-      G_CALLBACK(handle_platform_entry_changed),
-      handle->platform_avatar
+    handle->platform_entry,
+    "changed",
+    G_CALLBACK(handle_platform_entry_changed),
+    handle->platform_avatar
   );
 
   g_signal_connect(
-      handle->platform_entry,
-      "activate",
-      G_CALLBACK(handle_platform_entry_activate),
-      app
+    handle->platform_entry,
+    "activate",
+    G_CALLBACK(handle_platform_entry_activate),
+    app
   );
 
   handle->cancel_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "cancel_button")
+    gtk_builder_get_object(handle->builder, "cancel_button")
   );
 
   g_signal_connect(
-      handle->cancel_button,
-      "clicked",
-      G_CALLBACK(handle_cancel_button_click),
-      handle->dialog
+    handle->cancel_button,
+    "clicked",
+    G_CALLBACK(handle_cancel_button_click),
+    handle->dialog
   );
 
   handle->confirm_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "confirm_button")
+    gtk_builder_get_object(handle->builder, "confirm_button")
   );
 
   g_signal_connect(
-      handle->confirm_button,
-      "clicked",
-      G_CALLBACK(handle_confirm_button_click),
-      app
+    handle->confirm_button,
+    "clicked",
+    G_CALLBACK(handle_confirm_button_click),
+    app
   );
 
   g_signal_connect(
-      handle->dialog,
-      "destroy",
-      G_CALLBACK(handle_dialog_destroy),
-      handle
+    handle->dialog,
+    "destroy",
+    G_CALLBACK(handle_dialog_destroy),
+    handle
   );
 }
 
 void
 ui_new_platform_dialog_cleanup(UI_NEW_PLATFORM_Handle *handle)
 {
+  g_assert(handle);
+
   g_object_unref(handle->builder);
 
   memset(handle, 0, sizeof(*handle));

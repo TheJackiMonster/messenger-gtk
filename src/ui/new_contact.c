@@ -33,6 +33,8 @@ static void
 handle_cancel_button_click(UNUSED GtkButton *button,
 			                     gpointer user_data)
 {
+  g_assert(user_data);
+  
   GtkDialog *dialog = GTK_DIALOG(user_data);
   gtk_window_close(GTK_WINDOW(dialog));
 }
@@ -41,6 +43,8 @@ static void
 handle_confirm_button_click(UNUSED GtkButton *button,
 			                      gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   const gint id_length = gtk_entry_get_text_length(app->ui.new_contact.id_entry);
@@ -72,6 +76,8 @@ static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
 		                  gpointer user_data)
 {
+  g_assert(user_data);
+
   ui_new_contact_dialog_cleanup((UI_NEW_CONTACT_Handle*) user_data);
 }
 
@@ -79,6 +85,8 @@ static void
 handle_camera_combo_box_change(GtkComboBox *widget,
 			                         gpointer user_data)
 {
+  g_assert((widget) && (user_data));
+
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) user_data;
   gchar *name = NULL;
 
@@ -116,7 +124,7 @@ static void
 _disable_video_processing(UI_NEW_CONTACT_Handle *handle,
 			                    gboolean drop_pipeline)
 {
-  GNUNET_assert(handle);
+  g_assert(handle);
 
   if (handle->preview_stack)
     goto skip_stack;
@@ -138,6 +146,8 @@ msg_error_cb(UNUSED GstBus *bus,
              GstMessage *msg,
              gpointer data)
 {
+  g_assert((msg) && (data));
+
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
 
   GError* error;
@@ -158,6 +168,8 @@ msg_eos_cb(UNUSED GstBus *bus,
            UNUSED GstMessage *msg,
            gpointer data)
 {
+  g_assert(data);
+
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
 
   if (GST_MESSAGE_SRC(msg) == GST_OBJECT(handle->pipeline))
@@ -169,6 +181,8 @@ msg_state_changed_cb(UNUSED GstBus *bus,
                      GstMessage *msg,
                      gpointer data)
 {
+  g_assert((msg) && (data));
+
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
 
   GstState old_state, new_state, pending_state;
@@ -192,6 +206,8 @@ msg_barcode_cb(UNUSED GstBus *bus,
                GstMessage *msg,
                gpointer data)
 {
+  g_assert((msg) && (data));
+
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
   GstMessageType msg_type = GST_MESSAGE_TYPE(msg);
 
@@ -217,6 +233,8 @@ msg_barcode_cb(UNUSED GstBus *bus,
 static void
 _setup_gst_pipeline(UI_NEW_CONTACT_Handle *handle)
 {
+  g_assert(handle);
+
   handle->pipeline = gst_parse_launch(
     "pipewiresrc name=source ! videoconvert ! zbar name=scanner"
     " ! videoconvert ! aspectratiocrop aspect-ratio=1/1"
@@ -281,6 +299,8 @@ _setup_gst_pipeline(UI_NEW_CONTACT_Handle *handle)
 static void*
 _ui_new_contact_video_thread(void *args)
 {
+  g_assert(args);
+
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) args;
 
   if (!(handle->pipeline))
@@ -301,6 +321,8 @@ static int
 iterate_global(void *obj,
                void *data)
 {
+  g_assert(data);
+
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
   struct pw_properties *properties = (struct pw_properties*) obj;
 
@@ -356,6 +378,8 @@ _init_camera_pipeline(MESSENGER_Application *app,
                       UI_NEW_CONTACT_Handle *handle,
                       gboolean access)
 {
+  g_assert((app) && (handle));
+
   handle->camera_count = 0;
 
   if ((app->portal) && ((access) || xdp_portal_is_camera_present(app->portal)))
@@ -384,9 +408,11 @@ _init_camera_pipeline(MESSENGER_Application *app,
 
 static void
 _request_camera_callback(GObject *source_object,
-                             GAsyncResult *result,
-                             gpointer user_data)
+                         GAsyncResult *result,
+                         gpointer user_data)
 {
+  g_assert((source_object) && (result) && (user_data));
+
   XdpPortal *portal = (XdpPortal*) source_object;
   MESSENGER_Request *request = (MESSENGER_Request*) user_data;
 
@@ -414,7 +440,7 @@ void
 ui_new_contact_dialog_init(MESSENGER_Application *app,
 			                     UI_NEW_CONTACT_Handle *handle)
 {
-  GNUNET_assert((app) && (handle));
+  g_assert((app) && (handle));
 
   handle->camera_count = 0;
 
@@ -545,7 +571,7 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
 void
 ui_new_contact_dialog_cleanup(UI_NEW_CONTACT_Handle *handle)
 {
-  GNUNET_assert(handle);
+  g_assert(handle);
 
   pthread_join(handle->video_tid, NULL);
 

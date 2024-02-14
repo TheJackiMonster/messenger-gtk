@@ -94,7 +94,7 @@ ui_play_media_window_supports_file_extension(const gchar *filename);
  */
 void
 ui_play_media_window_init(MESSENGER_Application *app,
-			  UI_PLAY_MEDIA_Handle *handle);
+                          UI_PLAY_MEDIA_Handle *handle);
 
 /**
  * Updates a handle for the play media window with
@@ -106,8 +106,8 @@ ui_play_media_window_init(MESSENGER_Application *app,
  */
 void
 ui_play_media_window_update(UI_PLAY_MEDIA_Handle *handle,
-			    const gchar *uri,
-			    const struct GNUNET_CHAT_File *file);
+                            const gchar *uri,
+                            const struct GNUNET_CHAT_File *file);
 
 /**
  * Cleans up the allocated resources and resets the

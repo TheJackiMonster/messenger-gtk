@@ -34,6 +34,8 @@ static void
 handle_contact_edit_button_click(UNUSED GtkButton *button,
 				                         gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
   gboolean editable = gtk_widget_is_sensitive(
@@ -85,6 +87,8 @@ static void
 handle_contact_name_entry_activate(UNUSED GtkEntry *entry,
 				                           gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
   handle_contact_edit_button_click(handle->contact_edit_button, handle);
@@ -93,6 +97,8 @@ handle_contact_name_entry_activate(UNUSED GtkEntry *entry,
 static void
 _contact_info_reveal_identity(UI_CONTACT_INFO_Handle *handle)
 {
+  g_assert(handle);
+
   gtk_widget_set_visible(GTK_WIDGET(handle->back_button), TRUE);
 
   gtk_stack_set_visible_child(
@@ -105,6 +111,8 @@ static void
 handle_reveal_identity_button_click(UNUSED GtkButton *button,
                                     gpointer user_data)
 {
+  g_assert(user_data);
+
   _contact_info_reveal_identity((UI_CONTACT_INFO_Handle*) user_data);
 }
 
@@ -112,6 +120,8 @@ static void
 handle_block_button_click(UNUSED GtkButton *button,
                           gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
   struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
@@ -136,6 +146,8 @@ static void
 handle_unblock_button_click(UNUSED GtkButton *button,
                             gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
   struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
@@ -160,6 +172,8 @@ static void
 handle_open_chat_button_click(UNUSED GtkButton *button,
 			                        gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
   struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
@@ -210,6 +224,8 @@ static void
 handle_back_button_click(UNUSED GtkButton *button,
 			                   gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
   gtk_widget_set_visible(GTK_WIDGET(handle->back_button), FALSE);
@@ -222,24 +238,30 @@ handle_back_button_click(UNUSED GtkButton *button,
 
 static void
 handle_close_button_click(UNUSED GtkButton *button,
-			  gpointer user_data)
+                          gpointer user_data)
 {
+  g_assert(user_data);
+
   GtkDialog *dialog = GTK_DIALOG(user_data);
   gtk_window_close(GTK_WINDOW(dialog));
 }
 
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
-		      gpointer user_data)
+                      gpointer user_data)
 {
+  g_assert(user_data);
+
   ui_contact_info_dialog_cleanup((UI_CONTACT_INFO_Handle*) user_data);
 }
 
 static gboolean
 handle_id_drawing_area_draw(GtkWidget* drawing_area,
-			    cairo_t* cairo,
-			    gpointer user_data)
+                            cairo_t* cairo,
+                            gpointer user_data)
 {
+  g_assert((drawing_area) && (cairo) && (user_data));
+
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
   GtkStyleContext* context = gtk_widget_get_style_context(drawing_area);
@@ -331,8 +353,10 @@ handle_id_drawing_area_draw(GtkWidget* drawing_area,
 
 void
 ui_contact_info_dialog_init(MESSENGER_Application *app,
-			    UI_CONTACT_INFO_Handle *handle)
+                            UI_CONTACT_INFO_Handle *handle)
 {
+  g_assert((app) && (handle));
+
   handle->app = app;
 
   handle->builder = gtk_builder_new_from_resource(
@@ -492,6 +516,8 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
                               struct GNUNET_CHAT_Contact *contact,
                               gboolean reveal)
 {
+  g_assert((handle) && (contact));
+
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
   ui_avatar_set_text(handle->contact_avatar, name);
@@ -565,6 +591,8 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
 void
 ui_contact_info_dialog_cleanup(UI_CONTACT_INFO_Handle *handle)
 {
+  g_assert(handle);
+
   g_signal_handler_disconnect(
     handle->id_drawing_area,
     handle->id_draw_signal

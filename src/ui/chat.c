@@ -38,13 +38,14 @@
 #include "delete_messages.h"
 
 #include "../application.h"
-#include "../contact.h"
 #include "../file.h"
 #include "../ui.h"
 
 static gboolean
 _flap_chat_details_reveal_switch(gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
   HdyFlap* flap = handle->flap_chat_details;
 
@@ -62,6 +63,8 @@ static void
 handle_chat_details_via_button_click(UNUSED GtkButton* button,
 				                             gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   gtk_widget_set_sensitive(GTK_WIDGET(handle->messages_listbox), FALSE);
@@ -75,6 +78,8 @@ static void
 handle_popover_via_button_click(UNUSED GtkButton *button,
 				                        gpointer user_data)
 {
+  g_assert(user_data);
+
   GtkPopover *popover = GTK_POPOVER(user_data);
 
   if (gtk_widget_is_visible(GTK_WIDGET(popover)))
@@ -88,6 +93,8 @@ handle_chat_contacts_listbox_row_activated(GtkListBox *listbox,
                                            GtkListBoxRow *row,
                                            gpointer user_data)
 {
+  g_assert((listbox) && (row) && (user_data));
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
   MESSENGER_Application *app = handle->app;
 
@@ -132,6 +139,8 @@ handle_chat_messages_listbox_size_allocate(UNUSED GtkWidget *widget,
 					                                 UNUSED GdkRectangle *allocation,
 				                                   gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   GtkAdjustment *adjustment = gtk_scrolled_window_get_vadjustment(
@@ -154,6 +163,8 @@ static void
 handle_back_button_click(UNUSED GtkButton *button,
 			                   gpointer user_data)
 {
+  g_assert(user_data);
+
   HdyLeaflet *leaflet = HDY_LEAFLET(user_data);
 
   GList *children = gtk_container_get_children(GTK_CONTAINER(leaflet));
@@ -168,6 +179,8 @@ static void
 handle_reveal_identity_button_click(GtkButton *button,
 				                            gpointer user_data)
 {
+  g_assert((button) && (user_data));
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
   MESSENGER_Application *app = handle->app;
 
@@ -190,6 +203,8 @@ static void
 handle_block_button_click(UNUSED GtkButton *button,
                           gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
@@ -208,6 +223,8 @@ static void
 handle_unblock_button_click(UNUSED GtkButton *button,
                             gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
@@ -226,6 +243,8 @@ static void
 handle_leave_chat_button_click(UNUSED GtkButton *button,
 			                         gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   if ((!handle) || (!(handle->send_text_view)))
@@ -267,6 +286,8 @@ handle_chat_messages_sort(GtkListBoxRow* row0,
                           GtkListBoxRow* row1,
                           gpointer user_data)
 {
+  g_assert((row0) && (row1) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   UI_MESSAGE_Handle *message0 = (UI_MESSAGE_Handle*) (
@@ -295,6 +316,8 @@ static void
 handle_chat_messages_selected_rows_changed(GtkListBox *listbox,
 					                                 gpointer user_data)
 {
+  g_assert((listbox) && (user_data));
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   GList *selected = gtk_list_box_get_selected_rows(listbox);
@@ -325,6 +348,8 @@ static void
 handle_chat_selection_close_button_click(UNUSED GtkButton *button,
 					                               gpointer user_data)
 {
+  g_assert(user_data);
+
   GtkListBox *listbox = GTK_LIST_BOX(user_data);
 
   gtk_list_box_unselect_all(listbox);
@@ -335,6 +360,8 @@ _delete_messages_callback(MESSENGER_Application *app,
                           GList *selected,
                           gulong delay)
 {
+  g_assert(app);
+
   UI_MESSAGE_Handle *message;
 
   while (selected)
@@ -369,6 +396,8 @@ static void
 handle_chat_selection_delete_button_click(UNUSED GtkButton *button,
 					                                gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   MESSENGER_Application *app = handle->app;
@@ -400,6 +429,8 @@ static void
 handle_attach_file_button_click(GtkButton *button,
 				                        gpointer user_data)
 {
+  g_assert((button) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
@@ -452,6 +483,8 @@ _update_send_record_symbol(GtkTextBuffer *buffer,
                            GtkImage *symbol,
                            gboolean picker_revealed)
 {
+  g_assert((buffer) && (symbol));
+
   GtkTextIter start, end;
   gtk_text_buffer_get_start_iter(buffer, &start);
   gtk_text_buffer_get_end_iter(buffer, &end);
@@ -473,6 +506,8 @@ static void
 handle_send_text_buffer_changed(GtkTextBuffer *buffer,
 				                        gpointer user_data)
 {
+  g_assert((buffer) && (user_data));
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   _update_send_record_symbol(
@@ -488,6 +523,8 @@ _send_text_from_view(MESSENGER_Application *app,
 		                 GtkTextView *text_view,
                      gint64 action_time)
 {
+  g_assert((app) && (handle) && (text_view));
+
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
 
   GtkTextIter start, end;
@@ -523,6 +560,8 @@ _send_text_from_view(MESSENGER_Application *app,
 static void
 _drop_any_recording(UI_CHAT_Handle *handle)
 {
+  g_assert(handle);
+
   if ((handle->play_pipeline) && (handle->playing))
   {
     gst_element_set_state(handle->play_pipeline, GST_STATE_NULL);
@@ -550,6 +589,8 @@ handle_sending_recording_upload_file(UNUSED void *cls,
                                      uint64_t completed,
                                      uint64_t size)
 {
+  g_assert(file);
+
   UI_FILE_LOAD_ENTRY_Handle *file_load = cls;
 
   gtk_progress_bar_set_fraction(
@@ -567,6 +608,8 @@ static void
 handle_send_record_button_click(GtkButton *button,
 				                        gpointer user_data)
 {
+  g_assert((button) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
@@ -620,6 +663,8 @@ static void
 handle_send_later_button_click(GtkButton *button,
 				                       gpointer user_data)
 {
+  g_assert((button) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
@@ -641,6 +686,8 @@ static void
 handle_send_now_button_click(GtkButton *button,
 				                     gpointer user_data)
 {
+  g_assert((button) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
@@ -665,6 +712,8 @@ handle_send_record_button_pressed(GtkWidget *widget,
                                   UNUSED GdkEvent *event,
                                   gpointer user_data)
 {
+  g_assert((widget) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
@@ -747,6 +796,8 @@ handle_send_record_button_released(GtkWidget *widget,
                                    UNUSED GdkEvent *event,
                                    gpointer user_data)
 {
+  g_assert((widget) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
@@ -799,6 +850,8 @@ handle_send_text_key_press (GtkWidget *widget,
                             GdkEventKey *event,
 			                      gpointer user_data)
 {
+  g_assert((widget) && (event) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   if ((app->settings.mobile_design) ||
@@ -818,6 +871,8 @@ static void
 handle_recording_close_button_click(UNUSED GtkButton *button,
 				                            gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   _drop_any_recording(handle);
@@ -827,6 +882,8 @@ static void
 _stop_playing_recording(UI_CHAT_Handle *handle,
 			                  gboolean reset_bar)
 {
+  g_assert(handle);
+
   gst_element_set_state(handle->play_pipeline, GST_STATE_NULL);
   handle->playing = FALSE;
 
@@ -852,6 +909,8 @@ static void
 handle_recording_play_button_click(UNUSED GtkButton *button,
 				                           gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   if ((!(handle->recorded)) || (!(handle->play_pipeline)))
@@ -883,6 +942,8 @@ static void
 handle_picker_button_click(UNUSED GtkButton *button,
 			                     gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   gboolean reveal = !gtk_revealer_get_child_revealed(handle->picker_revealer);
@@ -899,6 +960,8 @@ handle_picker_button_click(UNUSED GtkButton *button,
 static gboolean
 _record_timer_func(gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   GString *time_string = g_string_new(NULL);
@@ -932,6 +995,8 @@ _record_timer_func(gpointer user_data)
 static gboolean
 _play_timer_func(gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   if (handle->play_time < handle->record_time * 100)
@@ -965,6 +1030,8 @@ handle_record_bus_watch(UNUSED GstBus *bus,
                         GstMessage *msg,
                         gpointer data)
 {
+  g_assert((msg) && (data));
+
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) data;
   GstMessageType type = GST_MESSAGE_TYPE(msg);
 
@@ -1019,6 +1086,8 @@ handle_play_bus_watch(UNUSED GstBus *bus,
 static void
 _setup_gst_pipelines(UI_CHAT_Handle *handle)
 {
+  g_assert(handle);
+
   handle->record_pipeline = gst_parse_launch(
     "autoaudiosrc ! audioconvert ! vorbisenc ! oggmux ! filesink name=sink",
     NULL
@@ -1065,7 +1134,7 @@ _setup_gst_pipelines(UI_CHAT_Handle *handle)
 UI_CHAT_Handle*
 ui_chat_new(MESSENGER_Application *app)
 {
-  GNUNET_assert(app);
+  g_assert(app);
 
   UI_CHAT_Handle *handle = g_malloc(sizeof(UI_CHAT_Handle));
   UI_MESSENGER_Handle *messenger = &(app->ui.messenger);
@@ -1554,7 +1623,7 @@ ui_chat_update(UI_CHAT_Handle *handle,
                MESSENGER_Application *app,
                struct GNUNET_CHAT_Context* context)
 {
-  GNUNET_assert((handle) && (app) && (context));
+  g_assert((handle) && (app) && (context));
 
   struct GNUNET_CHAT_Contact* contact;
   struct GNUNET_CHAT_Group* group;
@@ -1715,7 +1784,7 @@ ui_chat_update(UI_CHAT_Handle *handle,
 void
 ui_chat_delete(UI_CHAT_Handle *handle)
 {
-  GNUNET_assert(handle);
+  g_assert(handle);
 
   ui_picker_delete(handle->picker);
 
@@ -1753,7 +1822,7 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
                     MESSENGER_Application *app,
                     UI_MESSAGE_Handle *message)
 {
-  GNUNET_assert((handle) && (message) && (message->message_box));
+  g_assert((handle) && (message) && (message->message_box));
 
   gtk_container_add(
     GTK_CONTAINER(handle->messages_listbox),
@@ -1771,7 +1840,7 @@ ui_chat_remove_message(UI_CHAT_Handle *handle,
                        UNUSED MESSENGER_Application *app,
                        UI_MESSAGE_Handle *message)
 {
-  GNUNET_assert((handle) && (message) && (message->message_box));
+  g_assert((handle) && (message) && (message->message_box));
 
   GtkWidget *row = gtk_widget_get_parent(message->message_box);
   g_object_set_qdata(G_OBJECT(row), app->quarks.ui, NULL);
@@ -1788,7 +1857,7 @@ void
 ui_chat_add_file_load(UI_CHAT_Handle *handle,
 		      UI_FILE_LOAD_ENTRY_Handle *file_load)
 {
-  GNUNET_assert((handle) && (file_load));
+  g_assert((handle) && (file_load));
 
   gtk_container_add(
       GTK_CONTAINER(handle->chat_load_listbox),
@@ -1806,7 +1875,7 @@ void
 ui_chat_remove_file_load(UI_CHAT_Handle *handle,
 			 UI_FILE_LOAD_ENTRY_Handle *file_load)
 {
-  GNUNET_assert((handle) && (file_load) && (handle == file_load->chat) &&
+  g_assert((handle) && (file_load) && (handle == file_load->chat) &&
 		(file_load->entry_box));
 
   handle->loads = g_list_remove(handle->loads, file_load);

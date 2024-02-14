@@ -36,6 +36,8 @@ handle_general_switch_state(UNUSED GtkSwitch *widget,
                             gboolean state,
                             gpointer user_data)
 {
+  g_assert(user_data);
+
   gboolean *setting = (gboolean*) user_data;
   *setting = state;
   return FALSE;
@@ -46,6 +48,8 @@ _request_background_callback(GObject *source_object,
                              GAsyncResult *result,
                              gpointer user_data)
 {
+  g_assert((source_object) && (result) && (user_data));
+
   XdpPortal *portal = XDP_PORTAL(source_object);
   MESSENGER_Request *request = (MESSENGER_Request*) user_data;
 
@@ -82,6 +86,8 @@ handle_background_switch_state(GtkSwitch *widget,
 			                         gboolean state,
 			                         gpointer user_data)
 {
+  g_assert((widget) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   gboolean *setting = (gboolean*) (
@@ -114,6 +120,8 @@ handle_inverted_switch_state(GtkSwitch *widget,
                              gboolean state,
                              gpointer user_data)
 {
+  g_assert((widget) && (user_data));
+
   return handle_general_switch_state(widget, !state, user_data);
 }
 
@@ -121,6 +129,8 @@ static void
 handle_general_combo_box_change(GtkComboBox *widget,
 				                        gpointer user_data)
 {
+  g_assert((widget) && (user_data));
+
   gulong *delay = (gulong*) user_data;
   GtkTreeModel *model = gtk_combo_box_get_model(widget);
 
@@ -134,6 +144,8 @@ _leave_group_iteration(UNUSED void *cls,
                        UNUSED struct GNUNET_CHAT_Handle *handle,
                        struct GNUNET_CHAT_Group *group)
 {
+  g_assert(group);
+
   GNUNET_CHAT_group_leave(group);
   return GNUNET_YES;
 }
@@ -143,6 +155,8 @@ _delete_contact_iteration(UNUSED void *cls,
                           UNUSED struct GNUNET_CHAT_Handle *handle,
                           struct GNUNET_CHAT_Contact *contact)
 {
+  g_assert(contact);
+
   GNUNET_CHAT_contact_delete(contact);
   return GNUNET_YES;
 }
@@ -151,6 +165,8 @@ static void
 handle_leave_chats_button_click(UNUSED GtkButton* button,
 				                        gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   GNUNET_CHAT_iterate_groups(
@@ -168,15 +184,19 @@ handle_leave_chats_button_click(UNUSED GtkButton* button,
 
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
-		      gpointer user_data)
+                      gpointer user_data)
 {
+  g_assert(user_data);
+
   ui_settings_dialog_cleanup((UI_SETTINGS_Handle*) user_data);
 }
 
 static void
 _set_combobox_to_active_by_delay(GtkComboBox *widget,
-				 gulong delay)
+                                 gulong delay)
 {
+  g_assert(widget);
+
   GtkTreeModel *model = gtk_combo_box_get_model(widget);
 
   GtkTreeIter iter;
@@ -200,9 +220,11 @@ set_active:
 
 static enum GNUNET_GenericReturnValue
 _count_blocked_contacts(void *cls,
-                        struct GNUNET_CHAT_Handle *handle,
+                        UNUSED struct GNUNET_CHAT_Handle *handle,
                         struct GNUNET_CHAT_Contact *contact)
 {
+  g_assert((cls) && (contact));
+
   guint *count = (guint*) cls;
 
   if (GNUNET_YES == GNUNET_CHAT_contact_is_blocked(contact))
@@ -215,6 +237,8 @@ void
 ui_settings_dialog_init(MESSENGER_Application *app,
                         UI_SETTINGS_Handle *handle)
 {
+  g_assert((app) && (handle));
+
   handle->builder = gtk_builder_new_from_resource(
     application_get_resource_path(app, "ui/settings.ui")
   );
@@ -472,6 +496,8 @@ ui_settings_dialog_init(MESSENGER_Application *app,
 void
 ui_settings_dialog_cleanup(UI_SETTINGS_Handle *handle)
 {
+  g_assert(handle);
+
   g_object_unref(handle->builder);
 
   memset(handle, 0, sizeof(*handle));

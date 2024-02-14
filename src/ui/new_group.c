@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -29,9 +29,11 @@
 
 static void
 _open_new_group(GtkEntry *entry,
-		GtkListBox *listbox,
-		MESSENGER_Application *app)
+                GtkListBox *listbox,
+                MESSENGER_Application *app)
 {
+  g_assert((entry) && (listbox) && (app));
+
   const gchar *name = gtk_entry_get_text(entry);
 
   struct GNUNET_CHAT_Group *group = GNUNET_CHAT_group_create(
@@ -67,8 +69,10 @@ _open_new_group(GtkEntry *entry,
 
 static void
 handle_group_entry_changed(GtkEditable *editable,
-			   gpointer user_data)
+                           gpointer user_data)
 {
+  g_assert((editable) && (user_data));
+
   HdyAvatar *avatar = HDY_AVATAR(user_data);
   GtkEntry *entry = GTK_ENTRY(editable);
 
@@ -80,6 +84,8 @@ handle_group_entry_changed(GtkEditable *editable,
 static void
 _go_page_details(UI_NEW_GROUP_Handle *handle)
 {
+  g_assert(handle);
+
   gtk_stack_set_visible_child(handle->stack, handle->details_box);
 
   gtk_widget_hide(GTK_WIDGET(handle->previous_button));
@@ -92,6 +98,8 @@ _go_page_details(UI_NEW_GROUP_Handle *handle)
 static void
 _go_page_contacts(UI_NEW_GROUP_Handle *handle)
 {
+  g_assert(handle);
+
   gtk_stack_set_visible_child(handle->stack, handle->contacts_box);
 
   gtk_widget_hide(GTK_WIDGET(handle->cancel_button));
@@ -103,8 +111,10 @@ _go_page_contacts(UI_NEW_GROUP_Handle *handle)
 
 static void
 handle_group_entry_activate(UNUSED GtkEntry *entry,
-			    gpointer user_data)
+                            gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   _go_page_contacts(&(app->ui.new_group));
@@ -112,30 +122,38 @@ handle_group_entry_activate(UNUSED GtkEntry *entry,
 
 static void
 handle_cancel_button_click(UNUSED GtkButton *button,
-			   gpointer user_data)
+                           gpointer user_data)
 {
+  g_assert(user_data);
+
   GtkDialog *dialog = GTK_DIALOG(user_data);
   gtk_window_close(GTK_WINDOW(dialog));
 }
 
 static void
 handle_previous_button_click(UNUSED GtkButton *button,
-			 gpointer user_data)
+                             gpointer user_data)
 {
+  g_assert(user_data);
+
   _go_page_details((UI_NEW_GROUP_Handle*) user_data);
 }
 
 static void
 handle_next_button_click(UNUSED GtkButton *button,
-			 gpointer user_data)
+                         gpointer user_data)
 {
+  g_assert(user_data);
+
   _go_page_contacts((UI_NEW_GROUP_Handle*) user_data);
 }
 
 static void
 handle_confirm_button_click(UNUSED GtkButton *button,
-			    gpointer user_data)
+                            gpointer user_data)
 {
+  g_assert(user_data);
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   _open_new_group(
@@ -149,16 +167,20 @@ handle_confirm_button_click(UNUSED GtkButton *button,
 
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
-		      gpointer user_data)
+                      gpointer user_data)
 {
+  g_assert(user_data);
+
   ui_new_group_dialog_cleanup((UI_NEW_GROUP_Handle*) user_data);
 }
 
 static int
 _iterate_contacts(void *cls,
-		  UNUSED struct GNUNET_CHAT_Handle *handle,
-		  struct GNUNET_CHAT_Contact *contact)
+                  UNUSED struct GNUNET_CHAT_Handle *handle,
+                  struct GNUNET_CHAT_Contact *contact)
 {
+  g_assert((cls) && (contact));
+
   if (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
     return GNUNET_YES;
 
@@ -168,16 +190,16 @@ _iterate_contacts(void *cls,
   ui_contact_entry_set_contact(entry, contact);
 
   gtk_list_box_prepend(
-      app->ui.new_group.contacts_listbox,
-      entry->entry_box
+    app->ui.new_group.contacts_listbox,
+    entry->entry_box
   );
 
   GtkWidget *row = gtk_widget_get_parent(entry->entry_box);
   g_object_set_qdata(G_OBJECT(row), app->quarks.data, contact);
 
   app->ui.new_group.contact_entries = g_list_append(
-      app->ui.new_group.contact_entries,
-      entry
+    app->ui.new_group.contact_entries,
+    entry
   );
 
   return GNUNET_YES;
@@ -185,130 +207,134 @@ _iterate_contacts(void *cls,
 
 void
 ui_new_group_dialog_init(MESSENGER_Application *app,
-			 UI_NEW_GROUP_Handle *handle)
+                         UI_NEW_GROUP_Handle *handle)
 {
+  g_assert((app) && (handle));
+
   handle->contact_entries = NULL;
 
   handle->builder = gtk_builder_new_from_resource(
-      application_get_resource_path(app, "ui/new_group.ui")
+    application_get_resource_path(app, "ui/new_group.ui")
   );
 
   handle->dialog = GTK_DIALOG(
-      gtk_builder_get_object(handle->builder, "new_group_dialog")
+    gtk_builder_get_object(handle->builder, "new_group_dialog")
   );
 
   gtk_window_set_transient_for(
-      GTK_WINDOW(handle->dialog),
-      GTK_WINDOW(app->ui.messenger.main_window)
+    GTK_WINDOW(handle->dialog),
+    GTK_WINDOW(app->ui.messenger.main_window)
   );
 
   handle->stack = GTK_STACK(
-      gtk_builder_get_object(handle->builder, "new_group_stack")
+    gtk_builder_get_object(handle->builder, "new_group_stack")
   );
 
   handle->details_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder, "details_box")
+    gtk_builder_get_object(handle->builder, "details_box")
   );
 
   handle->contacts_box = GTK_WIDGET(
-      gtk_builder_get_object(handle->builder, "contacts_box")
+    gtk_builder_get_object(handle->builder, "contacts_box")
   );
 
   handle->group_avatar = HDY_AVATAR(
-      gtk_builder_get_object(handle->builder, "group_avatar")
+    gtk_builder_get_object(handle->builder, "group_avatar")
   );
 
   handle->group_avatar_file = GTK_FILE_CHOOSER_BUTTON(
-      gtk_builder_get_object(handle->builder, "group_avatar_file")
+    gtk_builder_get_object(handle->builder, "group_avatar_file")
   );
 
   handle->group_entry = GTK_ENTRY(
-      gtk_builder_get_object(handle->builder, "group_entry")
+    gtk_builder_get_object(handle->builder, "group_entry")
   );
 
   g_signal_connect(
-      handle->group_entry,
-      "changed",
-      G_CALLBACK(handle_group_entry_changed),
-      handle->group_avatar
+    handle->group_entry,
+    "changed",
+    G_CALLBACK(handle_group_entry_changed),
+    handle->group_avatar
   );
 
   g_signal_connect(
-      handle->group_entry,
-      "activate",
-      G_CALLBACK(handle_group_entry_activate),
-      app
+    handle->group_entry,
+    "activate",
+    G_CALLBACK(handle_group_entry_activate),
+    app
   );
 
   handle->contact_search_entry = GTK_SEARCH_ENTRY(
-      gtk_builder_get_object(handle->builder, "contact_search_entry")
+    gtk_builder_get_object(handle->builder, "contact_search_entry")
   );
 
   handle->contacts_listbox = GTK_LIST_BOX(
-      gtk_builder_get_object(handle->builder, "contacts_listbox")
+    gtk_builder_get_object(handle->builder, "contacts_listbox")
   );
 
   handle->cancel_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "cancel_button")
+    gtk_builder_get_object(handle->builder, "cancel_button")
   );
 
   g_signal_connect(
-      handle->cancel_button,
-      "clicked",
-      G_CALLBACK(handle_cancel_button_click),
-      handle->dialog
+    handle->cancel_button,
+    "clicked",
+    G_CALLBACK(handle_cancel_button_click),
+    handle->dialog
   );
 
   handle->previous_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "previous_button")
+    gtk_builder_get_object(handle->builder, "previous_button")
   );
 
   g_signal_connect(
-      handle->previous_button,
-      "clicked",
-      G_CALLBACK(handle_previous_button_click),
-      handle
+    handle->previous_button,
+    "clicked",
+    G_CALLBACK(handle_previous_button_click),
+    handle
   );
 
   handle->next_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "next_button")
+    gtk_builder_get_object(handle->builder, "next_button")
   );
 
   g_signal_connect(
-      handle->next_button,
-      "clicked",
-      G_CALLBACK(handle_next_button_click),
-      handle
+    handle->next_button,
+    "clicked",
+    G_CALLBACK(handle_next_button_click),
+    handle
   );
 
   handle->confirm_button = GTK_BUTTON(
-      gtk_builder_get_object(handle->builder, "confirm_button")
+    gtk_builder_get_object(handle->builder, "confirm_button")
   );
 
   g_signal_connect(
-      handle->confirm_button,
-      "clicked",
-      G_CALLBACK(handle_confirm_button_click),
-      app
+    handle->confirm_button,
+    "clicked",
+    G_CALLBACK(handle_confirm_button_click),
+    app
   );
 
   g_signal_connect(
-      handle->dialog,
-      "destroy",
-      G_CALLBACK(handle_dialog_destroy),
-      handle
+    handle->dialog,
+    "destroy",
+    G_CALLBACK(handle_dialog_destroy),
+    handle
   );
 
   GNUNET_CHAT_iterate_contacts(
-      app->chat.messenger.handle,
-      _iterate_contacts,
-      app
+    app->chat.messenger.handle,
+    _iterate_contacts,
+    app
   );
 }
 
 void
 ui_new_group_dialog_cleanup(UI_NEW_GROUP_Handle *handle)
 {
+  g_assert(handle);
+
   g_object_unref(handle->builder);
 
   for (GList *list = handle->contact_entries; list; list = list->next)

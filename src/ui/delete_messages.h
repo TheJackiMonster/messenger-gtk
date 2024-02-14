@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -28,9 +28,11 @@
 #include "messenger.h"
 
 typedef void
-(*UI_DELETE_MESSAGES_Callback) (MESSENGER_Application *app,
-				GList *selected,
-				gulong delay);
+(*UI_DELETE_MESSAGES_Callback) (
+  MESSENGER_Application *app,
+	GList *selected,
+	gulong delay
+);
 
 typedef struct UI_DELETE_MESSAGES_Handle
 {
@@ -59,7 +61,7 @@ typedef struct UI_DELETE_MESSAGES_Handle
  */
 void
 ui_delete_messages_dialog_init(MESSENGER_Application *app,
-			       UI_DELETE_MESSAGES_Handle *handle);
+                               UI_DELETE_MESSAGES_Handle *handle);
 
 /**
  * Links a custom list and a callback to a
@@ -72,8 +74,8 @@ ui_delete_messages_dialog_init(MESSENGER_Application *app,
  */
 void
 ui_delete_messages_dialog_link(UI_DELETE_MESSAGES_Handle *handle,
-			       UI_DELETE_MESSAGES_Callback callback,
-			       GList *selected);
+                               UI_DELETE_MESSAGES_Callback callback,
+                               GList *selected);
 
 /**
  * Cleans up the allocated resources and resets the

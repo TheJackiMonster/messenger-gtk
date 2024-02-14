@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -36,7 +36,8 @@
  * @param text Non-utf8 text
  */
 void
-ui_label_set_text(GtkLabel *label, const char *text);
+ui_label_set_text(GtkLabel *label,
+                  const char *text);
 
 /**
  * Sets the text of a GtkEntry applying automatic utf8
@@ -46,7 +47,8 @@ ui_label_set_text(GtkLabel *label, const char *text);
  * @param text Non-utf8 text
  */
 void
-ui_entry_set_text(GtkEntry *entry, const char *text);
+ui_entry_set_text(GtkEntry *entry,
+                  const char *text);
 
 /**
  * Sets the text of a HdyAvatar applying automatic utf8
@@ -56,6 +58,7 @@ ui_entry_set_text(GtkEntry *entry, const char *text);
  * @param text Non-utf8 text
  */
 void
-ui_avatar_set_text(HdyAvatar *avatar, const char *text);
+ui_avatar_set_text(HdyAvatar *avatar,
+                   const char *text);
 
 #endif /* UI_H_ */
