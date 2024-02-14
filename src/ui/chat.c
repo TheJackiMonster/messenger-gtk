@@ -456,7 +456,7 @@ _update_send_record_symbol(GtkTextBuffer *buffer,
   gtk_text_buffer_get_start_iter(buffer, &start);
   gtk_text_buffer_get_end_iter(buffer, &end);
 
-  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+  gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
 
   gtk_image_set_from_icon_name(
     symbol,
@@ -465,6 +465,8 @@ _update_send_record_symbol(GtkTextBuffer *buffer,
     "audio-input-microphone-symbolic",
     GTK_ICON_SIZE_BUTTON
   );
+
+  g_free(text);
 }
 
 static void
@@ -492,10 +494,13 @@ _send_text_from_view(MESSENGER_Application *app,
   gtk_text_buffer_get_start_iter(buffer, &start);
   gtk_text_buffer_get_end_iter(buffer, &end);
 
-  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+  gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
 
   if (0 == strlen(text))
+  {
+    g_free(text);
     return FALSE;
+  }
 
   if (action_time >= UI_CHAT_SEND_BUTTON_HOLD_INTERVAL)
   {
@@ -510,6 +515,7 @@ _send_text_from_view(MESSENGER_Application *app,
   if (context)
     GNUNET_CHAT_context_send_text(context, text);
 
+  g_free(text);
   gtk_text_buffer_delete(buffer, &start, &end);
   return TRUE;
 }
@@ -677,9 +683,12 @@ handle_send_record_button_pressed(GtkWidget *widget,
   gtk_text_buffer_get_start_iter(buffer, &start);
   gtk_text_buffer_get_end_iter(buffer, &end);
 
-  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+  gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+  const size_t text_len = strlen(text);
 
-  if (0 < strlen(text))
+  g_free(text);
+
+  if (0 < text_len)
     return FALSE;
 
   if ((handle->recorded) || (!(handle->record_pipeline)) ||
@@ -756,9 +765,12 @@ handle_send_record_button_released(GtkWidget *widget,
   gtk_text_buffer_get_start_iter(buffer, &start);
   gtk_text_buffer_get_end_iter(buffer, &end);
 
-  const gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+  gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+  const size_t text_len = strlen(text);
 
-  if (0 < strlen(text))
+  g_free(text);
+
+  if (0 < text_len)
     return FALSE;
 
   if ((handle->recorded) || (!(handle->record_pipeline)) ||
