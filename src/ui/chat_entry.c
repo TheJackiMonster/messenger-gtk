@@ -110,22 +110,40 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 
   ui_chat_update(handle->chat, app, context);
 
-  if (!(handle->chat->messages))
-    return;
-
-  UI_MESSAGE_Handle *message = (
-    (UI_MESSAGE_Handle*) handle->chat->messages->data
+  GList *rows = gtk_container_get_children(
+    GTK_CONTAINER(handle->chat->messages_listbox)
   );
 
-  handle->timestamp = message->timestamp;
+  if (!rows)
+    return;
 
-  const gchar *text = gtk_label_get_text(message->text_label);
-  const gchar *time = gtk_label_get_text(message->timestamp_label);
+  UI_MESSAGE_Handle *last_message = NULL;
+  for (GList *row = rows; row; row = row->next)
+  {
+    UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) g_object_get_qdata(
+      G_OBJECT(row->data), app->quarks.ui
+    );
+
+    if (!message)
+      continue;
+
+    last_message = message;
+  }
+
+  g_list_free(rows);
+
+  if (!last_message)
+    return;
+
+  handle->timestamp = last_message->timestamp;
+
+  const gchar *text = gtk_label_get_text(last_message->text_label);
+  const gchar *time = gtk_label_get_text(last_message->timestamp_label);
 
   if (group)
   {
     GString *message_text = g_string_new(
-	    gtk_label_get_text(message->sender_label)
+	    gtk_label_get_text(last_message->sender_label)
     );
 
     g_string_append_printf(
@@ -144,8 +162,8 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 
   gtk_widget_set_visible(
     GTK_WIDGET(handle->read_receipt_image),
-    message->read_receipt_image? gtk_widget_is_visible(
-      GTK_WIDGET(message->read_receipt_image)
+    last_message->read_receipt_image? gtk_widget_is_visible(
+      GTK_WIDGET(last_message->read_receipt_image)
     ) : FALSE
   );
 

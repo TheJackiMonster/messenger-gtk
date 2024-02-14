@@ -47,6 +47,7 @@ typedef struct UI_MESSAGE_Handle
 
   struct GNUNET_TIME_Absolute timestamp;
   const struct GNUNET_CHAT_Message *msg;
+  const struct GNUNET_CHAT_Contact *contact;
 
   GtkBuilder *builder [2];
   GtkWidget *message_box;
@@ -124,6 +125,17 @@ void
 ui_message_update(UI_MESSAGE_Handle *handle,
 		  MESSENGER_Application *app,
 		  const struct GNUNET_CHAT_Message *message);
+
+/**
+ * Sets the contact of a given message handle
+ * to track contact information widgets.
+ *
+ * @param handle Message handle
+ * @param contact Contact
+ */
+void
+ui_message_set_contact(UI_MESSAGE_Handle *handle,
+		                   const struct GNUNET_CHAT_Contact *contact);
 
 /**
  * Frees its resources and destroys a given

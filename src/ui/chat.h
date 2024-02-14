@@ -66,9 +66,7 @@ typedef struct UI_CHAT_Handle
 
   MESSENGER_Application *app;
 
-  GList *messages;
   gdouble edge_value;
-
   GList *loads;
 
   GtkBuilder *builder;

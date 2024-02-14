@@ -86,6 +86,17 @@ contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
 			                         GtkLabel *label);
 
 /**
+ * Removes a GtkLabel from the list of labels
+ * which get updated by state changes.
+ *
+ * @param contact Chat contact
+ * @param label Label
+ */
+void
+contact_remove_name_label_from_info(const struct GNUNET_CHAT_Contact *contact,
+			                              GtkLabel *label);
+
+/**
  * Adds a HdyAvatar to the list of avatars
  * which get updated by state changes.
  *
@@ -95,6 +106,17 @@ contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
 void
 contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
 			                          HdyAvatar *avatar);
+
+/**
+ * Removes a HdyAvatar from the list of avatars
+ * which get updated by state changes.
+ *
+ * @param contact Chat contact
+ * @param avatar Avatar
+ */
+void
+contact_remove_name_avatar_from_info(const struct GNUNET_CHAT_Contact *contact,
+			                               HdyAvatar *avatar);
 
 /**
  * Updates the connected UI elements for a given

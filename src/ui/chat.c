@@ -1680,22 +1680,33 @@ ui_chat_update(UI_CHAT_Handle *handle,
   gtk_widget_set_sensitive(GTK_WIDGET(handle->emoji_button), activated);
   gtk_widget_set_sensitive(GTK_WIDGET(handle->send_record_button), activated);
 
-  if (!(handle->messages))
+  GList *rows = gtk_container_get_children(
+    GTK_CONTAINER(handle->messages_listbox)
+  );
+
+  if (!rows)
     return;
 
-  GList *list = handle->messages;
-  while (list)
+  UI_MESSAGE_Handle *last_message = NULL;
+  for (GList *row = rows; row; row = row->next)
   {
-    ui_message_refresh((UI_MESSAGE_Handle*) list->data);
-    list = list->next;
+    UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) g_object_get_qdata(
+      G_OBJECT(row->data), app->quarks.ui
+    );
+
+    if (!message)
+      continue;
+
+    ui_message_refresh(message);
+    last_message = message;
   }
 
-  UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) (handle->messages->data);
+  g_list_free(rows);
 
-  if (!(message->timestamp_label))
+  if ((!last_message) || (!(last_message->timestamp_label)))
     return;
 
-  const gchar *time = gtk_label_get_text(message->timestamp_label);
+  const gchar *time = gtk_label_get_text(last_message->timestamp_label);
 
   if (!group)
     gtk_label_set_text(handle->chat_subtitle, time);
@@ -1709,9 +1720,6 @@ ui_chat_delete(UI_CHAT_Handle *handle)
   ui_picker_delete(handle->picker);
 
   g_object_unref(handle->builder);
-
-  if (handle->messages)
-    g_list_free_full(handle->messages, (GDestroyNotify) ui_message_delete);
 
   if (handle->loads)
     g_list_free_full(handle->loads, (GDestroyNotify) ui_file_load_entry_delete);
@@ -1753,21 +1761,7 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
   );
 
   GtkWidget *row = gtk_widget_get_parent(message->message_box);
-
   g_object_set_qdata(G_OBJECT(row), app->quarks.ui, message);
-
-  GList *sibling = handle->messages;
-  while (sibling)
-  {
-    UI_MESSAGE_Handle *latest = (UI_MESSAGE_Handle*) sibling->data;
-
-    if (GNUNET_TIME_absolute_cmp(latest->timestamp, <, message->timestamp))
-      break;
-
-    sibling = sibling->next;
-  }
-
-  handle->messages = g_list_insert_before(handle->messages, sibling, message);
 
   gtk_list_box_invalidate_sort(handle->messages_listbox);
 }
@@ -1779,13 +1773,15 @@ ui_chat_remove_message(UI_CHAT_Handle *handle,
 {
   GNUNET_assert((handle) && (message) && (message->message_box));
 
-  handle->messages = g_list_remove(handle->messages, message);
-
   GtkWidget *row = gtk_widget_get_parent(message->message_box);
+  g_object_set_qdata(G_OBJECT(row), app->quarks.ui, NULL);
 
-  gtk_container_remove(GTK_CONTAINER(handle->messages_listbox), row);
+  GtkWidget *parent = gtk_widget_get_parent(row);
 
-  handle->messages = g_list_append(handle->messages, message);
+  if (parent == GTK_WIDGET(handle->messages_listbox))
+    gtk_container_remove(GTK_CONTAINER(handle->messages_listbox), row);
+
+  ui_message_delete(message);
 }
 
 void

@@ -28,6 +28,7 @@
 #include <gnunet/gnunet_common.h>
 
 #include "../application.h"
+#include "../contact.h"
 #include "../file.h"
 #include "../ui.h"
 
@@ -37,6 +38,8 @@ handle_downloading_file(void *cls,
                         uint64_t completed,
                         uint64_t size)
 {
+  GNUNET_assert((cls) && (file));
+
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
   if (!app)
@@ -49,17 +52,19 @@ static void
 handle_file_button_click(GtkButton *button,
 			                   gpointer user_data)
 {
+  GNUNET_assert((button) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   UI_MESSAGE_Handle* handle = (UI_MESSAGE_Handle*) (
-      g_object_get_qdata(G_OBJECT(button), app->quarks.ui)
+    g_object_get_qdata(G_OBJECT(button), app->quarks.ui)
   );
 
   if (!handle)
     return;
 
   struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File*) (
-      g_object_get_qdata(G_OBJECT(handle->file_progress_bar), app->quarks.data)
+    g_object_get_qdata(G_OBJECT(handle->file_progress_bar), app->quarks.data)
   );
 
   if (!file)
@@ -77,9 +82,9 @@ handle_file_button_click(GtkButton *button,
     GNUNET_CHAT_file_stop_download(file);
 
     gtk_image_set_from_icon_name(
-	handle->file_status_image,
-	"folder-download-symbolic",
-	GTK_ICON_SIZE_BUTTON
+      handle->file_status_image,
+      "folder-download-symbolic",
+      GTK_ICON_SIZE_BUTTON
     );
   }
   else if (local_size < size)
@@ -113,6 +118,8 @@ static void
 handle_media_button_click(GtkButton *button,
 			                    gpointer user_data)
 {
+  GNUNET_assert((button) && (user_data));
+
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   UI_MESSAGE_Handle* handle = (UI_MESSAGE_Handle*) (
@@ -152,6 +159,8 @@ handle_media_button_click(GtkButton *button,
 static int
 handle_message_redraw_animation(gpointer user_data)
 {
+  GNUNET_assert(user_data);
+
   UI_MESSAGE_Handle *handle = (UI_MESSAGE_Handle*) user_data;
 
   handle->redraw_animation = 0;
@@ -167,9 +176,11 @@ handle_message_redraw_animation(gpointer user_data)
 
 static gboolean
 handle_preview_drawing_area_draw(GtkWidget* drawing_area,
-			      cairo_t* cairo,
-			      gpointer user_data)
+                                 cairo_t* cairo,
+                                 gpointer user_data)
 {
+  GNUNET_assert((drawing_area) && (cairo) && (user_data));
+
   UI_MESSAGE_Handle *handle = (UI_MESSAGE_Handle*) user_data;
 
   GtkStyleContext* context = gtk_widget_get_style_context(drawing_area);
@@ -188,17 +199,17 @@ handle_preview_drawing_area_draw(GtkWidget* drawing_area,
     gdk_pixbuf_animation_iter_advance(handle->preview_animation_iter, NULL);
   else
     handle->preview_animation_iter = gdk_pixbuf_animation_get_iter(
-	handle->preview_animation, NULL
+	    handle->preview_animation, NULL
     );
 
   image = gdk_pixbuf_animation_iter_get_pixbuf(handle->preview_animation_iter);
 
   const int delay = gdk_pixbuf_animation_iter_get_delay_time(
-      handle->preview_animation_iter
+    handle->preview_animation_iter
   );
 
   handle->redraw_animation = g_timeout_add(
-      delay, handle_message_redraw_animation, handle
+    delay, handle_message_redraw_animation, handle
   );
 
 render_image:
@@ -211,9 +222,9 @@ render_image:
   gint optimal_height = width * dheight / dwidth;
 
   gtk_widget_set_size_request(
-      GTK_WIDGET(drawing_area),
-      width,
-      optimal_height
+    GTK_WIDGET(drawing_area),
+    width,
+    optimal_height
   );
 
   double ratio_width = 1.0 * width / dwidth;
@@ -228,15 +239,15 @@ render_image:
   double dy = (height - dheight) * 0.5;
 
   const int interp_type = (ratio >= 1.0?
-      GDK_INTERP_NEAREST :
-      GDK_INTERP_BILINEAR
+    GDK_INTERP_NEAREST :
+    GDK_INTERP_BILINEAR
   );
 
   GdkPixbuf* scaled = gdk_pixbuf_scale_simple(
-      image,
-      dwidth,
-      dheight,
-      interp_type
+    image,
+    dwidth,
+    dheight,
+    interp_type
   );
 
   gtk_render_icon(context, cairo, scaled, dx, dy);
@@ -250,6 +261,8 @@ render_image:
 static void
 _clear_message_preview_data(UI_MESSAGE_Handle *handle)
 {
+  GNUNET_assert(handle);
+
   if (handle->preview_image)
   {
     g_object_unref(handle->preview_image);
@@ -286,12 +299,15 @@ UI_MESSAGE_Handle*
 ui_message_new(MESSENGER_Application *app,
 	             UI_MESSAGE_Type type)
 {
+  GNUNET_assert(app);
+
   UI_MESSAGE_Handle* handle = g_malloc(sizeof(UI_MESSAGE_Handle));
 
   handle->type = type;
 
   handle->timestamp = GNUNET_TIME_absolute_get_zero_();
   handle->msg = NULL;
+  handle->contact = NULL;
 
   const char *ui_builder_file;
 
@@ -476,6 +492,8 @@ _iterate_read_receipts(void *cls,
                        const struct GNUNET_CHAT_Contact *contact,
                        int read_receipt)
 {
+  GNUNET_assert((cls) && (message) && (contact));
+
   int *count_read_receipts = (int*) cls;
 
   if ((GNUNET_YES == read_receipt) &&
@@ -488,8 +506,13 @@ _iterate_read_receipts(void *cls,
 void
 ui_message_refresh(UI_MESSAGE_Handle *handle)
 {
+  GNUNET_assert(handle);
+
   if ((!(handle->msg)) ||
       (GNUNET_YES != GNUNET_CHAT_message_is_sent(handle->msg)))
+    return;
+
+  if (!(handle->read_receipt_image))
     return;
 
   int count = 0;
@@ -526,6 +549,8 @@ _update_invitation_message(UI_MESSAGE_Handle *handle,
 		                       MESSENGER_Application *app,
                            struct GNUNET_CHAT_Invitation *invitation)
 {
+  GNUNET_assert((handle) && (app) && (invitation));
+
   enum GNUNET_GenericReturnValue accepted, rejected;
   accepted = GNUNET_CHAT_invitation_is_accepted(invitation);
   rejected = GNUNET_CHAT_invitation_is_rejected(invitation);
@@ -564,6 +589,8 @@ _update_file_message(UI_MESSAGE_Handle *handle,
 		                 MESSENGER_Application *app,
 		                 struct GNUNET_CHAT_File *file)
 {
+  GNUNET_assert((handle) && (app) && (file));
+
   const char *filename = GNUNET_CHAT_file_get_name(file);
 
   uint64_t size = GNUNET_CHAT_file_get_size(file);
@@ -686,6 +713,8 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 		              MESSENGER_Application *app,
 		              const struct GNUNET_CHAT_Message *msg)
 {
+  GNUNET_assert((handle) && (app) && (msg));
+
   struct GNUNET_CHAT_File *file = NULL;
   struct GNUNET_CHAT_Invitation *invitation = NULL;
 
@@ -728,8 +757,33 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 }
 
 void
+ui_message_set_contact(UI_MESSAGE_Handle *handle,
+		                   const struct GNUNET_CHAT_Contact *contact)
+{
+  GNUNET_assert(handle);
+
+  if (handle->contact)
+  {
+    contact_remove_name_avatar_from_info(handle->contact, handle->sender_avatar);
+    contact_remove_name_label_from_info(handle->contact, handle->sender_label);
+  }
+
+  if (contact)
+  {
+    contact_add_name_avatar_to_info(contact, handle->sender_avatar);
+    contact_add_name_label_to_info(contact, handle->sender_label);
+  }
+
+  handle->contact = contact;
+}
+
+void
 ui_message_delete(UI_MESSAGE_Handle *handle)
 {
+  GNUNET_assert(handle);
+
+  ui_message_set_contact(handle, NULL);
+
   _clear_message_preview_data(handle);
 
   g_object_unref(handle->builder[1]);

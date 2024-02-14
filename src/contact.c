@@ -63,7 +63,7 @@ contact_destroy_info(struct GNUNET_CHAT_Contact *contact)
 
 void
 contact_set_last_message_to_info(const struct GNUNET_CHAT_Contact *contact,
-				 void *message)
+				                         void *message)
 {
   MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
 
@@ -101,6 +101,19 @@ contact_add_name_label_to_info(const struct GNUNET_CHAT_Contact *contact,
 }
 
 void
+contact_remove_name_label_from_info(const struct GNUNET_CHAT_Contact *contact,
+			                              GtkLabel *label)
+{
+  MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
+
+  if ((!info) || (!label))
+    return;
+
+  if (info->name_labels)
+    info->name_labels = g_list_remove(info->name_labels, label);
+}
+
+void
 contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
 			                          HdyAvatar *avatar)
 {
@@ -114,6 +127,19 @@ contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
   ui_avatar_set_text(avatar, name);
 
   info->name_avatars = g_list_append(info->name_avatars, avatar);
+}
+
+void
+contact_remove_name_avatar_from_info(const struct GNUNET_CHAT_Contact *contact,
+			                               HdyAvatar *avatar)
+{
+  MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
+
+  if ((!info) || (!avatar))
+    return;
+
+  if (info->name_avatars)
+    info->name_avatars = g_list_remove(info->name_avatars, avatar);
 }
 
 void
