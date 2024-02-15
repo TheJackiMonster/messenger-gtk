@@ -21,7 +21,7 @@ The application provides the following features:
  - Sending voice recordings
  - Sharing files privately
  - Deleting messages with any custom delay
- - Renaming contacts
+ - Renaming, tagging or blocking contacts
  - Exchanging contact details physically
  - Verifying contact identities
  - Switching between different accounts
@@ -39,6 +39,7 @@ The following dependencies are required and need to be installed to build the ap
  - [libnotify](https://gitlab.gnome.org/GNOME/libnotify): For notifications
  - [qrencode](https://github.com/fukuchi/libqrencode): For generating QR codes to share credentials
  - [gstreamer](https://gitlab.freedesktop.org/gstreamer): For recording and playing voice messages
+ - [libportal](https://github.com/flatpak/libportal): For requesting permission to use certain system features
 
 As additional step you will need to load all required git submodules via `git submodule init` and `git submodule update`. It is also possible to just add the `--recursive` flag while cloning the repository to do that automatically.
 
