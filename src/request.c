@@ -46,24 +46,6 @@ _request_timeout_call(gpointer user_data)
   return FALSE;
 }
 
-static void
-_request_cancel()
-{}
-
-static void
-_request_cancel_timeout(gpointer user_data)
-{
-  g_assert(user_data);
-
-  MESSENGER_Request* request = (MESSENGER_Request*) user_data;
-
-  if (request->timeout)
-    g_source_remove(request->timeout);
-
-  request_cleanup(request);
-  request_drop(request);
-}
-
 #endif
 
 MESSENGER_Request*
@@ -85,14 +67,6 @@ request_new(MESSENGER_Application *application,
   request->timeout = g_timeout_add(
     0, G_SOURCE_FUNC(_request_timeout_call), request
   );
-
-  if (request->cancellable)
-    g_cancellable_connect (
-      request->cancellable,
-      _request_cancel,
-      request,
-      _request_cancel_timeout
-    );
 #endif
 
   application->requests = g_list_append(
@@ -252,6 +226,13 @@ request_cancel(MESSENGER_Request *request)
 {
   g_assert(request);
 
+#ifdef MESSENGER_APPLICATION_NO_PORTAL
+  if (request->timeout)
+    g_source_remove(request->timeout);
+
+  request->timeout = 0;
+#endif
+
   if (!request->cancellable)
     return;
   
@@ -263,6 +244,13 @@ void
 request_cleanup(MESSENGER_Request *request)
 {
   g_assert(request);
+
+#ifdef MESSENGER_APPLICATION_NO_PORTAL
+  if (request->timeout)
+    g_source_remove(request->timeout);
+
+  request->timeout = 0;
+#endif
 
   if (!request->cancellable)
     return;

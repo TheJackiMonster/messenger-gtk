@@ -433,22 +433,6 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
 
   _setup_gst_pipeline(handle);
 
-#ifndef MESSENGER_APPLICATION_NO_PORTAL
-  if (app->portal)
-#else
-  if (FALSE)
-#endif
-  {
-    request_new_camera(
-      app,
-      XDP_CAMERA_FLAG_NONE,
-      _request_camera_callback,
-      handle
-    );
-  }
-  else
-    _init_camera_pipeline(app, handle, false);
-
   handle->builder = gtk_builder_new_from_resource(
     application_get_resource_path(app, "ui/new_contact.ui")
   );
@@ -557,6 +541,22 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
     G_CALLBACK(handle_dialog_destroy),
     handle
   );
+
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+  if (app->portal)
+#else
+  if (TRUE)
+#endif
+  {
+    request_new_camera(
+      app,
+      XDP_CAMERA_FLAG_NONE,
+      _request_camera_callback,
+      handle
+    );
+  }
+  else
+    _init_camera_pipeline(app, handle, false);
 }
 
 void
