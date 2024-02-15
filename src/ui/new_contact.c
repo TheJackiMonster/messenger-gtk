@@ -126,7 +126,7 @@ _disable_video_processing(UI_NEW_CONTACT_Handle *handle,
 {
   g_assert(handle);
 
-  if (handle->preview_stack)
+  if (!(handle->preview_stack))
     goto skip_stack;
 
   if (handle->camera_count)
