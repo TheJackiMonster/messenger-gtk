@@ -29,9 +29,12 @@
 #include <gstreamer-1.0/gst/gst.h>
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
-#include <libportal-gtk3/portal-gtk3.h>
 #include <libnotify/notify.h>
 #include <pipewire/impl.h>
+
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+#include <libportal-gtk3/portal-gtk3.h>
+#endif
 
 static void
 _load_ui_stylesheets(MESSENGER_Application *app)
@@ -76,8 +79,10 @@ _application_init(MESSENGER_Application *app)
 
   ui_messenger_init(app, &(app->ui.messenger));
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
   if (app->portal)
     app->parent = xdp_parent_new_gtk(GTK_WINDOW(app->ui.messenger.main_window));
+#endif
 
   if (app->chat.identity)
     application_show_window(app);
@@ -257,6 +262,7 @@ application_init(MESSENGER_Application *app,
 
   resources_register();
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
   GError *error = NULL;
   app->portal = xdp_portal_initable_new(&error);
 
@@ -265,6 +271,7 @@ application_init(MESSENGER_Application *app,
     g_printerr("ERROR: %s\n", error->message);
     g_error_free(error);
   }
+#endif
 
   notify_init(MESSENGER_APPLICATION_NAME);
   app->notifications = NULL;
@@ -479,31 +486,14 @@ application_run(MESSENGER_Application *app)
 }
 
 static void
-_request_background_callback(GObject *source_object,
-                             GAsyncResult *result,
+_request_background_callback(MESSENGER_Application *app,
+                             gboolean success,
+                             gboolean error,
                              gpointer user_data)
 {
-  g_assert((source_object) && (result) && (user_data));
+  g_assert((app) && (user_data));
 
-  XdpPortal *portal = XDP_PORTAL(source_object);
-  MESSENGER_Request *request = (MESSENGER_Request*) user_data;
-
-  request_cleanup(request);
-
-  gboolean *setting = (gboolean*) (request->user_data);
-
-  GError *error = NULL;
-  gboolean success = xdp_portal_request_background_finish(
-    portal, result, &error
-  );
-
-  request_drop(request);
-
-  if (error) {
-    g_printerr("ERROR: %s\n", error->message);
-    g_error_free(error);
-  }
-
+  gboolean *setting = (gboolean*) user_data;
   *setting = success;
 }
 
@@ -644,10 +634,12 @@ application_exit(MESSENGER_Application *app,
   // GNUnet handles of the application.
   write(app->chat.pipe[1], &signal, sizeof(signal));
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
   if (app->portal)
     g_object_unref(app->portal);
 
   app->portal = NULL;
+#endif
 
   if (app->pw.registry)
     pw_proxy_destroy((struct pw_proxy*) app->pw.registry);

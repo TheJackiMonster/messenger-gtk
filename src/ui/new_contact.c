@@ -382,7 +382,11 @@ _init_camera_pipeline(MESSENGER_Application *app,
 
   handle->camera_count = 0;
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
   if ((app->portal) && ((access) || xdp_portal_is_camera_present(app->portal)))
+#else
+  if (access)
+#endif
   {
     app->pw.pending = pw_core_sync(app->pw.core, 0, 0);
 
@@ -407,31 +411,14 @@ _init_camera_pipeline(MESSENGER_Application *app,
 }
 
 static void
-_request_camera_callback(GObject *source_object,
-                         GAsyncResult *result,
+_request_camera_callback(MESSENGER_Application *app,
+                         gboolean success,
+                         gboolean error,
                          gpointer user_data)
 {
-  g_assert((source_object) && (result) && (user_data));
+  g_assert((app) && (user_data));
 
-  XdpPortal *portal = (XdpPortal*) source_object;
-  MESSENGER_Request *request = (MESSENGER_Request*) user_data;
-
-  request_cleanup(request);
-
-  MESSENGER_Application *app = request->application;
-  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) request->user_data;
-
-  GError *error = NULL;
-  gboolean success = xdp_portal_access_camera_finish(
-    portal, result, &error
-  );
-
-  request_drop(request);
-
-  if (error) {
-    g_printerr("ERROR: %s\n", error->message);
-    g_error_free(error);
-  }
+  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) user_data;
 
   _init_camera_pipeline(app, handle, success);
 }
@@ -446,7 +433,11 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
 
   _setup_gst_pipeline(handle);
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
   if (app->portal)
+#else
+  if (FALSE)
+#endif
   {
     request_new_camera(
       app,

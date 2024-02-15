@@ -29,7 +29,10 @@
 
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
+
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
 #include <libportal/background.h>
+#endif
 
 static gboolean
 handle_general_switch_state(UNUSED GtkSwitch *widget,
@@ -44,31 +47,16 @@ handle_general_switch_state(UNUSED GtkSwitch *widget,
 }
 
 static void
-_request_background_callback(GObject *source_object,
-                             GAsyncResult *result,
+_request_background_callback(MESSENGER_Application *app,
+                             gboolean success,
+                             gboolean error,
                              gpointer user_data)
 {
-  g_assert((source_object) && (result) && (user_data));
+  g_assert((app) && (user_data));
 
-  XdpPortal *portal = XDP_PORTAL(source_object);
-  MESSENGER_Request *request = (MESSENGER_Request*) user_data;
-
-  request_cleanup(request);
-
-  MESSENGER_Application *app = request->application;
-  GtkSwitch *widget = GTK_SWITCH(request->user_data);
-  
-  GError *error = NULL;
-  gboolean success = xdp_portal_request_background_finish(
-    portal, result, &error
-  );
-
-  request_drop(request);
+  GtkSwitch *widget = GTK_SWITCH(user_data);
 
   if (error) {
-    g_printerr("ERROR: %s\n", error->message);
-    g_error_free(error);
-
     gtk_widget_set_sensitive(GTK_WIDGET(widget), !success);
     gtk_switch_set_active(widget, success);
     return;

@@ -26,14 +26,39 @@
 #define REQUEST_H_
 
 #include <gio/gio.h>
+
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
 #include <libportal/portal.h>
+#else
+typedef enum XdpBackgroundFlags {
+  XDP_BACKGROUND_FLAG_ACTIVATABLE = 1,
+  XDP_BACKGROUND_FLAG_AUTOSTART = 2,
+  XDP_BACKGROUND_FLAG_NONE = 0,
+} XdpBackgroundFlags;
+
+typedef enum XdpCameraFlags {
+  XDP_CAMERA_FLAG_NONE = 0,
+} XdpCameraFlags;
+#endif
 
 #include "application.h"
 
+typedef void (*MESSENGER_RequestCallback)(
+  MESSENGER_Application *application,
+  gboolean success,
+  gboolean error,
+  gpointer user_data
+);
+
 typedef struct MESSENGER_Request {
   MESSENGER_Application *application;
+  MESSENGER_RequestCallback callback;
   GCancellable *cancellable;
   gpointer user_data;
+
+#ifdef MESSENGER_APPLICATION_NO_PORTAL
+  guint timeout;
+#endif
 } MESSENGER_Request;
 
 /**
@@ -50,6 +75,7 @@ typedef struct MESSENGER_Request {
  */
 MESSENGER_Request*
 request_new(MESSENGER_Application *application,
+            MESSENGER_RequestCallback callback,
             GCancellable *cancellable,
             gpointer user_data);
 
@@ -66,7 +92,7 @@ request_new(MESSENGER_Application *application,
 MESSENGER_Request*
 request_new_background(MESSENGER_Application *application,
                        XdpBackgroundFlags flags,
-                       GAsyncReadyCallback callback,
+                       MESSENGER_RequestCallback callback,
                        gpointer user_data);
 
 /**
@@ -82,7 +108,7 @@ request_new_background(MESSENGER_Application *application,
 MESSENGER_Request*
 request_new_camera(MESSENGER_Application *application,
                    XdpCameraFlags flags,
-                   GAsyncReadyCallback callback,
+                   MESSENGER_RequestCallback callback,
                    gpointer user_data);
 
 /**

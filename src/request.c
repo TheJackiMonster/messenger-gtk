@@ -24,8 +24,47 @@
 
 #include "request.h"
 
+#ifdef MESSENGER_APPLICATION_NO_PORTAL
+
+static gboolean
+_request_timeout_call(gpointer user_data)
+{
+  g_assert(user_data);
+
+  MESSENGER_Request* request = (MESSENGER_Request*) user_data;
+
+  MESSENGER_Application *app = request->application;
+  MESSENGER_RequestCallback callback = request->callback;
+  gpointer data = request->user_data;
+
+  request_cleanup(request);
+  request_drop(request);
+
+  if (callback)
+    callback(app, TRUE, FALSE, data);
+
+  return FALSE;
+}
+
+static void
+_request_cancel_timeout(gpointer user_data)
+{
+  g_assert(user_data);
+
+  MESSENGER_Request* request = (MESSENGER_Request*) user_data;
+
+  if (request->timeout)
+    g_source_remove(request->timeout);
+
+  request_cleanup(request);
+  request_drop(request);
+}
+
+#endif
+
 MESSENGER_Request*
 request_new(MESSENGER_Application *application,
+            MESSENGER_RequestCallback callback,
             GCancellable *cancellable,
             gpointer user_data)
 {
@@ -34,8 +73,23 @@ request_new(MESSENGER_Application *application,
   MESSENGER_Request* request = g_malloc(sizeof(MESSENGER_Request));
 
   request->application = application;
+  request->callback = callback;
   request->cancellable = cancellable;
   request->user_data = user_data;
+
+#ifdef MESSENGER_APPLICATION_NO_PORTAL
+  request->timeout = g_timeout_add(
+    0, G_SOURCE_FUNC(_request_timeout_call), request
+  );
+
+  if (request->cancellable)
+    g_cancellable_connect (
+      request->cancellable,
+      _request_cancel_timeout,
+      request,
+      NULL
+    );
+#endif
 
   application->requests = g_list_append(
     application->requests, 
@@ -45,10 +99,47 @@ request_new(MESSENGER_Application *application,
   return request;
 }
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+static void
+_request_background_callback(GObject *source_object,
+                             GAsyncResult *result,
+                             gpointer user_data)
+{
+  g_assert((source_object) && (result) && (user_data));
+
+  XdpPortal *portal = XDP_PORTAL(source_object);
+  MESSENGER_Request *request = (MESSENGER_Request*) user_data;
+
+  request_cleanup(request);
+
+  MESSENGER_Application *app = request->application;
+  MESSENGER_RequestCallback callback = request->callback;
+  gpointer data = request->user_data;
+  
+  GError *error = NULL;
+  gboolean success = xdp_portal_request_background_finish(
+    portal, result, &error
+  );
+
+  request_drop(request);
+
+  gboolean error_value = false;
+  if (error) {
+    g_printerr("ERROR: %s\n", error->message);
+    g_error_free(error);
+
+    error_value = true;
+  }
+
+  if (callback)
+    callback(app, success, error_value, data);
+}
+#endif
+
 MESSENGER_Request*
 request_new_background(MESSENGER_Application *application,
                        XdpBackgroundFlags flags,
-                       GAsyncReadyCallback callback,
+                       MESSENGER_RequestCallback callback,
                        gpointer user_data)
 {
   g_assert((application) && (callback));
@@ -60,10 +151,12 @@ request_new_background(MESSENGER_Application *application,
 
   MESSENGER_Request* request = request_new(
     application,
+    callback,
     cancellable,
     user_data
   );
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
   xdp_portal_request_background(
     application->portal,
     application->parent,
@@ -71,17 +164,55 @@ request_new_background(MESSENGER_Application *application,
     NULL,
     flags,
     cancellable,
-    callback,
+    _request_background_callback,
     request
   );
+#endif
 
   return request;
 }
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+static void
+_request_camera_callback(GObject *source_object,
+                         GAsyncResult *result,
+                         gpointer user_data)
+{
+  g_assert((source_object) && (result) && (user_data));
+
+  XdpPortal *portal = (XdpPortal*) source_object;
+  MESSENGER_Request *request = (MESSENGER_Request*) user_data;
+
+  request_cleanup(request);
+
+  MESSENGER_Application *app = request->application;
+  MESSENGER_RequestCallback callback = request->callback;
+  gpointer data = request->user_data;
+
+  GError *error = NULL;
+  gboolean success = xdp_portal_access_camera_finish(
+    portal, result, &error
+  );
+
+  request_drop(request);
+
+  gboolean error_value = false;
+  if (error) {
+    g_printerr("ERROR: %s\n", error->message);
+    g_error_free(error);
+
+    error_value = true;
+  }
+
+  if (callback)
+    callback(app, success, error_value, data);
+}
+#endif
+
 MESSENGER_Request*
 request_new_camera(MESSENGER_Application *application,
                    XdpCameraFlags flags,
-                   GAsyncReadyCallback callback,
+                   MESSENGER_RequestCallback callback,
                    gpointer user_data)
 {
   g_assert((application) && (callback));
@@ -93,18 +224,21 @@ request_new_camera(MESSENGER_Application *application,
 
   MESSENGER_Request* request = request_new(
     application,
+    callback,
     cancellable,
     user_data
   );
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
   xdp_portal_access_camera(
     application->portal,
     application->parent,
     flags,
     cancellable,
-    callback,
+    _request_camera_callback,
     request
   );
+#endif
 
   return request;
 }

@@ -25,6 +25,8 @@ project(
     version: run_command('contrib/get_version.sh').stdout().strip(),
 )
 
+use_libportal = true
+
 messenger_gtk_id = 'org.gnunet.Messenger'
 
 gnome = import('gnome')
@@ -40,13 +42,28 @@ messenger_gtk_deps = [
     dependency('gtk+-3.0'),
     dependency('libhandy-1'),
     dependency('gstreamer-1.0'),
-    dependency('libportal'),
-    dependency('libportal-gtk3'),
     dependency('libnotify'),
     dependency('libqrencode'),
     dependency('libpipewire-0.3'),
     declare_dependency(link_args: '-lunistring'),
 ]
+
+messenger_gtk_args = [
+    '-DMESSENGER_APPLICATION_BINARY="@0@"'.format(meson.project_name()),
+    '-DMESSENGER_APPLICATION_ID="@0@"'.format(messenger_gtk_id),
+    '-DMESSENGER_APPLICATION_VERSION="@0@"'.format(meson.project_version()),
+]
+
+if use_libportal
+    messenger_gtk_deps += [
+        dependency('libportal'),
+        dependency('libportal-gtk3'),
+    ]
+else
+    messenger_gtk_args += [
+        '-DMESSENGER_APPLICATION_NO_PORTAL=1',
+    ]
+endif
 
 subdir('resources')
 subdir('src')
@@ -54,11 +71,7 @@ subdir('src')
 messenger_gtk_exec = executable(
     meson.project_name(),
     messenger_gtk_resources + messenger_gtk_sources,
-    c_args : [
-        '-DMESSENGER_APPLICATION_BINARY="@0@"'.format(meson.project_name()),
-        '-DMESSENGER_APPLICATION_ID="@0@"'.format(messenger_gtk_id),
-        '-DMESSENGER_APPLICATION_VERSION="@0@"'.format(meson.project_version()),
-    ],
+    c_args: messenger_gtk_args,
     install: true,
     dependencies: messenger_gtk_deps,
     extra_files: submodules_headers,

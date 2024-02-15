@@ -362,10 +362,12 @@ handle_main_window_destroy(UNUSED GtkWidget *window,
 
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
   if (app->parent)
     xdp_parent_free(app->parent);
 
   app->parent = NULL;
+#endif
 
   ui_messenger_cleanup(&(app->ui.messenger));
   ui_accounts_dialog_cleanup(&(app->ui.accounts));

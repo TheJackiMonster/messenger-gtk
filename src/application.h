@@ -25,7 +25,10 @@
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
 #include <libportal/portal.h>
+#endif
+
 #include <pipewire/pipewire.h>
 #include <pthread.h>
 
@@ -75,8 +78,10 @@ typedef struct MESSENGER_Application
   GList *requests;
   guint init;
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
   XdpPortal *portal;
   XdpParent *parent;
+#endif
 
   struct {
     GQuark widget;
