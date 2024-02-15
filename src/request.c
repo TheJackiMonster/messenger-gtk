@@ -47,6 +47,10 @@ _request_timeout_call(gpointer user_data)
 }
 
 static void
+_request_cancel()
+{}
+
+static void
 _request_cancel_timeout(gpointer user_data)
 {
   g_assert(user_data);
@@ -85,9 +89,9 @@ request_new(MESSENGER_Application *application,
   if (request->cancellable)
     g_cancellable_connect (
       request->cancellable,
-      _request_cancel_timeout,
+      _request_cancel,
       request,
-      NULL
+      _request_cancel_timeout
     );
 #endif
 
