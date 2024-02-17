@@ -762,6 +762,22 @@ skip_message:
   enqueue_chat_entry_update(handle);
 }
 
+static void
+_event_update_tag_message_state(const struct GNUNET_CHAT_Message *msg)
+{
+  const struct GNUNET_CHAT_Message *target;
+  target = GNUNET_CHAT_message_get_target(msg);
+
+  if (!target)
+    return;
+
+  const struct GNUNET_CHAT_Contact *contact;
+  contact = GNUNET_CHAT_message_get_sender(target);
+
+  if (contact)
+    contact_update_info(contact);
+}
+
 void
 event_delete_message(MESSENGER_Application *app,
                      struct GNUNET_CHAT_Context *context,
@@ -786,6 +802,9 @@ event_delete_message(MESSENGER_Application *app,
 
     if ((message) && (message->msg == GNUNET_CHAT_message_get_target(msg)))
     {
+      if (GNUNET_CHAT_KIND_TAG == GNUNET_CHAT_message_get_kind(message->msg))
+        _event_update_tag_message_state(message->msg);
+
       ui_chat_remove_message(handle->chat, app, message);
       break;
     }
@@ -808,14 +827,7 @@ event_tag_message(MESSENGER_Application *app,
 
   const struct GNUNET_CHAT_Message *target = GNUNET_CHAT_message_get_target(msg);
 
-  if (target)
-  {
-    const struct GNUNET_CHAT_Contact *contact;
-    contact = GNUNET_CHAT_message_get_sender(target);
-
-    if (contact)
-      contact_update_info(contact);
-  }
+  _event_update_tag_message_state(msg);
 
   if ((!handle) || (!(handle->chat)))
     return;
