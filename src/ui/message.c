@@ -766,12 +766,14 @@ ui_message_set_contact(UI_MESSAGE_Handle *handle,
   {
     contact_remove_name_avatar_from_info(handle->contact, handle->sender_avatar);
     contact_remove_name_label_from_info(handle->contact, handle->sender_label);
+    contact_remove_visible_widget_to_info(handle->contact, handle->message_box);
   }
 
   if (contact)
   {
     contact_add_name_avatar_to_info(contact, handle->sender_avatar);
     contact_add_name_label_to_info(contact, handle->sender_label);
+    contact_add_visible_widget_to_info(contact, handle->message_box);
   }
 
   handle->contact = contact;

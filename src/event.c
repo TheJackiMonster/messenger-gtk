@@ -765,6 +765,8 @@ skip_message:
 static void
 _event_update_tag_message_state(const struct GNUNET_CHAT_Message *msg)
 {
+  g_assert((msg) && (GNUNET_CHAT_KIND_TAG == GNUNET_CHAT_message_get_kind(msg)));
+
   const struct GNUNET_CHAT_Message *target;
   target = GNUNET_CHAT_message_get_target(msg);
 
@@ -800,11 +802,8 @@ event_delete_message(MESSENGER_Application *app,
       G_OBJECT(row->data), app->quarks.ui
     );
 
-    if ((message) && (message->msg == GNUNET_CHAT_message_get_target(msg)))
+    if ((message) && (message->msg == msg))
     {
-      if (GNUNET_CHAT_KIND_TAG == GNUNET_CHAT_message_get_kind(message->msg))
-        _event_update_tag_message_state(message->msg);
-
       ui_chat_remove_message(handle->chat, app, message);
       break;
     }
@@ -812,6 +811,9 @@ event_delete_message(MESSENGER_Application *app,
 
   if (rows)
     g_list_free(rows);
+
+  if ((msg) && (GNUNET_CHAT_KIND_TAG == GNUNET_CHAT_message_get_kind(msg)))
+    _event_update_tag_message_state(msg);
 
   enqueue_chat_entry_update(handle);
 }

@@ -79,6 +79,18 @@ _chat_messenger_message(void *cls,
   // Locking the mutex for synchronization
   pthread_mutex_lock(&(app->chat.mutex));
 
+  if (GNUNET_YES == GNUNET_CHAT_message_is_deleted(message))
+  {
+    application_call_message_event(
+        app,
+        event_delete_message,
+        context,
+        message
+    );
+
+    goto skip_message_handling;
+  }
+
   // Handle each kind of message as proper event regarding context
   switch (GNUNET_CHAT_message_get_kind(message))
   {
@@ -162,12 +174,16 @@ _chat_messenger_message(void *cls,
     }
     case GNUNET_CHAT_KIND_DELETION:
     {
-      application_call_message_event(
-      	  app,
-      	  event_delete_message,
-      	  context,
-      	  message
-      );
+      const struct GNUNET_CHAT_Message *target;
+      target = GNUNET_CHAT_message_get_target(message);
+
+      if (target) 
+        application_call_message_event(
+            app,
+            event_delete_message,
+            context,
+            target
+        );
       break;
     }
     case GNUNET_CHAT_KIND_TAG:
@@ -184,6 +200,7 @@ _chat_messenger_message(void *cls,
       break;
   }
 
+skip_message_handling:
   pthread_mutex_unlock(&(app->chat.mutex));
   return GNUNET_YES;
 }

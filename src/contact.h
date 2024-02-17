@@ -33,6 +33,7 @@ typedef struct MESSENGER_ContactInfo
 
   GList *name_labels;
   GList *name_avatars;
+  GList *visible_widgets;
 } MESSENGER_ContactInfo;
 
 /**
@@ -117,6 +118,28 @@ contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
 void
 contact_remove_name_avatar_from_info(const struct GNUNET_CHAT_Contact *contact,
 			                               HdyAvatar *avatar);
+
+/**
+ * Adds a GtkWidget to the list of widgets
+ * which get visibility updated by state changes.
+ *
+ * @param contact Chat contact
+ * @param widget Widget
+ */
+void
+contact_add_visible_widget_to_info(const struct GNUNET_CHAT_Contact *contact,
+                                   GtkWidget *widget);
+
+/**
+ * Removes a GtkWidget from the list of widgets
+ * which get visibility updated by state changes.
+ *
+ * @param contact Chat contact
+ * @param widget Widget
+ */
+void
+contact_remove_visible_widget_to_info(const struct GNUNET_CHAT_Contact *contact,
+                                      GtkWidget *widget);
 
 /**
  * Updates the connected UI elements for a given

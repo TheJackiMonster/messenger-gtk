@@ -38,6 +38,7 @@ contact_create_info(struct GNUNET_CHAT_Contact *contact)
 
   info->name_labels = NULL;
   info->name_avatars = NULL;
+  info->visible_widgets = NULL;
 
   GNUNET_CHAT_contact_set_user_pointer(contact, info);
 }
@@ -57,6 +58,9 @@ contact_destroy_info(struct GNUNET_CHAT_Contact *contact)
 
   if (info->name_avatars)
     g_list_free(info->name_avatars);
+
+  if (info->visible_widgets)
+    g_list_free(info->visible_widgets);
 
   g_free(info);
 
@@ -153,6 +157,39 @@ contact_remove_name_avatar_from_info(const struct GNUNET_CHAT_Contact *contact,
 }
 
 void
+contact_add_visible_widget_to_info(const struct GNUNET_CHAT_Contact *contact,
+                                   GtkWidget *widget)
+{
+  g_assert(widget);
+
+  MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
+
+  if (!info)
+    return;
+
+  gboolean visible = (GNUNET_YES != GNUNET_CHAT_contact_is_blocked(contact));
+
+  gtk_widget_set_visible(widget, visible);
+
+  info->visible_widgets = g_list_append(info->visible_widgets, widget);
+}
+
+void
+contact_remove_visible_widget_to_info(const struct GNUNET_CHAT_Contact *contact,
+                                      GtkWidget *widget)
+{
+  g_assert(widget);
+
+  MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
+
+  if (!info)
+    return;
+  
+  if (info->visible_widgets)
+    info->visible_widgets = g_list_remove(info->visible_widgets, widget);
+}
+
+void
 contact_update_info(const struct GNUNET_CHAT_Contact *contact)
 {
   MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
@@ -163,9 +200,14 @@ contact_update_info(const struct GNUNET_CHAT_Contact *contact)
   GList* list;
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
+  gboolean visible = (GNUNET_YES != GNUNET_CHAT_contact_is_blocked(contact));
+
   for (list = info->name_labels; list; list = list->next)
     ui_label_set_text(GTK_LABEL(list->data), name);
 
   for (list = info->name_avatars; list; list = list->next)
     ui_avatar_set_text(HDY_AVATAR(list->data), name);
+
+  for (list = info->visible_widgets; list; list = list->next)
+    gtk_widget_set_visible(GTK_WIDGET(list->data), visible);
 }
