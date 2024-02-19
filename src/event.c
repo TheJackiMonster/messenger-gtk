@@ -812,7 +812,7 @@ event_delete_message(MESSENGER_Application *app,
   if (rows)
     g_list_free(rows);
 
-  if ((msg) && (GNUNET_CHAT_KIND_TAG == GNUNET_CHAT_message_get_kind(msg)))
+  if (GNUNET_CHAT_KIND_TAG == GNUNET_CHAT_message_get_kind(msg))
     _event_update_tag_message_state(msg);
 
   enqueue_chat_entry_update(handle);
