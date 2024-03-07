@@ -25,6 +25,8 @@ project(
     version: run_command('contrib/get_version.sh').stdout().strip(),
 )
 
+meson.add_dist_script('contrib/distribute_version.sh', meson.project_version())
+
 use_libportal = true
 
 messenger_gtk_id = 'org.gnunet.Messenger'
