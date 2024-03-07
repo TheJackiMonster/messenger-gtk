@@ -557,11 +557,26 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
     key? TRUE : FALSE
   );
 
+  gtk_widget_set_sensitive(
+    GTK_WIDGET(handle->block_button),
+    GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact)
+  );
+
+  gtk_widget_set_sensitive(
+    GTK_WIDGET(handle->unblock_button),
+    GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact)
+  );
+
   gtk_stack_set_visible_child(
     handle->block_stack,
     GNUNET_YES == GNUNET_CHAT_contact_is_blocked(contact)?
     GTK_WIDGET(handle->unblock_button) :
     GTK_WIDGET(handle->block_button)
+  );
+
+  gtk_widget_set_visible(
+    GTK_WIDGET(handle->block_stack),
+    GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact)
   );
 
   g_object_set_qdata(
