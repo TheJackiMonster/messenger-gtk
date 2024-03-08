@@ -1,3 +1,15 @@
+## Version 0.9.0
+* Fixes compatibility with libgnunetchat 0.3.0
+* Contacts can be blocked and unblocked
+* Fix message sorting and notification handling for recent only
+* Fix deletion and updating of previous messages
+* Use pipewire and libportal for GStreamer pipelines
+* Remove unreadable whispered messages
+* Invitations can be rejected via tagging
+* Sent private messages can be read from sender
+* Fix multiple memory and synchronization issues
+* Camera sensor can be selected for capturing QR codes
+
 ## Version 0.8.0
 * Fixes multiple segmentation faults and crashes
 * Fixes issues regarding changes in header usage from GNUnet 0.19.0

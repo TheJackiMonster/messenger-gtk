@@ -47,29 +47,9 @@
 	</requires>
 
 	<screenshots>
-		<screenshot>
-			<caption>About page dialog</caption>
-			<image>https://gitlab.com/gnunet-messenger/messenger-gtk/-/raw/master/screenshots/about-page.png</image>
-		</screenshot>
-		<screenshot>
-			<caption>Account selection dialog</caption>
-			<image>https://gitlab.com/gnunet-messenger/messenger-gtk/-/raw/master/screenshots/account-selection.png</image>
-		</screenshot>
 		<screenshot type="default">
-			<caption>Chat overview and messages</caption>
-			<image>https://gitlab.com/gnunet-messenger/messenger-gtk/-/raw/master/screenshots/chat.png</image>
-		</screenshot>
-		<screenshot>
-			<caption>Contact information sideview</caption>
-			<image>https://gitlab.com/gnunet-messenger/messenger-gtk/-/raw/master/screenshots/contact-info.png</image>
-		</screenshot>
-		<screenshot>
-			<caption>Message deletion dialog</caption>
-			<image>https://gitlab.com/gnunet-messenger/messenger-gtk/-/raw/master/screenshots/delete-messages.png</image>
-		</screenshot>
-		<screenshot>
-			<caption>Chat voice recording</caption>
-			<image>https://gitlab.com/gnunet-messenger/messenger-gtk/-/raw/master/screenshots/voice-recording.png</image>
+			<caption>Overview of the application</caption>
+			<image>https://gitlab.com/gnunet-messenger/messenger-gtk/-/raw/master/screenshots/messenger.png</image>
 		</screenshot>
 	</screenshots>
 	
@@ -86,6 +66,16 @@
 
 	<launchable type="desktop-id">org.gnunet.Messenger.desktop</launchable>
 	<releases>
+	  <release version="0.9.0" date="2024-03-08">
+			<description>
+				<ul>
+				  <li>Contacts can be blocked and unblocked to filter chat messages.</li>
+					<li>Requests for permission to use a camera, autostart the application and running it in background.</li>
+					<li>Camera sensors can be selected to exchange contact information.</li>
+				</ul>
+			</description>
+			<url>https://www.gnunet.org/en/news/2024-03-messenger-gtk-0.9.0.html</url>
+		</release>
 		<release version="0.8.0" date="2023-02-10">
 			<description>
 				<ul>
