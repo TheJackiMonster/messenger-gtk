@@ -2,11 +2,7 @@
 
 A GTK based GUI for the Messenger service of GNUnet.
 
-![Screenshot of the about page](screenshots/about-page.png "The GNUnet messenger application")
-![Screenshot of the account selection](screenshots/account-selection.png "Select an account")
-![Screenshot of the contact information view](screenshots/contact-info.png "Look at contact information")
-![Screenshot of the delete messages dialog](screenshots/delete-messages.png "Delete messages with a custom delay")
-![Screenshot of the voice recording preview](screenshots/voice-recording.png "Listen to the preview of voice recordings before sending")
+![Overview of the application](screenshots/messenger.png "Overview of the application")
 
 ## Features
 
@@ -39,6 +35,7 @@ The following dependencies are required and need to be installed to build the ap
  - [libnotify](https://gitlab.gnome.org/GNOME/libnotify): For notifications
  - [qrencode](https://github.com/fukuchi/libqrencode): For generating QR codes to share credentials
  - [gstreamer](https://gitlab.freedesktop.org/gstreamer): For recording and playing voice messages
+ - [pipewire](https://gitlab.freedesktop.org/pipewire/pipewire): For capturing images from camera sensors
  - [libportal](https://github.com/flatpak/libportal): For requesting permission to use certain system features
 
 As additional step you will need to load all required git submodules via `git submodule init` and `git submodule update`. It is also possible to just add the `--recursive` flag while cloning the repository to do that automatically.
