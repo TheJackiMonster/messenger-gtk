@@ -302,9 +302,13 @@ application_init(MESSENGER_Application *app,
       ),
       0
     );
+  else
+    g_printerr("ERROR: PW-Loop not created!\n");
 
   if (app->pw.context)
     pw_context_load_module(app->pw.context, "libpipewire-module-link-factory", NULL, NULL);
+  else
+    g_printerr("ERROR: PW-Context not created!\n");
 
   app->pw.core = app->pw.context? pw_context_connect(app->pw.context, NULL, 0) : NULL;
   app->pw.registry = app->pw.core? 
@@ -319,6 +323,8 @@ application_init(MESSENGER_Application *app,
       &remote_core_events,
       app
     );
+  else
+    g_printerr("ERROR: PW-Core not created!\n");
 
   if (app->pw.registry)
     pw_registry_add_listener(
@@ -327,10 +333,12 @@ application_init(MESSENGER_Application *app,
       &registry_events,
       app
     );
+  else
+    g_printerr("ERROR: PW-Registry not created!\n");
 
   app->pw.pending = app->pw.core? pw_core_sync(app->pw.core, 0, 0) : 0;
 
-  if (app->pw.main_loop)
+  if ((app->pw.main_loop) && (app->pw.core))
     pw_main_loop_run(app->pw.main_loop);
 
   g_application_add_main_option(
