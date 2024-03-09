@@ -195,6 +195,15 @@ void
 application_run(MESSENGER_Application *app);
 
 /**
+ * Run the pipewire main loop of the messenger 
+ * application if available.
+ *
+ * @param app Messenger application
+ */
+void
+application_pw_main_loop_run(MESSENGER_Application *app);
+
+/**
  * Shows the messenger application main window.
  *
  * @param app Messenger application

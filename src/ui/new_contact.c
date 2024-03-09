@@ -388,9 +388,8 @@ _init_camera_pipeline(MESSENGER_Application *app,
   if (access)
 #endif
   {
-    app->pw.pending = pw_core_sync(app->pw.core, 0, 0);
+    application_pw_main_loop_run(app);
 
-    pw_main_loop_run(app->pw.main_loop);
     pw_map_for_each(&(app->pw.globals), iterate_global, handle);
 
     if (handle->camera_count)
