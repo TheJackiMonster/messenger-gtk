@@ -160,7 +160,7 @@ on_core_done(void *data,
 
 	MESSENGER_Application *app = (MESSENGER_Application*) data;
 
-	if (seq == app->pw.pending)
+	if ((seq == app->pw.pending) && (app->pw.main_loop))
 		pw_main_loop_quit(app->pw.main_loop);
 }
 
@@ -177,7 +177,7 @@ on_core_error(void *data,
 
   g_printerr("ERROR: %s\n", message);
 
-	if ((id == PW_ID_CORE) && (res == -EPIPE))
+	if ((id == PW_ID_CORE) && (res == -EPIPE) && (app->pw.main_loop))
 		pw_main_loop_quit(app->pw.main_loop);
 }
 
@@ -212,7 +212,7 @@ registry_event_global(void *data,
 
 	pw_map_insert_at(&(app->pw.globals), id, properties);
 
-  app->pw.pending = pw_core_sync(app->pw.core, 0, 0);
+  app->pw.pending = app->pw.core? pw_core_sync(app->pw.core, 0, 0) : 0;
 }
 
 static void
@@ -290,42 +290,48 @@ application_init(MESSENGER_Application *app,
   app->quarks.ui = g_quark_from_string("messenger_ui");
 
   app->pw.main_loop = pw_main_loop_new(NULL);
-  app->pw.loop = pw_main_loop_get_loop(app->pw.main_loop);
+  app->pw.loop = app->pw.main_loop? pw_main_loop_get_loop(app->pw.main_loop) : NULL;
 
-  app->pw.context = pw_context_new(
-    app->pw.loop,
-    pw_properties_new(
-      PW_KEY_CORE_DAEMON,
-      NULL,
-      NULL
-    ),
-    0
-  );
+  if (app->pw.loop)
+    app->pw.context = pw_context_new(
+      app->pw.loop,
+      pw_properties_new(
+        PW_KEY_CORE_DAEMON,
+        NULL,
+        NULL
+      ),
+      0
+    );
 
-  pw_context_load_module(app->pw.context, "libpipewire-module-link-factory", NULL, NULL);
+  if (app->pw.context)
+    pw_context_load_module(app->pw.context, "libpipewire-module-link-factory", NULL, NULL);
 
-  app->pw.core = pw_context_connect(app->pw.context, NULL, 0);
-  app->pw.registry = pw_core_get_registry(app->pw.core, PW_VERSION_REGISTRY, 0);
+  app->pw.core = app->pw.context? pw_context_connect(app->pw.context, NULL, 0) : NULL;
+  app->pw.registry = app->pw.core? 
+    pw_core_get_registry(app->pw.core, PW_VERSION_REGISTRY, 0) : NULL;
 
   pw_map_init(&(app->pw.globals), 64, 16);
 
-  pw_core_add_listener(
-    app->pw.core,
-    &(app->pw.core_listener),
-    &remote_core_events,
-    app
-  );
+  if (app->pw.core)
+    pw_core_add_listener(
+      app->pw.core,
+      &(app->pw.core_listener),
+      &remote_core_events,
+      app
+    );
 
-	pw_registry_add_listener(
-    app->pw.registry,
-		&(app->pw.registry_listener),
-		&registry_events,
-    app
-  );
+  if (app->pw.registry)
+    pw_registry_add_listener(
+      app->pw.registry,
+      &(app->pw.registry_listener),
+      &registry_events,
+      app
+    );
 
-  app->pw.pending = pw_core_sync(app->pw.core, 0, 0);
+  app->pw.pending = app->pw.core? pw_core_sync(app->pw.core, 0, 0) : 0;
 
-  pw_main_loop_run(app->pw.main_loop);
+  if (app->pw.main_loop)
+    pw_main_loop_run(app->pw.main_loop);
 
   g_application_add_main_option(
     G_APPLICATION(app->application),
@@ -644,13 +650,11 @@ application_exit(MESSENGER_Application *app,
   if (app->pw.registry)
     pw_proxy_destroy((struct pw_proxy*) app->pw.registry);
 
-  if (app->pw.core)
-  {
-    pw_map_for_each(&(app->pw.globals), destroy_global, NULL);
-	  pw_map_clear(&(app->pw.globals));
+  pw_map_for_each(&(app->pw.globals), destroy_global, NULL);
+  pw_map_clear(&(app->pw.globals));
 
+  if (app->pw.core)
     pw_core_disconnect(app->pw.core);
-  }
 
   if (app->pw.context)
     pw_context_destroy(app->pw.context);
