@@ -101,6 +101,11 @@
 		</release>
 	</releases>
 
+	<branding>
+		<color type="primary" scheme_preference="light">#AEFAAE</color>
+		<color type="primary" scheme_preference="dark">#3E523E</color>
+	</branding>
+
 	<custom>
 		<value key="GnomeSoftware::key-colors">[(174, 250, 174), (62, 82, 62)]</value>
 	</custom>
