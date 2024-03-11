@@ -713,7 +713,7 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 		              MESSENGER_Application *app,
 		              const struct GNUNET_CHAT_Message *msg)
 {
-  g_assert((handle) && (app) && (msg));
+  g_assert((handle) && (app));
 
   struct GNUNET_CHAT_File *file = NULL;
   struct GNUNET_CHAT_Invitation *invitation = NULL;
