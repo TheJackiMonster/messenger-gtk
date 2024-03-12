@@ -939,6 +939,20 @@ handle_recording_play_button_click(UNUSED GtkButton *button,
 }
 
 static void
+handle_search_button_click(UNUSED GtkButton *button,
+			                     gpointer user_data)
+{
+  g_assert(user_data);
+
+  HdySearchBar *search_bar = HDY_SEARCH_BAR(user_data);
+
+  hdy_search_bar_set_search_mode(
+    search_bar,
+    !hdy_search_bar_get_search_mode(search_bar)
+  );
+}
+
+static void
 handle_picker_button_click(UNUSED GtkButton *button,
 			                     gpointer user_data)
 {
@@ -1219,6 +1233,25 @@ ui_chat_new(MESSENGER_Application *app)
     "clicked",
     G_CALLBACK(handle_popover_via_button_click),
     handle->chat_load_popover
+  );
+
+  handle->chat_search_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "chat_search_button")
+  );
+
+  handle->chat_search_bar = HDY_SEARCH_BAR(
+    gtk_builder_get_object(handle->builder, "chat_search_bar")
+  );
+
+  handle->chat_search_entry = GTK_SEARCH_ENTRY(
+    gtk_builder_get_object(handle->builder, "chat_search_entry")
+  );
+
+  g_signal_connect(
+    handle->chat_search_button,
+    "clicked",
+    G_CALLBACK(handle_search_button_click),
+    handle->chat_search_bar
   );
 
   handle->chat_details_button = GTK_BUTTON(

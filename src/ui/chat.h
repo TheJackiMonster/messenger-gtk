@@ -88,6 +88,10 @@ typedef struct UI_CHAT_Handle
   GtkPopover *chat_load_popover;
   GtkListBox *chat_load_listbox;
 
+  GtkButton *chat_search_button;
+  HdySearchBar *chat_search_bar;
+  GtkSearchEntry *chat_search_entry;
+
   GtkButton *chat_details_button;
   GtkLabel *chat_details_label;
   GtkButton *hide_chat_details_button;

@@ -51,26 +51,6 @@ Author: Tobias Frisch
                     <property name="border-width">8</property>
                     <property name="spacing">8</property>
                     <child>
-                      <object class="GtkButton" id="back_button">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="relief">none</property>
-                        <child>
-                          <object class="GtkImage">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="icon-name">go-previous-symbolic</property>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
@@ -118,7 +98,27 @@ Author: Tobias Frisch
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
-                        <property name="position">1</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="back_button">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="relief">none</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="icon-name">go-previous-symbolic</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -139,7 +139,7 @@ Author: Tobias Frisch
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="pack-type">end</property>
-                        <property name="position">1</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -151,6 +151,27 @@ Author: Tobias Frisch
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="chat_search_button">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="relief">none</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="icon-name">edit-find-symbolic</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="pack-type">end</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
@@ -171,7 +192,7 @@ Author: Tobias Frisch
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="pack-type">end</property>
-                        <property name="position">3</property>
+                        <property name="position">4</property>
                       </packing>
                     </child>
                     <style>
@@ -262,6 +283,27 @@ Author: Tobias Frisch
               </packing>
             </child>
             <child>
+              <object class="HdySearchBar" id="chat_search_bar">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="show-close-button">True</property>
+                <child>
+                  <object class="GtkSearchEntry" id="chat_search_entry">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="primary-icon-name">edit-find-symbolic</property>
+                    <property name="primary-icon-activatable">False</property>
+                    <property name="primary-icon-sensitive">False</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkScrolledWindow" id="chat_scrolled_window">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -283,7 +325,7 @@ Author: Tobias Frisch
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child>
