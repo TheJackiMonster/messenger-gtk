@@ -2,6 +2,8 @@
 
 A GTK based GUI for the Messenger service of GNUnet.
 
+[![messenger-gtk](https://snapcraft.io/messenger-gtk/badge.svg)](https://snapcraft.io/messenger-gtk)
+
 ![Overview of the application](screenshots/messenger.png "Overview of the application")
 
 ## Features

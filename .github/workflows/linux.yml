@@ -1,0 +1,68 @@
+name: Linux Build
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install tools
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install wget tar
+
+      - name: Download framework
+        run: |
+          wget https://www.artfiles.org/gnu.org/gnunet/gnunet-latest.tar.gz
+          tar -xf gnunet-latest.tar.gz
+      
+      - name: Install dependencies (framework)
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install libgcrypt20-dev recutils libjansson-dev libsodium-dev libcurl4-gnutls-dev libidn2-dev libunistring-dev libsqlite3-dev libmicrohttpd-dev
+
+      - name: Build framework
+        run: |
+          cd gnunet-*
+          ./configure --prefix=/usr --disable-documentation
+          make -j $(nproc)
+          sudo make install
+          cd ..
+
+      - name: Checkout library
+        run: |
+          git clone https://git.gnunet.org/libgnunetchat.git
+      
+      - name: Install dependencies (application)
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install ninja-build meson gcc
+
+      - name: Build library
+        run: |
+          cd libgnunetchat
+          meson setup build
+          meson compile -C build
+          meson install -C build
+          cd ..
+
+      - name: Checkout the current branch
+        uses: actions/checkout@v3
+
+      - name: Load submodules
+        run: |
+          git submodule init
+          git submodule update
+
+      - name: Install dependencies (application)
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install ninja-build meson gcc
+          sudo apt-get -qq install libqrencode-dev libzbar-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libportal-dev libportal-gtk3-dev
+
+      - name: Build application
+        run: |
+          meson setup build
+          meson compile -C build
