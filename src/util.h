@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -25,8 +25,15 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
+#include <glib-2.0/glib.h>
+
 #define UNUSED __attribute__((unused))
 
-#define _(String) ((const char*) String)
+#define _(String) (           \
+  (const gchar*) g_dgettext(  \
+    MESSENGER_APPLICATION_ID, \
+    (const gchar*) String     \
+  )                           \
+)
 
 #endif /* UTIL_H_ */

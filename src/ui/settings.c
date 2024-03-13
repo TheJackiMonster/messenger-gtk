@@ -384,9 +384,8 @@ ui_settings_dialog_init(MESSENGER_Application *app,
   {
     g_string_printf(
       blocked_text,
-      "%u blocked contact%s",
-      blocked_count,
-      blocked_count == 1? "" : "s"
+      _("%u blocked contacts"),
+      blocked_count
     );
 
     gtk_label_set_text(

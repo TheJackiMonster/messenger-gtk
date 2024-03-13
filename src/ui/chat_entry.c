@@ -141,8 +141,31 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 
   handle->timestamp = last_message->timestamp;
 
+  const struct GNUNET_TIME_Timestamp timestamp = GNUNET_TIME_absolute_to_timestamp(
+    handle->timestamp
+  );
+
+  GDateTime *dt_now = g_date_time_new_now_local();
+  GDateTime *dt_message = g_date_time_new_from_unix_local(
+    (gint64) (timestamp.abs_time.abs_value_us / 1000000)
+  );
+
+  GTimeSpan span = g_date_time_difference(dt_now, dt_message);
+  gchar *time = NULL;
+
+  if (span > 7 * G_TIME_SPAN_DAY)
+    time = g_date_time_format(dt_message, "%F");
+  else if (span > 2 * G_TIME_SPAN_DAY)
+    time = g_date_time_format(dt_message, "%A");
+  else if (span > G_TIME_SPAN_DAY)
+    time = g_date_time_format(dt_message, _("Yesterday"));
+  else
+    time = g_date_time_format(dt_message, "%R");
+
+  g_date_time_unref(dt_now);
+  g_date_time_unref(dt_message);
+
   const gchar *text = gtk_label_get_text(last_message->text_label);
-  const gchar *time = gtk_label_get_text(last_message->timestamp_label);
 
   if (group)
   {
@@ -162,7 +185,11 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
   else
     gtk_label_set_text(handle->text_label, text);
 
-  gtk_label_set_text(handle->timestamp_label, time);
+  if (time)
+  {
+    gtk_label_set_text(handle->timestamp_label, time);
+    g_free(time);
+  }
 
   gtk_widget_set_visible(
     GTK_WIDGET(handle->read_receipt_image),
