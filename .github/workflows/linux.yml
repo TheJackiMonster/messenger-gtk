@@ -25,7 +25,7 @@ jobs:
 
       - name: Build framework
         run: |
-          cd gnunet-*
+          cd $(ls | grep gnunet- | head -n1)
           ./configure --prefix=/usr --disable-documentation
           make -j $(nproc)
           sudo make install
