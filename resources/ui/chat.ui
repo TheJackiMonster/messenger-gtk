@@ -307,6 +307,7 @@ Author: Tobias Frisch
               <object class="GtkScrolledWindow" id="chat_scrolled_window">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="hscrollbar-policy">never</property>
                 <child>
                   <object class="GtkViewport">
                     <property name="visible">True</property>

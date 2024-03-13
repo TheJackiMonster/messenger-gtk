@@ -51,6 +51,7 @@ typedef struct UI_MESSAGE_Handle
 
   GtkBuilder *builder [2];
   GtkWidget *message_box;
+  GtkFlowBox *tag_flow_box;
 
   HdyAvatar *sender_avatar;
   GtkLabel *sender_label;
@@ -136,6 +137,32 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 void
 ui_message_set_contact(UI_MESSAGE_Handle *handle,
 		                   const struct GNUNET_CHAT_Contact *contact);
+
+/**
+ * Adds a widget to represent a given tag message
+ * to another message handle.
+ *
+ * @param handle Message handle
+ * @param app Messenger application
+ * @param tag_message Chat tag message
+ */
+void
+ui_message_add_tag(UI_MESSAGE_Handle *handle,
+                   MESSENGER_Application *app,
+                   const struct GNUNET_CHAT_Message *tag_message);
+
+/**
+ * Remove a widget representing a given tag message
+ * from another message handle.
+ *
+ * @param handle Message handle
+ * @param app Messenger application
+ * @param tag_message Chat tag message
+ */
+void
+ui_message_remove_tag(UI_MESSAGE_Handle *handle,
+                      MESSENGER_Application *app,
+                      const struct GNUNET_CHAT_Message *tag_message);
 
 /**
  * Frees its resources and destroys a given

@@ -375,6 +375,10 @@ ui_message_new(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder[0], "content_box")
   );
 
+  handle->tag_flow_box = GTK_FLOW_BOX(
+    gtk_builder_get_object(handle->builder[0], "tag_flow_box")
+  );
+
   handle->builder[1] = gtk_builder_new_from_resource(
     application_get_resource_path(app, "ui/message_content.ui")
   );
@@ -777,6 +781,90 @@ ui_message_set_contact(UI_MESSAGE_Handle *handle,
   }
 
   handle->contact = contact;
+}
+
+void
+ui_message_add_tag(UI_MESSAGE_Handle *handle,
+                   MESSENGER_Application *app,
+                   const struct GNUNET_CHAT_Message *tag_message)
+{
+  g_assert((handle) && (app) && (tag_message));
+
+  if ((GNUNET_CHAT_KIND_TAG != GNUNET_CHAT_message_get_kind(tag_message)) ||
+      (GNUNET_CHAT_message_get_target(tag_message) != handle->msg))
+    return;
+
+  const char *tag_value = GNUNET_CHAT_message_get_text(tag_message);
+
+  if ((!tag_value) || (!tag_value[0]))
+    return;
+
+  GtkLabel *tag_label = GTK_LABEL(gtk_label_new(NULL));
+
+  if (!tag_label)
+    return;
+
+  ui_label_set_text(tag_label, tag_value);
+  gtk_label_set_ellipsize(tag_label, PANGO_ELLIPSIZE_END);
+
+  g_object_set_qdata(G_OBJECT(tag_label), app->quarks.data, (gpointer) tag_message);
+
+  gtk_container_add(GTK_CONTAINER(handle->tag_flow_box), GTK_WIDGET(tag_label));
+  gtk_widget_show_all(GTK_WIDGET(tag_label));
+}
+
+void
+ui_message_remove_tag(UI_MESSAGE_Handle *handle,
+                      MESSENGER_Application *app,
+                      const struct GNUNET_CHAT_Message *tag_message)
+{
+  g_assert((handle) && (app) && (tag_message));
+
+  if ((GNUNET_CHAT_KIND_TAG != GNUNET_CHAT_message_get_kind(tag_message)) ||
+      (GNUNET_CHAT_message_get_target(tag_message) != handle->msg))
+    return;
+  
+  GList *children = gtk_container_get_children(GTK_CONTAINER(handle->tag_flow_box));
+
+  if (!children)
+    return;
+
+  GtkWidget *removable = NULL;
+
+  GList *list = children;
+  while (list)
+  {
+    GtkFlowBoxChild *child = GTK_FLOW_BOX_CHILD(list->data);
+    GList *items = gtk_container_get_children(GTK_CONTAINER(child));
+
+    if (items)
+    {
+      GtkLabel *tag_label = GTK_LABEL(items->data);
+
+      const struct GNUNET_CHAT_Message *msg = g_object_get_qdata(
+        G_OBJECT(tag_label),
+        app->quarks.data
+      );
+
+      if (tag_message == msg)
+        removable = GTK_WIDGET(child);
+
+      g_list_free(items);
+    }
+
+    list = list->next;
+
+    if (removable)
+      break;
+  }
+
+  g_list_free(children);
+
+  if (!removable)
+    return;
+
+  gtk_container_remove(GTK_CONTAINER(handle->tag_flow_box), removable);
+  gtk_widget_destroy(removable);
 }
 
 void

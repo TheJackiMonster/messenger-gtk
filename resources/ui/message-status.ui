@@ -37,27 +37,84 @@ Author: Tobias Frisch
           <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="spacing">8</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="GtkRevealer" id="deny_revealer">
+              <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="transition-type">slide-left</property>
+                <property name="spacing">8</property>
                 <child>
-                  <object class="GtkButton" id="deny_button">
+                  <object class="GtkRevealer" id="deny_revealer">
                     <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="relief">none</property>
+                    <property name="can-focus">False</property>
+                    <property name="transition-type">slide-left</property>
                     <child>
-                      <object class="GtkImage">
+                      <object class="GtkButton" id="deny_button">
                         <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="icon-name">edit-delete-symbolic</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="relief">none</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="icon-name">edit-delete-symbolic</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
                 </child>
+                <child>
+                  <object class="GtkBox" id="content_box">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkRevealer" id="accept_revealer">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="transition-type">slide-right</property>
+                    <child>
+                      <object class="GtkButton" id="accept_button">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="relief">none</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="icon-name">emblem-ok-symbolic</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <style>
+                  <class name="message-content"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -66,50 +123,22 @@ Author: Tobias Frisch
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="content_box">
+              <object class="GtkFlowBox" id="tag_flow_box">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRevealer" id="accept_revealer">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="transition-type">slide-right</property>
-                <child>
-                  <object class="GtkButton" id="accept_button">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="relief">none</property>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="icon-name">emblem-ok-symbolic</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
+                <property name="column-spacing">2</property>
+                <property name="min-children-per-line">1</property>
+                <property name="max-children-per-line">5</property>
+                <property name="selection-mode">none</property>
+                <property name="activate-on-single-click">False</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">2</property>
+                <property name="pack-type">end</property>
+                <property name="position">1</property>
               </packing>
             </child>
-            <style>
-              <class name="message-content"/>
-            </style>
           </object>
         </child>
         <child type="label">
