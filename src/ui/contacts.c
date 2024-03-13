@@ -99,14 +99,14 @@ handle_contacts_listbox_filter_func(GtkListBoxRow *row,
     return TRUE;
 
   const gchar *filter = gtk_entry_get_text(
-      GTK_ENTRY(app->ui.contacts.contact_search_entry)
+    GTK_ENTRY(app->ui.contacts.contact_search_entry)
   );
 
   if (!filter)
     return TRUE;
 
   UI_CONTACT_ENTRY_Handle *entry = (UI_CONTACT_ENTRY_Handle*) (
-      g_object_get_qdata(G_OBJECT(row), app->quarks.ui)
+    g_object_get_qdata(G_OBJECT(row), app->quarks.ui)
   );
 
   if (!entry)
@@ -156,21 +156,21 @@ _iterate_contacts(void *cls,
   ui_contact_entry_set_contact(entry, contact);
 
   gtk_list_box_prepend(
-      app->ui.contacts.contacts_listbox,
-      entry->entry_box
+    app->ui.contacts.contacts_listbox,
+    entry->entry_box
   );
 
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
-      gtk_widget_get_parent(entry->entry_box)
+    gtk_widget_get_parent(entry->entry_box)
   );
 
   g_object_set_qdata(G_OBJECT(row), app->quarks.data, contact);
 
   g_object_set_qdata_full(
-      G_OBJECT(row),
-      app->quarks.ui,
-      entry,
-      (GDestroyNotify) ui_contact_entry_delete
+    G_OBJECT(row),
+    app->quarks.ui,
+    entry,
+    (GDestroyNotify) ui_contact_entry_delete
   );
 
   return GNUNET_YES;
