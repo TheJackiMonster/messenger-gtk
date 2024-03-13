@@ -38,6 +38,8 @@ typedef struct UI_SETTINGS_Handle
   GtkSwitch *enable_notifications_switch;
 
   GtkLabel *blocked_label;
+  GtkWidget *blocked_scrolled_window;
+  GtkListBox *blocked_listbox;
   GtkSwitch *read_receipts_switch;
 
   GtkComboBox *auto_delete_combo_box;

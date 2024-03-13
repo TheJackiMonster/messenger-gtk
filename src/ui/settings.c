@@ -27,6 +27,8 @@
 #include "../application.h"
 #include "../request.h"
 
+#include "contact_entry.h"
+
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
 
@@ -213,10 +215,50 @@ _count_blocked_contacts(void *cls,
 {
   g_assert((cls) && (contact));
 
+  if (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
+    return GNUNET_YES;
+
   guint *count = (guint*) cls;
 
   if (GNUNET_YES == GNUNET_CHAT_contact_is_blocked(contact))
     *count = (*count) + 1;
+
+  return GNUNET_YES;
+}
+
+static enum GNUNET_GenericReturnValue
+_iterate_blocked_contacts(void *cls,
+                        UNUSED struct GNUNET_CHAT_Handle *handle,
+                        struct GNUNET_CHAT_Contact *contact)
+{
+  g_assert((cls) && (contact));
+
+  if ((GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact)) ||
+      (GNUNET_YES != GNUNET_CHAT_contact_is_blocked(contact)))
+    return GNUNET_YES;
+
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  UI_CONTACT_ENTRY_Handle *entry = ui_contact_entry_new(app);
+  ui_contact_entry_set_contact(entry, contact);
+
+  gtk_list_box_prepend(
+    app->ui.settings.blocked_listbox,
+    entry->entry_box
+  );
+
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
+    gtk_widget_get_parent(entry->entry_box)
+  );
+
+  g_object_set_qdata(G_OBJECT(row), app->quarks.data, contact);
+
+  g_object_set_qdata_full(
+    G_OBJECT(row),
+    app->quarks.ui,
+    entry,
+    (GDestroyNotify) ui_contact_entry_delete
+  );
 
   return GNUNET_YES;
 }
@@ -314,6 +356,14 @@ ui_settings_dialog_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "blocked_label")
   );
 
+  handle->blocked_scrolled_window = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "blocked_scrolled_window")
+  );
+
+  handle->blocked_listbox = GTK_LIST_BOX(
+    gtk_builder_get_object(handle->builder, "blocked_listbox")
+  );
+
   guint blocked_count = 0;
   GNUNET_CHAT_iterate_contacts(
     app->chat.messenger.handle,
@@ -321,13 +371,22 @@ ui_settings_dialog_init(MESSENGER_Application *app,
     &blocked_count
   );
 
+  gtk_widget_set_size_request(
+    handle->blocked_scrolled_window,
+    0,
+    56 * (blocked_count > 3? 3 : blocked_count)
+  );
+
+  gtk_widget_set_visible(handle->blocked_scrolled_window, blocked_count > 0);
+
   GString *blocked_text = g_string_new(NULL);
   if (blocked_text)
   {
     g_string_printf(
       blocked_text,
-      "%u blocked contacts",
-      blocked_count
+      "%u blocked contact%s",
+      blocked_count,
+      blocked_count == 1? "" : "s"
     );
 
     gtk_label_set_text(
@@ -337,6 +396,14 @@ ui_settings_dialog_init(MESSENGER_Application *app,
 
     g_string_free(blocked_text, TRUE);
   }
+
+  GNUNET_CHAT_iterate_contacts(
+    app->chat.messenger.handle,
+    _iterate_blocked_contacts,
+    app
+  );
+
+  gtk_list_box_invalidate_filter(handle->blocked_listbox);
 
   handle->read_receipts_switch = GTK_SWITCH(
     gtk_builder_get_object(handle->builder, "read_receipts_switch")
