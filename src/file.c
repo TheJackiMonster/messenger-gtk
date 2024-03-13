@@ -32,6 +32,9 @@ file_create_info(struct GNUNET_CHAT_File *file)
 
   MESSENGER_FileInfo* info = g_malloc(sizeof(MESSENGER_FileInfo));
 
+  info->app = NULL;
+
+  info->update_task = 0;
   info->file_messages = NULL;
 
   GNUNET_CHAT_file_set_user_pointer(file, info);
@@ -46,6 +49,9 @@ file_destroy_info(struct GNUNET_CHAT_File *file)
 
   if (!info)
     return;
+
+  if (info->update_task)
+    g_source_remove(info->update_task);
 
   if (info->file_messages)
     g_list_free(info->file_messages);
@@ -94,6 +100,29 @@ file_update_upload_info(const struct GNUNET_CHAT_File *file,
   }
 }
 
+static gboolean
+file_update_messages(gpointer user_data)
+{
+  g_assert(user_data);
+
+  MESSENGER_FileInfo* info = (MESSENGER_FileInfo*) user_data;
+
+  info->update_task = 0;
+
+  GList *list = info->file_messages;
+
+  while (list)
+  {
+    UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) list->data;
+
+    ui_message_update(message, info->app, message->msg);
+
+    list = list->next;
+  }
+
+  return FALSE;
+}
+
 void
 file_update_download_info(const struct GNUNET_CHAT_File *file,
                           MESSENGER_Application *app,
@@ -116,9 +145,12 @@ file_update_download_info(const struct GNUNET_CHAT_File *file,
       1.0 * completed / size
     );
 
-    if (completed >= size)
-      ui_message_update(message, app, NULL);
-
     list = list->next;
   }
+
+  if ((completed < size) || (info->update_task))
+    return;
+
+  info->app = app;
+  info->update_task = g_idle_add(file_update_messages, info);
 }
