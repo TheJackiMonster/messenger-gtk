@@ -312,6 +312,54 @@ handle_chat_messages_sort(GtkListBoxRow* row0,
     return 0;
 }
 
+static gboolean
+handle_chat_messages_filter(GtkListBoxRow *row,
+                            gpointer user_data)
+{
+  g_assert((row) && (user_data));
+
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  GtkListBox *listbox = GTK_LIST_BOX(gtk_widget_get_parent(GTK_WIDGET(row)));
+
+  if (!listbox)
+    return TRUE;
+
+  UI_CHAT_Handle *chat = (UI_CHAT_Handle*) (
+    g_object_get_qdata(G_OBJECT(listbox), app->quarks.ui)
+  );
+
+  if (!chat)
+    return TRUE;
+
+  const gchar *filter = gtk_entry_get_text(
+      GTK_ENTRY(chat->chat_search_entry)
+  );
+
+  if (!filter)
+    return TRUE;
+
+  UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) (
+    g_object_get_qdata(G_OBJECT(row), app->quarks.ui)
+  );
+
+  if (!message)
+    return TRUE;
+
+  const gchar *sender = gtk_label_get_text(message->sender_label);
+  const gchar *text = gtk_label_get_text(message->text_label);
+
+  gboolean result = FALSE;
+
+  if (sender)
+    result |= g_str_match_string(filter, sender, TRUE);
+
+  if (text)
+    result |= g_str_match_string(filter, text, TRUE);
+
+  return result;
+}
+
 static void
 handle_chat_messages_selected_rows_changed(GtkListBox *listbox,
 					                                 gpointer user_data)
@@ -953,6 +1001,17 @@ handle_search_button_click(UNUSED GtkButton *button,
 }
 
 static void
+handle_search_entry_search_changed(UNUSED GtkSearchEntry* search_entry,
+                                   gpointer user_data)
+{
+  g_assert(user_data);
+
+  GtkListBox *listbox = GTK_LIST_BOX(user_data);
+
+  gtk_list_box_invalidate_filter(listbox);
+}
+
+static void
 handle_picker_button_click(UNUSED GtkButton *button,
 			                     gpointer user_data)
 {
@@ -1386,6 +1445,20 @@ ui_chat_new(MESSENGER_Application *app)
     NULL
   );
 
+  gtk_list_box_set_filter_func(
+    handle->messages_listbox,
+    handle_chat_messages_filter,
+    app,
+    NULL
+  );
+
+  g_signal_connect(
+    handle->chat_search_entry,
+    "search-changed",
+    G_CALLBACK(handle_search_entry_search_changed),
+    handle->messages_listbox
+  );
+
   g_signal_connect(
     handle->messages_listbox,
     "selected-rows-changed",
@@ -1556,6 +1629,12 @@ ui_chat_new(MESSENGER_Application *app)
 
   g_object_set_qdata(
     G_OBJECT(handle->send_now_button),
+    app->quarks.ui,
+    handle
+  );
+
+  g_object_set_qdata(
+    G_OBJECT(handle->messages_listbox),
     app->quarks.ui,
     handle
   );
