@@ -200,8 +200,7 @@ Author: Tobias Frisch
                     </style>
                   </object>
                   <packing>
-                    <property name="name">page0</property>
-                    <property name="title" translatable="yes">page0</property>
+                    <property name="name">page_title</property>
                   </packing>
                 </child>
                 <child>
@@ -270,8 +269,7 @@ Author: Tobias Frisch
                     </style>
                   </object>
                   <packing>
-                    <property name="name">page1</property>
-                    <property name="title" translatable="yes">page1</property>
+                    <property name="name">page_selection</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -492,7 +490,7 @@ Author: Tobias Frisch
                               <object class="GtkLabel" id="recording_label">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="label" translatable="yes">00:00:00</property>
+                                <property name="label">00:00:00</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1099,7 +1097,7 @@ Author: Tobias Frisch
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkButton" id="send_later_button">
-            <property name="label" translatable="yes">Send later</property>
+            <property name="label" translatable="yes">Send Later</property>
             <property name="visible">True</property>
             <property name="sensitive">False</property>
             <property name="can-focus">True</property>
@@ -1114,7 +1112,7 @@ Author: Tobias Frisch
         </child>
         <child>
           <object class="GtkButton" id="send_now_button">
-            <property name="label" translatable="yes">Send now</property>
+            <property name="label" translatable="yes">Send Now</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>

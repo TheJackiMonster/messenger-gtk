@@ -169,13 +169,12 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 
   if (group)
   {
-    GString *message_text = g_string_new(
-	    gtk_label_get_text(last_message->sender_label)
-    );
+    GString *message_text = g_string_new(NULL);
 
     g_string_append_printf(
       message_text,
-      _(": %s"),
+      "%s: %s",
+      gtk_label_get_text(last_message->sender_label),
       text
     );
 

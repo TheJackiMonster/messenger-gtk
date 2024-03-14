@@ -426,8 +426,7 @@ Author: Tobias Frisch
                 </child>
               </object>
               <packing>
-                <property name="name">page0</property>
-                <property name="title" translatable="yes">page0</property>
+                <property name="name">identity_page</property>
                 <property name="position">1</property>
               </packing>
             </child>
