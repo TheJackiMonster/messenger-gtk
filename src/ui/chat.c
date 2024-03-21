@@ -312,6 +312,39 @@ handle_chat_messages_sort(GtkListBoxRow* row0,
     return 0;
 }
 
+struct FilterTags
+{
+  const gchar *filter;
+  gboolean matching;
+};
+
+static enum GNUNET_GenericReturnValue
+_iterate_message_tags(void *cls,
+                      const struct GNUNET_CHAT_Message *message)
+{
+  g_assert((cls) && (message));
+
+  struct FilterTags *filterTags = (struct FilterTags*) cls;
+
+  const char *text = GNUNET_CHAT_message_get_text(message);
+  if (!text)
+    return GNUNET_YES;
+
+  gchar *_text = g_locale_to_utf8(text, -1, NULL, NULL, NULL);
+  if (!_text)
+    return GNUNET_YES;
+
+  gchar *match = g_strstr_len(_text, -1, filterTags->filter);
+  if (match)
+  {
+    filterTags->matching = TRUE;
+    g_free(match);
+  }
+
+  g_free(_text);
+  return filterTags->matching? GNUNET_NO : GNUNET_YES;
+}
+
 static gboolean
 handle_chat_messages_filter(GtkListBoxRow *row,
                             gpointer user_data)
@@ -333,7 +366,7 @@ handle_chat_messages_filter(GtkListBoxRow *row,
     return TRUE;
 
   const gchar *filter = gtk_entry_get_text(
-      GTK_ENTRY(chat->chat_search_entry)
+    GTK_ENTRY(chat->chat_search_entry)
   );
 
   if (!filter)
@@ -356,6 +389,21 @@ handle_chat_messages_filter(GtkListBoxRow *row,
 
   if (text)
     result |= g_str_match_string(filter, text, TRUE);
+
+  if (('#' == filter[0]) && (message->msg))
+  {
+    struct FilterTags filterTags;
+    filterTags.filter = &(filter[1]);
+    filterTags.matching = FALSE;
+
+    GNUNET_CHAT_message_iterate_tags(
+      message->msg,
+      _iterate_message_tags,
+      &filterTags
+    );
+
+    result |= filterTags.matching;
+  }
 
   return result;
 }
