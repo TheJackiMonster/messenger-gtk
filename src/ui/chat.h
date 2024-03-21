@@ -110,7 +110,8 @@ typedef struct UI_CHAT_Handle
 
   GtkButton *selection_close_button;
   GtkLabel *selection_count_label;
-  GtkButton *selection_delete_button;
+  GtkButton *selection_tag_button;
+  GtkButton *selection_delete_button; 
 
   GtkScrolledWindow *chat_scrolled_window;
 

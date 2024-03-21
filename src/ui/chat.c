@@ -434,6 +434,8 @@ handle_chat_messages_selected_rows_changed(GtkListBox *listbox,
   gtk_label_set_text(handle->selection_count_label, counter->str);
   g_string_free(counter, TRUE);
 
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->selection_tag_button), count == 1);
+
   if (count > 0)
     gtk_stack_set_visible_child(handle->chat_title_stack, handle->selection_box);
   else
@@ -1457,6 +1459,10 @@ ui_chat_new(MESSENGER_Application *app)
 
   handle->selection_count_label = GTK_LABEL(
     gtk_builder_get_object(handle->builder, "selection_count_label")
+  );
+
+  handle->selection_tag_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "selection_tag_button")
   );
 
   handle->selection_delete_button = GTK_BUTTON(
