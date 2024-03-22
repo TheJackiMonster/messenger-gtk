@@ -16,15 +16,17 @@
 		<file compressed="true">ui/message-sent.ui</file>
 		<file compressed="true">ui/message-status.ui</file>
 		<file compressed="true">ui/messenger.ui</file>
+		<file compressed="true">ui/new_account.ui</file>
 		<file compressed="true">ui/new_contact.ui</file>
 		<file compressed="true">ui/new_group.ui</file>
 		<file compressed="true">ui/new_lobby.ui</file>
 		<file compressed="true">ui/new_platform.ui</file>
-		<file compressed="true">ui/new_account.ui</file>
+		<file compressed="true">ui/new_tag.ui</file>
 		<file compressed="true">ui/picker.ui</file>
 		<file compressed="true">ui/play_media.ui</file>
 		<file compressed="true">ui/account_entry.ui</file>
 		<file compressed="true">ui/send_file.ui</file>
 		<file compressed="true">ui/settings.ui</file>
+		<file compressed="true">ui/tag.ui</file>
 	</gresource>
 </gresources>

@@ -51,6 +51,15 @@ ui_entry_set_text(GtkEntry *entry,
                   const char *text);
 
 /**
+ * Returns the text from a GtkEntry applying automatic 
+ * inverse utf8 conversion.
+ *
+ * @param entry Entry
+ */
+char*
+ui_entry_get_text(GtkEntry *entry);
+
+/**
  * Sets the text of a HdyAvatar applying automatic utf8
  * conversion.
  *

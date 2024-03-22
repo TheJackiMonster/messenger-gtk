@@ -48,6 +48,7 @@
 #include "ui/new_group.h"
 #include "ui/new_lobby.h"
 #include "ui/new_platform.h"
+#include "ui/new_tag.h"
 #include "ui/play_media.h"
 #include "ui/send_file.h"
 #include "ui/settings.h"
@@ -124,11 +125,12 @@ typedef struct MESSENGER_Application
     UI_SEND_FILE_Handle send_file;
     UI_PLAY_MEDIA_Handle play_media;
 
+    UI_NEW_ACCOUNT_Handle new_account;
     UI_NEW_CONTACT_Handle new_contact;
     UI_NEW_GROUP_Handle new_group;
     UI_NEW_LOBBY_Handle new_lobby;
     UI_NEW_PLATFORM_Handle new_platform;
-    UI_NEW_ACCOUNT_Handle new_account;
+    UI_NEW_TAG_Handle new_tag;
 
     UI_ACCOUNTS_Handle accounts;
     UI_CONTACTS_Handle contacts;

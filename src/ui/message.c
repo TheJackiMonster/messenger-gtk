@@ -27,6 +27,8 @@
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
 
+#include "tag.h"
+
 #include "../application.h"
 #include "../contact.h"
 #include "../file.h"
@@ -796,21 +798,42 @@ ui_message_add_tag(UI_MESSAGE_Handle *handle,
 
   const char *tag_value = GNUNET_CHAT_message_get_text(tag_message);
 
-  if ((!tag_value) || (!tag_value[0]))
+  if ((!tag_value) || (!*tag_value))
     return;
 
-  GtkLabel *tag_label = GTK_LABEL(gtk_label_new(NULL));
+  UI_TAG_Handle *tag = ui_tag_new(app);
+  ui_tag_set_message(tag, app, tag_message);
 
-  if (!tag_label)
-    return;
+  gtk_container_add(GTK_CONTAINER(handle->tag_flow_box), GTK_WIDGET(tag->tag_label));
+  gtk_widget_show_all(GTK_WIDGET(tag->tag_label));
+}
 
-  ui_label_set_text(tag_label, tag_value);
-  gtk_label_set_ellipsize(tag_label, PANGO_ELLIPSIZE_END);
+static void
+_remove_tag_from_message(UI_MESSAGE_Handle *handle,
+                         MESSENGER_Application *app,
+                         GtkWidget *child)
+{
+  g_assert((handle) && (app) && (child));
 
-  g_object_set_qdata(G_OBJECT(tag_label), app->quarks.data, (gpointer) tag_message);
+  GList *items = gtk_container_get_children(GTK_CONTAINER(child));
+  UI_TAG_Handle *tag = NULL;
 
-  gtk_container_add(GTK_CONTAINER(handle->tag_flow_box), GTK_WIDGET(tag_label));
-  gtk_widget_show_all(GTK_WIDGET(tag_label));
+  if (items)
+  {
+    GtkLabel *tag_label = GTK_LABEL(items->data);
+
+    tag = g_object_get_qdata(
+      G_OBJECT(tag_label),
+      app->quarks.ui
+    );
+
+    g_list_free(items);
+  }
+
+  gtk_container_remove(GTK_CONTAINER(handle->tag_flow_box), child);
+
+  ui_tag_delete(tag);
+  gtk_widget_destroy(child);
 }
 
 void
@@ -858,21 +881,38 @@ ui_message_remove_tag(UI_MESSAGE_Handle *handle,
       break;
   }
 
-  g_list_free(children);
+  if (children)
+    g_list_free(children);
 
   if (!removable)
     return;
 
-  gtk_container_remove(GTK_CONTAINER(handle->tag_flow_box), removable);
-  gtk_widget_destroy(removable);
+  _remove_tag_from_message(handle, app, removable);
 }
 
 void
-ui_message_delete(UI_MESSAGE_Handle *handle)
+ui_message_delete(UI_MESSAGE_Handle *handle,
+                  MESSENGER_Application *app)
 {
-  g_assert(handle);
+  g_assert((handle) && (app));
 
   ui_message_set_contact(handle, NULL);
+
+  GList *children = gtk_container_get_children(GTK_CONTAINER(handle->tag_flow_box));
+
+  GList *list = children;
+  while (list)
+  {
+    GtkWidget *child = GTK_WIDGET(list->data);
+
+    if (child)
+      _remove_tag_from_message(handle, app, child);
+
+    list = list->next;
+  }
+
+  if (children)
+    g_list_free(children);
 
   _clear_message_preview_data(handle);
 

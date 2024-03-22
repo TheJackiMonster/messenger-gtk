@@ -334,12 +334,8 @@ _iterate_message_tags(void *cls,
   if (!_text)
     return GNUNET_YES;
 
-  gchar *match = g_strstr_len(_text, -1, filterTags->filter);
-  if (match)
-  {
+  if (g_strstr_len(_text, -1, filterTags->filter))
     filterTags->matching = TRUE;
-    g_free(match);
-  }
 
   g_free(_text);
   return filterTags->matching? GNUNET_NO : GNUNET_YES;
@@ -390,7 +386,7 @@ handle_chat_messages_filter(GtkListBoxRow *row,
   if (text)
     result |= g_str_match_string(filter, text, TRUE);
 
-  if (('#' == filter[0]) && (message->msg))
+  if (('#' == *filter) && (message->msg))
   {
     struct FilterTags filterTags;
     filterTags.filter = &(filter[1]);
@@ -451,6 +447,94 @@ handle_chat_selection_close_button_click(UNUSED GtkButton *button,
   GtkListBox *listbox = GTK_LIST_BOX(user_data);
 
   gtk_list_box_unselect_all(listbox);
+}
+
+void
+_new_tag_callback(MESSENGER_Application *app,
+                  GList *selected,
+                  const char *tag)
+{
+  g_assert(app);
+
+  GtkTextView *text_view = GTK_TEXT_VIEW(g_object_get_qdata(
+    G_OBJECT(app->ui.new_tag.dialog),
+    app->quarks.widget
+  ));
+
+  if (!text_view)
+    return;
+
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
+    g_object_get_qdata(
+      G_OBJECT(text_view),
+      app->quarks.data
+    )
+  );
+
+  UI_MESSAGE_Handle *message;
+  if ((!context) || (!tag))
+    goto cleanup;
+
+  while (selected)
+  {
+    GtkListBoxRow *row = GTK_LIST_BOX_ROW(selected->data);
+
+    if (!row)
+      goto skip_row;
+
+    message = (UI_MESSAGE_Handle*) g_object_get_qdata(
+      G_OBJECT(row),
+      app->quarks.ui
+    );
+
+    if ((!message) || (!(message->msg)))
+      goto skip_row;
+
+    GNUNET_CHAT_context_send_tag(
+      context,
+      message->msg,
+      tag
+    );
+
+  skip_row:
+    selected = selected->next;
+  }
+
+cleanup:
+  g_object_set_qdata(
+    G_OBJECT(app->ui.new_tag.dialog),
+    app->quarks.widget,
+    NULL
+  );
+}
+
+static void
+handle_chat_selection_tag_button_click(UNUSED GtkButton *button,
+					                             gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+
+  MESSENGER_Application *app = handle->app;
+
+  GList *selected = gtk_list_box_get_selected_rows(handle->messages_listbox);
+
+  ui_new_tag_dialog_init(app, &(app->ui.new_tag));
+
+  g_object_set_qdata(
+    G_OBJECT(app->ui.new_tag.dialog),
+    app->quarks.widget,
+    handle->send_text_view
+  );
+
+  ui_new_tag_dialog_link(
+    &(app->ui.new_tag),
+    _new_tag_callback,
+    selected
+  );
+
+  gtk_widget_show(GTK_WIDGET(app->ui.new_tag.dialog));
 }
 
 void
@@ -1528,6 +1612,13 @@ ui_chat_new(MESSENGER_Application *app)
   );
 
   g_signal_connect(
+    handle->selection_tag_button,
+    "clicked",
+    G_CALLBACK(handle_chat_selection_tag_button_click),
+    handle
+  );
+
+  g_signal_connect(
     handle->selection_delete_button,
     "clicked",
     G_CALLBACK(handle_chat_selection_delete_button_click),
@@ -2003,7 +2094,7 @@ ui_chat_add_message(UI_CHAT_Handle *handle,
 
 void
 ui_chat_remove_message(UI_CHAT_Handle *handle,
-                       UNUSED MESSENGER_Application *app,
+                       MESSENGER_Application *app,
                        UI_MESSAGE_Handle *message)
 {
   g_assert((handle) && (message) && (message->message_box));
@@ -2016,7 +2107,7 @@ ui_chat_remove_message(UI_CHAT_Handle *handle,
   if (parent == GTK_WIDGET(handle->messages_listbox))
     gtk_container_remove(GTK_CONTAINER(handle->messages_listbox), row);
 
-  ui_message_delete(message);
+  ui_message_delete(message, app);
 }
 
 void

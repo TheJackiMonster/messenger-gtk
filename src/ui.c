@@ -24,6 +24,8 @@
 
 #include "ui.h"
 
+#include <gnunet/gnunet_common.h>
+
 void
 ui_label_set_text(GtkLabel *label, const char *text)
 {
@@ -54,6 +56,23 @@ ui_entry_set_text(GtkEntry *entry, const char *text)
   gchar *_text = g_locale_to_utf8(text, -1, NULL, NULL, NULL);
   gtk_entry_set_text(entry, _text);
   g_free(_text);
+}
+
+char*
+ui_entry_get_text(GtkEntry *entry)
+{
+  g_assert(entry);
+
+  const gchar *text = gtk_entry_get_text(entry);
+
+  if (!text)
+    return NULL;
+
+  gchar *_text = g_locale_from_utf8(text, -1, NULL, NULL, NULL);
+  char *result = GNUNET_strdup(_text);
+  g_free(_text);
+
+  return result;
 }
 
 void

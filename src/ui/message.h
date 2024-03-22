@@ -169,8 +169,10 @@ ui_message_remove_tag(UI_MESSAGE_Handle *handle,
  * message handle.
  *
  * @param handle Message handle
+ * @param app Messenger application
  */
 void
-ui_message_delete(UI_MESSAGE_Handle *handle);
+ui_message_delete(UI_MESSAGE_Handle *handle,
+                  MESSENGER_Application *app);
 
 #endif /* UI_MESSAGE_H_ */

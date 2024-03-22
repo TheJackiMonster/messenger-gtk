@@ -37,8 +37,10 @@ messenger_gtk_ui_sources = files([
     'new_group.c', 'new_group.h',
     'new_lobby.c', 'new_lobby.h',
     'new_platform.c', 'new_platform.h',
+    'new_tag.c', 'new_tag.h',
     'picker.c', 'picker.h',
     'play_media.c', 'play_media.h',
     'send_file.c', 'send_file.h',
     'settings.c', 'settings.h',
+    'tag.c', 'tag.h',
 ])
