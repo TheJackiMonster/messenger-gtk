@@ -27,6 +27,7 @@
 
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
+#include <stdint.h>
 
 /**
  * Sets the text of a GtkLabel applying automatic utf8
@@ -38,6 +39,17 @@
 void
 ui_label_set_text(GtkLabel *label,
                   const char *text);
+
+/**
+ * Sets the text of a GtkLabel applying conversion from
+ * file size to string representation.
+ *
+ * @param label Label
+ * @param size File size
+ */
+void
+ui_label_set_size(GtkLabel *label,
+                  uint64_t size);
 
 /**
  * Sets the text of a GtkEntry applying automatic utf8

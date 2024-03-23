@@ -43,6 +43,56 @@ ui_label_set_text(GtkLabel *label, const char *text)
 }
 
 void
+ui_label_set_size(GtkLabel *label,
+                  uint64_t size)
+{
+  g_assert(label);
+
+  GString* string = g_string_new(NULL);
+  
+  if (size < 100)
+    g_string_printf(string, "%lu B", size);
+  else
+  {
+    char dim = 'K';
+    size = (size + 50) / 100;
+
+    while (size >= 1000)
+    {
+      size = (size + 500) / 1000;
+      switch (dim)
+      {
+        case 'K':
+          dim = 'M';
+          break;
+        case 'M':
+          dim = 'G';
+          break;
+        case 'G':
+          dim = 'T';
+          break;
+        case 'T':
+          dim = 'P';
+          break;
+        default:
+          break;
+      }
+    }
+
+    g_string_printf(
+      string,
+      "%lu.%lu %cB",
+      size / 10,
+      size % 10,
+      dim
+    );
+  }
+
+  gtk_label_set_text(label, string->str);
+  g_string_free(string, TRUE);
+}
+
+void
 ui_entry_set_text(GtkEntry *entry, const char *text)
 {
   g_assert(entry);

@@ -26,10 +26,12 @@
 
 #include <gdk/gdkkeysyms.h>
 #include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <stdlib.h>
 
 #include "chat_entry.h"
+#include "file_entry.h"
 #include "file_load_entry.h"
 #include "message.h"
 #include "messenger.h"
@@ -1487,6 +1489,10 @@ ui_chat_new(MESSENGER_Application *app)
     gtk_builder_get_object(handle->builder, "chat_details_files_box")
   );
 
+  handle->chat_details_media_box = GTK_BOX(
+    gtk_builder_get_object(handle->builder, "chat_details_media_box")
+  );
+
   handle->chat_details_avatar = HDY_AVATAR(
     gtk_builder_get_object(handle->builder, "chat_details_avatar")
   );
@@ -1576,6 +1582,10 @@ ui_chat_new(MESSENGER_Application *app)
 
   handle->chat_files_listbox = GTK_LIST_BOX(
     gtk_builder_get_object(handle->builder, "chat_files_listbox")
+  );
+
+  handle->chat_media_flowbox = GTK_FLOW_BOX(
+    gtk_builder_get_object(handle->builder, "chat_media_flowbox")
   );
 
   handle->messages_listbox = GTK_LIST_BOX(
@@ -1845,18 +1855,18 @@ ui_chat_new(MESSENGER_Application *app)
   return handle;
 }
 
-struct IterateChatGroupClosure {
+struct IterateChatClosure {
   MESSENGER_Application *app;
   GtkListBox *listbox;
 };
 
-static int
+static enum GNUNET_GenericReturnValue
 iterate_ui_chat_update_group_contacts(void *cls,
                                       UNUSED const struct GNUNET_CHAT_Group *group,
                                       struct GNUNET_CHAT_Contact *contact)
 {
-  struct IterateChatGroupClosure *closure = (
-    (struct IterateChatGroupClosure*) cls
+  struct IterateChatClosure *closure = (
+    (struct IterateChatClosure*) cls
   );
 
   GtkListBox *listbox = closure->listbox;
@@ -1879,6 +1889,121 @@ iterate_ui_chat_update_group_contacts(void *cls,
   );
 
   return GNUNET_YES;
+}
+
+static void
+_chat_update_contacts(UI_CHAT_Handle *handle,
+                      MESSENGER_Application *app,
+                      struct GNUNET_CHAT_Group* group)
+{
+  g_assert((handle) && (app));
+
+  GList* children = gtk_container_get_children(
+    GTK_CONTAINER(handle->chat_contacts_listbox)
+  );
+
+  GList *item = children;
+  while ((item) && (item->next)) {
+    GtkWidget *widget = GTK_WIDGET(item->data);
+    item = item->next;
+
+    gtk_container_remove(
+      GTK_CONTAINER(handle->chat_contacts_listbox),
+      widget
+    );
+  }
+
+  if (children)
+    g_list_free(children);
+
+  if (group)
+  {
+    struct IterateChatClosure closure;
+    closure.app = app;
+    closure.listbox = handle->chat_contacts_listbox;
+
+    GNUNET_CHAT_group_iterate_contacts(
+	    group,
+      iterate_ui_chat_update_group_contacts,
+      &closure
+    );
+  }
+
+  gtk_widget_set_visible(
+    GTK_WIDGET(handle->chat_details_contacts_box),
+    group? TRUE : FALSE
+  );
+}
+
+static enum GNUNET_GenericReturnValue
+iterate_ui_chat_update_context_files(void *cls,
+                                     struct GNUNET_CHAT_Context *context,
+                                     struct GNUNET_CHAT_File *file)
+{
+  struct IterateChatClosure *closure = (
+    (struct IterateChatClosure*) cls
+  );
+
+  GtkListBox *listbox = closure->listbox;
+  UI_FILE_ENTRY_Handle* entry = ui_file_entry_new(closure->app);
+  ui_file_entry_update(entry, file);
+
+  gtk_list_box_prepend(listbox, entry->entry_box);
+
+  GtkListBoxRow *row = GTK_LIST_BOX_ROW(
+    gtk_widget_get_parent(entry->entry_box)
+  );
+
+  g_object_set_qdata(G_OBJECT(row), closure->app->quarks.data, file);
+  g_object_set_qdata_full(
+    G_OBJECT(row),
+    closure->app->quarks.ui,
+    entry,
+    (GDestroyNotify) ui_file_entry_delete
+  );
+
+  return GNUNET_YES;
+}
+
+static void
+_chat_update_files(UI_CHAT_Handle *handle,
+                   MESSENGER_Application *app,
+                   struct GNUNET_CHAT_Context *context)
+{
+  g_assert((handle) && (app) && (context));
+
+  GList* children = gtk_container_get_children(
+    GTK_CONTAINER(handle->chat_files_listbox)
+  );
+
+  GList *item = children;
+  while (item) {
+    GtkWidget *widget = GTK_WIDGET(item->data);
+    item = item->next;
+
+    gtk_container_remove(
+      GTK_CONTAINER(handle->chat_files_listbox),
+      widget
+    );
+  }
+
+  if (children)
+    g_list_free(children);
+
+  struct IterateChatClosure closure;
+  closure.app = app;
+  closure.listbox = handle->chat_files_listbox;
+
+  const int count = GNUNET_CHAT_context_iterate_files(
+    context,
+    iterate_ui_chat_update_context_files,
+    &closure
+  );
+
+  gtk_widget_set_visible(
+    GTK_WIDGET(handle->chat_details_files_box),
+    count? TRUE : FALSE
+  );
 }
 
 void
@@ -1934,41 +2059,8 @@ ui_chat_update(UI_CHAT_Handle *handle,
 
   g_string_free(subtitle, TRUE);
 
-  GList* children = gtk_container_get_children(
-    GTK_CONTAINER(handle->chat_contacts_listbox)
-  );
-
-  GList *item = children;
-  while ((item) && (item->next)) {
-    GtkWidget *widget = GTK_WIDGET(item->data);
-    item = item->next;
-
-    gtk_container_remove(
-      GTK_CONTAINER(handle->chat_contacts_listbox),
-      widget
-    );
-  }
-
-  if (children)
-    g_list_free(children);
-
-  if (group)
-  {
-    struct IterateChatGroupClosure closure;
-    closure.app = app;
-    closure.listbox = handle->chat_contacts_listbox;
-
-    GNUNET_CHAT_group_iterate_contacts(
-	    group,
-      iterate_ui_chat_update_group_contacts,
-      &closure
-    );
-  }
-
-  gtk_widget_set_visible(
-    GTK_WIDGET(handle->chat_details_contacts_box),
-    group? TRUE : FALSE
-  );
+  _chat_update_contacts(handle, app, group);
+  _chat_update_files(handle, app, context);
 
   g_object_set_qdata(
     G_OBJECT(handle->reveal_identity_button),
@@ -2118,13 +2210,13 @@ ui_chat_remove_message(UI_CHAT_Handle *handle,
 
 void
 ui_chat_add_file_load(UI_CHAT_Handle *handle,
-		      UI_FILE_LOAD_ENTRY_Handle *file_load)
+                      UI_FILE_LOAD_ENTRY_Handle *file_load)
 {
   g_assert((handle) && (file_load));
 
   gtk_container_add(
-      GTK_CONTAINER(handle->chat_load_listbox),
-      file_load->entry_box
+    GTK_CONTAINER(handle->chat_load_listbox),
+    file_load->entry_box
   );
 
   handle->loads = g_list_append(handle->loads, file_load);
@@ -2136,7 +2228,7 @@ ui_chat_add_file_load(UI_CHAT_Handle *handle,
 
 void
 ui_chat_remove_file_load(UI_CHAT_Handle *handle,
-			 UI_FILE_LOAD_ENTRY_Handle *file_load)
+                         UI_FILE_LOAD_ENTRY_Handle *file_load)
 {
   g_assert((handle) && (file_load) && (handle == file_load->chat) &&
 		(file_load->entry_box));
@@ -2144,8 +2236,8 @@ ui_chat_remove_file_load(UI_CHAT_Handle *handle,
   handle->loads = g_list_remove(handle->loads, file_load);
 
   gtk_container_remove(
-      GTK_CONTAINER(handle->chat_load_listbox),
-      gtk_widget_get_parent(file_load->entry_box)
+    GTK_CONTAINER(handle->chat_load_listbox),
+    gtk_widget_get_parent(file_load->entry_box)
   );
 
   if (handle->loads)

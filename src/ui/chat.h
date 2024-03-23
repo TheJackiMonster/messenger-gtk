@@ -97,6 +97,7 @@ typedef struct UI_CHAT_Handle
   GtkButton *hide_chat_details_button;
   GtkBox *chat_details_contacts_box;
   GtkBox *chat_details_files_box;
+  GtkBox *chat_details_media_box;
 
   HdyAvatar *chat_details_avatar;
 
@@ -117,6 +118,7 @@ typedef struct UI_CHAT_Handle
 
   GtkListBox *chat_contacts_listbox;
   GtkListBox *chat_files_listbox;
+  GtkFlowBox *chat_media_flowbox;
   GtkListBox *messages_listbox;
 
   GtkStack *send_stack;
