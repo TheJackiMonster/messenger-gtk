@@ -41,7 +41,8 @@ _add_new_tag(MESSENGER_Application *app,
     handle->callback(
       app,
       handle->selected,
-      tag
+      tag,
+      handle->user_data
     );
   
   if (tag)
@@ -118,6 +119,7 @@ ui_new_tag_dialog_init(MESSENGER_Application *app,
   g_assert((app) && (handle));
 
   handle->selected = NULL;
+  handle->user_data = NULL;
   handle->callback = NULL;
 
   handle->builder = gtk_builder_new_from_resource(
@@ -188,11 +190,13 @@ ui_new_tag_dialog_init(MESSENGER_Application *app,
 void
 ui_new_tag_dialog_link(UI_NEW_TAG_Handle *handle,
                        UI_NEW_TAG_Callback callback,
-                       GList *selected)
+                       GList *selected,
+                       gpointer user_data)
 {
   g_assert((handle) && (callback));
 
   handle->selected = selected;
+  handle->user_data = user_data;
   handle->callback = callback;
 }
 

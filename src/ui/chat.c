@@ -452,17 +452,19 @@ handle_chat_selection_close_button_click(UNUSED GtkButton *button,
 void
 _new_tag_callback(MESSENGER_Application *app,
                   GList *selected,
-                  const char *tag)
+                  const char *tag,
+                  gpointer user_data)
 {
-  g_assert(app);
+  g_assert((app) && (user_data));
 
+  GtkListBox *listbox = GTK_LIST_BOX(user_data);
   GtkTextView *text_view = GTK_TEXT_VIEW(g_object_get_qdata(
     G_OBJECT(app->ui.new_tag.dialog),
     app->quarks.widget
   ));
 
   if (!text_view)
-    return;
+    goto unselect;
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
     g_object_get_qdata(
@@ -506,6 +508,9 @@ cleanup:
     app->quarks.widget,
     NULL
   );
+
+unselect:
+  gtk_list_box_unselect_all(listbox);
 }
 
 static void
@@ -531,7 +536,8 @@ handle_chat_selection_tag_button_click(UNUSED GtkButton *button,
   ui_new_tag_dialog_link(
     &(app->ui.new_tag),
     _new_tag_callback,
-    selected
+    selected,
+    handle->messages_listbox
   );
 
   gtk_widget_show(GTK_WIDGET(app->ui.new_tag.dialog));

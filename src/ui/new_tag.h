@@ -31,12 +31,14 @@ typedef void
 (*UI_NEW_TAG_Callback) (
   MESSENGER_Application *app,
 	GList *selected,
-	const char *tag
+	const char *tag,
+  gpointer user_data
 );
 
 typedef struct UI_NEW_TAG_Handle
 {
   GList *selected;
+  gpointer user_data;
 
   UI_NEW_TAG_Callback callback;
 
@@ -69,11 +71,13 @@ ui_new_tag_dialog_init(MESSENGER_Application *app,
  * @param handle New tag dialog handle
  * @param callback New tag callback
  * @param selected Selected messages
+ * @param user_data User data
  */
 void
 ui_new_tag_dialog_link(UI_NEW_TAG_Handle *handle,
                        UI_NEW_TAG_Callback callback,
-                       GList *selected);
+                       GList *selected,
+                       gpointer user_data);
 
 /**
  * Cleans up the allocated resources and resets the
