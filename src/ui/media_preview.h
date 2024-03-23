@@ -19,56 +19,60 @@
  */
 /*
  * @author Tobias Frisch
- * @file ui/file_entry.h
+ * @file ui/media_preview.h
  */
 
-#ifndef UI_FILE_ENTRY_H_
-#define UI_FILE_ENTRY_H_
+#ifndef UI_MEDIA_PREVIEW_H_
+#define UI_MEDIA_PREVIEW_H_
 
 #include <gnunet/gnunet_chat_lib.h>
 
 #include "messenger.h"
 
-typedef struct UI_FILE_ENTRY_Handle
+typedef struct UI_MEDIA_PREVIEW_Handle
 {
   GtkBuilder *builder;
 
-  GtkWidget *entry_box;
+  GtkWidget *media_box;
 
-  GtkImage *file_image;
-  GtkLabel *name_label;
-  GtkLabel *size_label;
-} UI_FILE_ENTRY_Handle;
+  GtkDrawingArea *preview_drawing_area;
+
+  GdkPixbuf *preview_image;
+  GdkPixbufAnimation *preview_animation;
+  GdkPixbufAnimationIter *preview_animation_iter;
+
+  guint redraw_animation;
+} UI_MEDIA_PREVIEW_Handle;
 
 /**
- * Allocates and creates a new file entry handle
+ * Allocates and creates a new media preview handle
  * to manage loading files for a given messenger
  * application.
  *
  * @param app Messenger application
- * @return New file entry handle
+ * @return New media preview handle
  */
-UI_FILE_ENTRY_Handle*
-ui_file_entry_new(MESSENGER_Application *app);
+UI_MEDIA_PREVIEW_Handle*
+ui_media_preview_new(MESSENGER_Application *app);
 
 /**
- * Updates a file entry handle with a selected
+ * Updates a media preview handle with a selected
  * file to represent it visually.
  *
- * @param handle File entry handle
+ * @param handle Media preview handle
  * @param file Chat file
  */
 void
-ui_file_entry_update(UI_FILE_ENTRY_Handle *handle,
-                     struct GNUNET_CHAT_File *file);
+ui_media_preview_update(UI_MEDIA_PREVIEW_Handle *handle,
+                        struct GNUNET_CHAT_File *file);
 
 /**
- * Frees its resources and destroys a given file
- * entry handle.
+ * Frees its resources and destroys a given media 
+ * preview handle.
  *
- * @param handle File entry handle
+ * @param handle Media preview handle
  */
 void
-ui_file_entry_delete(UI_FILE_ENTRY_Handle *handle);
+ui_media_preview_delete(UI_MEDIA_PREVIEW_Handle *handle);
 
-#endif /* UI_FILE_ENTRY_H_ */
+#endif /* UI_MEDIA_PREVIEW_H_ */

@@ -31,6 +31,7 @@ messenger_gtk_ui_sources = files([
     'file_entry.c', 'file_entry.h',
     'file_load_entry.c', 'file_load_entry.h',
     'invite_contact.c', 'invite_contact.h',
+    'media_preview.c', 'media_preview.h',
     'message.c', 'message.h',
     'messenger.c', 'messenger.h',
     'new_account.c', 'new_account.h',

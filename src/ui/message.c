@@ -634,6 +634,8 @@ _update_file_message(UI_MESSAGE_Handle *handle,
   if (!(handle->preview_animation))
     handle->preview_image = gdk_pixbuf_new_from_file(preview, NULL);
 
+  GNUNET_CHAT_file_close_preview(file);
+
   if ((handle->preview_animation) || (handle->preview_image))
   {
     gtk_widget_set_size_request(
@@ -650,8 +652,6 @@ _update_file_message(UI_MESSAGE_Handle *handle,
     gtk_widget_queue_draw(GTK_WIDGET(handle->preview_drawing_area));
     return;
   }
-
-  GNUNET_CHAT_file_close_preview(file);
 
   if (_message_media_supports_file_extension(filename))
   {

@@ -33,6 +33,7 @@
 #include "chat_entry.h"
 #include "file_entry.h"
 #include "file_load_entry.h"
+#include "media_preview.h"
 #include "message.h"
 #include "messenger.h"
 #include "picker.h"
@@ -1857,7 +1858,7 @@ ui_chat_new(MESSENGER_Application *app)
 
 struct IterateChatClosure {
   MESSENGER_Application *app;
-  GtkListBox *listbox;
+  GtkContainer *container;
 };
 
 static enum GNUNET_GenericReturnValue
@@ -1869,7 +1870,7 @@ iterate_ui_chat_update_group_contacts(void *cls,
     (struct IterateChatClosure*) cls
   );
 
-  GtkListBox *listbox = closure->listbox;
+  GtkListBox *listbox = GTK_LIST_BOX(closure->container);
   UI_ACCOUNT_ENTRY_Handle* entry = ui_account_entry_new(closure->app);
 
   ui_account_entry_set_contact(entry, contact);
@@ -1920,7 +1921,7 @@ _chat_update_contacts(UI_CHAT_Handle *handle,
   {
     struct IterateChatClosure closure;
     closure.app = app;
-    closure.listbox = handle->chat_contacts_listbox;
+    closure.container = GTK_CONTAINER(handle->chat_contacts_listbox);
 
     GNUNET_CHAT_group_iterate_contacts(
 	    group,
@@ -1944,7 +1945,7 @@ iterate_ui_chat_update_context_files(void *cls,
     (struct IterateChatClosure*) cls
   );
 
-  GtkListBox *listbox = closure->listbox;
+  GtkListBox *listbox = GTK_LIST_BOX(closure->container);
   UI_FILE_ENTRY_Handle* entry = ui_file_entry_new(closure->app);
   ui_file_entry_update(entry, file);
 
@@ -1992,7 +1993,7 @@ _chat_update_files(UI_CHAT_Handle *handle,
 
   struct IterateChatClosure closure;
   closure.app = app;
-  closure.listbox = handle->chat_files_listbox;
+  closure.container = GTK_CONTAINER(handle->chat_files_listbox);
 
   const int count = GNUNET_CHAT_context_iterate_files(
     context,
@@ -2002,6 +2003,86 @@ _chat_update_files(UI_CHAT_Handle *handle,
 
   gtk_widget_set_visible(
     GTK_WIDGET(handle->chat_details_files_box),
+    count? TRUE : FALSE
+  );
+}
+
+static enum GNUNET_GenericReturnValue
+iterate_ui_chat_update_context_media(void *cls,
+                                     struct GNUNET_CHAT_Context *context,
+                                     struct GNUNET_CHAT_File *file)
+{
+  struct IterateChatClosure *closure = (
+    (struct IterateChatClosure*) cls
+  );
+
+  GtkFlowBox *flowbox = GTK_FLOW_BOX(closure->container);
+  UI_MEDIA_PREVIEW_Handle* handle = ui_media_preview_new(closure->app);
+  ui_media_preview_update(handle, file);
+
+  if ((! handle->preview_animation) && (! handle->preview_image))
+  {
+    ui_media_preview_delete(handle);
+    return GNUNET_YES;
+  }
+
+  gtk_flow_box_insert(flowbox, handle->media_box, -1);
+
+  GtkFlowBoxChild *child = GTK_FLOW_BOX_CHILD(
+    gtk_widget_get_parent(handle->media_box)
+  );
+
+  g_object_set_qdata(G_OBJECT(child), closure->app->quarks.data, file);
+  g_object_set_qdata_full(
+    G_OBJECT(child),
+    closure->app->quarks.ui,
+    handle,
+    (GDestroyNotify) ui_media_preview_delete
+  );
+
+  gtk_widget_set_size_request(GTK_WIDGET(child), 80, 80);
+
+  gtk_widget_show_all(GTK_WIDGET(child));
+  return GNUNET_YES;
+}
+
+static void
+_chat_update_media(UI_CHAT_Handle *handle,
+                   MESSENGER_Application *app,
+                   struct GNUNET_CHAT_Context *context)
+{
+  g_assert((handle) && (app) && (context));
+
+  GList* children = gtk_container_get_children(
+    GTK_CONTAINER(handle->chat_media_flowbox)
+  );
+
+  GList *item = children;
+  while (item) {
+    GtkWidget *widget = GTK_WIDGET(item->data);
+    item = item->next;
+
+    gtk_container_remove(
+      GTK_CONTAINER(handle->chat_media_flowbox),
+      widget
+    );
+  }
+
+  if (children)
+    g_list_free(children);
+
+  struct IterateChatClosure closure;
+  closure.app = app;
+  closure.container = GTK_CONTAINER(handle->chat_media_flowbox);
+
+  const int count = GNUNET_CHAT_context_iterate_files(
+    context,
+    iterate_ui_chat_update_context_media,
+    &closure
+  );
+
+  gtk_widget_set_visible(
+    GTK_WIDGET(handle->chat_details_media_box),
     count? TRUE : FALSE
   );
 }
@@ -2061,6 +2142,7 @@ ui_chat_update(UI_CHAT_Handle *handle,
 
   _chat_update_contacts(handle, app, group);
   _chat_update_files(handle, app, context);
+  _chat_update_media(handle, app, context);
 
   g_object_set_qdata(
     G_OBJECT(handle->reveal_identity_button),

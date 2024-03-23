@@ -12,6 +12,7 @@
 		<file compressed="true">ui/file_entry.ui</file>
 		<file compressed="true">ui/file_load_entry.ui</file>
 		<file compressed="true">ui/invite_contact.ui</file>
+		<file compressed="true">ui/media_preview.ui</file>
 		<file compressed="true">ui/message_content.ui</file>
 		<file compressed="true">ui/message.ui</file>
 		<file compressed="true">ui/message-sent.ui</file>
