@@ -34,14 +34,10 @@ typedef struct UI_MEDIA_PREVIEW_Handle
   GtkBuilder *builder;
 
   GtkWidget *media_box;
-
+  
   GtkDrawingArea *preview_drawing_area;
 
-  GdkPixbuf *preview_image;
-  GdkPixbufAnimation *preview_animation;
-  GdkPixbufAnimationIter *preview_animation_iter;
-
-  guint redraw_animation;
+  MESSENGER_Application *app;
 } UI_MEDIA_PREVIEW_Handle;
 
 /**

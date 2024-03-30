@@ -2020,13 +2020,15 @@ iterate_ui_chat_update_context_media(void *cls,
   UI_MEDIA_PREVIEW_Handle* handle = ui_media_preview_new(closure->app);
   ui_media_preview_update(handle, file);
 
-  if ((! handle->preview_animation) && (! handle->preview_image))
+  GdkPixbuf *image = file_get_current_preview_image(file);
+
+  if (!image)
   {
     ui_media_preview_delete(handle);
     return GNUNET_YES;
   }
 
-  gtk_flow_box_insert(flowbox, handle->media_box, -1);
+  gtk_flow_box_insert(flowbox, handle->media_box, 0);
 
   GtkFlowBoxChild *child = GTK_FLOW_BOX_CHILD(
     gtk_widget_get_parent(handle->media_box)
@@ -2222,6 +2224,30 @@ void
 ui_chat_delete(UI_CHAT_Handle *handle)
 {
   g_assert(handle);
+
+  GList *message_rows = gtk_container_get_children(GTK_CONTAINER(handle->messages_listbox));
+  GList *row_element = message_rows;
+
+  while (row_element)
+  {
+    GtkWidget *row = GTK_WIDGET(row_element->data);
+
+    if (!row)
+      goto skip_row;
+
+    UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) g_object_get_qdata(
+      G_OBJECT(row), handle->app->quarks.ui
+    );
+
+    if (message)
+      ui_chat_remove_message(handle, handle->app, message);
+
+  skip_row:
+    row_element = row_element->next;
+  }
+
+  if (message_rows)
+    g_list_free(message_rows);
 
   ui_picker_delete(handle->picker);
 

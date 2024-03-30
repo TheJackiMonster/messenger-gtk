@@ -25,24 +25,7 @@
 #include "media_preview.h"
 
 #include "../application.h"
-
-static int
-handle_media_preview_redraw_animation(gpointer user_data)
-{
-  g_assert(user_data);
-
-  UI_MEDIA_PREVIEW_Handle *handle = (UI_MEDIA_PREVIEW_Handle*) user_data;
-
-  handle->redraw_animation = 0;
-
-  if ((handle->preview_drawing_area) &&
-      ((handle->preview_image) ||
-       (handle->preview_animation) ||
-       (handle->preview_animation_iter)))
-    gtk_widget_queue_draw(GTK_WIDGET(handle->preview_drawing_area));
-
-  return FALSE;
-}
+#include "../file.h"
 
 static gboolean
 handle_preview_drawing_area_draw(GtkWidget* drawing_area,
@@ -60,29 +43,16 @@ handle_preview_drawing_area_draw(GtkWidget* drawing_area,
 
   gtk_render_background(context, cairo, 0, 0, width, height);
 
-  GdkPixbuf *image = handle->preview_image;
-
-  if (!(handle->preview_animation))
-    goto render_image;
-
-  if (handle->preview_animation_iter)
-    gdk_pixbuf_animation_iter_advance(handle->preview_animation_iter, NULL);
-  else
-    handle->preview_animation_iter = gdk_pixbuf_animation_get_iter(
-	    handle->preview_animation, NULL
-    );
-
-  image = gdk_pixbuf_animation_iter_get_pixbuf(handle->preview_animation_iter);
-
-  const int delay = gdk_pixbuf_animation_iter_get_delay_time(
-    handle->preview_animation_iter
+  struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File *) g_object_get_qdata(
+    G_OBJECT(handle->preview_drawing_area),
+    handle->app->quarks.data
   );
 
-  handle->redraw_animation = g_timeout_add(
-    delay, handle_media_preview_redraw_animation, handle
-  );
+  if (!file)
+    return FALSE;
 
-render_image:
+  GdkPixbuf *image = file_get_current_preview_image(file);
+
   if (!image)
     return FALSE;
 
@@ -136,43 +106,7 @@ render_image:
   cairo_fill(cairo);
   g_object_unref(scaled);
 
-  if (handle->preview_image)
-  {
-    g_object_unref(handle->preview_image);
-    handle->preview_image = NULL;
-  }
-
   return FALSE;
-}
-
-static void
-_clear_message_preview_data(UI_MEDIA_PREVIEW_Handle *handle)
-{
-  g_assert(handle);
-
-  if (handle->preview_image)
-  {
-    g_object_unref(handle->preview_image);
-    handle->preview_image = NULL;
-  }
-
-  if (handle->redraw_animation)
-  {
-    g_source_remove(handle->redraw_animation);
-    handle->redraw_animation = 0;
-  }
-
-  if (handle->preview_animation_iter)
-  {
-    g_object_unref(handle->preview_animation_iter);
-    handle->preview_animation_iter = NULL;
-  }
-
-  if (handle->preview_animation)
-  {
-    g_object_unref(handle->preview_animation);
-    handle->preview_animation = NULL;
-  }
 }
 
 UI_MEDIA_PREVIEW_Handle*
@@ -194,18 +128,14 @@ ui_media_preview_new(MESSENGER_Application *app)
     gtk_builder_get_object(handle->builder, "preview_drawing_area")
   );
 
+  handle->app = app;
+
   g_signal_connect(
     handle->preview_drawing_area,
     "draw",
     G_CALLBACK(handle_preview_drawing_area_draw),
     handle
   );
-
-  handle->preview_image = NULL;
-  handle->preview_animation = NULL;
-  handle->preview_animation_iter = NULL;
-
-  handle->redraw_animation = 0;
 
   return handle;
 }
@@ -216,22 +146,22 @@ ui_media_preview_update(UI_MEDIA_PREVIEW_Handle *handle,
 {
   g_assert((handle) && (file));
 
-  const char *preview = GNUNET_CHAT_file_open_preview(file);
-
-  if (!preview)
-    return;
-
-  handle->preview_animation = gdk_pixbuf_animation_new_from_file(
-    preview, NULL
+  struct GNUNET_CHAT_File *previous = (struct GNUNET_CHAT_File *) g_object_get_qdata(
+    G_OBJECT(handle->preview_drawing_area),
+    handle->app->quarks.data
   );
 
-  if (!(handle->preview_animation))
-    handle->preview_image = gdk_pixbuf_new_from_file(preview, NULL);
+  if (previous)
+    file_remove_widget_from_preview(previous, GTK_WIDGET(handle->preview_drawing_area));
 
-  GNUNET_CHAT_file_close_preview(file);
+  file_load_preview_image(file);
+  file_add_widget_to_preview(file, GTK_WIDGET(handle->preview_drawing_area));
 
-  if ((handle->preview_animation) || (handle->preview_image))
-    gtk_widget_queue_draw(GTK_WIDGET(handle->preview_drawing_area));
+  g_object_set_qdata(
+    G_OBJECT(handle->preview_drawing_area),
+    handle->app->quarks.data,
+    file
+  );
 }
 
 void
@@ -239,7 +169,13 @@ ui_media_preview_delete(UI_MEDIA_PREVIEW_Handle *handle)
 {
   g_assert(handle);
 
-  _clear_message_preview_data(handle);
+  struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File *) g_object_get_qdata(
+    G_OBJECT(handle->preview_drawing_area),
+    handle->app->quarks.data
+  );
+
+  if (file)
+    file_remove_widget_from_preview(file, GTK_WIDGET(handle->preview_drawing_area));
 
   g_object_unref(handle->builder);
 

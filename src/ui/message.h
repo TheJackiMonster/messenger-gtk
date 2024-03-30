@@ -84,11 +84,7 @@ typedef struct UI_MESSAGE_Handle
   GtkProgressBar *media_progress_bar;
   GtkButton *media_button;
 
-  GdkPixbuf *preview_image;
-  GdkPixbufAnimation *preview_animation;
-  GdkPixbufAnimationIter *preview_animation_iter;
-
-  guint redraw_animation;
+  MESSENGER_Application *app;
 } UI_MESSAGE_Handle;
 
 /**

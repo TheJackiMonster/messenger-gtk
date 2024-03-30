@@ -23,6 +23,7 @@
  */
 
 #include "file.h"
+#include <gnunet/gnunet_chat_lib.h>
 
 void
 file_create_info(struct GNUNET_CHAT_File *file)
@@ -37,6 +38,13 @@ file_create_info(struct GNUNET_CHAT_File *file)
   info->update_task = 0;
   info->file_messages = NULL;
 
+  info->preview_image = NULL;
+  info->preview_animation = NULL;
+  info->preview_animation_iter = NULL;
+
+  info->redraw_animation_task = 0;
+  info->preview_widgets = NULL;
+
   GNUNET_CHAT_file_set_user_pointer(file, info);
 }
 
@@ -49,6 +57,8 @@ file_destroy_info(struct GNUNET_CHAT_File *file)
 
   if (!info)
     return;
+
+  file_unload_preview_image(file);
 
   if (info->update_task)
     g_source_remove(info->update_task);
@@ -73,6 +83,42 @@ file_add_ui_message_to_info(const struct GNUNET_CHAT_File *file,
    return;
 
   info->file_messages = g_list_append(info->file_messages, message);
+}
+
+void
+file_add_widget_to_preview(const struct GNUNET_CHAT_File *file,
+                           GtkWidget *widget)
+{
+  g_assert(widget);
+
+  MESSENGER_FileInfo* info = GNUNET_CHAT_file_get_user_pointer(file);
+
+  if (!info)
+    return;
+
+  info->preview_widgets = g_list_append(info->preview_widgets, widget);
+
+  if ((info->preview_image) ||
+      (info->preview_animation) ||
+      (info->preview_animation_iter))
+    gtk_widget_queue_draw(widget);
+}
+
+void
+file_remove_widget_from_preview(const struct GNUNET_CHAT_File *file,
+                                GtkWidget *widget)
+{
+  g_assert(widget);
+
+  MESSENGER_FileInfo* info = GNUNET_CHAT_file_get_user_pointer(file);
+
+  if (!info)
+    return;
+
+  info->preview_widgets = g_list_remove(info->preview_widgets, widget);
+
+  if (!(info->preview_widgets))
+    file_unload_preview_image(file);
 }
 
 void
@@ -153,4 +199,132 @@ file_update_download_info(const struct GNUNET_CHAT_File *file,
 
   info->app = app;
   info->update_task = g_idle_add(file_update_messages, info);
+}
+
+static void
+file_draw_preview(MESSENGER_FileInfo* info)
+{
+  g_assert(info);
+
+  GList *list = info->preview_widgets;
+
+  while (list)
+  {
+    GtkWidget *widget = GTK_WIDGET(list->data);
+
+    gtk_widget_queue_draw(widget);
+
+    list = list->next;
+  }
+}
+
+void
+file_load_preview_image(struct GNUNET_CHAT_File *file)
+{
+  MESSENGER_FileInfo* info = GNUNET_CHAT_file_get_user_pointer(file);
+
+  if (!info)
+    return;
+
+  const char *preview = GNUNET_CHAT_file_open_preview(file);
+
+  if (!preview)
+    return;
+
+  file_unload_preview_image(file);
+
+  info->preview_animation = gdk_pixbuf_animation_new_from_file(
+    preview, NULL
+  );
+
+  if (!(info->preview_animation))
+    info->preview_image = gdk_pixbuf_new_from_file(preview, NULL);
+
+  GNUNET_CHAT_file_close_preview(file);
+
+  if (info->preview_widgets)
+    file_draw_preview(info);
+}
+
+void
+file_unload_preview_image(const struct GNUNET_CHAT_File *file)
+{
+  MESSENGER_FileInfo* info = GNUNET_CHAT_file_get_user_pointer(file);
+
+  if (!info)
+    return;
+
+  if (info->preview_image)
+  {
+    g_object_unref(info->preview_image);
+    info->preview_image = NULL;
+  }
+
+  if (info->redraw_animation_task)
+  {
+    g_source_remove(info->redraw_animation_task);
+    info->redraw_animation_task = 0;
+  }
+
+  if (info->preview_animation_iter)
+  {
+    g_object_unref(info->preview_animation_iter);
+    info->preview_animation_iter = NULL;
+  }
+
+  if (info->preview_animation)
+  {
+    g_object_unref(info->preview_animation);
+    info->preview_animation = NULL;
+  }
+}
+
+static gboolean
+file_redraw_animation(gpointer user_data)
+{
+  g_assert(user_data);
+
+  MESSENGER_FileInfo* info = (MESSENGER_FileInfo*) user_data;
+
+  info->redraw_animation_task = 0;
+
+  file_draw_preview(info);
+
+  return FALSE;
+}
+
+GdkPixbuf*
+file_get_current_preview_image(const struct GNUNET_CHAT_File *file)
+{
+  MESSENGER_FileInfo* info = GNUNET_CHAT_file_get_user_pointer(file);
+
+  if (!info)
+    return NULL;
+
+  GdkPixbuf *image = info->preview_image;
+
+  if (!(info->preview_animation))
+    return image;
+
+  if (info->preview_animation_iter)
+    gdk_pixbuf_animation_iter_advance(info->preview_animation_iter, NULL);
+  else
+    info->preview_animation_iter = gdk_pixbuf_animation_get_iter(
+	    info->preview_animation, NULL
+    );
+
+  image = gdk_pixbuf_animation_iter_get_pixbuf(info->preview_animation_iter);
+
+  if (!(info->redraw_animation_task))
+  {
+    const int delay = gdk_pixbuf_animation_iter_get_delay_time(
+      info->preview_animation_iter
+    );
+
+    info->redraw_animation_task = g_timeout_add(
+      delay, file_redraw_animation, info
+    );
+  }
+
+  return image;
 }

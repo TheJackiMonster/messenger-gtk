@@ -158,24 +158,6 @@ handle_media_button_click(GtkButton *button,
   g_string_free(uri, TRUE);
 }
 
-static int
-handle_message_redraw_animation(gpointer user_data)
-{
-  g_assert(user_data);
-
-  UI_MESSAGE_Handle *handle = (UI_MESSAGE_Handle*) user_data;
-
-  handle->redraw_animation = 0;
-
-  if ((handle->preview_drawing_area) &&
-      ((handle->preview_image) ||
-       (handle->preview_animation) ||
-       (handle->preview_animation_iter)))
-    gtk_widget_queue_draw(GTK_WIDGET(handle->preview_drawing_area));
-
-  return FALSE;
-}
-
 static gboolean
 handle_preview_drawing_area_draw(GtkWidget* drawing_area,
                                  cairo_t* cairo,
@@ -192,29 +174,16 @@ handle_preview_drawing_area_draw(GtkWidget* drawing_area,
 
   gtk_render_background(context, cairo, 0, 0, width, height);
 
-  GdkPixbuf *image = handle->preview_image;
-
-  if (!(handle->preview_animation))
-    goto render_image;
-
-  if (handle->preview_animation_iter)
-    gdk_pixbuf_animation_iter_advance(handle->preview_animation_iter, NULL);
-  else
-    handle->preview_animation_iter = gdk_pixbuf_animation_get_iter(
-	    handle->preview_animation, NULL
-    );
-
-  image = gdk_pixbuf_animation_iter_get_pixbuf(handle->preview_animation_iter);
-
-  const int delay = gdk_pixbuf_animation_iter_get_delay_time(
-    handle->preview_animation_iter
+  struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File *) g_object_get_qdata(
+    G_OBJECT(handle->message_box),
+    handle->app->quarks.data
   );
 
-  handle->redraw_animation = g_timeout_add(
-    delay, handle_message_redraw_animation, handle
-  );
+  if (!file)
+    return FALSE;
 
-render_image:
+  GdkPixbuf *image = file_get_current_preview_image(file);
+
   if (!image)
     return FALSE;
 
@@ -258,43 +227,6 @@ render_image:
 
   g_object_unref(scaled);
   return FALSE;
-}
-
-static void
-_clear_message_preview_data(UI_MESSAGE_Handle *handle)
-{
-  g_assert(handle);
-
-  if (handle->preview_image)
-  {
-    g_object_unref(handle->preview_image);
-    handle->preview_image = NULL;
-  }
-
-  if (handle->redraw_animation)
-  {
-    g_source_remove(handle->redraw_animation);
-    handle->redraw_animation = 0;
-  }
-
-  if (handle->preview_animation_iter)
-  {
-    g_object_unref(handle->preview_animation_iter);
-    handle->preview_animation_iter = NULL;
-  }
-
-  if (handle->preview_animation)
-  {
-    g_object_unref(handle->preview_animation);
-    handle->preview_animation = NULL;
-  }
-
-  if (handle->preview_drawing_area)
-    gtk_widget_set_size_request(
-      GTK_WIDGET(handle->preview_drawing_area),
-      -1,
-      -1
-    );
 }
 
 UI_MESSAGE_Handle*
@@ -461,6 +393,8 @@ ui_message_new(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder[1], "media_button")
   );
 
+  handle->app = app;
+
   g_signal_connect(
     handle->media_button,
     "clicked",
@@ -482,12 +416,6 @@ ui_message_new(MESSENGER_Application *app,
   gtk_container_add(content_box, GTK_WIDGET(
     gtk_builder_get_object(handle->builder[1], "message_content_box")
   ));
-
-  handle->preview_image = NULL;
-  handle->preview_animation = NULL;
-  handle->preview_animation_iter = NULL;
-
-  handle->redraw_animation = 0;
 
   return handle;
 }
@@ -613,30 +541,21 @@ _update_file_message(UI_MESSAGE_Handle *handle,
     );
 
     if ((app->settings.accept_all_files) &&
-        (!GNUNET_CHAT_file_is_downloading(file)))
+        (GNUNET_YES != GNUNET_CHAT_file_is_downloading(file)))
       autostart_download = TRUE;
 
     goto file_content;
   }
 
-  if (!(handle->preview_drawing_area))
+  if ((!(handle->preview_drawing_area)) ||
+      (GNUNET_CHAT_file_get_size(file) != GNUNET_CHAT_file_get_local_size(file)))
     goto file_progress;
 
-  const char *preview = GNUNET_CHAT_file_open_preview(file);
+  file_load_preview_image(file);
 
-  if (!preview)
-    goto file_progress;
+  GdkPixbuf *image = file_get_current_preview_image(file);
 
-  handle->preview_animation = gdk_pixbuf_animation_new_from_file(
-      preview, NULL
-  );
-
-  if (!(handle->preview_animation))
-    handle->preview_image = gdk_pixbuf_new_from_file(preview, NULL);
-
-  GNUNET_CHAT_file_close_preview(file);
-
-  if ((handle->preview_animation) || (handle->preview_image))
+  if (image)
   {
     gtk_widget_set_size_request(
       GTK_WIDGET(handle->preview_drawing_area),
@@ -649,7 +568,7 @@ _update_file_message(UI_MESSAGE_Handle *handle,
       GTK_WIDGET(handle->preview_drawing_area)
     );
 
-    gtk_widget_queue_draw(GTK_WIDGET(handle->preview_drawing_area));
+    file_add_widget_to_preview(file, GTK_WIDGET(handle->preview_drawing_area));
     return;
   }
 
@@ -914,7 +833,13 @@ ui_message_delete(UI_MESSAGE_Handle *handle,
   if (children)
     g_list_free(children);
 
-  _clear_message_preview_data(handle);
+  struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File *) g_object_get_qdata(
+    G_OBJECT(handle->message_box),
+    app->quarks.data
+  );
+
+  if (file)
+    file_remove_widget_from_preview(file, GTK_WIDGET(handle->preview_drawing_area));
 
   g_object_unref(handle->builder[1]);
   g_object_unref(handle->builder[0]);

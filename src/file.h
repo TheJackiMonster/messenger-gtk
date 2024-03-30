@@ -34,6 +34,13 @@ typedef struct MESSENGER_FileInfo
   
   guint update_task;
   GList *file_messages;
+
+  GdkPixbuf *preview_image;
+  GdkPixbufAnimation *preview_animation;
+  GdkPixbufAnimationIter *preview_animation_iter;
+
+  guint redraw_animation_task;
+  GList *preview_widgets;
 } MESSENGER_FileInfo;
 
 /**
@@ -66,6 +73,29 @@ file_add_ui_message_to_info(const struct GNUNET_CHAT_File *file,
                             UI_MESSAGE_Handle *message);
 
 /**
+ * Adds a widget to the list of widgets which get
+ * redrawn automatically when displaying an animation.
+ *
+ * @param file Chat file
+ * @param widget Preview widget
+ */
+void
+file_add_widget_to_preview(const struct GNUNET_CHAT_File *file,
+                           GtkWidget *widget);
+
+/**
+ * Removes a widgets from the list of widgets which
+ * get redrawn automatically when displaying an 
+ * animation.
+ *
+ * @param file Chat file
+ * @param widget Preview widget
+ */
+void
+file_remove_widget_from_preview(const struct GNUNET_CHAT_File *file,
+                                GtkWidget *widget);
+
+/**
  * Updates the connected UI elements for a given
  * file depending on the current state of its upload
  * process.
@@ -94,5 +124,32 @@ file_update_download_info(const struct GNUNET_CHAT_File *file,
                           MESSENGER_Application *app,
                           uint64_t completed,
                           uint64_t size);
+
+/**
+ * Loads required image data for a given file into memory
+ * to display a preview image.
+ *
+ * @param file Chat file
+ */
+void
+file_load_preview_image(struct GNUNET_CHAT_File *file);
+
+/**
+ * Unloads/Frees required image data of a given file from 
+ * memory to displaying a preview image.
+ *
+ * @param file Chat file
+ */
+void
+file_unload_preview_image(const struct GNUNET_CHAT_File *file);
+
+/**
+ * Returns the current image data to preview a given file
+ * as animated or static image.
+ *
+ * @param file Chat file
+ */
+GdkPixbuf*
+file_get_current_preview_image(const struct GNUNET_CHAT_File *file);
 
 #endif /* FILE_H_ */
