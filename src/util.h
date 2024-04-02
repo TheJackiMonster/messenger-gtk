@@ -29,11 +29,11 @@
 
 #define UNUSED __attribute__((unused))
 
-#define _(String) (           \
-  (const gchar*) g_dgettext(  \
-    MESSENGER_APPLICATION_ID, \
-    (const gchar*) String     \
-  )                           \
+#define _(String) (               \
+  (const gchar*) g_dgettext(      \
+    MESSENGER_APPLICATION_DOMAIN, \
+    (const gchar*) String         \
+  )                               \
 )
 
 #endif /* UTIL_H_ */

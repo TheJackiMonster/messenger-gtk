@@ -34,7 +34,7 @@ ui_contact_entry_new(MESSENGER_Application *app)
 
   UI_CONTACT_ENTRY_Handle* handle = g_malloc(sizeof(UI_CONTACT_ENTRY_Handle));
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/contact_entry.ui")
   );
 

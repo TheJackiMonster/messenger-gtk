@@ -249,6 +249,11 @@ application_init(MESSENGER_Application *app,
   app->argc = argc;
   app->argv = argv;
 
+  setlocale(LC_ALL, "");
+  bindtextdomain(MESSENGER_APPLICATION_DOMAIN, MESSENGER_APPLICATION_LOCALEDIR);
+  bind_textdomain_codeset(MESSENGER_APPLICATION_DOMAIN, "UTF-8");
+  textdomain(MESSENGER_APPLICATION_DOMAIN);
+
   pw_init(&argc, &argv);
   gst_init(&argc, &argv);
   gtk_init(&argc, &argv);

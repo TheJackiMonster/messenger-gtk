@@ -26,6 +26,7 @@
 
 #include "account_entry.h"
 #include "../application.h"
+#include "../ui.h"
 
 static void
 handle_close_button_click(UNUSED GtkButton *button,
@@ -156,7 +157,7 @@ ui_accounts_dialog_init(MESSENGER_Application *app,
 
   handle->show_queued = 0;
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/accounts.ui")
   );
 

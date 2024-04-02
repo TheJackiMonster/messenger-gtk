@@ -26,6 +26,7 @@
 
 #include "../application.h"
 #include "../request.h"
+#include "../ui.h"
 
 #include <pipewire/pipewire.h>
 
@@ -432,7 +433,7 @@ ui_new_contact_dialog_init(MESSENGER_Application *app,
 
   _setup_gst_pipeline(handle);
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/new_contact.ui")
   );
 

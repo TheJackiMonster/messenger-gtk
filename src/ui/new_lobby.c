@@ -25,6 +25,7 @@
 #include "new_lobby.h"
 
 #include "../application.h"
+#include "../ui.h"
 
 static void
 handle_warning_info_bar_close(GtkInfoBar *info_bar,
@@ -289,7 +290,7 @@ ui_new_lobby_dialog_init(MESSENGER_Application *app,
 {
   g_assert((app) && (handle));
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/new_lobby.ui")
   );
 

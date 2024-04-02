@@ -630,7 +630,7 @@ ui_play_media_window_init(MESSENGER_Application *app,
 
   handle->parent = GTK_WINDOW(app->ui.messenger.main_window);
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/play_media.ui")
   );
 

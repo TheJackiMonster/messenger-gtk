@@ -210,10 +210,13 @@ file_draw_preview(MESSENGER_FileInfo* info)
 
   while (list)
   {
-    GtkWidget *widget = GTK_WIDGET(list->data);
+    if (!GTK_IS_WIDGET(list->data))
+      goto skip_data;
 
+    GtkWidget *widget = GTK_WIDGET(list->data);
     gtk_widget_queue_draw(widget);
 
+  skip_data:
     list = list->next;
   }
 }

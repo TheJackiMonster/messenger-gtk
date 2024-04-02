@@ -122,7 +122,7 @@ ui_new_tag_dialog_init(MESSENGER_Application *app,
   handle->user_data = NULL;
   handle->callback = NULL;
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/new_tag.ui")
   );
 

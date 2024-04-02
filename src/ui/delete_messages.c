@@ -25,6 +25,7 @@
 #include "delete_messages.h"
 
 #include "../application.h"
+#include "../ui.h"
 
 static void
 handle_cancel_button_click(UNUSED GtkButton *button,
@@ -88,7 +89,7 @@ ui_delete_messages_dialog_init(MESSENGER_Application *app,
   handle->selected = NULL;
   handle->callback = NULL;
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/delete_messages.ui")
   );
 

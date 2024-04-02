@@ -26,6 +26,7 @@
 
 #include "contact_entry.h"
 #include "../application.h"
+#include "../ui.h"
 
 static void
 _open_new_group(GtkEntry *entry,
@@ -213,7 +214,7 @@ ui_new_group_dialog_init(MESSENGER_Application *app,
 
   handle->contact_entries = NULL;
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/new_group.ui")
   );
 

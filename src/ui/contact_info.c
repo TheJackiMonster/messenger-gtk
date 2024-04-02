@@ -359,7 +359,7 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
 
   handle->app = app;
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/contact_info.ui")
   );
 

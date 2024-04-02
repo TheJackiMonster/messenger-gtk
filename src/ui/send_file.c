@@ -30,6 +30,7 @@
 
 #include "../application.h"
 #include "../file.h"
+#include "../ui.h"
 
 static void
 handle_cancel_button_click(UNUSED GtkButton *button,
@@ -291,7 +292,7 @@ ui_send_file_dialog_init(MESSENGER_Application *app,
 {
   g_assert((app) && (handle));
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/send_file.ui")
   );
 

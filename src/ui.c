@@ -26,6 +26,25 @@
 
 #include <gnunet/gnunet_common.h>
 
+GtkBuilder*
+ui_builder_from_resource(const char *resource_path)
+{
+  GtkBuilder *builder = gtk_builder_new();
+
+  if (!builder)
+    return NULL;
+
+  gtk_builder_set_translation_domain(builder, MESSENGER_APPLICATION_DOMAIN);
+
+  if (!gtk_builder_add_from_resource(builder, resource_path, NULL))
+  {
+    g_object_unref(builder);
+    return NULL;
+  }
+
+  return builder;
+}
+
 void
 ui_label_set_text(GtkLabel *label, const char *text)
 {

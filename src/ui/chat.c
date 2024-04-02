@@ -1363,7 +1363,7 @@ ui_chat_new(MESSENGER_Application *app)
 
   handle->loads = NULL;
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/chat.ui")
   );
 

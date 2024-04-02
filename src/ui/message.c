@@ -258,7 +258,7 @@ ui_message_new(MESSENGER_Application *app,
       break;
   }
 
-  handle->builder[0] = gtk_builder_new_from_resource(
+  handle->builder[0] = ui_builder_from_resource(
     application_get_resource_path(app, ui_builder_file)
   );
 
@@ -313,7 +313,7 @@ ui_message_new(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder[0], "tag_flow_box")
   );
 
-  handle->builder[1] = gtk_builder_new_from_resource(
+  handle->builder[1] = ui_builder_from_resource(
     application_get_resource_path(app, "ui/message_content.ui")
   );
 

@@ -25,6 +25,7 @@
 #include "file_load_entry.h"
 
 #include "../application.h"
+#include "../ui.h"
 
 #include "chat.h"
 
@@ -51,7 +52,7 @@ ui_file_load_entry_new(MESSENGER_Application *app)
 
   handle->chat = NULL;
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
       application_get_resource_path(app, "ui/file_load_entry.ui")
   );
 

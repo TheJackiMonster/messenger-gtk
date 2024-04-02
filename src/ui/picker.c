@@ -25,6 +25,7 @@
 #include "picker.h"
 
 #include "../application.h"
+#include "../ui.h"
 
 #include <emoji.h>
 #include <glib-2.0/glib.h>
@@ -257,7 +258,7 @@ ui_picker_new(MESSENGER_Application *app,
 
   UI_PICKER_Handle *handle = g_malloc(sizeof(UI_PICKER_Handle));
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/picker.ui")
   );
 

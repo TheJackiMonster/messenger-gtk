@@ -51,6 +51,7 @@ messenger_gtk_deps = [
 ]
 
 messenger_gtk_args = [
+    '-DENABLE_NLS=1',
     '-DMESSENGER_APPLICATION_BINARY="@0@"'.format(meson.project_name()),
     '-DMESSENGER_APPLICATION_ID="@0@"'.format(messenger_gtk_id),
     '-DMESSENGER_APPLICATION_VERSION="@0@"'.format(meson.project_version()),
@@ -67,6 +68,7 @@ else
     ]
 endif
 
+subdir('po')
 subdir('resources')
 subdir('src')
 

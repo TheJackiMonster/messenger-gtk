@@ -25,6 +25,7 @@
 #include "new_platform.h"
 
 #include "../application.h"
+#include "../ui.h"
 
 static void
 _open_new_platform(GtkEntry *entry,
@@ -119,7 +120,7 @@ ui_new_platform_dialog_init(MESSENGER_Application *app,
 {
   g_assert((app) && (handle));
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/new_platform.ui")
   );
 

@@ -26,6 +26,7 @@
 
 #include "../application.h"
 #include "../file.h"
+#include "../ui.h"
 
 static gboolean
 handle_preview_drawing_area_draw(GtkWidget* drawing_area,
@@ -116,7 +117,7 @@ ui_media_preview_new(MESSENGER_Application *app)
 
   UI_MEDIA_PREVIEW_Handle* handle = g_malloc(sizeof(UI_MEDIA_PREVIEW_Handle));
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/media_preview.ui")
   );
 

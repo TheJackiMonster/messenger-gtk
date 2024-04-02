@@ -25,6 +25,7 @@
 #include "new_account.h"
 
 #include "../application.h"
+#include "../ui.h"
 
 static gboolean
 _show_messenger_main_window(gpointer user_data)
@@ -134,7 +135,7 @@ ui_new_account_dialog_init(MESSENGER_Application *app,
 
   handle->show_queued = 0;
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/new_account.ui")
   );
 

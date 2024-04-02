@@ -26,6 +26,7 @@
 
 #include "contact_entry.h"
 #include "../application.h"
+#include "../ui.h"
 
 static void
 handle_close_button_click(UNUSED GtkButton *button,
@@ -182,7 +183,7 @@ ui_contacts_dialog_init(MESSENGER_Application *app,
 {
   g_assert((app) && (handle));
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/contacts.ui")
   );
 

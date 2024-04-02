@@ -36,7 +36,7 @@ ui_tag_new(MESSENGER_Application *app)
 
   memset(handle, 0, sizeof(*handle));
 
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/tag.ui")
   );
 

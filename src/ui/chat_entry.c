@@ -43,7 +43,7 @@ ui_chat_entry_new(MESSENGER_Application *app)
   handle->timestamp = GNUNET_TIME_absolute_get_zero_();
 
   handle->chat = ui_chat_new(app);
-  handle->builder = gtk_builder_new_from_resource(
+  handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/chat_entry.ui")
   );
 

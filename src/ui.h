@@ -30,6 +30,16 @@
 #include <stdint.h>
 
 /**
+ * Returns a new builder instance using the UI
+ * definitions from a given resource path.
+ *
+ * @param resource_path Resource path
+ * @return New builder
+ */
+GtkBuilder*
+ui_builder_from_resource(const char *resource_path);
+
+/**
  * Sets the text of a GtkLabel applying automatic utf8
  * conversion.
  *
