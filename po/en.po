@@ -20,15 +20,17 @@
 #
 msgid ""
 msgstr ""
-"MIME-Version: 1.0\n"
 "Project-Id-Version: unnamed project\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-02 02:35+0200\n"
+"PO-Revision-Date: 2024-04-01 22:18+0200\n"
 "Last-Translator: Tobias Frisch <>\n"
 "Language-Team: English\n"
 "Language: en\n"
+"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"PO-Revision-Date: 2024-04-01 22:18+0200\n"
 "X-Generator: Gtranslator 46.0\n"
 
 #: resources/ui/about.ui:32
@@ -175,13 +177,13 @@ msgstr "Delete Messages"
 #: resources/ui/delete_messages.ui:64 resources/ui/new_account.ui:43
 #: resources/ui/new_contact.ui:52 resources/ui/new_group.ui:43
 #: resources/ui/new_lobby.ui:86 resources/ui/new_platform.ui:43
-#: resources/ui/new_tag.ui:42 resources/ui/send_file.ui:41 src/ui/chat.c:638
+#: resources/ui/new_tag.ui:43 resources/ui/send_file.ui:41 src/ui/chat.c:638
 msgid "Cancel"
 msgstr "Cancel"
 
 #: resources/ui/delete_messages.ui:77 resources/ui/new_account.ui:56
 #: resources/ui/new_group.ui:81 resources/ui/new_platform.ui:56
-#: resources/ui/new_tag.ui:55 src/ui/chat.c:640
+#: resources/ui/new_tag.ui:56 src/ui/chat.c:640
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -285,7 +287,11 @@ msgstr "Generation of new lobby failed!"
 msgid "Platform:"
 msgstr "Platform:"
 
-#: resources/ui/new_tag.ui:102
+#: resources/ui/new_tag.ui:28
+msgid "New Tag"
+msgstr "New Tag"
+
+#: resources/ui/new_tag.ui:103
 msgid "Tag:"
 msgstr "Tag:"
 
@@ -341,7 +347,7 @@ msgstr "Privacy"
 msgid "Blocked"
 msgstr "Blocked"
 
-#: resources/ui/settings.ui:294 src/ui/settings.c:387
+#: resources/ui/settings.ui:294 src/ui/settings.c:388
 #, c-format
 msgid "%u blocked contacts"
 msgstr "%u blocked contacts"
@@ -460,6 +466,6 @@ msgstr "Yesterday"
 msgid "Play Media"
 msgstr "Play Media"
 
-#: src/ui/send_file.c:304
+#: src/ui/send_file.c:305
 msgid "Send File"
 msgstr "Send File"
