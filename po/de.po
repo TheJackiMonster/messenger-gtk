@@ -271,11 +271,11 @@ msgstr "Plattform:"
 
 #: resources/ui/new_tag.ui:28
 msgid "New Tag"
-msgstr "Neues Label"
+msgstr "Neues Stichwort"
 
 #: resources/ui/new_tag.ui:103
 msgid "Tag:"
-msgstr "Label:"
+msgstr "Stichwort:"
 
 #: resources/ui/picker.ui:389
 msgid "Emoji"
