@@ -469,6 +469,10 @@ ui_messenger_init(MESSENGER_Application *app,
       G_BINDING_SYNC_CREATE |
       G_BINDING_INVERT_BOOLEAN
     );
+  
+  handle->profile_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "profile_button")
+  );
 
   handle->profile_avatar = HDY_AVATAR(
     gtk_builder_get_object(handle->builder, "profile_avatar")

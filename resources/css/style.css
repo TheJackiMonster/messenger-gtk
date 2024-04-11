@@ -30,6 +30,11 @@
 	font-size: 14px;
 }
 
+.profile-button {
+	border-radius: 36px;
+	padding: 2px;
+}
+
 .profile-key {
 	font-size: 10px;
 }

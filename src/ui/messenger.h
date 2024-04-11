@@ -49,6 +49,7 @@ typedef struct UI_MESSENGER_Handle
 
   HdyHeaderBar *title_bar;
 
+  GtkButton *profile_button;
   HdyAvatar *profile_avatar;
   GtkLabel *profile_label;
   GtkLabel *profile_key_label;
