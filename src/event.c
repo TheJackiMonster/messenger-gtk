@@ -59,8 +59,10 @@ _show_notification(MESSENGER_Application *app,
                    const char *category)
 {
   g_assert(
-    (app) && (context) && (contact) && 
-    (text) && (icon) && (category)
+    (app) &&
+    (text) &&
+    (icon) &&
+    (category)
   );
 
   if (app->settings.disable_notifications)
@@ -94,7 +96,7 @@ event_handle_warning(MESSENGER_Application *app,
 		                 struct GNUNET_CHAT_Context *context,
 		                 const struct GNUNET_CHAT_Message *msg)
 {
-  g_assert((app) && (context) && (msg));
+  g_assert((app) && (msg));
 
   const char *text = GNUNET_CHAT_message_get_text(msg);
 

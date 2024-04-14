@@ -48,6 +48,7 @@ typedef struct UI_CONTACT_INFO_Handle
   GtkImage *contact_edit_symbol;
 
   GtkButton *reveal_identity_button;
+  GtkButton *list_attributes_button;
   GtkStack *block_stack;
   GtkButton *block_button;
   GtkButton *unblock_button;
@@ -59,6 +60,11 @@ typedef struct UI_CONTACT_INFO_Handle
   GtkDrawingArea *id_drawing_area;
   gulong id_draw_signal;
   GtkEntry *id_entry;
+
+  GtkWidget *attributes_box;
+  GtkTreeView *attributes_tree;
+  GtkListStore *attributes_list;
+  GtkCellRendererText *value_renderer;
 
   GtkButton *back_button;
   GtkButton *close_button;

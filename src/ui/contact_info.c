@@ -29,6 +29,8 @@
 #include "../application.h"
 #include "../ui.h"
 #include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_time_lib.h>
 
 static void
 handle_contact_edit_button_click(UNUSED GtkButton *button,
@@ -108,12 +110,34 @@ _contact_info_reveal_identity(UI_CONTACT_INFO_Handle *handle)
 }
 
 static void
+_contact_info_list_attributes(UI_CONTACT_INFO_Handle *handle)
+{
+  g_assert(handle);
+
+  gtk_widget_set_visible(GTK_WIDGET(handle->back_button), TRUE);
+
+  gtk_stack_set_visible_child(
+    handle->contact_info_stack,
+    handle->attributes_box
+  );
+}
+
+static void
 handle_reveal_identity_button_click(UNUSED GtkButton *button,
                                     gpointer user_data)
 {
   g_assert(user_data);
 
   _contact_info_reveal_identity((UI_CONTACT_INFO_Handle*) user_data);
+}
+
+static void
+handle_list_attributes_button_click(UNUSED GtkButton *button,
+                                    gpointer user_data)
+{
+  g_assert(user_data);
+
+  _contact_info_list_attributes((UI_CONTACT_INFO_Handle*) user_data);
 }
 
 static void
@@ -351,6 +375,92 @@ handle_id_drawing_area_draw(GtkWidget* drawing_area,
   return FALSE;
 }
 
+static enum GNUNET_GenericReturnValue
+cb_contact_info_attributes(void *cls,
+                           struct GNUNET_CHAT_Handle *chat,
+                           const char *name,
+                           const char *value)
+{
+  g_assert((cls) && (chat) && (name) && (value));
+
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) cls;
+
+  gtk_list_store_insert_with_values(
+    handle->attributes_list,
+    NULL,
+    -1,
+    0,
+    name,
+    1,
+    value,
+    -1
+  );
+
+  return GNUNET_YES;
+}
+
+static enum GNUNET_GenericReturnValue
+cb_contact_info_contact_attributes(void *cls,
+                                   struct GNUNET_CHAT_Contact *contact,
+                                   const char *name,
+                                   const char *value)
+{
+  g_assert((cls) && (contact) && (name) && (value));
+
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) cls;
+
+  gtk_list_store_insert_with_values(
+    handle->attributes_list,
+    NULL,
+    -1,
+    0,
+    name,
+    1,
+    value,
+    -1
+  );
+
+  return GNUNET_YES;
+}
+
+static void
+handle_value_renderer_edit(GtkCellRendererText *renderer,
+                           char *path,
+                           char *new_text,
+                           gpointer user_data)
+{
+  g_assert((renderer) && (path) && (new_text) && (user_data));
+
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+  GtkTreeIter iter;
+
+  if (!gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(handle->attributes_list), &iter, path))
+    return;
+
+  struct GNUNET_CHAT_Handle *chat = handle->app->chat.messenger.handle;
+
+  if (!chat)
+    return;
+
+  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) g_object_get_qdata(
+    G_OBJECT(handle->attributes_tree),
+    handle->app->quarks.data
+  );
+
+  if ((contact) && (GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact)))
+    return;
+
+  GValue value = G_VALUE_INIT;
+  gtk_tree_model_get_value(GTK_TREE_MODEL(handle->attributes_list), &iter, 0, &value);
+
+  const gchar *name = g_value_get_string(&value);
+
+  GNUNET_CHAT_set_attribute(chat, name, new_text, GNUNET_TIME_relative_get_forever_());
+  gtk_list_store_set(handle->attributes_list, &iter, 1, new_text, -1);
+
+  g_value_unset(&value);
+}
+
 void
 ui_contact_info_dialog_init(MESSENGER_Application *app,
                             UI_CONTACT_INFO_Handle *handle)
@@ -421,6 +531,17 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
     handle
   );
 
+  handle->list_attributes_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "list_attributes_button")
+  );
+
+  g_signal_connect(
+    handle->list_attributes_button,
+    "clicked",
+    G_CALLBACK(handle_list_attributes_button_click),
+    handle
+  );
+
   handle->block_stack = GTK_STACK(
     gtk_builder_get_object(handle->builder, "block_stack")
   );
@@ -481,6 +602,29 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "id_entry")
   );
 
+  handle->attributes_box = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "attributes_box")
+  );
+
+  handle->attributes_tree = GTK_TREE_VIEW(
+    gtk_builder_get_object(handle->builder, "attributes_tree")
+  );
+
+  handle->attributes_list = GTK_LIST_STORE(
+    gtk_builder_get_object(handle->builder, "attributes_list")
+  );
+
+  handle->value_renderer = GTK_CELL_RENDERER_TEXT(
+    gtk_builder_get_object(handle->builder, "value_renderer")
+  );
+
+  g_signal_connect(
+    handle->value_renderer,
+    "edited",
+    G_CALLBACK(handle_value_renderer_edit),
+    handle
+  );
+
   handle->back_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "back_button")
   );
@@ -525,6 +669,12 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
 
   g_object_set_qdata(
     G_OBJECT(handle->contact_name_entry),
+    handle->app->quarks.data,
+    contact
+  );
+
+  g_object_set_qdata(
+    G_OBJECT(handle->attributes_tree),
     handle->app->quarks.data,
     contact
   );
@@ -584,6 +734,21 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
     handle->app->quarks.data,
     contact
   );
+
+  gtk_list_store_clear(handle->attributes_list);
+
+  if ((!contact) || (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact)))
+    GNUNET_CHAT_get_attributes(
+      handle->app->chat.messenger.handle,
+      cb_contact_info_attributes,
+      handle
+    );
+  else
+    GNUNET_CHAT_contact_get_attributes(
+      contact,
+      cb_contact_info_contact_attributes,
+      handle
+    );
 
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
     contact
