@@ -31,6 +31,7 @@
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_time_lib.h>
+#include <string.h>
 
 static void
 handle_contact_edit_button_click(UNUSED GtkButton *button,
@@ -455,8 +456,16 @@ handle_value_renderer_edit(GtkCellRendererText *renderer,
 
   const gchar *name = g_value_get_string(&value);
 
-  GNUNET_CHAT_set_attribute(chat, name, new_text, GNUNET_TIME_relative_get_forever_());
-  gtk_list_store_set(handle->attributes_list, &iter, 1, new_text, -1);
+  if ((new_text) && (strlen(new_text)))
+  {
+    GNUNET_CHAT_set_attribute(chat, name, new_text, GNUNET_TIME_relative_get_forever_());
+    gtk_list_store_set(handle->attributes_list, &iter, 1, new_text, -1);
+  }
+  else
+  {
+    GNUNET_CHAT_delete_attribute(chat, name);
+    gtk_list_store_remove(handle->attributes_list, &iter);
+  }
 
   g_value_unset(&value);
 }
