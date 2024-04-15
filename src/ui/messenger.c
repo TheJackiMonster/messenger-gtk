@@ -39,6 +39,23 @@
 #include "../application.h"
 #include "../ui.h"
 
+static void
+handle_profile_button_click(UNUSED GtkButton* button,
+				                             gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
+  MESSENGER_Application *app = handle->app;
+
+  hdy_flap_set_reveal_flap(handle->flap_user_details, FALSE);
+
+  ui_contact_info_dialog_init(app, &(app->ui.contact_info));
+  ui_contact_info_dialog_update(&(app->ui.contact_info), NULL, FALSE);
+
+  gtk_widget_show(GTK_WIDGET(app->ui.contact_info.dialog));
+}
+
 static gboolean
 _flap_user_details_reveal_switch(gpointer user_data)
 {
@@ -472,6 +489,13 @@ ui_messenger_init(MESSENGER_Application *app,
   
   handle->profile_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "profile_button")
+  );
+
+  g_signal_connect(
+    handle->profile_button,
+    "clicked",
+    G_CALLBACK(handle_profile_button_click),
+    handle
   );
 
   handle->profile_avatar = HDY_AVATAR(

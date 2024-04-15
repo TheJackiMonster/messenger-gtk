@@ -52,20 +52,25 @@ handle_contact_edit_button_click(UNUSED GtkButton *button,
     )
   );
 
-  if ((!editable) || (!contact))
+  if (!editable)
     goto skip_change_name;
+
+  const gboolean change_own_name = (
+    (!contact) ||
+    (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
+  );
 
   const gchar *name = gtk_entry_get_text(handle->contact_name_entry);
 
   if ((name) && (0 == g_utf8_strlen(name, 1)))
     name = NULL;
 
-  if (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
+  if (change_own_name)
   {
     if (GNUNET_YES != GNUNET_CHAT_set_name(handle->app->chat.messenger.handle, name))
       gtk_entry_set_text(
 	      handle->contact_name_entry,
-	      GNUNET_CHAT_contact_get_name(contact)
+	      GNUNET_CHAT_get_name(handle->app->chat.messenger.handle)
       );
   }
   else
@@ -773,9 +778,15 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
                               struct GNUNET_CHAT_Contact *contact,
                               gboolean reveal)
 {
-  g_assert((handle) && (contact));
+  g_assert(handle);
 
-  const char *name = GNUNET_CHAT_contact_get_name(contact);
+  const char *name = NULL;
+  const char *key = NULL;
+
+  if (contact)
+    name = GNUNET_CHAT_contact_get_name(contact);
+  else
+    name = GNUNET_CHAT_get_name(handle->app->chat.messenger.handle);
 
   ui_avatar_set_text(handle->contact_avatar, name);
   ui_entry_set_text(handle->contact_name_entry, name);
@@ -814,7 +825,10 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
     editable
   );
 
-  const char *key = GNUNET_CHAT_contact_get_key(contact);
+  if (contact)
+    key = GNUNET_CHAT_contact_get_key(contact);
+  else
+    key = GNUNET_CHAT_get_key(handle->app->chat.messenger.handle);
 
   if (handle->qr)
     QRcode_free(handle->qr);
@@ -844,12 +858,12 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
 
   gtk_widget_set_sensitive(
     GTK_WIDGET(handle->block_button),
-    GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact)
+    !editable
   );
 
   gtk_widget_set_sensitive(
     GTK_WIDGET(handle->unblock_button),
-    GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact)
+    !editable
   );
 
   gtk_stack_set_visible_child(
@@ -861,7 +875,7 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
 
   gtk_widget_set_visible(
     GTK_WIDGET(handle->block_stack),
-    GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact)
+    !editable
   );
 
   g_object_set_qdata(
@@ -872,7 +886,7 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
 
   gtk_list_store_clear(handle->attributes_list);
 
-  if ((!contact) || (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact)))
+  if (editable)
     GNUNET_CHAT_get_attributes(
       handle->app->chat.messenger.handle,
       cb_contact_info_attributes,
@@ -896,7 +910,7 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
 
   gtk_widget_set_visible(
     GTK_WIDGET(handle->open_chat_button),
-    GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact)
+    !editable
   );
 
   if (reveal)
