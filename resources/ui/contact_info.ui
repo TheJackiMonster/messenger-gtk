@@ -31,6 +31,16 @@ Author: Tobias Frisch
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkListStore" id="sharing_list">
+    <columns>
+      <!-- column-name name -->
+      <column type="gchararray"/>
+      <!-- column-name value -->
+      <column type="gchararray"/>
+      <!-- column-name shared -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
   <object class="GtkDialog" id="contact_info_dialog">
     <property name="can-focus">False</property>
     <property name="title" translatable="yes">Contact Information</property>
@@ -269,6 +279,50 @@ Author: Tobias Frisch
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkButton" id="share_attributes_button">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="spacing">4</property>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="icon-name">emblem-shared-symbolic</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-end">16</property>
+                                    <property name="label" translatable="yes">Share Attributes</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">5</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkStack" id="block_stack">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
@@ -365,7 +419,7 @@ Author: Tobias Frisch
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">5</property>
+                            <property name="position">6</property>
                           </packing>
                         </child>
                         <child>
@@ -410,7 +464,7 @@ Author: Tobias Frisch
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">6</property>
+                            <property name="position">7</property>
                           </packing>
                         </child>
                       </object>
@@ -658,6 +712,81 @@ Author: Tobias Frisch
                       <packing>
                         <property name="name">attributes_page</property>
                         <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="sharing_box">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="border-width">8</property>
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">4</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Shared Attributes:</property>
+                            <property name="xalign">0</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkTreeView" id="sharing_tree">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="model">sharing_list</property>
+                            <property name="reorderable">True</property>
+                            <property name="search-column">0</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection"/>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn">
+                                <property name="spacing">4</property>
+                                <property name="sizing">autosize</property>
+                                <property name="min-width">120</property>
+                                <property name="title" translatable="yes">Name:</property>
+                                <property name="clickable">True</property>
+                                <property name="sort-indicator">True</property>
+                                <property name="sort-column-id">0</property>
+                                <child>
+                                  <object class="GtkCellRendererText"/>
+                                  <attributes>
+                                    <attribute name="text">0</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn">
+                                <property name="resizable">True</property>
+                                <property name="spacing">4</property>
+                                <property name="sizing">fixed</property>
+                                <property name="fixed-width">50</property>
+                                <property name="title" translatable="yes">Share:</property>
+                                <child>
+                                  <object class="GtkCellRendererToggle" id="share_renderer"/>
+                                  <attributes>
+                                    <attribute name="active">2</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="name">sharing_page</property>
+                        <property name="position">3</property>
                       </packing>
                     </child>
                   </object>

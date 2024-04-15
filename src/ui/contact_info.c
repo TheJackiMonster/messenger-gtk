@@ -103,28 +103,16 @@ handle_contact_name_entry_activate(UNUSED GtkEntry *entry,
 }
 
 static void
-_contact_info_reveal_identity(UI_CONTACT_INFO_Handle *handle)
+_contact_info_switch_stack_to(UI_CONTACT_INFO_Handle *handle,
+                              GtkWidget *page_widget)
 {
-  g_assert(handle);
+  g_assert((handle) && (page_widget));
 
   gtk_widget_set_visible(GTK_WIDGET(handle->back_button), TRUE);
 
   gtk_stack_set_visible_child(
     handle->contact_info_stack,
-    handle->identity_box
-  );
-}
-
-static void
-_contact_info_list_attributes(UI_CONTACT_INFO_Handle *handle)
-{
-  g_assert(handle);
-
-  gtk_widget_set_visible(GTK_WIDGET(handle->back_button), TRUE);
-
-  gtk_stack_set_visible_child(
-    handle->contact_info_stack,
-    handle->attributes_box
+    page_widget
   );
 }
 
@@ -134,7 +122,9 @@ handle_reveal_identity_button_click(UNUSED GtkButton *button,
 {
   g_assert(user_data);
 
-  _contact_info_reveal_identity((UI_CONTACT_INFO_Handle*) user_data);
+  struct UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+
+  _contact_info_switch_stack_to(handle, handle->identity_box);
 }
 
 static void
@@ -143,7 +133,20 @@ handle_list_attributes_button_click(UNUSED GtkButton *button,
 {
   g_assert(user_data);
 
-  _contact_info_list_attributes((UI_CONTACT_INFO_Handle*) user_data);
+  struct UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+
+  _contact_info_switch_stack_to(handle, handle->attributes_box);
+}
+
+static void
+handle_share_attributes_button_click(UNUSED GtkButton *button,
+                                     gpointer user_data)
+{
+  g_assert(user_data);
+
+  struct UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+
+  _contact_info_switch_stack_to(handle, handle->sharing_box);
 }
 
 static void
@@ -429,6 +432,114 @@ cb_contact_info_contact_attributes(void *cls,
   return GNUNET_YES;
 }
 
+static enum GNUNET_GenericReturnValue
+cb_contact_info_unshared_attributes(void *cls,
+                                    struct GNUNET_CHAT_Handle *chat,
+                                    const char *name,
+                                    const char *value)
+{
+  g_assert((cls) && (chat) && (name) && (value));
+
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) cls;
+  GtkTreeModel *model = GTK_TREE_MODEL(handle->sharing_list);
+  GtkTreeIter iter;
+
+  GValue val_name = G_VALUE_INIT;
+  GValue val_value = G_VALUE_INIT;
+
+  gboolean valid = gtk_tree_model_get_iter_first(model, &iter);
+  gboolean match = FALSE;
+
+  while (valid)
+  {
+    gtk_tree_model_get_value(model, &iter, 0, &val_name);
+    gtk_tree_model_get_value(model, &iter, 1, &val_value);
+    
+    if ((0 == strcmp(g_value_get_string(&val_name), name)) &&
+        (0 == strcmp(g_value_get_string(&val_value), value)))
+      match = TRUE;
+
+    g_value_unset(&val_name);
+    g_value_unset(&val_value);
+
+    if (match)
+      break;
+
+    valid = gtk_tree_model_iter_next(model, &iter);
+  }
+
+  if (!match)
+    gtk_list_store_insert_with_values(
+      handle->sharing_list,
+      NULL,
+      -1,
+      0,
+      name,
+      1,
+      value,
+      2,
+      FALSE,
+      -1
+    );
+
+  return GNUNET_YES;
+}
+
+static enum GNUNET_GenericReturnValue
+cb_contact_info_shared_attributes(void *cls,
+                                  struct GNUNET_CHAT_Contact *contact,
+                                  const char *name,
+                                  const char *value)
+{
+  g_assert((cls) && (contact) && (name) && (value));
+
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) cls;
+  GtkTreeModel *model = GTK_TREE_MODEL(handle->sharing_list);
+  GtkTreeIter iter;
+
+  GValue val_name = G_VALUE_INIT;
+  GValue val_value = G_VALUE_INIT;
+
+  gboolean valid = gtk_tree_model_get_iter_first(model, &iter);
+  gboolean match = FALSE;
+
+  while (valid)
+  {
+    gtk_tree_model_get_value(model, &iter, 0, &val_name);
+    gtk_tree_model_get_value(model, &iter, 1, &val_value);
+    
+    if ((0 == strcmp(g_value_get_string(&val_name), name)) &&
+        (0 == strcmp(g_value_get_string(&val_value), value)))
+      match = TRUE;
+
+    g_value_unset(&val_name);
+    g_value_unset(&val_value);
+
+    if (match)
+      break;
+
+    valid = gtk_tree_model_iter_next(model, &iter);
+  }
+
+  if (match)
+    gtk_list_store_set(handle->sharing_list, &iter, 2, TRUE, -1);
+  else
+    gtk_list_store_insert_with_values(
+      handle->sharing_list,
+      NULL,
+      -1,
+      0,
+      name,
+      1,
+      value,
+      2,
+      TRUE,
+      -1
+    );
+
+  return GNUNET_YES;
+}
+
 static void
 handle_value_renderer_edit(GtkCellRendererText *renderer,
                            char *path,
@@ -535,6 +646,52 @@ handle_attribute_value_entry_activate(UNUSED GtkEntry *entry,
   handle_add_attribute_button_click(handle->add_attribute_button, handle);
 }
 
+static void
+handle_share_renderer_toggle(GtkCellRendererToggle *renderer,
+                             char *path,
+                             gpointer user_data)
+{
+  g_assert((renderer) && (path) && (user_data));
+
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+  GtkTreeIter iter;
+
+  if (!gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(handle->sharing_list), &iter, path))
+    return;
+
+  struct GNUNET_CHAT_Handle *chat = handle->app->chat.messenger.handle;
+
+  if (!chat)
+    return;
+
+  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) g_object_get_qdata(
+    G_OBJECT(handle->sharing_tree),
+    handle->app->quarks.data
+  );
+
+  if ((!contact) || (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact)))
+    return;
+
+  GValue value_name = G_VALUE_INIT;
+  GValue value_shared = G_VALUE_INIT;
+
+  gtk_tree_model_get_value(GTK_TREE_MODEL(handle->sharing_list), &iter, 0, &value_name);
+  gtk_tree_model_get_value(GTK_TREE_MODEL(handle->sharing_list), &iter, 2, &value_shared);
+
+  const gchar *name = g_value_get_string(&value_name);
+  const gboolean shared = g_value_get_boolean(&value_shared);
+
+  if (shared)
+    GNUNET_CHAT_unshare_attribute_from(chat, contact, name);
+  else
+    GNUNET_CHAT_share_attribute_with(chat, contact, name);
+
+  gtk_list_store_set(handle->sharing_list, &iter, 2, !shared, -1);
+
+  g_value_unset(&value_name);
+  g_value_unset(&value_shared);
+}
+
 void
 ui_contact_info_dialog_init(MESSENGER_Application *app,
                             UI_CONTACT_INFO_Handle *handle)
@@ -609,10 +766,21 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "list_attributes_button")
   );
 
+  handle->share_attributes_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "share_attributes_button")
+  );
+
   g_signal_connect(
     handle->list_attributes_button,
     "clicked",
     G_CALLBACK(handle_list_attributes_button_click),
+    handle
+  );
+
+  g_signal_connect(
+    handle->share_attributes_button,
+    "clicked",
+    G_CALLBACK(handle_share_attributes_button_click),
     handle
   );
 
@@ -743,6 +911,29 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
     handle
   );
 
+  handle->sharing_box = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "sharing_box")
+  );
+
+  handle->sharing_tree = GTK_TREE_VIEW(
+    gtk_builder_get_object(handle->builder, "sharing_tree")
+  );
+
+  handle->sharing_list = GTK_LIST_STORE(
+    gtk_builder_get_object(handle->builder, "sharing_list")
+  );
+
+  handle->share_renderer = GTK_CELL_RENDERER_TOGGLE(
+    gtk_builder_get_object(handle->builder, "share_renderer")
+  );
+
+  g_signal_connect(
+    handle->share_renderer,
+    "toggled",
+    G_CALLBACK(handle_share_renderer_toggle),
+    handle
+  );
+
   handle->back_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "back_button")
   );
@@ -803,6 +994,12 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
     contact
   );
 
+  g_object_set_qdata(
+    G_OBJECT(handle->sharing_tree),
+    handle->app->quarks.data,
+    contact
+  );
+
   const gboolean editable = (
     (!contact) ||
     (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
@@ -857,12 +1054,22 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
   );
 
   gtk_widget_set_sensitive(
+    GTK_WIDGET(handle->share_attributes_button),
+    !editable
+  );
+
+  gtk_widget_set_sensitive(
     GTK_WIDGET(handle->block_button),
     !editable
   );
 
   gtk_widget_set_sensitive(
     GTK_WIDGET(handle->unblock_button),
+    !editable
+  );
+
+  gtk_widget_set_visible(
+    GTK_WIDGET(handle->share_attributes_button),
     !editable
   );
 
@@ -885,6 +1092,7 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
   );
 
   gtk_list_store_clear(handle->attributes_list);
+  gtk_list_store_clear(handle->sharing_list);
 
   if (editable)
     GNUNET_CHAT_get_attributes(
@@ -893,11 +1101,26 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
       handle
     );
   else
+  {
     GNUNET_CHAT_contact_get_attributes(
       contact,
       cb_contact_info_contact_attributes,
       handle
     );
+
+    GNUNET_CHAT_get_attributes(
+      handle->app->chat.messenger.handle,
+      cb_contact_info_unshared_attributes,
+      handle
+    );
+
+    GNUNET_CHAT_get_shared_attributes(
+      handle->app->chat.messenger.handle,
+      contact,
+      cb_contact_info_shared_attributes,
+      handle
+    );
+  }
 
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
     contact
@@ -914,7 +1137,7 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
   );
 
   if (reveal)
-    _contact_info_reveal_identity(handle);
+    _contact_info_switch_stack_to(handle, handle->identity_box);
 }
 
 void
