@@ -470,6 +470,66 @@ handle_value_renderer_edit(GtkCellRendererText *renderer,
   g_value_unset(&value);
 }
 
+static void
+handle_attribute_entry_changed(GtkEditable *editable,
+                               gpointer user_data)
+{
+  g_assert((editable) && (user_data));
+
+  GtkEntry *entry = GTK_ENTRY(editable);
+  GtkWidget *target = GTK_WIDGET(user_data);
+
+  const gchar *text = gtk_entry_get_text(entry);
+
+  gtk_widget_set_sensitive(target, (text) && (strlen(text)));
+}
+
+static void
+handle_add_attribute_button_click(UNUSED GtkButton *button,
+                                  gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+
+  struct GNUNET_CHAT_Handle *chat = handle->app->chat.messenger.handle;
+
+  if (!chat)
+    return;
+
+  const gchar *name = gtk_entry_get_text(handle->attribute_name_entry);
+  const gchar *value = gtk_entry_get_text(handle->attribute_value_entry);
+
+  if ((name) && (value))
+  {
+    GNUNET_CHAT_set_attribute(chat, name, value, GNUNET_TIME_relative_get_forever_());
+    gtk_list_store_insert_with_values(
+      handle->attributes_list,
+      NULL,
+      -1,
+      0,
+      name,
+      1,
+      value,
+      -1
+    );
+  }
+
+  gtk_entry_set_text(handle->attribute_name_entry, "");
+  gtk_entry_set_text(handle->attribute_value_entry, "");
+}
+
+static void
+handle_attribute_value_entry_activate(UNUSED GtkEntry *entry,
+				                              gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+
+  handle_add_attribute_button_click(handle->add_attribute_button, handle);
+}
+
 void
 ui_contact_info_dialog_init(MESSENGER_Application *app,
                             UI_CONTACT_INFO_Handle *handle)
@@ -634,6 +694,50 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
     handle
   );
 
+  handle->new_attribute_box = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "new_attribute_box")
+  );
+
+  handle->attribute_name_entry = GTK_ENTRY(
+    gtk_builder_get_object(handle->builder, "attribute_name_entry")
+  );
+
+  handle->attribute_value_entry = GTK_ENTRY(
+    gtk_builder_get_object(handle->builder, "attribute_value_entry")
+  );
+
+  handle->add_attribute_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "add_attribute_button")
+  );
+
+  g_signal_connect(
+    handle->attribute_name_entry,
+    "changed",
+    G_CALLBACK(handle_attribute_entry_changed),
+    handle->attribute_value_entry
+  );
+
+  g_signal_connect(
+    handle->attribute_value_entry,
+    "changed",
+    G_CALLBACK(handle_attribute_entry_changed),
+    handle->add_attribute_button
+  );
+
+  g_signal_connect(
+    handle->attribute_value_entry,
+    "activate",
+    G_CALLBACK(handle_attribute_value_entry_activate),
+    handle
+  );
+
+  g_signal_connect(
+    handle->add_attribute_button,
+    "clicked",
+    G_CALLBACK(handle_add_attribute_button_click),
+    handle
+  );
+
   handle->back_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "back_button")
   );
@@ -686,6 +790,28 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
     G_OBJECT(handle->attributes_tree),
     handle->app->quarks.data,
     contact
+  );
+
+  const gboolean editable = (
+    (!contact) ||
+    (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
+  );
+
+  GValue value = G_VALUE_INIT;
+  g_value_init(&value, G_TYPE_BOOLEAN);
+  g_value_set_boolean(&value, editable);
+
+  g_object_set_property(
+    G_OBJECT(handle->value_renderer),
+    "editable",
+    &value
+  );
+
+  g_value_unset(&value);
+
+  gtk_widget_set_visible(
+    handle->new_attribute_box, 
+    editable
   );
 
   const char *key = GNUNET_CHAT_contact_get_key(contact);

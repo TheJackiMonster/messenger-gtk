@@ -65,6 +65,10 @@ typedef struct UI_CONTACT_INFO_Handle
   GtkTreeView *attributes_tree;
   GtkListStore *attributes_list;
   GtkCellRendererText *value_renderer;
+  GtkWidget *new_attribute_box;
+  GtkEntry *attribute_name_entry;
+  GtkEntry *attribute_value_entry;
+  GtkButton *add_attribute_button;
 
   GtkButton *back_button;
   GtkButton *close_button;

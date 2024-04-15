@@ -374,8 +374,6 @@ _cleanup_profile_contacts(void *cls,
 			                    UNUSED struct GNUNET_CHAT_Handle *handle,
 			                    struct GNUNET_CHAT_Contact *contact)
 {
-  g_assert((cls) && (contact));
-
   if (contact)
     contact_destroy_info(contact);
   return GNUNET_YES;
