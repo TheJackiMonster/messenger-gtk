@@ -245,7 +245,8 @@ ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle)
 {
   g_assert(handle);
 
-  g_object_unref(handle->builder);
+  if (handle->builder)
+    g_object_unref(handle->builder);
 
   guint show = handle->show_queued;
   memset(handle, 0, sizeof(*handle));

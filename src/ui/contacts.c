@@ -141,7 +141,7 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
   ui_contacts_dialog_cleanup((UI_CONTACTS_Handle*) user_data);
 }
 
-static int
+static enum GNUNET_GenericReturnValue
 _iterate_contacts(void *cls,
                   UNUSED struct GNUNET_CHAT_Handle *handle,
                   struct GNUNET_CHAT_Contact *contact)
@@ -257,7 +257,8 @@ ui_contacts_dialog_cleanup(UI_CONTACTS_Handle *handle)
 {
   g_assert(handle);
 
-  g_object_unref(handle->builder);
+  if (handle->builder)
+    g_object_unref(handle->builder);
 
   memset(handle, 0, sizeof(*handle));
 }

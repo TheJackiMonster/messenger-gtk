@@ -41,6 +41,7 @@
 #include "ui/contact_info.h"
 #include "ui/contacts.h"
 #include "ui/delete_messages.h"
+#include "ui/files.h"
 #include "ui/invite_contact.h"
 #include "ui/messenger.h"
 #include "ui/new_account.h"
@@ -133,6 +134,7 @@ typedef struct MESSENGER_Application
     UI_NEW_TAG_Handle new_tag;
 
     UI_ACCOUNTS_Handle accounts;
+    UI_FILES_Handle files;
     UI_CONTACTS_Handle contacts;
     UI_SETTINGS_Handle settings;
   } ui;

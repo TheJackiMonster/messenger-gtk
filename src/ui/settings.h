@@ -51,10 +51,13 @@ typedef struct UI_SETTINGS_Handle
   GtkSwitch *auto_accept_files_switch;
   GtkFileChooserButton *download_folder_button;
   GtkComboBox *delete_files_combo_box;
+  GtkButton *show_files_button;
   GtkButton *delete_files_button;
 
   GtkComboBox *leave_chats_combo_box;
   GtkButton *leave_chats_button;
+
+  gboolean open_files;
 } UI_SETTINGS_Handle;
 
 /**

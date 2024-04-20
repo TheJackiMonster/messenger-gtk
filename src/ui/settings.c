@@ -29,6 +29,7 @@
 #include "../ui.h"
 
 #include "contact_entry.h"
+#include "files.h"
 
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
@@ -174,12 +175,34 @@ handle_leave_chats_button_click(UNUSED GtkButton* button,
 }
 
 static void
+handle_show_files_button_click(UNUSED GtkButton* button,
+				                       gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_SETTINGS_Handle *handle = (UI_SETTINGS_Handle*) user_data;
+
+  handle->open_files = true;
+
+  gtk_window_close(GTK_WINDOW(handle->dialog));
+}
+
+static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
                       gpointer user_data)
 {
   g_assert(user_data);
 
-  ui_settings_dialog_cleanup((UI_SETTINGS_Handle*) user_data);
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+  UI_SETTINGS_Handle *handle = &(app->ui.settings);
+
+  if (handle->open_files)
+  {
+    ui_files_dialog_init(app, &(app->ui.files));
+    gtk_widget_show(GTK_WIDGET(app->ui.files.dialog));
+  }
+
+  ui_settings_dialog_cleanup(handle);
 }
 
 static void
@@ -509,6 +532,17 @@ ui_settings_dialog_init(MESSENGER_Application *app,
     &(app->settings.delete_files_delay)
   );
 
+  handle->show_files_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "show_files_button")
+  );
+
+  g_signal_connect(
+    handle->show_files_button,
+    "clicked",
+    G_CALLBACK(handle_show_files_button_click),
+    handle
+  );
+
   handle->delete_files_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "delete_files_button")
   );
@@ -544,7 +578,7 @@ ui_settings_dialog_init(MESSENGER_Application *app,
     handle->dialog,
     "destroy",
     G_CALLBACK(handle_dialog_destroy),
-    handle
+    app
   );
 }
 
@@ -553,7 +587,8 @@ ui_settings_dialog_cleanup(UI_SETTINGS_Handle *handle)
 {
   g_assert(handle);
 
-  g_object_unref(handle->builder);
+  if (handle->builder)
+    g_object_unref(handle->builder);
 
   memset(handle, 0, sizeof(*handle));
 }
