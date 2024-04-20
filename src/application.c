@@ -311,8 +311,10 @@ application_init(MESSENGER_Application *app,
   if (app->pw.context)
     pw_context_load_module(app->pw.context, "libpipewire-module-link-factory", NULL, NULL);
 
+#ifdef MESSENGER_APPLICATION_NO_PORTAL
   application_pw_core_init(app);
   application_pw_main_loop_run(app);
+#endif
 
   g_application_add_main_option(
     G_APPLICATION(app->application),
