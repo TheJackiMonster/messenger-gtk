@@ -123,7 +123,7 @@ handle_camera_combo_box_change(GtkComboBox *widget,
 
 static void
 _disable_video_processing(UI_NEW_CONTACT_Handle *handle,
-			                    gboolean drop_pipeline)
+                          gboolean drop_pipeline)
 {
   g_assert(handle);
 
@@ -132,8 +132,10 @@ _disable_video_processing(UI_NEW_CONTACT_Handle *handle,
 
   if (handle->camera_count)
     gtk_stack_set_visible_child(handle->preview_stack, handle->fail_box);
-  else
+  else if (drop_pipeline)
     gtk_stack_set_visible_child(handle->preview_stack, handle->no_camera_box);
+  else
+    gtk_stack_set_visible_child(handle->preview_stack, handle->loading_box);
 
 skip_stack:
   if ((!(handle->pipeline)) || (!drop_pipeline))
