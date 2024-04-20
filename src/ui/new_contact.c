@@ -389,6 +389,9 @@ _init_camera_pipeline(MESSENGER_Application *app,
   if (access)
 #endif
   {
+    if (!(app->pw.core))
+      application_pw_core_init(app);
+
     application_pw_main_loop_run(app);
 
     pw_map_for_each(&(app->pw.globals), iterate_global, handle);

@@ -197,6 +197,22 @@ void
 application_run(MESSENGER_Application *app);
 
 /**
+ * Initialize the pipewire core of the messenger 
+ * application if possible.
+ *
+ * @param app Messenger application
+ */
+void
+application_pw_core_init(MESSENGER_Application *app);
+
+/**
+ * Cleanups the pipewire core of the messenger
+ * application if available.
+ */
+void
+application_pw_core_cleanup(MESSENGER_Application *app);
+
+/**
  * Run the pipewire main loop of the messenger 
  * application if available.
  *

@@ -311,28 +311,7 @@ application_init(MESSENGER_Application *app,
   if (app->pw.context)
     pw_context_load_module(app->pw.context, "libpipewire-module-link-factory", NULL, NULL);
 
-  app->pw.core = app->pw.context? pw_context_connect(app->pw.context, NULL, 0) : NULL;
-  app->pw.registry = app->pw.core? 
-    pw_core_get_registry(app->pw.core, PW_VERSION_REGISTRY, 0) : NULL;
-
-  pw_map_init(&(app->pw.globals), 64, 16);
-
-  if (app->pw.core)
-    pw_core_add_listener(
-      app->pw.core,
-      &(app->pw.core_listener),
-      &remote_core_events,
-      app
-    );
-
-  if (app->pw.registry)
-    pw_registry_add_listener(
-      app->pw.registry,
-      &(app->pw.registry_listener),
-      &registry_events,
-      app
-    );
-
+  application_pw_core_init(app);
   application_pw_main_loop_run(app);
 
   g_application_add_main_option(
@@ -494,6 +473,84 @@ application_run(MESSENGER_Application *app)
 }
 
 void
+application_pw_core_init(MESSENGER_Application *app)
+{
+  g_assert(app);
+
+  application_pw_core_cleanup(app);
+
+  if (app->pw.context)
+  {
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+    if (app->portal)
+      app->pw.core = pw_context_connect_fd(
+        app->pw.context,
+        xdp_portal_open_pipewire_remote_for_camera(app->portal),
+        NULL,
+        0
+      );
+    else
+#endif
+    app->pw.core = pw_context_connect(app->pw.context, NULL, 0);
+  }
+  else
+    app->pw.core = NULL;
+
+  app->pw.registry = app->pw.core? 
+    pw_core_get_registry(app->pw.core, PW_VERSION_REGISTRY, 0) : NULL;
+
+  pw_map_init(&(app->pw.globals), 64, 16);
+
+  if (app->pw.core)
+    pw_core_add_listener(
+      app->pw.core,
+      &(app->pw.core_listener),
+      &remote_core_events,
+      app
+    );
+
+  if (app->pw.registry)
+    pw_registry_add_listener(
+      app->pw.registry,
+      &(app->pw.registry_listener),
+      &registry_events,
+      app
+    );
+}
+
+static int
+destroy_global(void *obj,
+               UNUSED void *data)
+{
+  struct pw_properties *properties = (struct pw_properties*) obj;
+
+  if (!properties)
+    return 0;
+
+	pw_properties_free(properties);
+	return 0;
+}
+
+void
+application_pw_core_cleanup(MESSENGER_Application *app)
+{
+  g_assert(app);
+
+  if (app->pw.registry)
+    pw_proxy_destroy((struct pw_proxy*) app->pw.registry);
+
+  app->pw.registry = NULL;
+
+  pw_map_for_each(&(app->pw.globals), destroy_global, NULL);
+  pw_map_clear(&(app->pw.globals));
+
+  if (app->pw.core)
+    pw_core_disconnect(app->pw.core);
+
+  app->pw.core = NULL;
+}
+
+void
 application_pw_main_loop_run(MESSENGER_Application *app)
 {
   g_assert(app);
@@ -633,19 +690,6 @@ application_call_message_event(MESSENGER_Application *app,
   g_idle_add(G_SOURCE_FUNC(_application_message_event_call), call);
 }
 
-static int
-destroy_global(void *obj,
-               UNUSED void *data)
-{
-  struct pw_properties *properties = (struct pw_properties*) obj;
-
-  if (!properties)
-    return 0;
-
-	pw_properties_free(properties);
-	return 0;
-}
-
 void
 application_exit(MESSENGER_Application *app,
 		             MESSENGER_ApplicationSignal signal)
@@ -656,21 +700,7 @@ application_exit(MESSENGER_Application *app,
   // GNUnet handles of the application.
   write(app->chat.pipe[1], &signal, sizeof(signal));
 
-#ifndef MESSENGER_APPLICATION_NO_PORTAL
-  if (app->portal)
-    g_object_unref(app->portal);
-
-  app->portal = NULL;
-#endif
-
-  if (app->pw.registry)
-    pw_proxy_destroy((struct pw_proxy*) app->pw.registry);
-
-  pw_map_for_each(&(app->pw.globals), destroy_global, NULL);
-  pw_map_clear(&(app->pw.globals));
-
-  if (app->pw.core)
-    pw_core_disconnect(app->pw.core);
+  application_pw_core_cleanup(app);
 
   if (app->pw.context)
     pw_context_destroy(app->pw.context);
@@ -680,6 +710,13 @@ application_exit(MESSENGER_Application *app,
     pw_main_loop_quit(app->pw.main_loop);
     pw_main_loop_destroy(app->pw.main_loop);
   }
+
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+  if (app->portal)
+    g_object_unref(app->portal);
+
+  app->portal = NULL;
+#endif
 
   gst_deinit();
   pw_deinit();
