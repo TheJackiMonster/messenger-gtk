@@ -27,6 +27,7 @@
 #include "file_entry.h"
 #include "../application.h"
 #include "../ui.h"
+#include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
 
 static void
@@ -64,6 +65,27 @@ handle_files_listbox_row_activated(UNUSED GtkListBox* listbox,
     return;
 
   UI_FILES_Handle *handle = &(app->ui.files);
+
+  struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File*) (
+    g_object_get_qdata(G_OBJECT(row), app->quarks.data)
+  );
+
+  const gdouble progress = (
+    (gdouble) GNUNET_CHAT_file_get_local_size(file) /
+    GNUNET_CHAT_file_get_size(file)
+  );
+
+  gtk_progress_bar_set_fraction(handle->storage_progress_bar, progress);
+
+  if (GNUNET_YES == GNUNET_CHAT_file_is_downloading(file))
+    gtk_stack_set_visible_child(handle->play_icon_stack, handle->pause_icon_image);
+  else
+    gtk_stack_set_visible_child(handle->play_icon_stack, handle->play_icon_image);
+
+  gtk_widget_set_visible(
+    GTK_WIDGET(handle->play_pause_button),
+    GNUNET_YES != GNUNET_CHAT_file_is_ready(file)
+  );
 
   UI_FILE_ENTRY_Handle *entry = (UI_FILE_ENTRY_Handle*) (
     g_object_get_qdata(G_OBJECT(row), app->quarks.ui)

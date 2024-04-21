@@ -47,6 +47,7 @@ typedef struct UI_CONTACT_INFO_Handle
   GtkButton *contact_edit_button;
   GtkImage *contact_edit_symbol;
 
+  GtkFileChooserButton *profile_chooser_button;
   GtkButton *reveal_identity_button;
   GtkButton *list_attributes_button;
   GtkButton *share_attributes_button;

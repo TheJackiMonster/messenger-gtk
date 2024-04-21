@@ -118,8 +118,6 @@ Author: Tobias Frisch
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">center</property>
-                            <property name="margin-left">32</property>
-                            <property name="margin-start">32</property>
                             <property name="margin-top">8</property>
                             <property name="margin-bottom">8</property>
                             <property name="icon-name">avatar-default-symbolic</property>
@@ -190,6 +188,17 @@ Author: Tobias Frisch
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkFileChooserButton" id="profile_chooser_button">
+                            <property name="can-focus">False</property>
+                            <property name="title" translatable="yes"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkButton" id="reveal_identity_button">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
@@ -231,7 +240,7 @@ Author: Tobias Frisch
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">3</property>
+                            <property name="position">4</property>
                           </packing>
                         </child>
                         <child>
@@ -275,7 +284,7 @@ Author: Tobias Frisch
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">4</property>
+                            <property name="position">5</property>
                           </packing>
                         </child>
                         <child>
@@ -319,7 +328,7 @@ Author: Tobias Frisch
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">5</property>
+                            <property name="position">6</property>
                           </packing>
                         </child>
                         <child>
@@ -419,7 +428,7 @@ Author: Tobias Frisch
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">6</property>
+                            <property name="position">7</property>
                           </packing>
                         </child>
                         <child>
@@ -464,7 +473,7 @@ Author: Tobias Frisch
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">7</property>
+                            <property name="position">8</property>
                           </packing>
                         </child>
                       </object>
@@ -589,7 +598,9 @@ Author: Tobias Frisch
                                 <property name="sort-indicator">True</property>
                                 <property name="sort-column-id">0</property>
                                 <child>
-                                  <object class="GtkCellRendererText"/>
+                                  <object class="GtkCellRendererText">
+                                    <property name="ellipsize">end</property>
+                                  </object>
                                   <attributes>
                                     <attribute name="text">0</attribute>
                                   </attributes>
@@ -605,6 +616,7 @@ Author: Tobias Frisch
                                 <child>
                                   <object class="GtkCellRendererText" id="value_renderer">
                                     <property name="editable">True</property>
+                                    <property name="ellipsize">end</property>
                                   </object>
                                   <attributes>
                                     <attribute name="text">1</attribute>
