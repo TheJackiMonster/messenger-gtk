@@ -523,6 +523,30 @@ _update_invitation_message(UI_MESSAGE_Handle *handle,
 }
 
 static void
+_update_message_with_file(UI_MESSAGE_Handle *handle,
+                          MESSENGER_Application *app,
+                          struct GNUNET_CHAT_File *file)
+{
+  g_assert(handle);
+
+  struct GNUNET_CHAT_File *prev = g_object_get_qdata(
+    G_OBJECT(handle->preview_drawing_area),
+    app->quarks.data
+  );
+
+  if (prev)
+    file_remove_widget_from_preview(file, GTK_WIDGET(handle->preview_drawing_area));
+  if (file)
+    file_add_widget_to_preview(file, GTK_WIDGET(handle->preview_drawing_area));
+
+  g_object_set_qdata(
+    G_OBJECT(handle->preview_drawing_area),
+    app->quarks.data,
+    file
+  );
+}
+
+static void
 _update_file_message(UI_MESSAGE_Handle *handle,
 		                 MESSENGER_Application *app,
 		                 struct GNUNET_CHAT_File *file)
@@ -572,7 +596,7 @@ _update_file_message(UI_MESSAGE_Handle *handle,
       GTK_WIDGET(handle->preview_drawing_area)
     );
 
-    file_add_widget_to_preview(file, GTK_WIDGET(handle->preview_drawing_area));
+    _update_message_with_file(handle, app, file);
     return;
   }
 
@@ -819,6 +843,7 @@ ui_message_delete(UI_MESSAGE_Handle *handle,
 {
   g_assert((handle) && (app));
 
+  _update_message_with_file(handle, app, NULL);
   ui_message_set_contact(handle, NULL);
 
   GList *children = gtk_container_get_children(GTK_CONTAINER(handle->tag_flow_box));
@@ -836,14 +861,6 @@ ui_message_delete(UI_MESSAGE_Handle *handle,
 
   if (children)
     g_list_free(children);
-
-  struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File *) g_object_get_qdata(
-    G_OBJECT(handle->message_box),
-    app->quarks.data
-  );
-
-  if (file)
-    file_remove_widget_from_preview(file, GTK_WIDGET(handle->preview_drawing_area));
 
   g_object_unref(handle->builder[1]);
   g_object_unref(handle->builder[0]);
