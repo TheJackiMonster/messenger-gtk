@@ -356,13 +356,6 @@ event_update_profile(MESSENGER_Application *app)
 
   ui_label_set_text(ui->profile_key_label, key);
 
-  GList *entries = gtk_container_get_children(
-    GTK_CONTAINER(ui->chats_listbox)
-  );
-
-  g_list_foreach(entries, (GFunc) _clear_chat_entry, app);
-  g_list_free(entries);
-
   gtk_stack_set_visible_child(ui->chats_stack, ui->no_chat_box);
 
   GNUNET_CHAT_iterate_contacts(chat->handle, _iterate_profile_contacts, app);
@@ -384,7 +377,15 @@ event_cleanup_profile(MESSENGER_Application *app)
 {
   g_assert(app);
 
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
+
+  GList *entries = gtk_container_get_children(
+    GTK_CONTAINER(ui->chats_listbox)
+  );
+
+  g_list_foreach(entries, (GFunc) _clear_chat_entry, app);
+  g_list_free(entries);
 
   GNUNET_CHAT_iterate_contacts(chat->handle, _cleanup_profile_contacts, NULL);
 }

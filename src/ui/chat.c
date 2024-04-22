@@ -2251,14 +2251,14 @@ ui_chat_delete(UI_CHAT_Handle *handle)
 
   ui_picker_delete(handle->picker);
 
-  g_object_unref(handle->builder);
-
   if (handle->loads)
     g_list_free_full(handle->loads, (GDestroyNotify) ui_file_load_entry_delete);
 
   _chat_update_contacts(handle, handle->app, NULL);
   _chat_update_files(handle, handle->app, NULL);
   _chat_update_media(handle, handle->app, NULL);
+
+  g_object_unref(handle->builder);
 
   if (handle->record_pipeline)
   {
