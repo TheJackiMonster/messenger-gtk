@@ -519,16 +519,53 @@ cb_contact_info_contact_attributes(void *cls,
 
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) cls;
 
-  gtk_list_store_insert_with_values(
-    handle->attributes_list,
-    NULL,
-    -1,
-    0,
-    name,
-    1,
-    value,
-    -1
-  );
+  GtkTreeModel *model = GTK_TREE_MODEL(handle->attributes_list);
+  GtkTreeIter iter;
+
+  GValue val_name = G_VALUE_INIT;
+  GValue val_value = G_VALUE_INIT;
+
+  gboolean valid = gtk_tree_model_get_iter_first(model, &iter);
+  gboolean match = FALSE;
+
+  while (valid)
+  {
+    gtk_tree_model_get_value(model, &iter, 0, &val_name);
+    gtk_tree_model_get_value(model, &iter, 1, &val_value);
+    
+    if (0 == strcmp(g_value_get_string(&val_name), name))
+    {
+      gtk_list_store_set(
+        handle->attributes_list,
+        &iter,
+        1,
+        g_value_get_string(&val_value),
+        -1
+      );
+      
+      match = TRUE;
+    }
+
+    g_value_unset(&val_name);
+    g_value_unset(&val_value);
+
+    if (match)
+      break;
+
+    valid = gtk_tree_model_iter_next(model, &iter);
+  }
+
+  if (!match)
+    gtk_list_store_insert_with_values(
+      handle->attributes_list,
+      NULL,
+      -1,
+      0,
+      name,
+      1,
+      value,
+      -1
+    );
 
   return GNUNET_YES;
 }
