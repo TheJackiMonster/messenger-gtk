@@ -29,11 +29,11 @@
 #include <gnunet/gnunet_common.h>
 #include <string.h>
 
-void
+enum GNUNET_GenericReturnValue
 contact_create_info(struct GNUNET_CHAT_Contact *contact)
 {
   if ((!contact) || (GNUNET_CHAT_contact_get_user_pointer(contact)))
-    return;
+    return GNUNET_NO;
 
   MESSENGER_ContactInfo* info = g_malloc(sizeof(MESSENGER_ContactInfo));
 
@@ -45,6 +45,7 @@ contact_create_info(struct GNUNET_CHAT_Contact *contact)
   info->visible_widgets = NULL;
 
   GNUNET_CHAT_contact_set_user_pointer(contact, info);
+  return GNUNET_YES;
 }
 
 void

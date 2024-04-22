@@ -27,7 +27,9 @@
 #include "message.h"
 
 #include "../application.h"
+#include "../contact.h"
 #include "../ui.h"
+
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_time_lib.h>
 
@@ -74,6 +76,37 @@ ui_chat_entry_new(MESSENGER_Application *app)
   return handle;
 }
 
+static void
+_chat_entry_update_contact(UI_CHAT_ENTRY_Handle *handle,
+                           MESSENGER_Application *app,
+                           struct GNUNET_CHAT_Contact* contact)
+{
+  g_assert((handle) && (app));
+
+  struct GNUNET_CHAT_Contact *prev = g_object_get_qdata(
+    G_OBJECT(handle->entry_avatar),
+    app->quarks.data
+  );
+
+  if (prev)
+  {
+    contact_remove_name_label_from_info(contact, handle->title_label);
+    contact_remove_name_avatar_from_info(contact, handle->entry_avatar);
+  }
+  
+  if (contact)
+  {
+    contact_add_name_label_to_info(contact, handle->title_label);
+    contact_add_name_avatar_to_info(contact, handle->entry_avatar);
+  }
+
+  g_object_set_qdata(
+    G_OBJECT(handle->entry_avatar),
+    app->quarks.data,
+    contact
+  );
+}
+
 void
 ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 		                 MESSENGER_Application *app,
@@ -81,32 +114,31 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 {
   g_assert((handle) && (app));
 
-  const struct GNUNET_CHAT_Contact* contact;
-  const struct GNUNET_CHAT_Group* group;
+  struct GNUNET_CHAT_Contact* contact;
+  struct GNUNET_CHAT_Group* group;
 
   contact = GNUNET_CHAT_context_get_contact(context);
   group = GNUNET_CHAT_context_get_group(context);
 
-  const char *title = NULL;
   const char *icon = "action-unavailable-symbolic";
 
+  _chat_entry_update_contact(handle, app, contact);
+
   if (contact)
-  {
-    title = GNUNET_CHAT_contact_get_name(contact);
     icon = "avatar-default-symbolic";
-  }
   else if (group)
   {
-    title = GNUNET_CHAT_group_get_name(group);
+    const char *title = GNUNET_CHAT_group_get_name(group);
 
     if ((title) && ('#' == *title))
       icon = "network-wired-symbolic";
     else
       icon = "system-users-symbolic";
+
+    ui_label_set_text(handle->title_label, title);
+    ui_avatar_set_text(handle->entry_avatar, title);
   }
 
-  ui_label_set_text(handle->title_label, title);
-  ui_avatar_set_text(handle->entry_avatar, title);
   hdy_avatar_set_icon_name(handle->entry_avatar, icon);
 
   if (!(handle->chat))
@@ -239,6 +271,8 @@ ui_chat_entry_dispose(UI_CHAT_ENTRY_Handle *handle,
 
   if (context)
     GNUNET_CHAT_context_set_user_pointer(context, NULL);
+
+  _chat_entry_update_contact(handle, app, NULL);
 
   gtk_container_remove(
     GTK_CONTAINER(ui->chats_stack),

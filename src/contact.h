@@ -46,8 +46,9 @@ typedef struct MESSENGER_ContactInfo
  * once.
  *
  * @param contact Chat contact
+ * @return #GNUNET_YES on info creation, otherwise #GNUNET_NO
  */
-void
+enum GNUNET_GenericReturnValue
 contact_create_info(struct GNUNET_CHAT_Contact *contact);
 
 /**

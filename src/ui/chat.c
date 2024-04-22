@@ -41,6 +41,7 @@
 #include "delete_messages.h"
 
 #include "../application.h"
+#include "../contact.h"
 #include "../file.h"
 #include "../ui.h"
 
@@ -2089,6 +2090,43 @@ _chat_update_media(UI_CHAT_Handle *handle,
   );
 }
 
+static void
+_chat_update_contact(UI_CHAT_Handle *handle,
+                     MESSENGER_Application *app,
+                     struct GNUNET_CHAT_Contact* contact)
+{
+  g_assert((handle) && (app));
+
+  struct GNUNET_CHAT_Contact *prev = g_object_get_qdata(
+    G_OBJECT(handle->chat_avatar),
+    app->quarks.data
+  );
+
+  if (prev)
+  {
+    contact_remove_name_label_from_info(contact, handle->chat_title);
+    contact_remove_name_avatar_from_info(contact, handle->chat_avatar);
+
+    contact_remove_name_label_from_info(contact, handle->chat_details_label);
+    contact_remove_name_avatar_from_info(contact, handle->chat_details_avatar);
+  }
+  
+  if (contact)
+  {
+    contact_add_name_label_to_info(contact, handle->chat_title);
+    contact_add_name_avatar_to_info(contact, handle->chat_avatar);
+
+    contact_add_name_label_to_info(contact, handle->chat_details_label);
+    contact_add_name_avatar_to_info(contact, handle->chat_details_avatar);
+  }
+
+  g_object_set_qdata(
+    G_OBJECT(handle->chat_avatar),
+    app->quarks.data,
+    contact
+  );
+}
+
 void
 ui_chat_update(UI_CHAT_Handle *handle,
                MESSENGER_Application *app,
@@ -2102,19 +2140,17 @@ ui_chat_update(UI_CHAT_Handle *handle,
   contact = GNUNET_CHAT_context_get_contact(context);
   group = GNUNET_CHAT_context_get_group(context);
 
-  const char *title = NULL;
   const char *icon = "action-unavailable-symbolic";
 
   GString *subtitle = g_string_new("");
 
+  _chat_update_contact(handle, app, contact);
+
   if (contact)
-  {
-    title = GNUNET_CHAT_contact_get_name(contact);
     icon = "avatar-default-symbolic";
-  }
   else if (group)
   {
-    title = GNUNET_CHAT_group_get_name(group);
+    const char *title = GNUNET_CHAT_group_get_name(group);
 
     if ((title) && ('#' == *title))
       icon = "network-wired-symbolic";
@@ -2126,16 +2162,16 @@ ui_chat_update(UI_CHAT_Handle *handle,
       _("%d members"),
       GNUNET_CHAT_group_iterate_contacts(group, NULL, NULL)
     );
+
+    ui_label_set_text(handle->chat_title, title);
+    ui_avatar_set_text(handle->chat_avatar, title);
+    
+    ui_label_set_text(handle->chat_details_label, title);
+    ui_avatar_set_text(handle->chat_details_avatar, title);
   }
 
-  ui_avatar_set_text(handle->chat_avatar, title);
   hdy_avatar_set_icon_name(handle->chat_avatar, icon);
-
-  ui_avatar_set_text(handle->chat_details_avatar, title);
   hdy_avatar_set_icon_name(handle->chat_details_avatar, icon);
-
-  ui_label_set_text(handle->chat_title, title);
-  ui_label_set_text(handle->chat_details_label, title);
 
   if (subtitle->len > 0)
     gtk_label_set_text(handle->chat_subtitle, subtitle->str);
@@ -2224,6 +2260,8 @@ void
 ui_chat_delete(UI_CHAT_Handle *handle)
 {
   g_assert(handle);
+
+  _chat_update_contact(handle, handle->app, NULL);
 
   GList *message_rows = gtk_container_get_children(GTK_CONTAINER(handle->messages_listbox));
   GList *row_element = message_rows;

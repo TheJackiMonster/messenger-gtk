@@ -445,8 +445,8 @@ event_update_chats(MESSENGER_Application *app,
   if (!contact)
     return;
 
-  contact_create_info(contact);
-  contact_update_attributes(contact, app);
+  if (GNUNET_YES == contact_create_info(contact))
+    contact_update_attributes(contact, app);
 }
 
 static void
@@ -560,7 +560,7 @@ event_update_contacts(UNUSED MESSENGER_Application *app,
 		                  struct GNUNET_CHAT_Context *context,
 		                  const struct GNUNET_CHAT_Message *msg)
 {
-  g_assert((app) && (context) && (msg));
+  g_assert((app) && (msg));
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
     msg
@@ -574,6 +574,9 @@ event_update_contacts(UNUSED MESSENGER_Application *app,
 
   contact_update_info(contact);
   _update_contact_context(contact);
+
+  if (!context)
+    return;
 
   UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
 
