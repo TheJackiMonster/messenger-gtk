@@ -117,6 +117,8 @@ ui_media_preview_new(MESSENGER_Application *app)
 
   UI_MEDIA_PREVIEW_Handle* handle = g_malloc(sizeof(UI_MEDIA_PREVIEW_Handle));
 
+  handle->file = NULL;
+
   handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/media_preview.ui")
   );
@@ -145,24 +147,18 @@ void
 ui_media_preview_update(UI_MEDIA_PREVIEW_Handle *handle,
                         struct GNUNET_CHAT_File *file)
 {
-  g_assert((handle) && (file));
+  g_assert(handle);
 
-  struct GNUNET_CHAT_File *previous = (struct GNUNET_CHAT_File *) g_object_get_qdata(
-    G_OBJECT(handle->preview_drawing_area),
-    handle->app->quarks.data
-  );
+  if (handle->file)
+    file_remove_widget_from_preview(handle->file, GTK_WIDGET(handle->preview_drawing_area));
 
-  if (previous)
-    file_remove_widget_from_preview(previous, GTK_WIDGET(handle->preview_drawing_area));
+  if (file)
+  {
+    file_load_preview_image(file);
+    file_add_widget_to_preview(file, GTK_WIDGET(handle->preview_drawing_area));
+  }
 
-  file_load_preview_image(file);
-  file_add_widget_to_preview(file, GTK_WIDGET(handle->preview_drawing_area));
-
-  g_object_set_qdata(
-    G_OBJECT(handle->preview_drawing_area),
-    handle->app->quarks.data,
-    file
-  );
+  handle->file = file;
 }
 
 void
@@ -170,13 +166,7 @@ ui_media_preview_delete(UI_MEDIA_PREVIEW_Handle *handle)
 {
   g_assert(handle);
 
-  struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File *) g_object_get_qdata(
-    G_OBJECT(handle->preview_drawing_area),
-    handle->app->quarks.data
-  );
-
-  if (file)
-    file_remove_widget_from_preview(file, GTK_WIDGET(handle->preview_drawing_area));
+  ui_media_preview_update(handle, NULL);
 
   g_object_unref(handle->builder);
 

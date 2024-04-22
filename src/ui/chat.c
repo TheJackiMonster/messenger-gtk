@@ -2036,11 +2036,10 @@ iterate_ui_chat_update_context_media(void *cls,
   );
 
   g_object_set_qdata(G_OBJECT(child), closure->app->quarks.data, file);
-  g_object_set_qdata_full(
+  g_object_set_qdata(
     G_OBJECT(child),
     closure->app->quarks.ui,
-    handle,
-    (GDestroyNotify) ui_media_preview_delete
+    handle
   );
 
   gtk_widget_set_size_request(GTK_WIDGET(child), 80, 80);
@@ -2064,6 +2063,13 @@ _chat_update_media(UI_CHAT_Handle *handle,
   while (item) {
     GtkWidget *widget = GTK_WIDGET(item->data);
     item = item->next;
+
+    UI_MEDIA_PREVIEW_Handle *media = g_object_get_qdata(
+      G_OBJECT(widget),
+      app->quarks.ui
+    );
+
+    ui_media_preview_delete(media);
 
     gtk_container_remove(
       GTK_CONTAINER(handle->chat_media_flowbox),
@@ -2289,12 +2295,12 @@ ui_chat_delete(UI_CHAT_Handle *handle)
 
   ui_picker_delete(handle->picker);
 
+  _chat_update_contacts(handle, handle->app, NULL);
+  _chat_update_media(handle, handle->app, NULL);
+  _chat_update_files(handle, handle->app, NULL);
+
   if (handle->loads)
     g_list_free_full(handle->loads, (GDestroyNotify) ui_file_load_entry_delete);
-
-  _chat_update_contacts(handle, handle->app, NULL);
-  _chat_update_files(handle, handle->app, NULL);
-  _chat_update_media(handle, handle->app, NULL);
 
   g_object_unref(handle->builder);
 

@@ -387,7 +387,7 @@ handle_main_window_destroy(UNUSED GtkWidget *window,
 #endif
 
   ui_messenger_cleanup(&(app->ui.messenger));
-  ui_accounts_dialog_cleanup(&(app->ui.accounts));
+  ui_accounts_dialog_cleanup(&(app->ui.accounts), app);
 
   application_exit(app, MESSENGER_QUIT);
 }

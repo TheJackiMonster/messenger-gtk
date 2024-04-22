@@ -139,11 +139,10 @@ _iterate_accounts(void *cls,
 
   g_object_set_qdata(G_OBJECT(row), app->quarks.data, account);
 
-  g_object_set_qdata_full(
+  g_object_set_qdata(
     G_OBJECT(row),
     app->quarks.ui,
-    entry,
-    (GDestroyNotify) ui_account_entry_delete
+    entry
   );
 
   return GNUNET_YES;
@@ -200,14 +199,11 @@ ui_accounts_dialog_init(MESSENGER_Application *app,
   );
 }
 
-void
-ui_accounts_dialog_refresh(MESSENGER_Application *app,
-			                     UI_ACCOUNTS_Handle *handle)
+static void
+_ui_accounts_cleanup_listbox(UI_ACCOUNTS_Handle *handle,
+                             MESSENGER_Application *app)
 {
-  g_assert((app) && (handle));
-
-  if (!(handle->accounts_listbox))
-    return;
+  g_assert(handle);
 
   GList *list = gtk_container_get_children(
     GTK_CONTAINER(handle->accounts_listbox)
@@ -221,6 +217,13 @@ ui_accounts_dialog_refresh(MESSENGER_Application *app,
     if ((!row) || (!gtk_list_box_row_get_selectable(row)))
       goto skip_row;
 
+    UI_ACCOUNT_ENTRY_Handle *entry = g_object_get_qdata(
+      G_OBJECT(row),
+      app->quarks.ui
+    );
+
+    ui_account_entry_delete(entry);
+
     gtk_container_remove(
       GTK_CONTAINER(handle->accounts_listbox),
       GTK_WIDGET(row)
@@ -232,6 +235,18 @@ ui_accounts_dialog_refresh(MESSENGER_Application *app,
 
   if (list)
     g_list_free(list);
+}
+
+void
+ui_accounts_dialog_refresh(MESSENGER_Application *app,
+			                     UI_ACCOUNTS_Handle *handle)
+{
+  g_assert((app) && (handle));
+
+  if (!(handle->accounts_listbox))
+    return;
+
+  _ui_accounts_cleanup_listbox(handle, app);
 
   GNUNET_CHAT_iterate_accounts(
     app->chat.messenger.handle,
@@ -241,12 +256,17 @@ ui_accounts_dialog_refresh(MESSENGER_Application *app,
 }
 
 void
-ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle)
+ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle,
+                           MESSENGER_Application *app)
 {
-  g_assert(handle);
+  g_assert((handle) && (app));
 
   if (handle->builder)
+  {
+    _ui_accounts_cleanup_listbox(handle, app);
+
     g_object_unref(handle->builder);
+  }
 
   guint show = handle->show_queued;
   memset(handle, 0, sizeof(*handle));

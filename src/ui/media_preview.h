@@ -31,6 +31,8 @@
 
 typedef struct UI_MEDIA_PREVIEW_Handle
 {
+  const struct GNUNET_CHAT_File *file;
+
   GtkBuilder *builder;
 
   GtkWidget *media_box;

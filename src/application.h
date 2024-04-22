@@ -253,6 +253,17 @@ application_call_event(MESSENGER_Application *app,
                        MESSENGER_ApplicationEvent event);
 
 /**
+ * Calls a given event with the messenger application
+ * syncronously.
+ *
+ * @param app Messenger application
+ * @param event Event
+ */
+void
+application_call_sync_event(MESSENGER_Application *app,
+		                        MESSENGER_ApplicationEvent event);
+
+/**
  * Calls a given message event with the messenger
  * application asyncronously but explicitly synchronized
  * via mutex.

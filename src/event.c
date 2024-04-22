@@ -309,6 +309,29 @@ _iterate_profile_groups(void *cls,
   return GNUNET_YES;
 }
 
+void
+event_update_profile(MESSENGER_Application *app)
+{
+  g_assert(app);
+
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+  CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
+
+  const char *name = GNUNET_CHAT_get_name(chat->handle);
+
+  ui_avatar_set_text(ui->profile_avatar, name);
+  ui_label_set_text(ui->profile_label, name);
+
+  const char *key = GNUNET_CHAT_get_key(chat->handle);
+
+  ui_label_set_text(ui->profile_key_label, key);
+
+  gtk_stack_set_visible_child(ui->chats_stack, ui->no_chat_box);
+
+  GNUNET_CHAT_iterate_contacts(chat->handle, _iterate_profile_contacts, app);
+  GNUNET_CHAT_iterate_groups(chat->handle, _iterate_profile_groups, app);
+}
+
 static void
 _clear_chat_entry(GtkWidget *widget,
 		              gpointer user_data)
@@ -339,29 +362,6 @@ _clear_chat_entry(GtkWidget *widget,
   ui_chat_entry_dispose(entry, app);
 }
 
-void
-event_update_profile(MESSENGER_Application *app)
-{
-  g_assert(app);
-
-  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
-  CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
-
-  const char *name = GNUNET_CHAT_get_name(chat->handle);
-
-  ui_avatar_set_text(ui->profile_avatar, name);
-  ui_label_set_text(ui->profile_label, name);
-
-  const char *key = GNUNET_CHAT_get_key(chat->handle);
-
-  ui_label_set_text(ui->profile_key_label, key);
-
-  gtk_stack_set_visible_child(ui->chats_stack, ui->no_chat_box);
-
-  GNUNET_CHAT_iterate_contacts(chat->handle, _iterate_profile_contacts, app);
-  GNUNET_CHAT_iterate_groups(chat->handle, _iterate_profile_groups, app);
-}
-
 static int
 _cleanup_profile_contacts(void *cls,
 			                    UNUSED struct GNUNET_CHAT_Handle *handle,
@@ -369,6 +369,16 @@ _cleanup_profile_contacts(void *cls,
 {
   if (contact)
     contact_destroy_info(contact);
+  return GNUNET_YES;
+}
+
+static int
+_cleanup_profile_files(void *cls,
+			                    UNUSED struct GNUNET_CHAT_Handle *handle,
+			                    struct GNUNET_CHAT_File *file)
+{
+  if (file)
+    file_destroy_info(file);
   return GNUNET_YES;
 }
 
@@ -388,6 +398,7 @@ event_cleanup_profile(MESSENGER_Application *app)
   g_list_free(entries);
 
   GNUNET_CHAT_iterate_contacts(chat->handle, _cleanup_profile_contacts, NULL);
+  GNUNET_CHAT_iterate_files(chat->handle, _cleanup_profile_files, NULL);
 }
 
 gboolean

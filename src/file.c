@@ -58,6 +58,9 @@ file_destroy_info(struct GNUNET_CHAT_File *file)
   if (!info)
     return;
 
+  if (info->preview_widgets)
+    g_list_free(info->preview_widgets);
+
   file_unload_preview_image(file);
 
   if (info->update_task)
@@ -115,7 +118,8 @@ file_remove_widget_from_preview(const struct GNUNET_CHAT_File *file,
   if (!info)
     return;
 
-  info->preview_widgets = g_list_remove(info->preview_widgets, widget);
+  if (info->preview_widgets)
+    info->preview_widgets = g_list_remove(info->preview_widgets, widget);
 
   if (!(info->preview_widgets))
     file_unload_preview_image(file);

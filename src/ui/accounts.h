@@ -66,8 +66,10 @@ ui_accounts_dialog_refresh(MESSENGER_Application *app,
  * state of a given accounts dialog handle.
  *
  * @param handle Accounts dialog handle
+ * @param app Messenger application
  */
 void
-ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle);
+ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle,
+                           MESSENGER_Application *app);
 
 #endif /* UI_ACCOUNTS_H_ */

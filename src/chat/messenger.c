@@ -114,7 +114,7 @@ _chat_messenger_message(void *cls,
     }
     case GNUNET_CHAT_KIND_LOGOUT:
     {
-      application_call_event(app, event_cleanup_profile);
+      application_call_sync_event(app, event_cleanup_profile);
       break;
     }
     case GNUNET_CHAT_KIND_UPDATE:

@@ -642,6 +642,15 @@ application_call_event(MESSENGER_Application *app,
   g_timeout_add(0, G_SOURCE_FUNC(_application_event_call), call);
 }
 
+void
+application_call_sync_event(MESSENGER_Application *app,
+		                        MESSENGER_ApplicationEvent event)
+{
+  g_assert((app) && (event));
+
+  event(app);
+}
+
 typedef struct MESSENGER_ApplicationMessageEventCall
 {
   MESSENGER_Application *app;
