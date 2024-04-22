@@ -25,6 +25,9 @@
 #include "contact.h"
 
 #include "ui.h"
+#include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_common.h>
+#include <string.h>
 
 void
 contact_create_info(struct GNUNET_CHAT_Contact *contact)
@@ -35,6 +38,7 @@ contact_create_info(struct GNUNET_CHAT_Contact *contact)
   MESSENGER_ContactInfo* info = g_malloc(sizeof(MESSENGER_ContactInfo));
 
   info->last_message = NULL;
+  info->icon = NULL;
 
   info->name_labels = NULL;
   info->name_avatars = NULL;
@@ -61,6 +65,9 @@ contact_destroy_info(struct GNUNET_CHAT_Contact *contact)
 
   if (info->visible_widgets)
     g_list_free(info->visible_widgets);
+
+  if (info->icon)
+    g_object_unref(info->icon);
 
   g_free(info);
 
@@ -137,6 +144,9 @@ contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
   ui_avatar_set_text(avatar, name);
+  
+  if (info->icon)
+    hdy_avatar_set_loadable_icon(avatar, G_LOADABLE_ICON(info->icon));
 
   info->name_avatars = g_list_append(info->name_avatars, avatar);
 }
@@ -208,6 +218,164 @@ contact_update_info(const struct GNUNET_CHAT_Contact *contact)
   for (list = info->name_avatars; list; list = list->next)
     ui_avatar_set_text(HDY_AVATAR(list->data), name);
 
+  if (info->icon)
+    for (list = info->name_avatars; list; list = list->next)
+      hdy_avatar_set_loadable_icon(HDY_AVATAR(list->data), 
+                                   G_LOADABLE_ICON(info->icon));
+
   for (list = info->visible_widgets; list; list = list->next)
     gtk_widget_set_visible(GTK_WIDGET(list->data), visible);
+}
+
+static void
+_info_profile_downloaded(void *cls,
+                         struct GNUNET_CHAT_File *file,
+                         uint64_t completed,
+                         uint64_t size)
+{
+  g_assert((cls) && (file));
+
+  MESSENGER_ContactInfo* info = (MESSENGER_ContactInfo*) cls;
+
+  if (completed < size)
+    return;
+
+  const char *preview = GNUNET_CHAT_file_open_preview(file);
+
+  if (!preview)
+    return;
+
+  GFile *file_object = g_file_new_for_path(preview);
+
+  if (!file_object)
+    return;
+
+  if (info->icon)
+    g_object_unref(info->icon);
+
+  info->icon = g_file_icon_new(file_object);
+
+  if (!(info->icon))
+    goto skip_avatar;
+
+  GList* list;
+  for (list = info->name_avatars; list; list = list->next)
+    hdy_avatar_set_loadable_icon(HDY_AVATAR(list->data), G_LOADABLE_ICON(info->icon));
+
+skip_avatar:
+  g_object_unref(file_object);
+}
+
+static enum GNUNET_GenericReturnValue
+_info_iterate_attribute(MESSENGER_ContactInfo* info,
+                        struct GNUNET_CHAT_Handle *handle,
+                        struct GNUNET_CHAT_Contact *contact,
+                        const char *name,
+                        const char *value)
+{
+  g_assert((info) && (handle) && (contact) && (name));
+
+  if ((0 != strcmp(name, ATTRIBUTE_PROFILE_PICTURE)) || (!value))
+    return GNUNET_YES;
+
+  struct GNUNET_CHAT_Uri *uri = GNUNET_CHAT_uri_parse(value, NULL);
+
+  if (!uri)
+    return GNUNET_YES;
+
+  struct GNUNET_CHAT_File *file = GNUNET_CHAT_request_file(handle, uri);
+
+  if (!file)
+    goto skip_file;
+
+  if (GNUNET_YES == GNUNET_CHAT_file_is_ready(file))
+    _info_profile_downloaded(
+      info,
+      file,
+      GNUNET_CHAT_file_get_local_size(file),
+      GNUNET_CHAT_file_get_size(file)
+    );
+  else if (GNUNET_YES != GNUNET_CHAT_file_is_downloading(file))
+    GNUNET_CHAT_file_start_download(
+      file,
+      _info_profile_downloaded,
+      info
+    );
+
+skip_file:
+  GNUNET_CHAT_uri_destroy(uri);
+  return GNUNET_YES;
+}
+
+static enum GNUNET_GenericReturnValue
+_handle_iterate_attribute(void *cls,
+                          struct GNUNET_CHAT_Handle *handle,
+                          const char *name,
+                          const char *value)
+{
+  g_assert((cls) && (handle) && (name));
+
+  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) cls;
+
+  MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
+
+  if (!info)
+    return GNUNET_NO;
+
+  return _info_iterate_attribute(
+    info,
+    handle,
+    contact,
+    name,
+    value
+  );
+}
+
+static enum GNUNET_GenericReturnValue
+_contact_iterate_attribute(void *cls,
+                           struct GNUNET_CHAT_Contact *contact,
+                           const char *name,
+                           const char *value)
+{
+  g_assert((cls) && (contact) && (name));
+
+  struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
+
+  MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
+
+  if (!info)
+    return GNUNET_NO;
+
+  return _info_iterate_attribute(
+    info,
+    handle,
+    contact,
+    name,
+    value
+  );
+}
+
+void
+contact_update_attributes(struct GNUNET_CHAT_Contact *contact,
+                          MESSENGER_Application *app)
+{
+  g_assert(app);
+
+  MESSENGER_ContactInfo* info = GNUNET_CHAT_contact_get_user_pointer(contact);
+
+  if (!info)
+    return;
+
+  if (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
+    GNUNET_CHAT_get_attributes(
+      app->chat.messenger.handle,
+      _handle_iterate_attribute,
+      contact
+    );
+  else
+    GNUNET_CHAT_contact_get_attributes(
+      contact,
+      _contact_iterate_attribute,
+      app->chat.messenger.handle
+    );
 }

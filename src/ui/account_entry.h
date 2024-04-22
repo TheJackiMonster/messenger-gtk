@@ -29,6 +29,8 @@
 
 typedef struct UI_ACCOUNT_ENTRY_Handle
 {
+  const struct GNUNET_CHAT_Contact *contact;
+
   GtkBuilder *builder;
 
   GtkWidget *entry_box;

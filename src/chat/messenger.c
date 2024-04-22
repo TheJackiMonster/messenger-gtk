@@ -142,6 +142,7 @@ _chat_messenger_message(void *cls,
       break;
     }
     case GNUNET_CHAT_KIND_CONTACT:
+    case GNUNET_CHAT_KIND_SHARED_ATTRIBUTES:
     {
       application_call_message_event(
       	  app,

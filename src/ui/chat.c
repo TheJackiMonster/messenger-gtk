@@ -776,7 +776,7 @@ _drop_any_recording(UI_CHAT_Handle *handle)
 
 static void
 handle_sending_recording_upload_file(UNUSED void *cls,
-                                     const struct GNUNET_CHAT_File *file,
+                                     struct GNUNET_CHAT_File *file,
                                      uint64_t completed,
                                      uint64_t size)
 {
@@ -1971,7 +1971,7 @@ _chat_update_files(UI_CHAT_Handle *handle,
                    MESSENGER_Application *app,
                    struct GNUNET_CHAT_Context *context)
 {
-  g_assert((handle) && (app) && (context));
+  g_assert((handle) && (app));
 
   GList* children = gtk_container_get_children(
     GTK_CONTAINER(handle->chat_files_listbox)
@@ -1995,11 +1995,11 @@ _chat_update_files(UI_CHAT_Handle *handle,
   closure.app = app;
   closure.container = GTK_CONTAINER(handle->chat_files_listbox);
 
-  const int count = GNUNET_CHAT_context_iterate_files(
+  const int count = context? GNUNET_CHAT_context_iterate_files(
     context,
     iterate_ui_chat_update_context_files,
     &closure
-  );
+  ) : 0;
 
   gtk_widget_set_visible(
     GTK_WIDGET(handle->chat_details_files_box),
@@ -2053,7 +2053,7 @@ _chat_update_media(UI_CHAT_Handle *handle,
                    MESSENGER_Application *app,
                    struct GNUNET_CHAT_Context *context)
 {
-  g_assert((handle) && (app) && (context));
+  g_assert((handle) && (app));
 
   GList* children = gtk_container_get_children(
     GTK_CONTAINER(handle->chat_media_flowbox)
@@ -2077,11 +2077,11 @@ _chat_update_media(UI_CHAT_Handle *handle,
   closure.app = app;
   closure.container = GTK_CONTAINER(handle->chat_media_flowbox);
 
-  const int count = GNUNET_CHAT_context_iterate_files(
+  const int count = context? GNUNET_CHAT_context_iterate_files(
     context,
     iterate_ui_chat_update_context_media,
     &closure
-  );
+  ) : 0;
 
   gtk_widget_set_visible(
     GTK_WIDGET(handle->chat_details_media_box),
@@ -2255,6 +2255,10 @@ ui_chat_delete(UI_CHAT_Handle *handle)
 
   if (handle->loads)
     g_list_free_full(handle->loads, (GDestroyNotify) ui_file_load_entry_delete);
+
+  _chat_update_contacts(handle, handle->app, NULL);
+  _chat_update_files(handle, handle->app, NULL);
+  _chat_update_media(handle, handle->app, NULL);
 
   if (handle->record_pipeline)
   {

@@ -437,7 +437,15 @@ event_update_chats(MESSENGER_Application *app,
   else if ((handle) && (handle->entry_box))
     _clear_chat_entry(gtk_widget_get_parent(handle->entry_box), app);
 
-  contact_create_info(GNUNET_CHAT_message_get_sender(msg));
+  struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_message_get_sender(
+    msg
+  );
+
+  if (!contact)
+    return;
+
+  contact_create_info(contact);
+  contact_update_attributes(contact, app);
 }
 
 static void
@@ -502,7 +510,9 @@ event_presence_contact(MESSENGER_Application *app,
   message = ui_message_new(app, UI_MESSAGE_STATUS);
   ui_message_update(message, app, msg);
 
+  contact_update_attributes(contact, app);
   _update_contact_context(contact);
+
   ui_message_set_contact(message, contact);
 
   const enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(
@@ -557,6 +567,9 @@ event_update_contacts(UNUSED MESSENGER_Application *app,
 
   if (!contact)
     return;
+
+  if (GNUNET_CHAT_KIND_SHARED_ATTRIBUTES == GNUNET_CHAT_message_get_kind(msg))
+    contact_update_attributes(contact, app);
 
   contact_update_info(contact);
   _update_contact_context(contact);
@@ -775,7 +788,7 @@ _event_update_tag_message_state(MESSENGER_Application *app,
   if (!target)
     return;
 
-  const struct GNUNET_CHAT_Contact *contact;
+  struct GNUNET_CHAT_Contact *contact;
   contact = GNUNET_CHAT_message_get_sender(target);
 
   if (contact)

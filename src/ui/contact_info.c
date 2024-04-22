@@ -27,6 +27,7 @@
 #include "chat_entry.h"
 
 #include "../application.h"
+#include "../contact.h"
 #include "../file.h"
 #include "../ui.h"
 
@@ -143,7 +144,7 @@ skip_preview:
 
 static void
 _cb_file_upload(void *cls,
-                const struct GNUNET_CHAT_File *file,
+                struct GNUNET_CHAT_File *file,
                 uint64_t completed,
                 uint64_t size)
 {
@@ -167,7 +168,7 @@ _cb_file_upload(void *cls,
   {
     GNUNET_CHAT_set_attribute(
       app->chat.messenger.handle,
-      "profile",
+      ATTRIBUTE_PROFILE_PICTURE,
       uri_string,
       GNUNET_TIME_relative_get_forever_()
     );
@@ -1082,6 +1083,29 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
   );
 }
 
+static void
+_contact_info_update(UI_CONTACT_INFO_Handle *handle,
+                     struct GNUNET_CHAT_Contact *contact)
+{
+  g_assert(handle);
+
+  struct GNUNET_CHAT_Contact *prev = g_object_get_qdata(
+    G_OBJECT(handle->contact_avatar),
+    handle->app->quarks.data
+  );
+
+  if (prev)
+    contact_remove_name_avatar_from_info(prev, handle->contact_avatar);
+  if (contact)
+    contact_add_name_avatar_to_info(contact, handle->contact_avatar);
+
+  g_object_set_qdata(
+    G_OBJECT(handle->contact_avatar),
+    handle->app->quarks.data,
+    contact
+  );
+}
+
 void
 ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
                               struct GNUNET_CHAT_Contact *contact,
@@ -1097,7 +1121,11 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
   else
     name = GNUNET_CHAT_get_name(handle->app->chat.messenger.handle);
 
-  ui_avatar_set_text(handle->contact_avatar, name);
+  if (contact)
+    _contact_info_update(handle, contact);
+  else
+    ui_avatar_set_text(handle->contact_avatar, name);
+
   ui_entry_set_text(handle->contact_name_entry, name);
 
   g_object_set_qdata(
@@ -1278,6 +1306,7 @@ ui_contact_info_dialog_cleanup(UI_CONTACT_INFO_Handle *handle)
     handle->id_draw_signal
   );
 
+  _contact_info_update(handle, NULL);
   g_object_unref(handle->builder);
 
   if (handle->qr)

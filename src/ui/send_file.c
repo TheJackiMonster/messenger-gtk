@@ -44,7 +44,7 @@ handle_cancel_button_click(UNUSED GtkButton *button,
 
 static void
 handle_sending_upload_file(UNUSED void *cls,
-                           const struct GNUNET_CHAT_File *file,
+                           struct GNUNET_CHAT_File *file,
                            uint64_t completed,
                            uint64_t size)
 {

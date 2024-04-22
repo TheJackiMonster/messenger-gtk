@@ -36,7 +36,7 @@
 
 static void
 handle_downloading_file(void *cls,
-                        const struct GNUNET_CHAT_File *file,
+                        struct GNUNET_CHAT_File *file,
                         uint64_t completed,
                         uint64_t size)
 {
@@ -91,7 +91,11 @@ handle_file_button_click(GtkButton *button,
   }
   else if (local_size < size)
   {
-    GNUNET_CHAT_file_start_download(file, handle_downloading_file, app);
+    GNUNET_CHAT_file_start_download(
+      file,
+      handle_downloading_file,
+      app
+    );
 
     gtk_image_set_from_icon_name(
     	handle->file_status_image,

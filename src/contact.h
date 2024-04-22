@@ -27,9 +27,12 @@
 
 #include "application.h"
 
+#define ATTRIBUTE_PROFILE_PICTURE "profile"
+
 typedef struct MESSENGER_ContactInfo
 {
   void *last_message;
+  GIcon *icon;
 
   GList *name_labels;
   GList *name_avatars;
@@ -146,8 +149,20 @@ contact_remove_visible_widget_to_info(const struct GNUNET_CHAT_Contact *contact,
  * contact depending on the current state.
  *
  * @param contact Chat contact
+ * @param attributes Flag to check for attributes changes
  */
 void
 contact_update_info(const struct GNUNET_CHAT_Contact *contact);
+
+/**
+ * Updates the connected UI elements for a given
+ * contact based on current attributes changes.
+ *
+ * @param contact Chat contact
+ * @param app Messenger application
+ */
+void
+contact_update_attributes(struct GNUNET_CHAT_Contact *contact,
+                          MESSENGER_Application *app);
 
 #endif /* CONTACT_H_ */
