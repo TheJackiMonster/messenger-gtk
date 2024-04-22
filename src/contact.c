@@ -69,6 +69,9 @@ contact_destroy_info(struct GNUNET_CHAT_Contact *contact)
   if (info->icon)
     g_object_unref(info->icon);
 
+  if (info->icon_file)
+    g_object_unref(info->icon_file);
+
   g_free(info);
 
   GNUNET_CHAT_contact_set_user_pointer(contact, NULL);
@@ -250,20 +253,31 @@ _info_profile_downloaded(void *cls,
   if (!file_object)
     return;
 
+  if (!(info->icon_file))
+    goto skip_comparison;
+
+  if (g_file_equal(info->icon_file, file_object))
+  {
+    g_object_unref(file_object);
+    return;
+  }
+
+  g_object_unref(info->icon_file);
+
+skip_comparison:
+  info->icon_file = file_object;
+
   if (info->icon)
     g_object_unref(info->icon);
 
   info->icon = g_file_icon_new(file_object);
 
   if (!(info->icon))
-    goto skip_avatar;
+    return;
 
   GList* list;
   for (list = info->name_avatars; list; list = list->next)
     hdy_avatar_set_loadable_icon(HDY_AVATAR(list->data), G_LOADABLE_ICON(info->icon));
-
-skip_avatar:
-  g_object_unref(file_object);
 }
 
 static enum GNUNET_GenericReturnValue
