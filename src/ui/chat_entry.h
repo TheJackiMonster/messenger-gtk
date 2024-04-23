@@ -27,11 +27,14 @@
 
 #include "chat.h"
 
+#include <gnunet/gnunet_chat_lib.h>
+
 typedef struct UI_CHAT_ENTRY_Handle
 {
   guint update;
 
   struct GNUNET_TIME_Absolute timestamp;
+  struct GNUNET_CHAT_Context *context;
 
   UI_CHAT_Handle *chat;
   GtkBuilder *builder;
@@ -53,10 +56,12 @@ typedef struct UI_CHAT_ENTRY_Handle
  * a given messenger application.
  *
  * @param app Messenger application
+ * @param context Chat context
  * @return New chat entry handle
  */
 UI_CHAT_ENTRY_Handle*
-ui_chat_entry_new(MESSENGER_Application *app);
+ui_chat_entry_new(MESSENGER_Application *app,
+                  struct GNUNET_CHAT_Context *context);
 
 /**
  * Updates a given chat entry handle with the
@@ -66,12 +71,10 @@ ui_chat_entry_new(MESSENGER_Application *app);
  *
  * @param handle Chat entry handle
  * @param app Messenger application
- * @param context Chat context
  */
 void
 ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
-                     MESSENGER_Application *app,
-                     struct GNUNET_CHAT_Context *context);
+                     MESSENGER_Application *app);
 
 /**
  * Frees its resources and destroys a given

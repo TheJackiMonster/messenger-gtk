@@ -50,6 +50,10 @@ guint
 util_idle_add(GSourceFunc function,
               gpointer data);
 
+guint
+util_immediate_add(GSourceFunc function,
+                   gpointer data);
+
 /**
  * Abstraction of `g_timeout_add()` task
  * to be cancelled externally.

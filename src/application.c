@@ -639,7 +639,7 @@ application_call_event(MESSENGER_Application *app,
   call->app = app;
   call->event = event;
 
-  util_idle_add(G_SOURCE_FUNC(_application_event_call), call);
+  util_immediate_add(G_SOURCE_FUNC(_application_event_call), call);
 }
 
 static gboolean
@@ -676,7 +676,7 @@ application_call_sync_event(MESSENGER_Application *app,
   call->event = event;
 
   util_scheduler_cleanup();
-  util_idle_add(G_SOURCE_FUNC(_application_sync_event_call), call);
+  util_immediate_add(G_SOURCE_FUNC(_application_sync_event_call), call);
 
   // Locking the mutex for synchronization
   pthread_mutex_lock(&(app->chat.mutex));
@@ -729,7 +729,7 @@ application_call_message_event(MESSENGER_Application *app,
   call->context = context;
   call->message = message;
 
-  util_idle_add(G_SOURCE_FUNC(_application_message_event_call), call);
+  util_immediate_add(G_SOURCE_FUNC(_application_message_event_call), call);
 }
 
 void

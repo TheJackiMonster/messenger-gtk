@@ -197,14 +197,7 @@ _idle_chat_entry_update(gpointer user_data)
       (!(entry->chat->send_text_view)))
     goto update_exit;
 
-  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-    g_object_get_qdata(
-      G_OBJECT(entry->chat->send_text_view),
-      entry->chat->app->quarks.data
-    )
-  );
-
-  ui_chat_entry_update(entry, entry->chat->app, context);
+  ui_chat_entry_update(entry, entry->chat->app);
 
 update_exit:
   entry->update = 0;
@@ -232,22 +225,15 @@ _add_new_chat_entry(MESSENGER_Application *app,
   g_assert((app) && (context));
 
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
-  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new(app);
+  UI_CHAT_ENTRY_Handle *entry = ui_chat_entry_new(app, context);
 
   enqueue_chat_entry_update(entry);
 
   gtk_container_add(GTK_CONTAINER(ui->chats_listbox), entry->entry_box);
-  GNUNET_CHAT_context_set_user_pointer(context, entry);
 
   gtk_container_add(
     GTK_CONTAINER(ui->chats_stack),
     entry->chat->chat_box
-  );
-
-  g_object_set_qdata(
-    G_OBJECT(entry->chat->send_text_view),
-    app->quarks.data,
-    context
   );
 
   ui->chat_entries = g_list_append(ui->chat_entries, entry);
@@ -352,12 +338,6 @@ _clear_chat_entry(GtkWidget *widget,
   );
 
   ui->chat_entries = g_list_remove(ui->chat_entries, entry);
-
-  g_object_set_qdata(
-    G_OBJECT(entry->chat->send_text_view),
-    app->quarks.data,
-    NULL
-  );
 
   ui_chat_entry_dispose(entry, app);
 }

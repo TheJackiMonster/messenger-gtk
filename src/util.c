@@ -24,9 +24,11 @@
 
 #include "util.h"
 
+#include <pthread.h>
 #include <stdio.h>
 
 static GList *tasks = NULL;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct UTIL_CompleteTask
 {
@@ -63,6 +65,11 @@ util_complete_task(gpointer task_data)
   g_assert(task_data);
 
   struct UTIL_CompleteTask *task = (struct UTIL_CompleteTask*) task_data;
+  gboolean result = FALSE;
+
+  pthread_mutex_lock(&mutex);
+  if (!tasks)
+    goto unlock_mutex;
 
   const GSourceFunc function = task->function;
   gpointer data = task->data;
@@ -72,7 +79,11 @@ util_complete_task(gpointer task_data)
 
   g_free(task);
 
-  return function(data);
+  result = function(data);
+
+unlock_mutex:
+  pthread_mutex_unlock(&mutex);
+  return result;
 }
 
 guint
@@ -84,6 +95,28 @@ util_idle_add(GSourceFunc function,
   task->function = function;
   task->data = data;
   task->id = g_idle_add(
+    G_SOURCE_FUNC(util_complete_task),
+    task
+  );
+
+  tasks = g_list_append(
+    tasks,
+    task
+  );
+
+  return task->id;
+}
+
+guint
+util_immediate_add(GSourceFunc function,
+                   gpointer data)
+{
+  struct UTIL_CompleteTask *task = g_malloc(sizeof(struct UTIL_CompleteTask));
+
+  task->function = function;
+  task->data = data;
+  task->id = g_timeout_add(
+    0,
     G_SOURCE_FUNC(util_complete_task),
     task
   );

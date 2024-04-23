@@ -251,25 +251,15 @@ handle_leave_chat_button_click(UNUSED GtkButton *button,
 
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
-  if ((!handle) || (!(handle->send_text_view)))
-    return;
-
-  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-    g_object_get_qdata(
-      G_OBJECT(handle->send_text_view),
-      handle->app->quarks.data
-    )
-  );
-
-  if (!context)
+  if ((!handle) || (!(handle->context)))
     return;
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_context_get_contact(
-    context
+    handle->context
   );
 
   struct GNUNET_CHAT_Group *group = GNUNET_CHAT_context_get_group(
-    context
+    handle->context
   );
 
   if (contact)
@@ -277,7 +267,9 @@ handle_leave_chat_button_click(UNUSED GtkButton *button,
   else if (group)
     GNUNET_CHAT_group_leave(group);
 
-  UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(context);
+  UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(
+    handle->context
+  );
 
   if ((!entry) || (!(handle->app)))
     return;
@@ -461,25 +453,11 @@ _new_tag_callback(MESSENGER_Application *app,
 {
   g_assert((app) && (user_data));
 
-  GtkListBox *listbox = GTK_LIST_BOX(user_data);
-  GtkTextView *text_view = GTK_TEXT_VIEW(g_object_get_qdata(
-    G_OBJECT(app->ui.new_tag.dialog),
-    app->quarks.widget
-  ));
-
-  if (!text_view)
-    goto unselect;
-
-  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-    g_object_get_qdata(
-      G_OBJECT(text_view),
-      app->quarks.data
-    )
-  );
-
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
   UI_MESSAGE_Handle *message;
-  if ((!context) || (!tag))
-    goto cleanup;
+
+  if ((!(handle->context)) || (!tag))
+    goto unselect;
 
   while (selected)
   {
@@ -497,7 +475,7 @@ _new_tag_callback(MESSENGER_Application *app,
       goto skip_row;
 
     GNUNET_CHAT_context_send_tag(
-      context,
+      handle->context,
       message->msg,
       tag
     );
@@ -506,15 +484,8 @@ _new_tag_callback(MESSENGER_Application *app,
     selected = selected->next;
   }
 
-cleanup:
-  g_object_set_qdata(
-    G_OBJECT(app->ui.new_tag.dialog),
-    app->quarks.widget,
-    NULL
-  );
-
 unselect:
-  gtk_list_box_unselect_all(listbox);
+  gtk_list_box_unselect_all(handle->messages_listbox);
 }
 
 static void
@@ -531,17 +502,11 @@ handle_chat_selection_tag_button_click(UNUSED GtkButton *button,
 
   ui_new_tag_dialog_init(app, &(app->ui.new_tag));
 
-  g_object_set_qdata(
-    G_OBJECT(app->ui.new_tag.dialog),
-    app->quarks.widget,
-    handle->send_text_view
-  );
-
   ui_new_tag_dialog_link(
     &(app->ui.new_tag),
     _new_tag_callback,
     selected,
-    handle->messages_listbox
+    handle
   );
 
   gtk_widget_show(GTK_WIDGET(app->ui.new_tag.dialog));
@@ -737,12 +702,8 @@ _send_text_from_view(MESSENGER_Application *app,
     return FALSE;
   }
 
-  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-    g_object_get_qdata(G_OBJECT(text_view), app->quarks.data)
-  );
-
-  if (context)
-    GNUNET_CHAT_context_send_text(context, text);
+  if (handle->context)
+    GNUNET_CHAT_context_send_text(handle->context, text);
 
   g_free(text);
   gtk_text_buffer_delete(buffer, &start, &end);
@@ -808,11 +769,7 @@ handle_send_record_button_click(GtkButton *button,
     g_object_get_qdata(G_OBJECT(button), app->quarks.ui)
   );
 
-  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-    g_object_get_qdata(G_OBJECT(handle->send_text_view), app->quarks.data)
-  );
-
-  if ((handle->recorded) && (context) &&
+  if ((handle->recorded) && (handle->context) &&
       (handle->recording_filename[0]) &&
       (!gtk_revealer_get_child_revealed(handle->picker_revealer)))
   {
@@ -822,7 +779,7 @@ handle_send_record_button_click(GtkButton *button,
     gtk_progress_bar_set_fraction(file_load->load_progress_bar, 0.0);
 
     struct GNUNET_CHAT_File *file = GNUNET_CHAT_context_send_file(
-      context,
+      handle->context,
       handle->recording_filename,
       handle_sending_recording_upload_file,
       file_load
@@ -1347,7 +1304,8 @@ _setup_gst_pipelines(UI_CHAT_Handle *handle)
 }
 
 UI_CHAT_Handle*
-ui_chat_new(MESSENGER_Application *app)
+ui_chat_new(MESSENGER_Application *app,
+            struct GNUNET_CHAT_Context *context)
 {
   g_assert(app);
 
@@ -1359,6 +1317,7 @@ ui_chat_new(MESSENGER_Application *app)
   _setup_gst_pipelines(handle);
 
   handle->app = app;
+  handle->context = context;
 
   handle->loads = NULL;
 
@@ -2133,16 +2092,15 @@ _chat_update_contact(UI_CHAT_Handle *handle,
 
 void
 ui_chat_update(UI_CHAT_Handle *handle,
-               MESSENGER_Application *app,
-               struct GNUNET_CHAT_Context* context)
+               MESSENGER_Application *app)
 {
-  g_assert((handle) && (app) && (context));
+  g_assert((handle) && (app));
 
   struct GNUNET_CHAT_Contact* contact;
   struct GNUNET_CHAT_Group* group;
 
-  contact = GNUNET_CHAT_context_get_contact(context);
-  group = GNUNET_CHAT_context_get_group(context);
+  contact = GNUNET_CHAT_context_get_contact(handle->context);
+  group = GNUNET_CHAT_context_get_group(handle->context);
 
   const char *icon = "action-unavailable-symbolic";
 
@@ -2183,8 +2141,8 @@ ui_chat_update(UI_CHAT_Handle *handle,
   g_string_free(subtitle, TRUE);
 
   _chat_update_contacts(handle, app, group);
-  _chat_update_files(handle, app, context);
-  _chat_update_media(handle, app, context);
+  _chat_update_files(handle, app, handle->context);
+  _chat_update_media(handle, app, handle->context);
 
   g_object_set_qdata(
     G_OBJECT(handle->reveal_identity_button),
@@ -2218,7 +2176,7 @@ ui_chat_update(UI_CHAT_Handle *handle,
     (contact) || (group)? TRUE : FALSE
   );
 
-  const int status = GNUNET_CHAT_context_get_status(context);
+  const int status = GNUNET_CHAT_context_get_status(handle->context);
   const gboolean activated = (GNUNET_OK == status? TRUE : FALSE);
 
   gtk_text_view_set_editable(handle->send_text_view, activated);

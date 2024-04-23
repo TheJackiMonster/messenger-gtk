@@ -34,17 +34,19 @@
 #include <gnunet/gnunet_time_lib.h>
 
 UI_CHAT_ENTRY_Handle*
-ui_chat_entry_new(MESSENGER_Application *app)
+ui_chat_entry_new(MESSENGER_Application *app,
+                  struct GNUNET_CHAT_Context *context)
 {
-  g_assert(app);
+  g_assert((app) && (context));
 
   UI_CHAT_ENTRY_Handle* handle = g_malloc(sizeof(UI_CHAT_ENTRY_Handle));
 
   memset(handle, 0, sizeof(*handle));
 
   handle->timestamp = GNUNET_TIME_absolute_get_zero_();
+  handle->context = context;
 
-  handle->chat = ui_chat_new(app);
+  handle->chat = ui_chat_new(app, handle->context);
   handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/chat_entry.ui")
   );
@@ -71,6 +73,11 @@ ui_chat_entry_new(MESSENGER_Application *app)
 
   handle->read_receipt_image = GTK_IMAGE(
     gtk_builder_get_object(handle->builder, "read_receipt_image")
+  );
+
+  GNUNET_CHAT_context_set_user_pointer(
+    handle->context,
+    handle
   );
 
   return handle;
@@ -109,16 +116,15 @@ _chat_entry_update_contact(UI_CHAT_ENTRY_Handle *handle,
 
 void
 ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
-		                 MESSENGER_Application *app,
-		                 struct GNUNET_CHAT_Context *context)
+		                 MESSENGER_Application *app)
 {
   g_assert((handle) && (app));
 
   struct GNUNET_CHAT_Contact* contact;
   struct GNUNET_CHAT_Group* group;
 
-  contact = GNUNET_CHAT_context_get_contact(context);
-  group = GNUNET_CHAT_context_get_group(context);
+  contact = GNUNET_CHAT_context_get_contact(handle->context);
+  group = GNUNET_CHAT_context_get_group(handle->context);
 
   const char *icon = "action-unavailable-symbolic";
 
@@ -144,7 +150,7 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
   if (!(handle->chat))
     return;
 
-  ui_chat_update(handle->chat, app, context);
+  ui_chat_update(handle->chat, app);
 
   GList *rows = gtk_container_get_children(
     GTK_CONTAINER(handle->chat->messages_listbox)
@@ -244,6 +250,9 @@ ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle)
   if (handle->update)
     util_source_remove(handle->update);
 
+  if (handle->context)
+    GNUNET_CHAT_context_set_user_pointer(handle->context, NULL);
+
   g_free(handle);
 }
 
@@ -263,16 +272,6 @@ ui_chat_entry_dispose(UI_CHAT_ENTRY_Handle *handle,
     GTK_CONTAINER(ui->chats_listbox),
     gtk_widget_get_parent(handle->entry_box)
   );
-
-  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) (
-    g_object_get_qdata(
-      G_OBJECT(handle->chat->send_text_view),
-      app->quarks.data
-    )
-  );
-
-  if (context)
-    GNUNET_CHAT_context_set_user_pointer(context, NULL);
 
   _chat_entry_update_contact(handle, app, NULL);
 

@@ -64,7 +64,7 @@ request_new(MESSENGER_Application *application,
   request->user_data = user_data;
 
 #ifdef MESSENGER_APPLICATION_NO_PORTAL
-  request->timeout = util_idle_add(
+  request->timeout = util_immediate_add(
     G_SOURCE_FUNC(_request_timeout_call),
     request
   );

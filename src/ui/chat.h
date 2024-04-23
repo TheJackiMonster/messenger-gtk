@@ -65,6 +65,7 @@ typedef struct UI_CHAT_Handle
   guint play_watch;
 
   MESSENGER_Application *app;
+  struct GNUNET_CHAT_Context *context;
 
   gdouble edge_value;
   GList *loads;
@@ -152,10 +153,12 @@ typedef struct UI_CHAT_Handle
  * application.
  *
  * @param app Messenger application
+ * @param context Chat context
  * @return New chat handle
  */
 UI_CHAT_Handle*
-ui_chat_new(MESSENGER_Application *app);
+ui_chat_new(MESSENGER_Application *app,
+            struct GNUNET_CHAT_Context *context);
 
 /**
  * Updates a given chat handle with the current
@@ -164,12 +167,10 @@ ui_chat_new(MESSENGER_Application *app);
  *
  * @param handle Chat handle
  * @param app Messenger application
- * @param context Chat context
  */
 void
 ui_chat_update(UI_CHAT_Handle *handle,
-               MESSENGER_Application *app,
-               struct GNUNET_CHAT_Context* context);
+               MESSENGER_Application *app);
 
 /**
  * Frees its resources and destroys a given
