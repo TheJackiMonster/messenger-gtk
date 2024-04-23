@@ -36,4 +36,50 @@
   )                               \
 )
 
+/**
+ * Cancel all open asynchronous tasks.
+ */
+void
+util_scheduler_cleanup();
+
+/**
+ * Abstraction of `g_idle_add()` task
+ * to be cancelled externally.
+ */
+guint
+util_idle_add(GSourceFunc function,
+              gpointer data);
+
+/**
+ * Abstraction of `g_timeout_add()` task
+ * to be cancelled externally.
+ */
+guint
+util_timeout_add(guint interval,
+                 GSourceFunc function,
+                 gpointer data);
+
+/**
+ * Abstraction of `g_timeout_add_seconds()` task
+ * to be cancelled externally.
+ */
+guint
+util_timeout_add_seconds(guint interval,
+                         GSourceFunc function,
+                         gpointer data);
+
+/**
+ * Abstraction of `g_source_remove()` to
+ * cancel a task by its tag.
+ */
+gboolean
+util_source_remove(guint tag);
+
+/**
+ * Abstraction of `g_source_remove_by_userdata()` to
+ * cancel a task by its data.
+ */
+gboolean
+util_source_remove_by_data(gpointer data);
+
 #endif /* UTIL_H_ */

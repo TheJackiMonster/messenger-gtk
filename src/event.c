@@ -142,10 +142,10 @@ event_refresh_accounts(MESSENGER_Application *app)
   g_assert(app);
 
   if (app->ui.messenger.account_refresh)
-    g_source_remove(app->ui.messenger.account_refresh);
+    util_source_remove(app->ui.messenger.account_refresh);
 
   if (app->ui.messenger.main_window)
-    app->ui.messenger.account_refresh = g_idle_add(
+    app->ui.messenger.account_refresh = util_idle_add(
       G_SOURCE_FUNC(_idle_refresh_accounts),
       app
     );
@@ -217,9 +217,9 @@ enqueue_chat_entry_update(UI_CHAT_ENTRY_Handle *entry)
   g_assert(entry);
 
   if (entry->update)
-    g_source_remove(entry->update);
+    util_source_remove(entry->update);
 
-  entry->update = g_idle_add(
+  entry->update = util_idle_add(
     G_SOURCE_FUNC(_idle_chat_entry_update),
     entry
   );
@@ -261,9 +261,9 @@ _add_new_chat_entry(MESSENGER_Application *app,
   );
 
   if (ui->chat_selection)
-    g_source_remove(ui->chat_selection);
+    util_source_remove(ui->chat_selection);
 
-  ui->chat_selection = g_idle_add(
+  ui->chat_selection = util_idle_add(
     G_SOURCE_FUNC(_select_chat_to_activate),
     entry
   );
@@ -440,7 +440,7 @@ event_update_chats(MESSENGER_Application *app,
       enqueue_chat_entry_update(handle);
 
     if (app->settings.leave_chats_delay > 0)
-      g_timeout_add_seconds(
+      util_timeout_add_seconds(
         app->settings.leave_chats_delay,
         _delayed_context_drop,
         context

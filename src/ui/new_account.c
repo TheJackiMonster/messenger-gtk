@@ -57,7 +57,7 @@ _open_new_account(GtkEntry *entry,
   app->chat.identity = GNUNET_strdup(name);
 
   if (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
-    app->ui.new_account.show_queued = g_idle_add(
+    app->ui.new_account.show_queued = util_idle_add(
       G_SOURCE_FUNC(_show_messenger_main_window), app
     );
 }

@@ -29,6 +29,6 @@ messenger_gtk_sources = files([
     'request.c', 'request.h',
     'resources.c', 'resources.h',
     'ui.c', 'ui.h',
-    'util.h',
+    'util.c', 'util.h',
     'messenger_gtk.c',
 ]) + messenger_gtk_chat_sources + messenger_gtk_ui_sources

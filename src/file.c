@@ -64,7 +64,7 @@ file_destroy_info(struct GNUNET_CHAT_File *file)
   file_unload_preview_image(file);
 
   if (info->update_task)
-    g_source_remove(info->update_task);
+    util_source_remove(info->update_task);
 
   if (info->file_messages)
     g_list_free(info->file_messages);
@@ -202,7 +202,7 @@ file_update_download_info(const struct GNUNET_CHAT_File *file,
     return;
 
   info->app = app;
-  info->update_task = g_idle_add(file_update_messages, info);
+  info->update_task = util_idle_add(file_update_messages, info);
 }
 
 static void
@@ -269,7 +269,7 @@ file_unload_preview_image(const struct GNUNET_CHAT_File *file)
 
   if (info->redraw_animation_task)
   {
-    g_source_remove(info->redraw_animation_task);
+    util_source_remove(info->redraw_animation_task);
     info->redraw_animation_task = 0;
   }
 
@@ -328,7 +328,7 @@ file_get_current_preview_image(const struct GNUNET_CHAT_File *file)
       info->preview_animation_iter
     );
 
-    info->redraw_animation_task = g_timeout_add(
+    info->redraw_animation_task = util_timeout_add(
       delay, file_redraw_animation, info
     );
   }

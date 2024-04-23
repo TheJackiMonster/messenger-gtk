@@ -62,7 +62,7 @@ handle_contacts_listbox_row_activated(UNUSED GtkListBox* listbox,
 
   if (!gtk_list_box_row_get_selectable(row))
   {
-    g_idle_add(G_SOURCE_FUNC(_open_new_contact_dialog), app);
+    util_idle_add(G_SOURCE_FUNC(_open_new_contact_dialog), app);
     goto close_dialog;
   }
 

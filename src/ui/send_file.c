@@ -186,8 +186,10 @@ handle_file_drawing_area_draw(GtkWidget* drawing_area,
     handle->animation_iter
   );
 
-  handle->redraw_animation = g_timeout_add(
-    delay, handle_file_redraw_animation, handle
+  handle->redraw_animation = util_timeout_add(
+    delay,
+    handle_file_redraw_animation,
+    handle
   );
 
 render_image:
@@ -241,7 +243,7 @@ _clear_file_preview_data(UI_SEND_FILE_Handle *handle)
 
   if (handle->redraw_animation)
   {
-    g_source_remove(handle->redraw_animation);
+    util_source_remove(handle->redraw_animation);
     handle->redraw_animation = 0;
   }
 

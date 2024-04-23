@@ -85,7 +85,7 @@ handle_user_details_via_button_click(UNUSED GtkButton* button,
 
   gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_search), FALSE);
   gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_listbox), FALSE);
-  g_idle_add(
+  util_idle_add(
     G_SOURCE_FUNC(_flap_user_details_reveal_switch),
     handle
   );
@@ -801,10 +801,10 @@ ui_messenger_cleanup(UI_MESSENGER_Handle *handle)
     g_list_free_full(handle->chat_entries, (GDestroyNotify) ui_chat_entry_delete);
 
   if (handle->chat_selection)
-    g_source_remove(handle->chat_selection);
+    util_source_remove(handle->chat_selection);
 
   if (handle->account_refresh)
-    g_source_remove(handle->account_refresh);
+    util_source_remove(handle->account_refresh);
 
   memset(handle, 0, sizeof(*handle));
 }

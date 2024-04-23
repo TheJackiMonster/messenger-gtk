@@ -77,7 +77,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   // Drop activations of rows which do not contain accounts
   if (!gtk_list_box_row_get_selectable(row))
   {
-    app->ui.accounts.show_queued = g_idle_add(
+    app->ui.accounts.show_queued = util_idle_add(
 	    G_SOURCE_FUNC(_open_new_account_dialog), app
     );
 
@@ -93,7 +93,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
 
   // Handle the GUI swap asyncronously
   if (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
-    app->ui.accounts.show_queued = g_idle_add(
+    app->ui.accounts.show_queued = util_idle_add(
 	    G_SOURCE_FUNC(_show_messenger_main_window), app
     );
 

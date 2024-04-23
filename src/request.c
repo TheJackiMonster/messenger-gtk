@@ -64,8 +64,9 @@ request_new(MESSENGER_Application *application,
   request->user_data = user_data;
 
 #ifdef MESSENGER_APPLICATION_NO_PORTAL
-  request->timeout = g_timeout_add(
-    0, G_SOURCE_FUNC(_request_timeout_call), request
+  request->timeout = util_idle_add(
+    G_SOURCE_FUNC(_request_timeout_call),
+    request
   );
 #endif
 
@@ -228,7 +229,7 @@ request_cancel(MESSENGER_Request *request)
 
 #ifdef MESSENGER_APPLICATION_NO_PORTAL
   if (request->timeout)
-    g_source_remove(request->timeout);
+    util_source_remove(request->timeout);
 
   request->timeout = 0;
 #endif
@@ -247,7 +248,7 @@ request_cleanup(MESSENGER_Request *request)
 
 #ifdef MESSENGER_APPLICATION_NO_PORTAL
   if (request->timeout)
-    g_source_remove(request->timeout);
+    util_source_remove(request->timeout);
 
   request->timeout = 0;
 #endif

@@ -72,7 +72,7 @@ handle_chat_details_via_button_click(UNUSED GtkButton* button,
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
   gtk_widget_set_sensitive(GTK_WIDGET(handle->messages_listbox), FALSE);
-  g_idle_add(
+  util_idle_add(
     G_SOURCE_FUNC(_flap_chat_details_reveal_switch),
     handle
   );
@@ -1092,7 +1092,7 @@ _stop_playing_recording(UI_CHAT_Handle *handle,
 
   if (handle->play_timer)
   {
-    g_source_remove(handle->play_timer);
+    util_source_remove(handle->play_timer);
     handle->play_timer = 0;
   }
 }
@@ -1197,7 +1197,7 @@ _record_timer_func(gpointer user_data)
   if (!(handle->recorded))
   {
     handle->record_time++;
-    handle->record_timer = g_timeout_add_seconds(
+    handle->record_timer = util_timeout_add_seconds(
       1,
       _record_timer_func,
       handle
@@ -1230,7 +1230,7 @@ _play_timer_func(gpointer user_data)
   if (handle->playing)
   {
     handle->play_time++;
-    handle->play_timer = g_timeout_add(
+    handle->play_timer = util_timeout_add(
       10,
       _play_timer_func,
       handle
@@ -1256,8 +1256,7 @@ handle_record_bus_watch(UNUSED GstBus *bus,
   {
     case GST_MESSAGE_STREAM_START:
       handle->record_time = 0;
-      handle->record_timer = g_timeout_add_seconds(
-        0,
+      handle->record_timer = util_idle_add(
         _record_timer_func,
         handle
       );
@@ -1282,8 +1281,7 @@ handle_play_bus_watch(UNUSED GstBus *bus,
   {
     case GST_MESSAGE_STREAM_START:
       handle->play_time = 0;
-      handle->play_timer = g_timeout_add_seconds(
-        0,
+      handle->play_timer = util_idle_add(
         _play_timer_func,
         handle
       );
@@ -2320,10 +2318,10 @@ ui_chat_delete(UI_CHAT_Handle *handle)
     remove(handle->recording_filename);
 
   if (handle->record_timer)
-    g_source_remove(handle->record_timer);
+    util_source_remove(handle->record_timer);
 
   if (handle->play_timer)
-    g_source_remove(handle->play_timer);
+    util_source_remove(handle->play_timer);
 
   g_free(handle);
 }

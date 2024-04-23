@@ -196,11 +196,11 @@ _set_timeout_callback_of_timeline(UI_PLAY_MEDIA_Handle *handle,
   g_assert(handle);
   
   if (handle->timeline)
-    g_source_remove(handle->timeline);
+    util_source_remove(handle->timeline);
 
   if (connected)
-    handle->timeline = g_timeout_add(
-      1000,
+    handle->timeline = util_timeout_add_seconds(
+      1,
       G_SOURCE_FUNC(_adjust_playing_media_position),
       handle
     );
@@ -399,7 +399,7 @@ handle_fullscreen_button_click(GtkButton *button,
   else
   {
     if (handle->motion_lost)
-      g_source_remove(handle->motion_lost);
+      util_source_remove(handle->motion_lost);
 
     handle->motion_lost = 0;
   }
@@ -434,14 +434,14 @@ handle_media_motion_notify(GtkWidget *widget,
     return FALSE;
 
   if (handle->motion_lost)
-    g_source_remove(handle->motion_lost);
+    util_source_remove(handle->motion_lost);
 
   hdy_flap_set_reveal_flap(handle->controls_flap, TRUE);
 
   if (!(handle->fullscreen))
     return FALSE;
 
-  handle->motion_lost = g_timeout_add_seconds(
+  handle->motion_lost = util_timeout_add_seconds(
       3,
       G_SOURCE_FUNC(handle_media_motion_lost),
       handle
@@ -841,10 +841,10 @@ ui_play_media_window_cleanup(UI_PLAY_MEDIA_Handle *handle)
   g_object_unref(handle->builder);
 
   if (handle->timeline)
-    g_source_remove(handle->timeline);
+    util_source_remove(handle->timeline);
 
   if (handle->motion_lost)
-    g_source_remove(handle->motion_lost);
+    util_source_remove(handle->motion_lost);
 
   if (handle->pipeline)
   {

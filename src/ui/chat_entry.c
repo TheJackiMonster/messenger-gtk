@@ -242,7 +242,7 @@ ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle)
   g_object_unref(handle->builder);
 
   if (handle->update)
-    g_source_remove(handle->update);
+    util_source_remove(handle->update);
 
   g_free(handle);
 }
@@ -254,6 +254,8 @@ ui_chat_entry_dispose(UI_CHAT_ENTRY_Handle *handle,
   g_assert((handle) && (handle->entry_box));
 
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+
+  util_source_remove_by_data(handle);
 
   ui->chat_entries = g_list_remove(ui->chat_entries, handle);
 

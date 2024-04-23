@@ -87,7 +87,7 @@ _application_init(MESSENGER_Application *app)
   if (app->chat.identity)
     application_show_window(app);
   else
-    app->init = g_idle_add(G_SOURCE_FUNC(_application_accounts), app);
+    app->init = util_idle_add(G_SOURCE_FUNC(_application_accounts), app);
 }
 
 static void
@@ -639,7 +639,25 @@ application_call_event(MESSENGER_Application *app,
   call->app = app;
   call->event = event;
 
-  g_timeout_add(0, G_SOURCE_FUNC(_application_event_call), call);
+  util_idle_add(G_SOURCE_FUNC(_application_event_call), call);
+}
+
+static gboolean
+_application_sync_event_call(gpointer user_data)
+{
+  g_assert(user_data);
+
+  MESSENGER_ApplicationEventCall *call;
+
+  call = (MESSENGER_ApplicationEventCall*) user_data;
+
+  call->event(call->app);
+  util_scheduler_cleanup();
+
+  pthread_mutex_unlock(&(call->app->chat.mutex));
+
+  GNUNET_free(call);
+  return FALSE;
 }
 
 void
@@ -648,7 +666,20 @@ application_call_sync_event(MESSENGER_Application *app,
 {
   g_assert((app) && (event));
 
-  event(app);
+  MESSENGER_ApplicationEventCall *call;
+
+  call = (MESSENGER_ApplicationEventCall*) GNUNET_malloc(
+    sizeof(MESSENGER_ApplicationEventCall)
+  );
+
+  call->app = app;
+  call->event = event;
+
+  util_scheduler_cleanup();
+  util_idle_add(G_SOURCE_FUNC(_application_sync_event_call), call);
+
+  // Locking the mutex for synchronization
+  pthread_mutex_lock(&(app->chat.mutex));
 }
 
 typedef struct MESSENGER_ApplicationMessageEventCall
@@ -698,7 +729,7 @@ application_call_message_event(MESSENGER_Application *app,
   call->context = context;
   call->message = message;
 
-  g_idle_add(G_SOURCE_FUNC(_application_message_event_call), call);
+  util_idle_add(G_SOURCE_FUNC(_application_message_event_call), call);
 }
 
 void
