@@ -91,7 +91,7 @@ Author: Tobias Frisch
         <child>
           <object class="GtkScrolledWindow">
             <property name="width-request">284</property>
-            <property name="height-request">384</property>
+            <property name="height-request">424</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <child>
