@@ -39,6 +39,7 @@ contact_create_info(struct GNUNET_CHAT_Contact *contact)
 
   info->last_message = NULL;
   info->icon = NULL;
+  info->icon_file = NULL;
 
   info->name_labels = NULL;
   info->name_avatars = NULL;
