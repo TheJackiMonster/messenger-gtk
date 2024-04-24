@@ -9,6 +9,7 @@ resources/ui/contacts.ui
 resources/ui/delete_messages.ui
 resources/ui/file_entry.ui
 resources/ui/file_load_entry.ui
+resources/ui/files.ui
 resources/ui/invite_contact.ui
 resources/ui/media_preview.ui
 resources/ui/message_content.ui
@@ -27,6 +28,8 @@ resources/ui/play_media.ui
 resources/ui/send_file.ui
 resources/ui/settings.ui
 resources/ui/tag.ui
+src/account.c
+src/account.h
 src/application.c
 src/application.h
 src/chat/messenger.c
@@ -65,6 +68,8 @@ src/ui/file_entry.c
 src/ui/file_entry.h
 src/ui/file_load_entry.c
 src/ui/file_load_entry.h
+src/ui/files.c
+src/ui/files.h
 src/ui.h
 src/ui/invite_contact.c
 src/ui/invite_contact.h
@@ -96,4 +101,5 @@ src/ui/settings.c
 src/ui/settings.h
 src/ui/tag.c
 src/ui/tag.h
+src/util.c
 src/util.h

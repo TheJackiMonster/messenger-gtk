@@ -204,8 +204,7 @@
                                 <property name="icon-name">media-playback-pause-symbolic</property>
                               </object>
                               <packing>
-                                <property name="name">page0</property>
-                                <property name="title" translatable="yes">page0</property>
+                                <property name="name">pause_icon_page</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
