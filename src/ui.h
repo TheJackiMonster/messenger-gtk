@@ -92,4 +92,14 @@ void
 ui_avatar_set_text(HdyAvatar *avatar,
                    const char *text);
 
+/**
+ * Sets the icon of a HdyAvatar.
+ *
+ * @param avatar Avatar
+ * @param icon Loadable icon
+ */
+void
+ui_avatar_set_icon(HdyAvatar *avatar,
+                   GIcon *icon);
+
 #endif /* UI_H_ */

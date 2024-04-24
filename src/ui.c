@@ -164,3 +164,15 @@ ui_avatar_set_text(HdyAvatar *avatar, const char *text)
   hdy_avatar_set_text(avatar, _text);
   g_free(_text);
 }
+
+void
+ui_avatar_set_icon(HdyAvatar *avatar,
+                   GIcon *icon)
+{
+  g_assert(avatar);
+
+  if (!icon)
+    hdy_avatar_set_loadable_icon(avatar, NULL);
+  else
+    hdy_avatar_set_loadable_icon(avatar, G_LOADABLE_ICON(icon));
+}

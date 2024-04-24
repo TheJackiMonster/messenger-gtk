@@ -25,6 +25,7 @@
 #include "contact.h"
 
 #include "ui.h"
+
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
 #include <string.h>
@@ -38,8 +39,9 @@ contact_create_info(struct GNUNET_CHAT_Contact *contact)
   MESSENGER_ContactInfo* info = g_malloc(sizeof(MESSENGER_ContactInfo));
 
   info->last_message = NULL;
-  info->icon = NULL;
   info->icon_file = NULL;
+  info->icon = NULL;
+  info->task = 0;
 
   info->name_labels = NULL;
   info->name_avatars = NULL;
@@ -67,6 +69,9 @@ contact_destroy_info(struct GNUNET_CHAT_Contact *contact)
 
   if (info->visible_widgets)
     g_list_free(info->visible_widgets);
+
+  if (info->task)
+    util_source_remove(info->task);
 
   if (info->icon)
     g_object_unref(info->icon);
@@ -149,9 +154,7 @@ contact_add_name_avatar_to_info(const struct GNUNET_CHAT_Contact *contact,
   const char *name = GNUNET_CHAT_contact_get_name(contact);
 
   ui_avatar_set_text(avatar, name);
-  
-  if (info->icon)
-    hdy_avatar_set_loadable_icon(avatar, G_LOADABLE_ICON(info->icon));
+  ui_avatar_set_icon(avatar, info->icon);
 
   info->name_avatars = g_list_append(info->name_avatars, avatar);
 }
@@ -223,13 +226,27 @@ contact_update_info(const struct GNUNET_CHAT_Contact *contact)
   for (list = info->name_avatars; list; list = list->next)
     ui_avatar_set_text(HDY_AVATAR(list->data), name);
 
-  if (info->icon)
-    for (list = info->name_avatars; list; list = list->next)
-      hdy_avatar_set_loadable_icon(HDY_AVATAR(list->data), 
-                                   G_LOADABLE_ICON(info->icon));
+  for (list = info->name_avatars; list; list = list->next)
+    ui_avatar_set_icon(HDY_AVATAR(list->data), info->icon);
 
   for (list = info->visible_widgets; list; list = list->next)
     gtk_widget_set_visible(GTK_WIDGET(list->data), visible);
+}
+
+static gboolean
+_task_update_avatars(gpointer data)
+{
+  g_assert(data);
+
+  MESSENGER_ContactInfo *info = (MESSENGER_ContactInfo*) data;
+
+  info->task = 0;
+
+  GList* list;
+  for (list = info->name_avatars; list; list = list->next)
+    ui_avatar_set_icon(HDY_AVATAR(list->data), info->icon);
+
+  return FALSE;
 }
 
 static void
@@ -274,12 +291,8 @@ skip_comparison:
 
   info->icon = g_file_icon_new(file_object);
 
-  if (!(info->icon))
-    return;
-
-  GList* list;
-  for (list = info->name_avatars; list; list = list->next)
-    hdy_avatar_set_loadable_icon(HDY_AVATAR(list->data), G_LOADABLE_ICON(info->icon));
+  if (!(info->task))
+    info->task = util_idle_add(G_SOURCE_FUNC(_task_update_avatars), info);
 }
 
 static enum GNUNET_GenericReturnValue

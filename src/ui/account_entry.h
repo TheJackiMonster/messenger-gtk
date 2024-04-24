@@ -27,8 +27,11 @@
 
 #include "messenger.h"
 
+#include <gnunet/gnunet_chat_lib.h>
+
 typedef struct UI_ACCOUNT_ENTRY_Handle
 {
+  const struct GNUNET_CHAT_Account *account;
   const struct GNUNET_CHAT_Contact *contact;
 
   GtkBuilder *builder;

@@ -709,8 +709,7 @@ _messenger_iterate_accounts(void *cls,
 
   UI_ACCOUNT_ENTRY_Handle *entry = ui_account_entry_new(app);
 
-  ui_avatar_set_text(entry->entry_avatar, name);
-  ui_label_set_text(entry->entry_label, name);
+  ui_account_entry_set_account(entry, account);
 
   gtk_list_box_prepend(ui->accounts_listbox, entry->entry_box);
 

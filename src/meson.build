@@ -22,6 +22,7 @@ subdir('chat')
 subdir('ui')
 
 messenger_gtk_sources = files([
+    'account.c', 'account.h',
     'application.c', 'application.h',
     'contact.c', 'contact.h',
     'event.c', 'event.h',

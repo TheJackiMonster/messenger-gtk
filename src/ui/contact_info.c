@@ -26,6 +26,7 @@
 
 #include "chat_entry.h"
 
+#include "../account.h"
 #include "../application.h"
 #include "../contact.h"
 #include "../file.h"
@@ -48,19 +49,12 @@ handle_contact_edit_button_click(UNUSED GtkButton *button,
     GTK_WIDGET(handle->contact_name_entry)
   );
 
-  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
-    g_object_get_qdata(
-	    G_OBJECT(handle->contact_name_entry),
-	    handle->app->quarks.data
-    )
-  );
-
   if (!editable)
     goto skip_change_name;
 
   const gboolean change_own_name = (
-    (!contact) ||
-    (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
+    (!(handle->contact)) ||
+    (GNUNET_YES == GNUNET_CHAT_contact_is_owned(handle->contact))
   );
 
   const gchar *name = gtk_entry_get_text(handle->contact_name_entry);
@@ -77,7 +71,7 @@ handle_contact_edit_button_click(UNUSED GtkButton *button,
       );
   }
   else
-    GNUNET_CHAT_contact_set_name(contact, name);
+    GNUNET_CHAT_contact_set_name(handle->contact, name);
 
 skip_change_name:
   gtk_image_set_from_icon_name(
@@ -258,17 +252,10 @@ handle_block_button_click(UNUSED GtkButton *button,
 
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
-  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
-    g_object_get_qdata(
-	    G_OBJECT(handle->block_stack),
-	    handle->app->quarks.data
-    )
-  );
-
-  if (!contact)
+  if (!(handle->contact))
     return;
 
-  GNUNET_CHAT_contact_set_blocked(contact, GNUNET_YES);
+  GNUNET_CHAT_contact_set_blocked(handle->contact, GNUNET_YES);
 
   gtk_stack_set_visible_child(
     handle->block_stack,
@@ -284,17 +271,10 @@ handle_unblock_button_click(UNUSED GtkButton *button,
 
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
-  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
-    g_object_get_qdata(
-	    G_OBJECT(handle->block_stack),
-	    handle->app->quarks.data
-    )
-  );
-
-  if (!contact)
+  if (!(handle->contact))
     return;
 
-  GNUNET_CHAT_contact_set_blocked(contact, GNUNET_NO);
+  GNUNET_CHAT_contact_set_blocked(handle->contact, GNUNET_NO);
 
   gtk_stack_set_visible_child(
     handle->block_stack, 
@@ -310,18 +290,11 @@ handle_open_chat_button_click(UNUSED GtkButton *button,
 
   UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
 
-  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) (
-    g_object_get_qdata(
-	    G_OBJECT(handle->contact_name_entry),
-	    handle->app->quarks.data
-    )
-  );
-
-  if (!contact)
+  if (!(handle->contact))
     return;
 
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
-    contact
+    handle->contact
   );
 
   if (!context)
@@ -697,12 +670,8 @@ handle_value_renderer_edit(GtkCellRendererText *renderer,
   if (!chat)
     return;
 
-  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) g_object_get_qdata(
-    G_OBJECT(handle->attributes_tree),
-    handle->app->quarks.data
-  );
-
-  if ((contact) && (GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact)))
+  if ((handle->contact) && 
+      (GNUNET_YES != GNUNET_CHAT_contact_is_owned(handle->contact)))
     return;
 
   GValue value = G_VALUE_INIT;
@@ -802,12 +771,8 @@ handle_share_renderer_toggle(GtkCellRendererToggle *renderer,
   if (!chat)
     return;
 
-  struct GNUNET_CHAT_Contact *contact = (struct GNUNET_CHAT_Contact*) g_object_get_qdata(
-    G_OBJECT(handle->sharing_tree),
-    handle->app->quarks.data
-  );
-
-  if ((!contact) || (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact)))
+  if ((!(handle->contact)) || 
+      (GNUNET_YES == GNUNET_CHAT_contact_is_owned(handle->contact)))
     return;
 
   GValue value_name = G_VALUE_INIT;
@@ -820,9 +785,9 @@ handle_share_renderer_toggle(GtkCellRendererToggle *renderer,
   const gboolean shared = g_value_get_boolean(&value_shared);
 
   if (shared)
-    GNUNET_CHAT_unshare_attribute_from(chat, contact, name);
+    GNUNET_CHAT_unshare_attribute_from(chat, handle->contact, name);
   else
-    GNUNET_CHAT_share_attribute_with(chat, contact, name);
+    GNUNET_CHAT_share_attribute_with(chat, handle->contact, name);
 
   gtk_list_store_set(handle->sharing_list, &iter, 2, !shared, -1);
 
@@ -837,6 +802,9 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
   g_assert((app) && (handle));
 
   handle->app = app;
+
+  handle->account = NULL;
+  handle->contact = NULL;
 
   handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/contact_info.ui")
@@ -1126,21 +1094,26 @@ _contact_info_update(UI_CONTACT_INFO_Handle *handle,
 {
   g_assert(handle);
 
-  struct GNUNET_CHAT_Contact *prev = g_object_get_qdata(
-    G_OBJECT(handle->contact_avatar),
-    handle->app->quarks.data
-  );
-
-  if (prev)
-    contact_remove_name_avatar_from_info(prev, handle->contact_avatar);
+  if (handle->contact)
+    contact_remove_name_avatar_from_info(handle->contact, handle->contact_avatar);
   if (contact)
     contact_add_name_avatar_to_info(contact, handle->contact_avatar);
 
-  g_object_set_qdata(
-    G_OBJECT(handle->contact_avatar),
-    handle->app->quarks.data,
-    contact
-  );
+  handle->contact = contact;
+}
+
+static void
+_account_info_update(UI_CONTACT_INFO_Handle *handle,
+                     const struct GNUNET_CHAT_Account *account)
+{
+  g_assert(handle);
+
+  if (handle->account)
+    account_remove_name_avatar_from_info(handle->account, handle->contact_avatar);
+  if (account)
+    account_add_name_avatar_to_info(account, handle->contact_avatar);
+
+  handle->account = account;
 }
 
 void
@@ -1161,27 +1134,15 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
   if (contact)
     _contact_info_update(handle, contact);
   else
-    ui_avatar_set_text(handle->contact_avatar, name);
+  {
+    const struct GNUNET_CHAT_Account *account = GNUNET_CHAT_get_connected(
+      handle->app->chat.messenger.handle
+    );
+
+    _account_info_update(handle, account);
+  }
 
   ui_entry_set_text(handle->contact_name_entry, name);
-
-  g_object_set_qdata(
-    G_OBJECT(handle->contact_name_entry),
-    handle->app->quarks.data,
-    contact
-  );
-
-  g_object_set_qdata(
-    G_OBJECT(handle->attributes_tree),
-    handle->app->quarks.data,
-    contact
-  );
-
-  g_object_set_qdata(
-    G_OBJECT(handle->sharing_tree),
-    handle->app->quarks.data,
-    contact
-  );
 
   const gboolean editable = (
     (!contact) ||
@@ -1278,12 +1239,6 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
     !editable
   );
 
-  g_object_set_qdata(
-    G_OBJECT(handle->block_stack),
-    handle->app->quarks.data,
-    contact
-  );
-
   gtk_list_store_clear(handle->attributes_list);
   gtk_list_store_clear(handle->sharing_list);
 
@@ -1343,7 +1298,9 @@ ui_contact_info_dialog_cleanup(UI_CONTACT_INFO_Handle *handle)
     handle->id_draw_signal
   );
 
+  _account_info_update(handle, NULL);
   _contact_info_update(handle, NULL);
+
   g_object_unref(handle->builder);
 
   if (handle->qr)

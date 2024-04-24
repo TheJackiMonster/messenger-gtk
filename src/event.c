@@ -24,6 +24,7 @@
 
 #include "event.h"
 
+#include "account.h"
 #include "application.h"
 #include "contact.h"
 #include "file.h"
@@ -116,6 +117,33 @@ event_handle_warning(MESSENGER_Application *app,
   );
 }
 
+static enum GNUNET_GenericReturnValue
+_iterate_reload_account(void *cls,
+                        UNUSED const struct GNUNET_CHAT_Handle *handle,
+                        struct GNUNET_CHAT_Account *account)
+{
+  g_assert((cls) && (account));
+
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  if (GNUNET_YES == account_create_info(account))
+    account_update_attributes(account, app);
+
+  return GNUNET_YES;
+}
+
+static void
+_reload_accounts(MESSENGER_Application *app)
+{
+  account_cleanup_infos();
+
+  GNUNET_CHAT_iterate_accounts(
+    app->chat.messenger.handle,
+    _iterate_reload_account,
+    app
+  );
+}
+
 static gboolean
 _idle_refresh_accounts(gpointer user_data)
 {
@@ -125,6 +153,8 @@ _idle_refresh_accounts(gpointer user_data)
 
   if (!(app->ui.messenger.main_window))
     goto refresh_exit;
+
+  _reload_accounts(app);
 
   if (gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
     ui_messenger_refresh(app, &(app->ui.messenger));
@@ -303,9 +333,15 @@ event_update_profile(MESSENGER_Application *app)
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
 
+  _reload_accounts(app);
+
   const char *name = GNUNET_CHAT_get_name(chat->handle);
 
-  ui_avatar_set_text(ui->profile_avatar, name);
+  account_add_name_avatar_to_info(
+    GNUNET_CHAT_get_connected(chat->handle),
+    ui->profile_avatar
+  );
+
   ui_label_set_text(ui->profile_label, name);
 
   const char *key = GNUNET_CHAT_get_key(chat->handle);
@@ -369,6 +405,11 @@ event_cleanup_profile(MESSENGER_Application *app)
 
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
+
+  account_remove_name_avatar_from_info(
+    GNUNET_CHAT_get_connected(chat->handle),
+    ui->profile_avatar
+  );
 
   GList *entries = gtk_container_get_children(
     GTK_CONTAINER(ui->chats_listbox)

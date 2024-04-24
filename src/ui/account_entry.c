@@ -24,6 +24,7 @@
 
 #include "account_entry.h"
 
+#include "../account.h"
 #include "../application.h"
 #include "../contact.h"
 #include "../ui.h"
@@ -35,6 +36,7 @@ ui_account_entry_new(MESSENGER_Application *app)
 
   UI_ACCOUNT_ENTRY_Handle* handle = g_malloc(sizeof(UI_ACCOUNT_ENTRY_Handle));
 
+  handle->account = NULL;
   handle->contact = NULL;
 
   handle->builder = ui_builder_from_resource(
@@ -60,12 +62,19 @@ void
 ui_account_entry_set_account(UI_ACCOUNT_ENTRY_Handle* handle,
                              const struct GNUNET_CHAT_Account *account)
 {
-  g_assert((handle) && (account));
+  g_assert(handle);
 
-  const char *name = GNUNET_CHAT_account_get_name(account);
+  if (handle->account)
+    account_remove_name_avatar_from_info(account, handle->entry_avatar);
 
-  ui_avatar_set_text(handle->entry_avatar, name);
-  ui_label_set_text(handle->entry_label, name);
+  if (account)
+  {
+    account_add_name_avatar_to_info(account, handle->entry_avatar);
+
+    ui_label_set_text(handle->entry_label, GNUNET_CHAT_account_get_name(account));
+  }
+
+  handle->account = account;
 }
 
 void
@@ -94,6 +103,7 @@ ui_account_entry_delete(UI_ACCOUNT_ENTRY_Handle *handle)
 {
   g_assert(handle);
 
+  ui_account_entry_set_account(handle, NULL);
   ui_account_entry_set_contact(handle, NULL);
   
   g_object_unref(handle->builder);

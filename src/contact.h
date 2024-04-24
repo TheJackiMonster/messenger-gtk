@@ -34,6 +34,7 @@ typedef struct MESSENGER_ContactInfo
   void *last_message;
   GFile *icon_file;
   GIcon *icon;
+  guint task;
 
   GList *name_labels;
   GList *name_avatars;

@@ -29,11 +29,15 @@
 
 #include <cairo/cairo.h>
 #include <gdk/gdkpixbuf.h>
+#include <gnunet/gnunet_chat_lib.h>
 #include <qrencode.h>
 
 typedef struct UI_CONTACT_INFO_Handle
 {
   MESSENGER_Application *app;
+
+  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Contact *contact;
 
   GtkBuilder *builder;
   GtkDialog *dialog;
