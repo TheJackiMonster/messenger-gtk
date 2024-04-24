@@ -35,7 +35,7 @@ Copyright (C) 2021--2024 GNUnet e.V.</property>
     <property name="authors">Tobias Frisch</property>
     <property name="documenters">Tobias Frisch
 Marcos Marado</property>
-    <property name="translator-credits" translatable="yes">Tobias Frisch</property>
+    <property name="translator-credits" translatable="yes">Translators</property>
     <property name="artists">Tobias Frisch</property>
     <property name="logo-icon-name">org.gnunet.Messenger</property>
     <property name="license-type">agpl-3-0</property>

@@ -22,7 +22,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unnamed project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-24 03:42+0200\n"
+"POT-Creation-Date: 2024-04-24 16:41+0200\n"
 "PO-Revision-Date: 2024-04-01 22:18+0200\n"
 "Last-Translator: Tobias Frisch <>\n"
 "Language-Team: English\n"
@@ -42,7 +42,7 @@ msgstr ""
 "Copyright (C) 2021--2024 GNUnet e.V."
 
 #: resources/ui/about.ui:38
-msgid "Tobias Frisch"
+msgid "Translators"
 msgstr "Tobias Frisch"
 
 #: resources/ui/about.ui:71 resources/ui/accounts.ui:42
@@ -476,20 +476,20 @@ msgstr "Leave chats automatically"
 msgid "Leave all chats"
 msgstr "Leave all chats"
 
-#: src/event.c:515
+#: src/event.c:556
 msgid "joined the chat"
 msgstr "joined the chat"
 
-#: src/event.c:515
+#: src/event.c:556
 msgid "left the chat"
 msgstr "left the chat"
 
-#: src/event.c:648
+#: src/event.c:689
 #, c-format
 msgid "invited %s to a chat"
 msgstr "invited %s to a chat"
 
-#: src/event.c:652
+#: src/event.c:693
 msgid "you"
 msgstr "you"
 
