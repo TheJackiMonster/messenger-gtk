@@ -126,6 +126,37 @@ account_add_name_avatar_to_info(const struct GNUNET_CHAT_Account *account,
 }
 
 void
+account_switch_name_avatar_to_info(const struct GNUNET_CHAT_Account *account,
+			                             HdyAvatar *avatar)
+{
+  g_assert(avatar);
+
+  MESSENGER_AccountInfo *info = GNUNET_CHAT_account_get_user_pointer(account);
+
+  if (!info)
+    return;
+
+  if (g_list_find(info->name_avatars, avatar))
+    return;
+
+  GList *list = infos;
+  while (list)
+  {
+    MESSENGER_AccountInfo *other = (MESSENGER_AccountInfo*) list->data;
+
+    if (g_list_find(other->name_avatars, avatar))
+    {
+      account_remove_name_avatar_from_info(other->account, avatar);
+      break;
+    }
+
+    list = g_list_next(list);
+  }
+
+  account_add_name_avatar_to_info(account, avatar);
+}
+
+void
 account_remove_name_avatar_from_info(const struct GNUNET_CHAT_Account *account,
 			                               HdyAvatar *avatar)
 {

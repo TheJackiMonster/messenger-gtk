@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
+<!-- Generated with glade 3.40.0 
 
 Copyright (C) 2021‑‑2022 GNUnet e.V.
 
@@ -125,7 +125,7 @@ Author: Tobias Frisch
               <object class="GtkFileChooserButton" id="account_avatar_file">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="title" translatable="yes"/>
+                <property name="title" translatable="yes">Select profile picture</property>
               </object>
               <packing>
                 <property name="expand">False</property>

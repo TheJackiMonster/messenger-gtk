@@ -78,6 +78,18 @@ account_add_name_avatar_to_info(const struct GNUNET_CHAT_Account *account,
 			                          HdyAvatar *avatar);
 
 /**
+ * Switches a HdyAvatar to the list of avatars
+ * in case it's in another list. Otherwise it
+ * gets added as usual.
+ *
+ * @param account Chat account
+ * @param avatar Avatar
+ */
+void
+account_switch_name_avatar_to_info(const struct GNUNET_CHAT_Account *account,
+			                             HdyAvatar *avatar);
+
+/**
  * Removes a HdyAvatar from the list of avatars
  * which get updated by state changes.
  *

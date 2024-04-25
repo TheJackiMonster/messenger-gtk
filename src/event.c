@@ -126,8 +126,8 @@ _iterate_reload_account(void *cls,
 
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
-  if (GNUNET_YES == account_create_info(account))
-    account_update_attributes(account, app);
+  account_create_info(account);
+  account_update_attributes(account, app);
 
   return GNUNET_YES;
 }
@@ -135,8 +135,6 @@ _iterate_reload_account(void *cls,
 static void
 _reload_accounts(MESSENGER_Application *app)
 {
-  account_cleanup_infos();
-  
   GNUNET_CHAT_iterate_accounts(
     app->chat.messenger.handle,
     _iterate_reload_account,
@@ -330,6 +328,9 @@ event_update_profile(MESSENGER_Application *app)
 {
   g_assert(app);
 
+  if (app->ui.new_account.dialog)
+    ui_new_account_dialog_update(app, &(app->ui.new_account));
+
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
 
@@ -337,7 +338,7 @@ event_update_profile(MESSENGER_Application *app)
 
   const char *name = GNUNET_CHAT_get_name(chat->handle);
 
-  account_add_name_avatar_to_info(
+  account_switch_name_avatar_to_info(
     GNUNET_CHAT_get_connected(chat->handle),
     ui->profile_avatar
   );
@@ -949,8 +950,6 @@ _iterate_contacts_update_own(void *cls,
   if (GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact))
     return GNUNET_YES;
 
-  printf("contact-update! %s\n", GNUNET_CHAT_contact_get_name(contact));
-
   contact_update_attributes(contact, app);
   return GNUNET_YES;
 }
@@ -968,8 +967,6 @@ event_update_attributes(MESSENGER_Application *app)
 
   if (account)
     account_update_attributes(account, app);
-
-  printf("update!\n");
 
   GNUNET_CHAT_iterate_contacts(
     chat->handle,

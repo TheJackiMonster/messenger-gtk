@@ -124,6 +124,7 @@ handle_profile_chooser_update_preview(GtkFileChooser *file_chooser,
     goto skip_avatar;
 
   hdy_avatar_set_loadable_icon(avatar, G_LOADABLE_ICON(icon));
+  g_object_unref(icon);
   have_preview = true;
 
 skip_avatar:

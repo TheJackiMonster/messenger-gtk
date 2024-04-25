@@ -30,6 +30,7 @@
 typedef struct UI_NEW_ACCOUNT_Handle
 {
   guint show_queued;
+  gchar *filename;
 
   GtkBuilder *builder;
   GtkDialog *dialog;
@@ -53,6 +54,18 @@ typedef struct UI_NEW_ACCOUNT_Handle
 void
 ui_new_account_dialog_init(MESSENGER_Application *app,
                            UI_NEW_ACCOUNT_Handle *handle);
+
+/**
+ * Triggers an update of a new account dialog handle
+ * to process selected changes regarding the new 
+ * account and finish account creation.
+ *
+ * @param app Messenger application
+ * @param handle New account dialog handle
+ */
+void
+ui_new_account_dialog_update(MESSENGER_Application *app,
+                             UI_NEW_ACCOUNT_Handle *handle);
 
 /**
  * Cleans up the allocated resources and resets the
