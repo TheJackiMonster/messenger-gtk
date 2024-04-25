@@ -25,6 +25,8 @@
 #include "accounts.h"
 
 #include "account_entry.h"
+
+#include "../account.h"
 #include "../application.h"
 #include "../ui.h"
 

@@ -197,6 +197,11 @@ _chat_messenger_message(void *cls,
       );
       break;
     }
+    case GNUNET_CHAT_KIND_ATTRIBUTES:
+    {
+      application_call_event(app, event_update_attributes);
+      break;
+    }
     default:
       break;
   }

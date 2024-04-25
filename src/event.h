@@ -162,4 +162,13 @@ event_tag_message(MESSENGER_Application *app,
                   struct GNUNET_CHAT_Context *context,
                   const struct GNUNET_CHAT_Message *msg);
 
+/**
+ * Event for the UI to be called whenever an attribute
+ * gets changed.
+ *
+ * @param app Messenger application
+ */
+void
+event_update_attributes(MESSENGER_Application *app);
+
 #endif /* EVENT_H_ */

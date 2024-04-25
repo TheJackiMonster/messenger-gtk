@@ -136,7 +136,7 @@ static void
 _reload_accounts(MESSENGER_Application *app)
 {
   account_cleanup_infos();
-
+  
   GNUNET_CHAT_iterate_accounts(
     app->chat.messenger.handle,
     _iterate_reload_account,
@@ -935,4 +935,45 @@ event_tag_message(MESSENGER_Application *app,
     g_list_free(rows);
 
   enqueue_chat_entry_update(handle);
+}
+
+static enum GNUNET_GenericReturnValue
+_iterate_contacts_update_own(void *cls,
+                             UNUSED struct GNUNET_CHAT_Handle *handle,
+                             struct GNUNET_CHAT_Contact *contact)
+{
+  g_assert((cls) && (contact));
+
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  if (GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact))
+    return GNUNET_YES;
+
+  printf("contact-update! %s\n", GNUNET_CHAT_contact_get_name(contact));
+
+  contact_update_attributes(contact, app);
+  return GNUNET_YES;
+}
+
+void
+event_update_attributes(MESSENGER_Application *app)
+{
+  g_assert(app);
+
+  CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
+
+  const struct GNUNET_CHAT_Account *account = GNUNET_CHAT_get_connected(
+    chat->handle
+  );
+
+  if (account)
+    account_update_attributes(account, app);
+
+  printf("update!\n");
+
+  GNUNET_CHAT_iterate_contacts(
+    chat->handle,
+    _iterate_contacts_update_own,
+    app
+  );
 }

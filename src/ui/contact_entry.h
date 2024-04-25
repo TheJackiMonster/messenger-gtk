@@ -27,12 +27,15 @@
 
 #include "messenger.h"
 
+#include <gnunet/gnunet_chat_lib.h>
+
 typedef struct UI_CONTACT_ENTRY_Handle
 {
+  const struct GNUNET_CHAT_Contact *contact;
+
   GtkBuilder *builder;
 
   GtkWidget *entry_box;
-
   HdyAvatar *entry_avatar;
 
   GtkLabel *title_label;
