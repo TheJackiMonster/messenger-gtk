@@ -376,16 +376,16 @@ _application_chat_thread(void *args)
 
   struct GNUNET_GETOPT_CommandLineOption options[] = {
     GNUNET_GETOPT_option_flag (
-  'm',
-  "mobile",
-  "Optimize UI spacing for mobile devices",
-  &(app->settings.mobile_design)
+      'm',
+      "mobile",
+      "Optimize UI spacing for mobile devices",
+      &(app->settings.mobile_design)
     ),
     GNUNET_GETOPT_option_string (
-'e',
+      'e',
       "ego",
-"IDENTITY",
-"Identity to select for messaging",
+      "IDENTITY",
+      "Identity to select for messaging",
       &(app->chat.identity)
     ),
     GNUNET_GETOPT_OPTION_END

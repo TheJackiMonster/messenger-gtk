@@ -58,6 +58,8 @@ _open_new_account(GtkEntry *entry,
 
   app->chat.identity = GNUNET_strdup(name);
 
+  gtk_widget_set_sensitive(GTK_WIDGET(app->ui.new_account.dialog), FALSE);
+
   if (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
     app->ui.new_account.show_queued = util_idle_add(
       G_SOURCE_FUNC(_show_messenger_main_window), app
@@ -70,12 +72,16 @@ handle_account_entry_changed(GtkEditable *editable,
 {
   g_assert((editable) && (user_data));
 
-  HdyAvatar *avatar = HDY_AVATAR(user_data);
-  GtkEntry *entry = GTK_ENTRY(editable);
+  UI_NEW_ACCOUNT_Handle *handle = (UI_NEW_ACCOUNT_Handle*) user_data;
 
-  const gchar *text = gtk_entry_get_text(entry);
+  const gchar *text = gtk_entry_get_text(GTK_ENTRY(editable));
 
-  hdy_avatar_set_text(avatar, text);
+  hdy_avatar_set_text(handle->account_avatar, text);
+
+  gtk_widget_set_sensitive(
+    GTK_WIDGET(handle->confirm_button),
+    (text) && (strlen(text) > 0)
+  );
 }
 
 static void
@@ -229,7 +235,7 @@ ui_new_account_dialog_init(MESSENGER_Application *app,
     handle->account_entry,
     "changed",
     G_CALLBACK(handle_account_entry_changed),
-    handle->account_avatar
+    handle
   );
 
   g_signal_connect(

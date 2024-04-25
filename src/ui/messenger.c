@@ -36,6 +36,7 @@
 #include "new_platform.h"
 #include "settings.h"
 
+#include "../account.h"
 #include "../application.h"
 #include "../ui.h"
 
@@ -745,6 +746,17 @@ _clear_accounts_listbox(GtkWidget *widget,
   );
 }
 
+static gboolean
+_close_messenger_missing_account(gpointer data)
+{
+  g_assert(data);
+
+  UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) data;  
+
+  gtk_window_close(GTK_WINDOW(handle->main_window));
+  return FALSE;
+}
+
 void
 ui_messenger_refresh(MESSENGER_Application *app,
 		                 UI_MESSENGER_Handle *handle)
@@ -764,6 +776,16 @@ ui_messenger_refresh(MESSENGER_Application *app,
     app->chat.messenger.handle,
     _messenger_iterate_accounts,
     app
+  );
+
+  if (gtk_list_box_get_selected_row(handle->accounts_listbox))
+    return;
+  
+  gtk_widget_hide(GTK_WIDGET(handle->main_window));
+
+  handle->account_refresh = util_idle_add(
+    G_SOURCE_FUNC(_close_messenger_missing_account),
+    handle
   );
 }
 

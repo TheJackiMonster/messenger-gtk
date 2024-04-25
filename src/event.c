@@ -149,8 +149,10 @@ _idle_refresh_accounts(gpointer user_data)
 
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
+  app->ui.messenger.account_refresh = 0;
+
   if (!(app->ui.messenger.main_window))
-    goto refresh_exit;
+    return FALSE;
 
   _reload_accounts(app);
 
@@ -159,8 +161,6 @@ _idle_refresh_accounts(gpointer user_data)
   else
     ui_accounts_dialog_refresh(app, &(app->ui.accounts));
 
-refresh_exit:
-  app->ui.messenger.account_refresh = 0;
   return FALSE;
 }
 
