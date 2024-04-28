@@ -117,7 +117,7 @@ _chat_messenger_message(void *cls,
       application_call_sync_event(app, event_cleanup_profile);
       break;
     }
-    case GNUNET_CHAT_KIND_UPDATE:
+    case GNUNET_CHAT_KIND_UPDATE_CONTEXT:
     {
       application_call_message_event(
           app,
