@@ -21,17 +21,20 @@ description: |
   Chats will generally created as opt-in. So you can decide who may contact you directly and who does not, accepting to a direct chat. Leaving a chat is also always possible.
 adopt-info: messenger-gtk
 icon: resources/icon/full_color.svg
-grade: stable
-confinement: strict
 base: core24
+confinement: strict
+grade: stable
 
-architectures:
-  - build-on: arm64
-    build-for: arm64
-  - build-on: armhf
-    build-for: armhf
-  - build-on: amd64
-    build-for: amd64
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [amd64]
+  armhf:
+    build-on: [armhf]
+    build-for: [armhf]
+  arm64:
+    build-on: [arm64]
+    build-for: [arm64]
 
 slots:
   messenger-gtk:
@@ -70,23 +73,21 @@ parts:
       - recutils
       - libjansson4
       - libsodium23
-      - libcurl3-gnutls
+      - libcurl3t64-gnutls
       - libidn2-0
-      - libunistring2
+      - libunistring5
       - libsqlite3-0
       - libmicrohttpd12
       - libgnutls-dane0
       - libunbound8
-    source: http://ftpmirror.gnu.org/gnunet/gnunet-0.21.0.tar.gz
+    source: http://ftpmirror.gnu.org/gnunet/gnunet-0.21.1.tar.gz
     plugin: autotools
     autotools-configure-parameters:
       - --prefix=/usr
       - --disable-documentation
   libgnunetchat:
     after: [ gnunet ]
-    build-packages:
-      - check
-    source: http://ftpmirror.gnu.org/gnunet/libgnunetchat-0.3.0.tar.gz
+    source: http://ftpmirror.gnu.org/gnunet/libgnunetchat-0.3.1.tar.gz
     plugin: meson
     meson-parameters:
       - --prefix=/usr
@@ -98,6 +99,9 @@ parts:
       - libzbar-dev
       - libgstreamer1.0-dev
       - libgstreamer-plugins-base1.0-dev
+      - libpipewire-0.3-dev
+      - libportal-dev
+      - libportal-gtk3-dev
       - desktop-file-utils
     stage-packages:
       - libqrencode4
@@ -108,6 +112,10 @@ parts:
       - gstreamer1.0-plugins-bad
       - gstreamer1.0-plugins-good
       - gstreamer1.0-gtk3
+      - gstreamer1.0-pipewire
+      - libpipewire-0.3-0t64
+      - libportal1
+      - libportal-gtk3-1
       - libltdl7
     source: http://ftpmirror.gnu.org/gnunet/messenger-gtk-0.9.0.tar.gz
     plugin: meson
