@@ -65,7 +65,7 @@ ui_account_entry_set_account(UI_ACCOUNT_ENTRY_Handle* handle,
   g_assert(handle);
 
   if (handle->account)
-    account_remove_name_avatar_from_info(account, handle->entry_avatar);
+    account_remove_name_avatar_from_info(handle->account, handle->entry_avatar);
 
   if (account)
   {

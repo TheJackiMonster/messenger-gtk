@@ -176,12 +176,7 @@ _task_update_avatars(gpointer data)
 {
   g_assert(data);
 
-  struct GNUNET_CHAT_Account *account = (struct GNUNET_CHAT_Account*) data;
-
-  MESSENGER_AccountInfo *info = GNUNET_CHAT_account_get_user_pointer(account);
-
-  if (!info)
-    return FALSE;
+  MESSENGER_AccountInfo *info = (MESSENGER_AccountInfo*) data;
 
   info->task = 0;
 
@@ -237,7 +232,7 @@ skip_comparison:
   info->icon = g_file_icon_new(file_object);
 
   if (!(info->task))
-    info->task = util_idle_add(G_SOURCE_FUNC(_task_update_avatars), account);
+    info->task = util_idle_add(G_SOURCE_FUNC(_task_update_avatars), info);
 }
 
 static enum GNUNET_GenericReturnValue

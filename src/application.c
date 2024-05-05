@@ -26,6 +26,8 @@
 #include "request.h"
 #include "resources.h"
 
+#include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_common.h>
 #include <gstreamer-1.0/gst/gst.h>
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
@@ -72,6 +74,24 @@ _application_accounts(gpointer user_data)
   return FALSE;
 }
 
+static enum GNUNET_GenericReturnValue
+_application_select_account(void *cls,
+                            const struct GNUNET_CHAT_Handle *handle,
+                            struct GNUNET_CHAT_Account *account)
+{
+  g_assert((cls) && (account));
+
+  MESSENGER_Application *app = (MESSENGER_Application*) cls;
+
+  const char *name = GNUNET_CHAT_account_get_name(account);
+
+  if ((!name) || (0 != g_strcmp0(app->chat.identity, name)))
+    return GNUNET_YES;
+
+  GNUNET_CHAT_connect(app->chat.messenger.handle, account);
+  return GNUNET_NO;
+}
+
 static void
 _application_init(MESSENGER_Application *app)
 {
@@ -85,7 +105,15 @@ _application_init(MESSENGER_Application *app)
 #endif
 
   if (app->chat.identity)
+  {
+    GNUNET_CHAT_iterate_accounts(
+      app->chat.messenger.handle,
+      _application_select_account,
+      app
+    );
+
     application_show_window(app);
+  }
   else
     app->init = util_idle_add(G_SOURCE_FUNC(_application_accounts), app);
 }

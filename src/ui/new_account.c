@@ -29,17 +29,6 @@
 #include "../file.h"
 #include "../ui.h"
 
-static gboolean
-_show_messenger_main_window(gpointer user_data)
-{
-  g_assert(user_data);
-
-  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
-
-  gtk_widget_show(GTK_WIDGET(app->ui.messenger.main_window));
-  return FALSE;
-}
-
 static void
 _open_new_account(GtkEntry *entry, 
                   MESSENGER_Application *app)
@@ -52,18 +41,7 @@ _open_new_account(GtkEntry *entry,
     return;
 
   gtk_list_box_unselect_all(app->ui.messenger.accounts_listbox);
-
-  if (app->chat.identity)
-    GNUNET_free(app->chat.identity);
-
-  app->chat.identity = GNUNET_strdup(name);
-
   gtk_widget_set_sensitive(GTK_WIDGET(app->ui.new_account.dialog), FALSE);
-
-  if (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
-    app->ui.new_account.show_queued = util_idle_add(
-      G_SOURCE_FUNC(_show_messenger_main_window), app
-    );
 }
 
 static void
@@ -179,8 +157,7 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
 
   ui_new_account_dialog_cleanup(&(app->ui.new_account));
 
-  if ((!(app->ui.new_account.show_queued)) &&
-      (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window))))
+  if (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
     gtk_widget_destroy(GTK_WIDGET(app->ui.messenger.main_window));
 }
 
@@ -189,8 +166,6 @@ ui_new_account_dialog_init(MESSENGER_Application *app,
                            UI_NEW_ACCOUNT_Handle *handle)
 {
   g_assert((app) && (handle));
-
-  handle->show_queued = 0;
 
   handle->builder = ui_builder_from_resource(
     application_get_resource_path(app, "ui/new_account.ui")
@@ -318,6 +293,7 @@ ui_new_account_dialog_update(MESSENGER_Application *app,
 {
   g_assert((app) && (handle));
 
+  gtk_widget_set_sensitive(GTK_WIDGET(app->ui.new_account.dialog), TRUE);
   gtk_window_close(GTK_WINDOW(app->ui.new_account.dialog));
 
   if (!(handle->filename))
@@ -344,7 +320,5 @@ ui_new_account_dialog_cleanup(UI_NEW_ACCOUNT_Handle *handle)
   if (handle->filename)
     g_free(handle->filename);
 
-  guint show = handle->show_queued;
   memset(handle, 0, sizeof(*handle));
-  handle->show_queued = show;
 }

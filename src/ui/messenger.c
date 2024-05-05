@@ -708,8 +708,6 @@ _messenger_iterate_accounts(void *cls,
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
 
-  const char *name = GNUNET_CHAT_account_get_name(account);
-
   UI_ACCOUNT_ENTRY_Handle *entry = ui_account_entry_new(app);
 
   ui_account_entry_set_account(entry, account);
@@ -720,8 +718,7 @@ _messenger_iterate_accounts(void *cls,
 
   g_object_set_qdata(G_OBJECT(row), app->quarks.data, account);
 
-  if ((account == GNUNET_CHAT_get_connected(handle)) ||
-      ((app->chat.identity) && (0 == g_strcmp0(app->chat.identity, name))))
+  if (account == GNUNET_CHAT_get_connected(handle))
     gtk_widget_activate(row);
 
   ui_account_entry_delete(entry);

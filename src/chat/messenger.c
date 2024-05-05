@@ -117,6 +117,17 @@ _chat_messenger_message(void *cls,
       application_call_sync_event(app, event_cleanup_profile);
       break;
     }
+    case GNUNET_CHAT_KIND_CREATED_ACCOUNT:
+    case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
+    {
+      application_call_message_event(
+          app,
+          event_select_profile,
+          context,
+          message
+      );
+      break;
+    }
     case GNUNET_CHAT_KIND_UPDATE_CONTEXT:
     {
       application_call_message_event(

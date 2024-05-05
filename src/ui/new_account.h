@@ -29,7 +29,6 @@
 
 typedef struct UI_NEW_ACCOUNT_Handle
 {
-  guint show_queued;
   gchar *filename;
 
   GtkBuilder *builder;

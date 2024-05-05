@@ -60,9 +60,6 @@ _show_messenger_main_window(gpointer user_data)
 
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  // Refresh the account list
-  ui_messenger_refresh(app, &(app->ui.messenger));
-
   application_show_window(app);
   return FALSE;
 }
@@ -100,6 +97,9 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
     );
 
   GNUNET_CHAT_connect(app->chat.messenger.handle, account);
+
+  gtk_list_box_unselect_all(app->ui.messenger.accounts_listbox);
+  gtk_widget_set_sensitive(GTK_WIDGET(app->ui.accounts.dialog), FALSE);
 
 close_dialog:
   gtk_window_close(GTK_WINDOW(app->ui.accounts.dialog));

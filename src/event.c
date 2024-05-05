@@ -135,11 +135,22 @@ _iterate_reload_account(void *cls,
 static void
 _reload_accounts(MESSENGER_Application *app)
 {
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+  CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
+
   GNUNET_CHAT_iterate_accounts(
-    app->chat.messenger.handle,
+    chat->handle,
     _iterate_reload_account,
     app
   );
+
+  if (gtk_widget_is_visible(GTK_WIDGET(ui->main_window)))
+    ui_messenger_refresh(app, ui);
+  else
+    ui_accounts_dialog_refresh(app, &(app->ui.accounts));
+
+  if (GNUNET_CHAT_get_connected(chat->handle))
+    application_show_window(app);
 }
 
 static gboolean
@@ -155,11 +166,6 @@ _idle_refresh_accounts(gpointer user_data)
     return FALSE;
 
   _reload_accounts(app);
-
-  if (gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
-    ui_messenger_refresh(app, &(app->ui.messenger));
-  else
-    ui_accounts_dialog_refresh(app, &(app->ui.accounts));
 
   return FALSE;
 }
@@ -421,6 +427,24 @@ event_cleanup_profile(MESSENGER_Application *app)
 
   GNUNET_CHAT_iterate_contacts(chat->handle, _cleanup_profile_contacts, NULL);
   GNUNET_CHAT_iterate_files(chat->handle, _cleanup_profile_files, NULL);
+}
+
+void
+event_select_profile(MESSENGER_Application *app,
+		                 struct GNUNET_CHAT_Context *context,
+		                 const struct GNUNET_CHAT_Message *msg)
+{
+  g_assert((app) && (!context) && (msg));
+
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+  CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
+
+  const struct GNUNET_CHAT_Account *account = GNUNET_CHAT_message_get_account(msg);
+
+  if (GNUNET_CHAT_KIND_CREATED_ACCOUNT == GNUNET_CHAT_message_get_kind(msg))
+    GNUNET_CHAT_connect(chat->handle, account);
+
+  ui_messenger_refresh(app, ui);
 }
 
 gboolean

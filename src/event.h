@@ -71,6 +71,19 @@ event_cleanup_profile(MESSENGER_Application *app);
 
 /**
  * Event for the UI to be called whenever a the user
+ * creates or updates an account.
+ *
+ * @param app Messenger application
+ * @param context Chat context
+ * @param msg Create/Update message
+ */
+void
+event_select_profile(MESSENGER_Application *app,
+		                 struct GNUNET_CHAT_Context *context,
+		                 const struct GNUNET_CHAT_Message *msg);
+
+/**
+ * Event for the UI to be called whenever a the user
  * joins or leaves a chat (context) via message.
  *
  * @param app Messenger application
