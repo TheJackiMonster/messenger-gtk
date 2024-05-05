@@ -113,6 +113,8 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
 
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
+  ui_accounts_dialog_cleanup(&(app->ui.accounts), app);
+
   if ((app->ui.accounts.show_queued) ||
       (gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window))))
     return;
@@ -224,12 +226,12 @@ _ui_accounts_cleanup_listbox(UI_ACCOUNTS_Handle *handle,
       app->quarks.ui
     );
 
-    ui_account_entry_delete(entry);
-
     gtk_container_remove(
       GTK_CONTAINER(handle->accounts_listbox),
       GTK_WIDGET(row)
     );
+
+    ui_account_entry_delete(entry);
 
   skip_row:
     item = item->next;
@@ -263,12 +265,9 @@ ui_accounts_dialog_cleanup(UI_ACCOUNTS_Handle *handle,
 {
   g_assert((handle) && (app));
 
-  if (handle->builder)
-  {
-    _ui_accounts_cleanup_listbox(handle, app);
+  _ui_accounts_cleanup_listbox(handle, app);
 
-    g_object_unref(handle->builder);
-  }
+  g_object_unref(handle->builder);
 
   guint show = handle->show_queued;
   memset(handle, 0, sizeof(*handle));
