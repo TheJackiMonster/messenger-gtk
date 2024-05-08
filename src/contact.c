@@ -304,7 +304,7 @@ _info_iterate_attribute(MESSENGER_ContactInfo* info,
 {
   g_assert((info) && (handle) && (contact) && (name));
 
-  if ((0 != strcmp(name, ATTRIBUTE_PROFILE_PICTURE)) || (!value))
+  if ((0 != strcmp(name, GNUNET_CHAT_ATTRIBUTE_AVATAR)) || (!value))
     return GNUNET_YES;
 
   struct GNUNET_CHAT_Uri *uri = GNUNET_CHAT_uri_parse(value, NULL);

@@ -250,7 +250,7 @@ _account_iterate_attribute(void *cls,
   if (!info)
     return GNUNET_NO;
 
-  if ((0 != strcmp(name, ATTRIBUTE_PROFILE_PICTURE)) || (!value))
+  if ((0 != strcmp(name, GNUNET_CHAT_ATTRIBUTE_AVATAR)) || (!value))
     return GNUNET_YES;
 
   struct GNUNET_CHAT_Uri *uri = GNUNET_CHAT_uri_parse(value, NULL);

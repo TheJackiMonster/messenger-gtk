@@ -27,8 +27,6 @@
 
 #include "application.h"
 
-#define ATTRIBUTE_PROFILE_PICTURE "profile"
-
 typedef struct MESSENGER_ContactInfo
 {
   void *last_message;
