@@ -858,12 +858,16 @@ handle_send_now_button_click(GtkButton *button,
 
 static gboolean
 handle_send_record_button_pressed(GtkWidget *widget,
-                                  UNUSED GdkEvent *event,
+                                  GdkEvent *event,
                                   gpointer user_data)
 {
-  g_assert((widget) && (user_data));
+  g_assert((widget) && (event) && (user_data));
 
+  GdkEventButton *ev = (GdkEventButton*) event;
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  if (1 != ev->button)
+    return FALSE;
 
   GtkTextView *text_view = GTK_TEXT_VIEW(
     g_object_get_qdata(G_OBJECT(widget), app->quarks.widget)
@@ -942,19 +946,31 @@ handle_send_record_button_pressed(GtkWidget *widget,
 
 static gboolean
 handle_send_record_button_released(GtkWidget *widget,
-                                   UNUSED GdkEvent *event,
+                                   GdkEvent *event,
                                    gpointer user_data)
 {
-  g_assert((widget) && (user_data));
+  g_assert((widget) && (event) && (user_data));
 
+  GdkEventButton *ev = (GdkEventButton*) event;
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
-
-  GtkTextView *text_view = GTK_TEXT_VIEW(
-    g_object_get_qdata(G_OBJECT(widget), app->quarks.widget)
-  );
 
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) (
     g_object_get_qdata(G_OBJECT(widget), app->quarks.ui)
+  );
+
+  if ((gtk_stack_get_visible_child(handle->send_stack) == handle->send_text_box) &&
+      (3 == ev->button))
+  {
+    handle->send_pressed_time = UI_CHAT_SEND_BUTTON_HOLD_INTERVAL;
+
+    handle_send_record_button_click(GTK_BUTTON(widget), user_data);
+    return FALSE;
+  }
+  else if (1 != ev->button)
+    return FALSE;
+
+  GtkTextView *text_view = GTK_TEXT_VIEW(
+    g_object_get_qdata(G_OBJECT(widget), app->quarks.widget)
   );
 
   handle->send_pressed_time = g_get_monotonic_time() - handle->send_pressed_time;

@@ -73,7 +73,7 @@ The application will utilize gstreamer to scan a video feed from your camera for
  - [gtksink](https://gstreamer.freedesktop.org/documentation/gtk/gtksink.html?gi-language=c)
  - [oggdemux](https://gstreamer.freedesktop.org/documentation/ogg/oggdemux.html?gi-language=c)
  - [oggmux](https://gstreamer.freedesktop.org/documentation/ogg/oggmux.html?gi-language=c)
- - [v4l2src](https://gstreamer.freedesktop.org/documentation/video4linux2/v4l2src.html?gi-language=c)
+ - pipewiresrc
  - [videoconvert](https://gstreamer.freedesktop.org/documentation/videoconvertscale/videoconvert.html?gi-language=c)
  - [vorbisdec](https://gstreamer.freedesktop.org/documentation/vorbis/vorbisdec.html?gi-language=c)
  - [vorbisenc](https://gstreamer.freedesktop.org/documentation/vorbis/vorbisenc.html?gi-language=c)
