@@ -71,7 +71,7 @@ _flap_user_details_reveal_switch(gpointer user_data)
     hdy_flap_set_reveal_flap(flap, TRUE);
   }
 
-  gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_search), TRUE);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_search_entry), TRUE);
   gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_listbox), TRUE);
   return FALSE;
 }
@@ -84,7 +84,7 @@ handle_user_details_via_button_click(UNUSED GtkButton* button,
 
   UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
 
-  gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_search), FALSE);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_search_entry), FALSE);
   gtk_widget_set_sensitive(GTK_WIDGET(handle->chats_listbox), FALSE);
   util_idle_add(
     G_SOURCE_FUNC(_flap_user_details_reveal_switch),
@@ -340,7 +340,7 @@ handle_chats_listbox_filter_func(GtkListBoxRow *row,
     return TRUE;
 
   const gchar *filter = gtk_entry_get_text(
-    GTK_ENTRY(app->ui.messenger.chats_search)
+    GTK_ENTRY(app->ui.messenger.chats_search_entry)
   );
 
   if (!filter)
@@ -359,6 +359,29 @@ handle_chats_listbox_filter_func(GtkListBoxRow *row,
     return FALSE;
 
   return g_str_match_string(filter, title, TRUE);
+}
+
+static void
+handle_search_button_click(UNUSED GtkButton *button,
+			                     gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
+
+  gtk_stack_set_visible_child(handle->chats_title_stack, handle->search_box);
+}
+
+static void
+handle_search_end_button_click(UNUSED GtkButton *button,
+			                         gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
+
+  gtk_stack_set_visible_child(handle->chats_title_stack, handle->title_box);
+  gtk_entry_set_text(GTK_ENTRY(handle->chats_search_entry), "");
 }
 
 static void
@@ -634,6 +657,18 @@ ui_messenger_init(MESSENGER_Application *app,
     app
   );
 
+  handle->chats_title_stack = GTK_STACK(
+    gtk_builder_get_object(handle->builder, "chats_title_stack")
+  );
+
+  handle->title_box = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "title_box")
+  );
+
+  handle->search_box = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "search_box")
+  );
+
   handle->user_details_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "user_details_button")
   );
@@ -645,8 +680,30 @@ ui_messenger_init(MESSENGER_Application *app,
     handle
   );
 
-  handle->chats_search = GTK_SEARCH_ENTRY(
-    gtk_builder_get_object(handle->builder, "chats_search")
+  handle->chats_search_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "chats_search_button")
+  );
+
+  g_signal_connect(
+    handle->chats_search_button,
+    "clicked",
+    G_CALLBACK(handle_search_button_click),
+    handle
+  );
+
+  handle->chats_search_entry = GTK_SEARCH_ENTRY(
+    gtk_builder_get_object(handle->builder, "chats_search_entry")
+  );
+
+  handle->chats_search_end_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "chats_search_end_button")
+  );
+
+  g_signal_connect(
+    handle->chats_search_end_button,
+    "clicked",
+    G_CALLBACK(handle_search_end_button_click),
+    handle
   );
 
   handle->chats_listbox = GTK_LIST_BOX(
@@ -668,7 +725,7 @@ ui_messenger_init(MESSENGER_Application *app,
   );
 
   g_signal_connect(
-    handle->chats_search,
+    handle->chats_search_entry,
     "search-changed",
     G_CALLBACK(handle_chats_search_changed),
     handle->chats_listbox

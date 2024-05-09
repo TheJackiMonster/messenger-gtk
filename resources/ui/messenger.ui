@@ -52,49 +52,131 @@ Author: Tobias Frisch
                     <property name="can-focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkBox">
+                      <object class="GtkStack" id="chats_title_stack">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="border-width">8</property>
-                        <property name="spacing">8</property>
+                        <property name="transition-type">slide-down</property>
                         <child>
-                          <object class="GtkButton" id="user_details_button">
+                          <object class="GtkBox" id="title_box">
                             <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="receives-default">True</property>
-                            <property name="relief">none</property>
+                            <property name="can-focus">False</property>
+                            <property name="border-width">8</property>
+                            <property name="spacing">8</property>
                             <child>
-                              <object class="GtkImage">
+                              <object class="GtkButton" id="user_details_button">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">True</property>
+                                <property name="relief">none</property>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="icon-name">open-menu-symbolic</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="width-request">200</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="icon-name">open-menu-symbolic</property>
+                                <property name="label" translatable="yes">GNUnet Messenger</property>
+                                <property name="xalign">0</property>
+                                <attributes>
+                                  <attribute name="weight" value="bold"/>
+                                </attributes>
                               </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
                             </child>
+                            <child>
+                              <object class="GtkButton" id="chats_search_button">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">True</property>
+                                <property name="relief">none</property>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="icon-name">edit-find-symbolic</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="pack-type">end</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <style>
+                              <class name="header-box"/>
+                            </style>
                           </object>
                           <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
+                            <property name="name">title_page</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkSearchEntry" id="chats_search">
-                            <property name="width-request">250</property>
+                          <object class="GtkBox" id="search_box">
                             <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="primary-icon-name">edit-find-symbolic</property>
-                            <property name="primary-icon-activatable">False</property>
-                            <property name="primary-icon-sensitive">False</property>
+                            <property name="can-focus">False</property>
+                            <property name="border-width">8</property>
+                            <property name="spacing">8</property>
+                            <child>
+                              <object class="GtkSearchEntry" id="chats_search_entry">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="primary-icon-name">edit-find-symbolic</property>
+                                <property name="primary-icon-activatable">False</property>
+                                <property name="primary-icon-sensitive">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="chats_search_end_button">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">True</property>
+                                <property name="relief">none</property>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="icon-name">window-close-symbolic</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <style>
+                              <class name="header-box"/>
+                            </style>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
+                            <property name="name">search_page</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
-                        <style>
-                          <class name="header-box"/>
-                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -123,7 +205,8 @@ Author: Tobias Frisch
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
-                        <property name="position">1</property>
+                        <property name="pack-type">end</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                   </object>

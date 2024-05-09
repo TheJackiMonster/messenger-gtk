@@ -70,8 +70,16 @@ typedef struct UI_MESSENGER_Handle
   GtkButton *settings_button;
   GtkButton *about_button;
 
+  GtkStack *chats_title_stack;
+  GtkWidget *title_box;
+  GtkWidget *search_box;
+
   GtkButton *user_details_button;
-  GtkSearchEntry *chats_search;
+  GtkButton *chats_search_button;
+  
+  GtkSearchEntry *chats_search_entry;
+  GtkButton *chats_search_end_button;
+
   GtkListBox *chats_listbox;
 
   GtkStack *chats_stack;
