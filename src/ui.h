@@ -51,6 +51,18 @@ ui_label_set_text(GtkLabel *label,
                   const char *text);
 
 /**
+ * Sets the text of a GtkLabel applying automatic utf8
+ * conversion and replaces supported syntax with proper
+ * markup.
+ *
+ * @param label Label
+ * @param text Non-utf8 text
+ */
+void
+ui_label_set_markup_text(GtkLabel *label,
+                         const char *text);
+
+/**
  * Sets the text of a GtkLabel applying conversion from
  * file size to string representation.
  *

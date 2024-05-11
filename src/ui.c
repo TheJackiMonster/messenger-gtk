@@ -62,6 +62,75 @@ ui_label_set_text(GtkLabel *label, const char *text)
 }
 
 void
+ui_label_set_markup_text(GtkLabel *label,
+                         const char *text)
+{
+  g_assert(label);
+
+  if (!text)
+  {
+    gtk_label_set_markup(label, "");
+    return;
+  }
+
+  gchar *_text = g_locale_to_utf8(text, -1, NULL, NULL, NULL);
+  gchar *_escaped = g_markup_escape_text(_text, -1);
+
+  if (_escaped)
+  {
+    g_free(_text);
+    _text = _escaped;
+  }
+
+  GError *error = NULL;
+  GRegex *regex = g_regex_new(
+    "https?://(www.)?[-a-z0-9@:%._\\+~#=/&?]+",
+    G_REGEX_MULTILINE | G_REGEX_OPTIMIZE,
+    G_REGEX_MATCH_DEFAULT,
+    &error
+  );
+
+  if (error)
+  {
+    fprintf (stderr, "ERROR: %s (%d)\n", error->message, error->code);
+    g_error_free(error);
+    goto skip_regex;
+  }
+
+  if (!regex)
+    goto skip_regex;
+
+  gchar *_replaced = g_regex_replace(
+    regex,
+    _text,
+    -1,
+    0,
+    "<a href=\"\\0\">\\0</a>",
+    G_REGEX_MATCH_DEFAULT,
+    &error
+  );
+
+  if (error)
+  {
+    fprintf (stderr, "%s\n", error->message);
+    g_error_free(error);
+  }
+
+  if (_replaced)
+  {
+    g_free(_text);
+    _text = _replaced;
+  }
+
+skip_regex:
+  if (regex)
+    g_regex_unref(regex);
+
+  gtk_label_set_markup(label, _text);
+  g_free(_text);
+}
+
+void
 ui_label_set_size(GtkLabel *label,
                   uint64_t size)
 {

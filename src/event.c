@@ -841,7 +841,7 @@ event_receive_message(MESSENGER_Application *app,
       "im.received"
     );
 
-  ui_label_set_text(message->text_label, text);
+  ui_label_set_markup_text(message->text_label, text);
   ui_label_set_text(message->timestamp_label, time);
 
   ui_chat_add_message(handle->chat, app, message);
