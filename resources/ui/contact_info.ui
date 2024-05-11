@@ -31,6 +31,11 @@ Author: Tobias Frisch
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkFileFilter" id="avatar_filter">
+    <mime-types>
+      <mime-type>image/*</mime-type>
+    </mime-types>
+  </object>
   <object class="GtkListStore" id="sharing_list">
     <columns>
       <!-- column-name name -->
@@ -190,6 +195,7 @@ Author: Tobias Frisch
                         <child>
                           <object class="GtkFileChooserButton" id="profile_chooser_button">
                             <property name="can-focus">False</property>
+                            <property name="filter">avatar_filter</property>
                             <property name="title" translatable="yes">Select profile picture</property>
                           </object>
                           <packing>
