@@ -363,6 +363,13 @@ event_update_profile(MESSENGER_Application *app)
   ui_label_set_text(ui->profile_key_label, key);
 
   gtk_stack_set_visible_child(ui->chats_stack, ui->no_chat_box);
+  
+  GList *children = gtk_container_get_children(GTK_CONTAINER(ui->leaflet_chat));
+
+  if (children) {
+    hdy_leaflet_set_visible_child(ui->leaflet_chat, GTK_WIDGET(children->data));
+    g_list_free(children);
+  }
 
   GNUNET_CHAT_iterate_contacts(chat->handle, _iterate_profile_contacts, app);
   GNUNET_CHAT_iterate_groups(chat->handle, _iterate_profile_groups, app);

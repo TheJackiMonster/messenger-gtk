@@ -468,11 +468,11 @@ ui_messenger_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "flap_user_details")
   );
 
-  handle->nav_bar = GTK_HEADER_BAR(
+  handle->nav_bar = HDY_HEADER_BAR(
     gtk_builder_get_object(handle->builder, "nav_bar")
   );
 
-  handle->main_bar = GTK_HEADER_BAR(
+  handle->main_bar = HDY_HEADER_BAR(
     gtk_builder_get_object(handle->builder, "main_bar")
   );
 

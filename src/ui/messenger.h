@@ -48,8 +48,8 @@ typedef struct UI_MESSENGER_Handle
   HdyLeaflet *leaflet_chat;
   HdyFlap *flap_user_details;
 
-  GtkHeaderBar *nav_bar;
-  GtkHeaderBar *main_bar;
+  HdyHeaderBar *nav_bar;
+  HdyHeaderBar *main_bar;
 
   GtkButton *profile_button;
   HdyAvatar *profile_avatar;

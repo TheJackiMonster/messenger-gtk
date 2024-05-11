@@ -784,10 +784,11 @@ Author: Tobias Frisch
             <property name="hhomogeneous-folded">False</property>
             <property name="vhomogeneous-folded">False</property>
             <child>
-              <object class="GtkHeaderBar" id="nav_bar">
+              <object class="HdyHeaderBar" id="nav_bar">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="spacing">4</property>
+                <property name="show-close-button">True</property>
                 <child type="title">
                   <object class="GtkStack" id="chats_title_stack">
                     <property name="width-request">204</property>
@@ -913,11 +914,13 @@ Author: Tobias Frisch
               </packing>
             </child>
             <child>
-              <object class="GtkHeaderBar" id="main_bar">
+              <object class="HdyHeaderBar" id="main_bar">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="hexpand">True</property>
-                <property name="spacing">0</property>
+                <property name="spacing">4</property>
+                <property name="show-close-button">True</property>
+                <property name="interpolate-size">True</property>
                 <child type="title">
                   <object class="GtkStack" id="chat_title_stack">
                     <property name="visible">True</property>
@@ -973,5 +976,11 @@ Author: Tobias Frisch
       <widget name="main_box"/>
       <widget name="main_bar"/>
     </widgets>
+  </object>
+  <object class="HdyHeaderGroup">
+    <headerbars>
+      <headerbar name="nav_bar"/>
+      <headerbar name="main_bar"/>
+    </headerbars>
   </object>
 </interface>
