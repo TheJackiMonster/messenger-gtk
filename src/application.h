@@ -140,7 +140,6 @@ typedef struct MESSENGER_Application
   } ui;
 
   struct {
-    gboolean mobile_design;
     gboolean hide_delete_dialog;
 
     gboolean autostart;

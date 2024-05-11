@@ -346,16 +346,6 @@ application_init(MESSENGER_Application *app,
 
   g_application_add_main_option(
     G_APPLICATION(app->application),
-    "mobile",
-    'm',
-    G_OPTION_FLAG_NONE,
-    G_OPTION_ARG_NONE,
-    "Optimize UI spacing for mobile devices",
-    NULL
-  );
-
-  g_application_add_main_option(
-    G_APPLICATION(app->application),
     "ego",
     'e',
     G_OPTION_FLAG_NONE,
@@ -403,12 +393,6 @@ _application_chat_thread(void *args)
   MESSENGER_Application *app = (MESSENGER_Application*) args;
 
   struct GNUNET_GETOPT_CommandLineOption options[] = {
-    GNUNET_GETOPT_option_flag (
-      'm',
-      "mobile",
-      "Optimize UI spacing for mobile devices",
-      &(app->settings.mobile_design)
-    ),
     GNUNET_GETOPT_option_string (
       'e',
       "ego",
