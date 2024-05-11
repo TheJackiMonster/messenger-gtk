@@ -31,7 +31,9 @@
 #include "ui.h"
 
 #include "ui/chat_entry.h"
+#include "ui/chat_title.h"
 #include "ui/message.h"
+
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
 
@@ -268,6 +270,11 @@ _add_new_chat_entry(MESSENGER_Application *app,
   gtk_container_add(
     GTK_CONTAINER(ui->chats_stack),
     entry->chat->chat_box
+  );
+
+  gtk_container_add(
+    GTK_CONTAINER(ui->chat_title_stack),
+    entry->chat->title->chat_title_box
   );
 
   ui->chat_entries = g_list_append(ui->chat_entries, entry);

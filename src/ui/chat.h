@@ -38,7 +38,7 @@
 typedef struct MESSENGER_Application MESSENGER_Application;
 typedef struct UI_MESSAGE_Handle UI_MESSAGE_Handle;
 typedef struct UI_PICKER_Handle UI_PICKER_Handle;
-typedef struct UI_FILE_LOAD_ENTRY_Handle UI_FILE_LOAD_ENTRY_Handle;
+typedef struct UI_CHAT_TITLE_Handle UI_CHAT_TITLE_Handle;
 
 typedef struct UI_CHAT_Handle
 {
@@ -67,33 +67,17 @@ typedef struct UI_CHAT_Handle
   MESSENGER_Application *app;
   struct GNUNET_CHAT_Context *context;
 
+  UI_CHAT_TITLE_Handle *title;
   gdouble edge_value;
-  GList *loads;
 
   GtkBuilder *builder;
   GtkWidget *chat_box;
 
-  GtkButton *back_button;
-
   HdyFlap *flap_chat_details;
 
-  GtkStack *chat_title_stack;
-  GtkWidget *title_box;
-  GtkWidget *selection_box;
-
-  HdyAvatar *chat_avatar;
-  GtkLabel *chat_title;
-  GtkLabel *chat_subtitle;
-
-  GtkButton *chat_load_button;
-  GtkPopover *chat_load_popover;
-  GtkListBox *chat_load_listbox;
-
-  GtkButton *chat_search_button;
   HdySearchBar *chat_search_bar;
   GtkSearchEntry *chat_search_entry;
 
-  GtkButton *chat_details_button;
   GtkLabel *chat_details_label;
   GtkButton *hide_chat_details_button;
   GtkBox *chat_details_contacts_box;
@@ -109,11 +93,6 @@ typedef struct UI_CHAT_Handle
   GtkButton *leave_chat_button;
 
   GtkSwitch *chat_notifications_switch;
-
-  GtkButton *selection_close_button;
-  GtkLabel *selection_count_label;
-  GtkButton *selection_tag_button;
-  GtkButton *selection_delete_button; 
 
   GtkScrolledWindow *chat_scrolled_window;
 
@@ -208,27 +187,5 @@ void
 ui_chat_remove_message(UI_CHAT_Handle *handle,
                        MESSENGER_Application *app,
                        UI_MESSAGE_Handle *message);
-
-/**
- * Add a file load entry handle to a given chat
- * handle to get listed by it.
- *
- * @param handle Chat handle
- * @param file_load File load entry handle
- */
-void
-ui_chat_add_file_load(UI_CHAT_Handle *handle,
-                      UI_FILE_LOAD_ENTRY_Handle *file_load);
-
-/**
- * Removes a file load entry handle from a given
- * chat handle to remove it from its list.
- *
- * @param handle Chat handle
- * @param file_load File load entry handle
- */
-void
-ui_chat_remove_file_load(UI_CHAT_Handle *handle,
-                         UI_FILE_LOAD_ENTRY_Handle *file_load);
 
 #endif /* UI_CHAT_H_ */

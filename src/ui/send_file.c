@@ -24,8 +24,8 @@
 
 #include "send_file.h"
 
-#include "chat.h"
 #include "chat_entry.h"
+#include "chat_title.h"
 #include "file_load_entry.h"
 
 #include "../application.h"
@@ -59,8 +59,8 @@ handle_sending_upload_file(UNUSED void *cls,
 
   file_update_upload_info(file, completed, size);
 
-  if ((completed >= size) && (file_load->chat))
-    ui_chat_remove_file_load(file_load->chat, file_load);
+  if ((completed >= size) && (file_load->chat_title))
+    ui_chat_title_remove_file_load(file_load->chat_title, file_load);
 }
 
 static void
@@ -124,7 +124,7 @@ handle_send_button_click(GtkButton *button,
 
   file_create_info(file);
 
-  ui_chat_add_file_load(handle, file_load);
+  ui_chat_title_add_file_load(handle->title, file_load);
 }
 
 static void

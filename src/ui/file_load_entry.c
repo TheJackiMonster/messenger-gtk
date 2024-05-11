@@ -27,7 +27,7 @@
 #include "../application.h"
 #include "../ui.h"
 
-#include "chat.h"
+#include "chat_title.h"
 
 static void
 handle_cancel_button_click(GNUNET_UNUSED GtkButton *button,
@@ -37,8 +37,8 @@ handle_cancel_button_click(GNUNET_UNUSED GtkButton *button,
 
   UI_FILE_LOAD_ENTRY_Handle* handle = (UI_FILE_LOAD_ENTRY_Handle*) user_data;
 
-  if (handle->chat)
-    ui_chat_remove_file_load(handle->chat, handle);
+  if (handle->chat_title)
+    ui_chat_title_remove_file_load(handle->chat_title, handle);
 
   // TODO: cancel upload?
 }
@@ -50,7 +50,7 @@ ui_file_load_entry_new(MESSENGER_Application *app)
 
   UI_FILE_LOAD_ENTRY_Handle* handle = g_malloc(sizeof(UI_FILE_LOAD_ENTRY_Handle));
 
-  handle->chat = NULL;
+  handle->chat_title = NULL;
 
   handle->builder = ui_builder_from_resource(
       application_get_resource_path(app, "ui/file_load_entry.ui")

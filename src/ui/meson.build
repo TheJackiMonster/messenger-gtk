@@ -23,6 +23,7 @@ messenger_gtk_ui_sources = files([
     'account_entry.c', 'account_entry.h',
     'accounts.c', 'accounts.h',
     'chat_entry.c', 'chat_entry.h',
+    'chat_title.c', 'chat_title.h',
     'chat.c', 'chat.h',
     'contact_entry.c', 'contact_entry.h',
     'contact_info.c', 'contact_info.h',

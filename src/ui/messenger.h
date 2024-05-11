@@ -44,10 +44,12 @@ typedef struct UI_MESSENGER_Handle
   GtkBuilder *builder;
   GtkApplicationWindow *main_window;
 
+  HdyLeaflet *leaflet_title;
   HdyLeaflet *leaflet_chat;
   HdyFlap *flap_user_details;
 
-  HdyHeaderBar *title_bar;
+  GtkHeaderBar *nav_bar;
+  GtkHeaderBar *main_bar;
 
   GtkButton *profile_button;
   HdyAvatar *profile_avatar;
@@ -78,12 +80,14 @@ typedef struct UI_MESSENGER_Handle
   GtkButton *chats_search_button;
   
   GtkSearchEntry *chats_search_entry;
-  GtkButton *chats_search_end_button;
+  GtkStack *search_icon_stack;
 
   GtkListBox *chats_listbox;
 
   GtkStack *chats_stack;
   GtkWidget *no_chat_box;
+
+  GtkStack *chat_title_stack;
 } UI_MESSENGER_Handle;
 
 /**

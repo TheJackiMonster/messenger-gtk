@@ -4,6 +4,7 @@
 		<file compressed="true">ui/about.ui</file>
 		<file compressed="true">ui/accounts.ui</file>
 		<file compressed="true">ui/chat_entry.ui</file>
+		<file compressed="true">ui/chat_title.ui</file>
 		<file compressed="true">ui/chat.ui</file>
 		<file compressed="true">ui/contact_entry.ui</file>
 		<file compressed="true">ui/contact_info.ui</file>

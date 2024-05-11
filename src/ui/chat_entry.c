@@ -24,6 +24,7 @@
 
 #include "chat_entry.h"
 
+#include "chat_title.h"
 #include "message.h"
 
 #include "../application.h"
@@ -274,6 +275,11 @@ ui_chat_entry_dispose(UI_CHAT_ENTRY_Handle *handle,
   );
 
   _chat_entry_update_contact(handle, app, NULL);
+
+  gtk_container_remove(
+    GTK_CONTAINER(ui->chat_title_stack),
+    handle->chat->title->chat_title_box
+  );
 
   gtk_container_remove(
     GTK_CONTAINER(ui->chats_stack),

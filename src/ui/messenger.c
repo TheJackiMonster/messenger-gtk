@@ -28,6 +28,7 @@
 
 #include "account_entry.h"
 #include "chat_entry.h"
+#include "chat_title.h"
 #include "contacts.h"
 #include "message.h"
 #include "new_contact.h"
@@ -278,18 +279,17 @@ handle_chats_listbox_row_activated(UNUSED GtkListBox* listbox,
   if ((!entry) || (!(entry->chat)) || (!(entry->chat->chat_box)))
     return;
 
-  GtkStack *stack = app->ui.messenger.chats_stack;
-  HdyLeaflet *leaflet = app->ui.messenger.leaflet_chat;
-
-  GList *children = gtk_container_get_children(GTK_CONTAINER(leaflet));
+  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
+  GList *children = gtk_container_get_children(GTK_CONTAINER(ui->leaflet_chat));
 
   if ((children) && (children->next))
-    hdy_leaflet_set_visible_child(leaflet, GTK_WIDGET(children->next->data));
+    hdy_leaflet_set_visible_child(ui->leaflet_chat, GTK_WIDGET(children->next->data));
 
   if (children)
     g_list_free(children);
 
-  gtk_stack_set_visible_child(stack, entry->chat->chat_box);
+  gtk_stack_set_visible_child(ui->chats_stack, entry->chat->chat_box);
+  gtk_stack_set_visible_child(ui->chat_title_stack, entry->chat->title->chat_title_box);
 }
 
 static gint
@@ -369,19 +369,13 @@ handle_search_button_click(UNUSED GtkButton *button,
 
   UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
 
-  gtk_stack_set_visible_child(handle->chats_title_stack, handle->search_box);
-}
-
-static void
-handle_search_end_button_click(UNUSED GtkButton *button,
-			                         gpointer user_data)
-{
-  g_assert(user_data);
-
-  UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
-
-  gtk_stack_set_visible_child(handle->chats_title_stack, handle->title_box);
-  gtk_entry_set_text(GTK_ENTRY(handle->chats_search_entry), "");
+  if (handle->search_box == gtk_stack_get_visible_child(handle->chats_title_stack))
+  {
+    gtk_stack_set_visible_child(handle->chats_title_stack, handle->title_box);
+    gtk_entry_set_text(GTK_ENTRY(handle->chats_search_entry), "");
+  }
+  else
+    gtk_stack_set_visible_child(handle->chats_title_stack, handle->search_box);
 }
 
 static void
@@ -454,16 +448,32 @@ ui_messenger_init(MESSENGER_Application *app,
     1100, 700
   );
 
+  handle->leaflet_title = HDY_LEAFLET(
+    gtk_builder_get_object(handle->builder, "leaflet_title")
+  );
+
   handle->leaflet_chat = HDY_LEAFLET(
     gtk_builder_get_object(handle->builder, "leaflet_chat")
+  );
+
+  g_object_bind_property(
+    handle->leaflet_chat,
+    "visible_child_name",
+    handle->leaflet_title,
+    "visible_child_name",
+    G_BINDING_SYNC_CREATE
   );
 
   handle->flap_user_details = HDY_FLAP(
     gtk_builder_get_object(handle->builder, "flap_user_details")
   );
 
-  handle->title_bar = HDY_HEADER_BAR(
-    gtk_builder_get_object(handle->builder, "title_bar")
+  handle->nav_bar = GTK_HEADER_BAR(
+    gtk_builder_get_object(handle->builder, "nav_bar")
+  );
+
+  handle->main_bar = GTK_HEADER_BAR(
+    gtk_builder_get_object(handle->builder, "main_bar")
   );
 
   GtkLabel* application_name_label = GTK_LABEL(
@@ -472,16 +482,6 @@ ui_messenger_init(MESSENGER_Application *app,
   
   GtkLabel* application_version_label = GTK_LABEL(
     gtk_builder_get_object(handle->builder, "application-version-label")
-  );
-
-  hdy_header_bar_set_title(
-    handle->title_bar,
-    MESSENGER_APPLICATION_TITLE
-  );
-
-  hdy_header_bar_set_subtitle(
-    handle->title_bar,
-    MESSENGER_APPLICATION_SUBTITLE
   );
 
   gtk_label_set_text(
@@ -497,20 +497,10 @@ ui_messenger_init(MESSENGER_Application *app,
   g_object_bind_property(
     handle->leaflet_chat,
     "folded",
-    handle->title_bar,
+    handle->main_bar,
     "show-close-button",
     G_BINDING_INVERT_BOOLEAN
   );
-
-  if (app->settings.mobile_design)
-    g_object_bind_property(
-      handle->leaflet_chat,
-      "folded",
-      handle->title_bar,
-      "visible",
-      G_BINDING_SYNC_CREATE |
-      G_BINDING_INVERT_BOOLEAN
-    );
   
   handle->profile_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "profile_button")
@@ -669,6 +659,14 @@ ui_messenger_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "search_box")
   );
 
+  g_object_bind_property(
+    handle->leaflet_chat,
+    "folded",
+    handle->nav_bar,
+    "hexpand",
+    G_BINDING_SYNC_CREATE
+  );
+
   handle->user_details_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "user_details_button")
   );
@@ -695,15 +693,16 @@ ui_messenger_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "chats_search_entry")
   );
 
-  handle->chats_search_end_button = GTK_BUTTON(
-    gtk_builder_get_object(handle->builder, "chats_search_end_button")
+  handle->search_icon_stack = GTK_STACK(
+    gtk_builder_get_object(handle->builder, "search_icon_stack")
   );
 
-  g_signal_connect(
-    handle->chats_search_end_button,
-    "clicked",
-    G_CALLBACK(handle_search_end_button_click),
-    handle
+  g_object_bind_property(
+    handle->chats_title_stack,
+    "visible_child_name",
+    handle->search_icon_stack,
+    "visible_child_name",
+    G_BINDING_SYNC_CREATE
   );
 
   handle->chats_listbox = GTK_LIST_BOX(
@@ -744,6 +743,10 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->no_chat_box = GTK_WIDGET(
     gtk_builder_get_object(handle->builder, "no_chat_box")
+  );
+
+  handle->chat_title_stack = GTK_STACK(
+    gtk_builder_get_object(handle->builder, "chat_title_stack")
   );
 
   g_signal_connect(

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -29,11 +29,11 @@
 
 #include "messenger.h"
 
-typedef struct UI_CHAT_Handle UI_CHAT_Handle;
+typedef struct UI_CHAT_TITLE_Handle UI_CHAT_TITLE_Handle;
 
 typedef struct UI_FILE_LOAD_ENTRY_Handle
 {
-  UI_CHAT_Handle *chat;
+  UI_CHAT_TITLE_Handle *chat_title;
 
   GtkBuilder *builder;
 
