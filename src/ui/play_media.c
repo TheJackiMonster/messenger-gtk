@@ -656,8 +656,6 @@ ui_play_media_window_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "title_bar")
   );
 
-  hdy_header_bar_set_title(handle->title_bar, _("Play Media"));
-
   handle->back_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "back_button")
   );
@@ -796,8 +794,8 @@ ui_play_media_window_init(MESSENGER_Application *app,
 
 void
 ui_play_media_window_update(UI_PLAY_MEDIA_Handle *handle,
-			    const gchar *uri,
-			    const struct GNUNET_CHAT_File *file)
+                            const gchar *uri,
+                            const struct GNUNET_CHAT_File *file)
 {
   g_assert((handle) && (uri));
 

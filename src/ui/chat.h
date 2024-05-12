@@ -59,7 +59,7 @@ typedef struct UI_CHAT_Handle
   GstElement *record_sink;
 
   GstElement *play_pipeline;
-  GstElement *play_source;
+  GstElement *play_sink;
 
   guint record_watch;
   guint play_watch;

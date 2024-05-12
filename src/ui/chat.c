@@ -905,12 +905,17 @@ handle_recording_play_button_click(UNUSED GtkButton *button,
     _stop_playing_recording(handle, TRUE);
   else if (handle->recording_filename[0])
   {
+    GString* uri = g_string_new("file://");
+    g_string_append(uri, handle->recording_filename);
+
     g_object_set(
-      G_OBJECT(handle->play_source),
-      "location",
-      handle->recording_filename,
+      G_OBJECT(handle->play_pipeline),
+      "uri",
+      uri->str,
       NULL
     );
+
+    g_string_free(uri, TRUE);
 
     gst_element_set_state(handle->play_pipeline, GST_STATE_PLAYING);
     handle->playing = TRUE;
@@ -995,10 +1000,13 @@ _play_timer_func(gpointer user_data)
 
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
 
-  if (handle->play_time < handle->record_time * 100)
+  const gdouble played_seconds = 0.010 * handle->play_time + 0.005;
+  const gdouble listen_seconds = MAX(handle->record_time - 0.010, 0.0);
+
+  if (played_seconds < listen_seconds)
     gtk_progress_bar_set_fraction(
       handle->recording_progress_bar,
-      0.01 * handle->play_time / handle->record_time
+      played_seconds / listen_seconds
     );
   else
     gtk_progress_bar_set_fraction(
@@ -1103,13 +1111,17 @@ _setup_gst_pipelines(UI_CHAT_Handle *handle)
     gst_object_unref(bus);
   }
 
-  handle->play_pipeline = gst_parse_launch(
-    "filesrc name=source ! oggdemux ! vorbisdec ! audioconvert ! autoaudiosink",
-    NULL
-  );
+  handle->play_pipeline = gst_element_factory_make("playbin", NULL);
+  handle->play_sink = gst_element_factory_make("autoaudiosink", "asink");
 
-  handle->play_source = gst_bin_get_by_name(
-    GST_BIN(handle->play_pipeline), "source"
+  if ((!(handle->play_pipeline)) || (!(handle->play_sink)))
+    return;
+
+  g_object_set(
+      G_OBJECT(handle->play_pipeline),
+      "audio-sink",
+      handle->play_sink,
+      NULL
   );
 
   {
