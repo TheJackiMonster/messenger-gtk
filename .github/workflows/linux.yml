@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies (framework)
         run: |
           sudo apt-get -qq update
-          sudo apt-get -qq install libgcrypt20-dev recutils libjansson-dev libsodium-dev libcurl4-gnutls-dev libidn2-dev libunistring-dev libsqlite3-dev libmicrohttpd-dev
+          sudo apt-get -qq install libgcrypt20-dev recutils libjansson-dev libsodium-dev libcurl4-gnutls-dev libidn2-dev libunistring-dev libsqlite3-dev libmicrohttpd-dev libltdl-dev
 
       - name: Build framework
         run: |

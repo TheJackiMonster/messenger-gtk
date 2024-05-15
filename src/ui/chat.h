@@ -53,7 +53,6 @@ typedef struct UI_CHAT_Handle
   guint record_time;
 
   guint play_timer;
-  guint play_time;
 
   GstElement *record_pipeline;
   GstElement *record_sink;

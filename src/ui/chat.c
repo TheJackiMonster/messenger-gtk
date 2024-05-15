@@ -999,14 +999,23 @@ _play_timer_func(gpointer user_data)
   g_assert(user_data);
 
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+  gint64 pos, len;
 
-  const gdouble played_seconds = 0.010 * handle->play_time + 0.005;
-  const gdouble listen_seconds = MAX(handle->record_time - 0.010, 0.0);
+  handle->play_timer = 0;
 
-  if (played_seconds < listen_seconds)
+  if (!(handle->play_pipeline))
+    return FALSE;
+
+  if (!gst_element_query_position(handle->play_pipeline, GST_FORMAT_TIME, &pos))
+    return FALSE;
+
+  if (!gst_element_query_duration(handle->play_pipeline, GST_FORMAT_TIME, &len))
+    return FALSE;
+
+  if (pos < len)
     gtk_progress_bar_set_fraction(
       handle->recording_progress_bar,
-      played_seconds / listen_seconds
+      1.0 * pos / len
     );
   else
     gtk_progress_bar_set_fraction(
@@ -1015,16 +1024,11 @@ _play_timer_func(gpointer user_data)
     );
 
   if (handle->playing)
-  {
-    handle->play_time++;
     handle->play_timer = util_timeout_add(
       10,
       _play_timer_func,
       handle
     );
-  }
-  else
-    handle->play_timer = 0;
 
   return FALSE;
 }
@@ -1066,14 +1070,20 @@ handle_play_bus_watch(UNUSED GstBus *bus,
 
   switch (type)
   {
-    case GST_MESSAGE_STREAM_START:
-      handle->play_time = 0;
-      handle->play_timer = util_idle_add(
-        _play_timer_func,
-        handle
-      );
+    case GST_MESSAGE_STATE_CHANGED:
+    {
+      GstState old_state, new_state, pending_state;
+      gst_message_parse_state_changed(msg, &old_state, &new_state, &pending_state);
 
+      if (GST_STATE_PLAYING == new_state)
+        handle->play_timer = util_idle_add(
+          _play_timer_func,
+          handle
+        );
+      else if (GST_STATE_PLAYING == old_state)
+        _stop_playing_recording(handle, FALSE);
       break;
+    }
     case GST_MESSAGE_EOS:
       if (handle->playing)
 	      _stop_playing_recording(handle, FALSE);
