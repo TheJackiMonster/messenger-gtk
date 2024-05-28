@@ -11,21 +11,21 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get -qq update
-          sudo apt-get -qq install wget tar
+          sudo apt-get -qq install git
 
       - name: Download framework
         run: |
-          wget https://www.artfiles.org/gnu.org/gnunet/gnunet-latest.tar.gz
-          tar -xf gnunet-latest.tar.gz
+          git clone https://git.gnunet.org/gnunet.git
       
       - name: Install dependencies (framework)
         run: |
           sudo apt-get -qq update
-          sudo apt-get -qq install libgcrypt20-dev recutils libjansson-dev libsodium-dev libcurl4-gnutls-dev libidn2-dev libunistring-dev libsqlite3-dev libmicrohttpd-dev libltdl-dev
+          sudo apt-get -qq install libgcrypt20-dev recutils libjansson-dev libsodium-dev libcurl4-gnutls-dev libidn2-dev libunistring-dev libsqlite3-dev libmicrohttpd-dev libltdl-dev python3-sphinx python3-sphinx-book-theme
 
       - name: Build framework
         run: |
-          cd $(ls | grep gnunet- | head -n1)
+          cd gnunet
+          ./bootstrap
           ./configure --prefix=/usr --disable-documentation
           make -j $(nproc)
           sudo make install
