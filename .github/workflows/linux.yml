@@ -47,7 +47,7 @@ jobs:
           cd libgnunetchat
           meson setup --prefix=/usr --libdir=lib build
           meson compile -C build
-          meson install -C build
+          sudo meson install -C build
           cd ..
 
       - name: Checkout the current branch
