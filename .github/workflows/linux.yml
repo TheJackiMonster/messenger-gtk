@@ -45,7 +45,7 @@ jobs:
       - name: Build library
         run: |
           cd libgnunetchat
-          meson setup --prefix /usr build
+          meson setup --prefix=/usr --libdir=lib build
           meson compile -C build
           meson install -C build
           cd ..
@@ -66,5 +66,5 @@ jobs:
 
       - name: Build application
         run: |
-          meson setup --prefix /usr build
+          meson setup --prefix=/usr --libdir=lib build
           meson compile -C build
