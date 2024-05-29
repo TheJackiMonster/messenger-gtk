@@ -61,7 +61,7 @@ jobs:
       - name: Install dependencies (application)
         run: |
           sudo apt-get -qq update
-          sudo apt-get -qq install ninja-build meson gcc
+          sudo apt-get -qq install ninja-build meson gcc desktop-file-utils
           sudo apt-get -qq install libqrencode-dev libzbar-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libpipewire-0.3-dev libportal-dev libportal-gtk3-dev libhandy-1-dev libnotify-dev
 
       - name: Build application
