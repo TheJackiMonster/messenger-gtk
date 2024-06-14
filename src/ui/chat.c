@@ -44,19 +44,68 @@
 #include "../file.h"
 #include "../ui.h"
 
+static void
+handle_chat_details_switched(HdySwipeable* swipeable,
+                             guint index,
+                             gint64 duration,
+                             gpointer user_data)
+{
+  g_assert((swipeable) && (user_data));
+
+  HdyFlap* flap = HDY_FLAP(swipeable);
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+  UI_MESSENGER_Handle *messenger = &(handle->app->ui.messenger);
+
+  const gboolean revealed = hdy_flap_get_reveal_flap(flap);
+
+  hdy_leaflet_set_can_swipe_back(messenger->leaflet_title, !revealed);
+  hdy_leaflet_set_can_swipe_back(messenger->leaflet_chat, !revealed);
+
+  if (handle->title)
+  {
+    gtk_widget_set_sensitive(
+      GTK_WIDGET(handle->title->back_button),
+      !revealed
+    );
+
+    gtk_widget_set_sensitive(
+      GTK_WIDGET(handle->title->chat_search_button),
+      !revealed
+    );
+  }
+
+  GValue value = G_VALUE_INIT;
+  g_value_init(&value, G_TYPE_BOOLEAN);
+  g_value_set_boolean(&value, !revealed);
+
+  gtk_container_child_set_property(
+    GTK_CONTAINER(messenger->leaflet_title),
+    GTK_WIDGET(messenger->nav_bar),
+    "navigatable",
+    &value
+  );
+
+  gtk_container_child_set_property(
+    GTK_CONTAINER(messenger->leaflet_chat),
+    messenger->nav_box,
+    "navigatable",
+    &value
+  );
+
+  g_value_unset(&value);
+}
+
 static gboolean
 _flap_chat_details_reveal_switch(gpointer user_data)
 {
   g_assert(user_data);
 
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
-  UI_MESSENGER_Handle *messenger = &(handle->app->ui.messenger);
   HdyFlap* flap = handle->flap_chat_details;
 
   gboolean revealed = hdy_flap_get_reveal_flap(flap);
 
   hdy_flap_set_reveal_flap(flap, !revealed);
-  hdy_leaflet_set_can_swipe_back(messenger->leaflet_chat, revealed); 
 
   gtk_widget_set_sensitive(GTK_WIDGET(handle->messages_listbox), TRUE);
   return FALSE;
@@ -1174,6 +1223,13 @@ ui_chat_new(MESSENGER_Application *app,
 
   handle->flap_chat_details = HDY_FLAP(
     gtk_builder_get_object(handle->builder, "flap_chat_details")
+  );
+
+  g_signal_connect(
+    handle->flap_chat_details,
+    "child-switched",
+    G_CALLBACK(handle_chat_details_switched),
+    handle
   );
 
   handle->chat_search_bar = HDY_SEARCH_BAR(

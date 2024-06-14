@@ -48,6 +48,9 @@ typedef struct UI_MESSENGER_Handle
   HdyLeaflet *leaflet_chat;
   HdyFlap *flap_user_details;
 
+  GtkWidget *nav_box;
+  GtkWidget *main_box;
+
   HdyHeaderBar *nav_bar;
   HdyHeaderBar *main_bar;
 
