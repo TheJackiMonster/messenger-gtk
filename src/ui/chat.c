@@ -50,13 +50,13 @@ _flap_chat_details_reveal_switch(gpointer user_data)
   g_assert(user_data);
 
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+  UI_MESSENGER_Handle *messenger = &(handle->app->ui.messenger);
   HdyFlap* flap = handle->flap_chat_details;
 
-  if (TRUE == hdy_flap_get_reveal_flap(flap)) {
-    hdy_flap_set_reveal_flap(flap, FALSE);
-  } else {
-    hdy_flap_set_reveal_flap(flap, TRUE);
-  }
+  gboolean revealed = hdy_flap_get_reveal_flap(flap);
+
+  hdy_flap_set_reveal_flap(flap, !revealed);
+  hdy_leaflet_set_can_swipe_back(messenger->leaflet_chat, revealed); 
 
   gtk_widget_set_sensitive(GTK_WIDGET(handle->messages_listbox), TRUE);
   return FALSE;
