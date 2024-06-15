@@ -41,6 +41,7 @@
 #include "ui/contact_info.h"
 #include "ui/contacts.h"
 #include "ui/delete_messages.h"
+#include "ui/discourse.h"
 #include "ui/files.h"
 #include "ui/invite_contact.h"
 #include "ui/messenger.h"
@@ -122,6 +123,7 @@ typedef struct MESSENGER_Application
 
     UI_CONTACT_INFO_Handle contact_info;
     UI_DELETE_MESSAGES_Handle delete_messages;
+    UI_DISCOURSE_Handle discourse;
     UI_INVITE_CONTACT_Handle invite_contact;
     UI_SEND_FILE_Handle send_file;
     UI_PLAY_MEDIA_Handle play_media;

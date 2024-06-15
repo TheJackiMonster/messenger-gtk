@@ -221,6 +221,23 @@ handle_reveal_identity_button_click(GtkButton *button,
 }
 
 static void
+handle_discourse_button_click(GtkButton *button,
+				                      gpointer user_data)
+{
+  g_assert((button) && (user_data));
+
+  UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
+  MESSENGER_Application *app = handle->app;
+
+  hdy_flap_set_reveal_flap(handle->flap_chat_details, FALSE);
+
+  ui_discourse_window_init(app, &(app->ui.discourse));
+  ui_discourse_window_update(&(app->ui.discourse), handle->context);
+
+  gtk_widget_show(GTK_WIDGET(app->ui.discourse.window));
+}
+
+static void
 handle_block_button_click(UNUSED GtkButton *button,
                           gpointer user_data)
 {
@@ -1283,6 +1300,13 @@ ui_chat_new(MESSENGER_Application *app,
 
   handle->discourse_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "discourse_button")
+  );
+
+  g_signal_connect(
+    handle->discourse_button,
+    "clicked",
+    G_CALLBACK(handle_discourse_button_click),
+    handle
   );
 
   handle->block_stack = GTK_STACK(

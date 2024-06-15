@@ -29,6 +29,7 @@ messenger_gtk_ui_sources = files([
     'contact_info.c', 'contact_info.h',
     'contacts.c', 'contacts.h',
     'delete_messages.c', 'delete_messages.h',
+    'discourse.c', 'discourse.h',
     'files.c', 'files.h',
     'file_entry.c', 'file_entry.h',
     'file_load_entry.c', 'file_load_entry.h',

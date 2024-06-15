@@ -56,11 +56,7 @@ _flap_chat_details_reveal_switch(gpointer user_data)
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
   HdyFlap* flap = handle->flap_chat_details;
 
-  if (TRUE == hdy_flap_get_reveal_flap(flap)) {
-    hdy_flap_set_reveal_flap(flap, FALSE);
-  } else {
-    hdy_flap_set_reveal_flap(flap, TRUE);
-  }
+  hdy_flap_set_reveal_flap(flap, !hdy_flap_get_reveal_flap(flap));
 
   gtk_widget_set_sensitive(GTK_WIDGET(handle->messages_listbox), TRUE);
   return FALSE;
