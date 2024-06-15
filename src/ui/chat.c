@@ -45,14 +45,13 @@
 #include "../ui.h"
 
 static void
-handle_chat_details_switched(HdySwipeable* swipeable,
-                             guint index,
-                             gint64 duration,
-                             gpointer user_data)
+handle_chat_details_folded(GObject* object,
+                           GParamSpec* pspec,
+                           gpointer user_data)
 {
-  g_assert((swipeable) && (user_data));
+  g_assert((object) && (pspec) && (user_data));
 
-  HdyFlap* flap = HDY_FLAP(swipeable);
+  HdyFlap* flap = HDY_FLAP(object);
   UI_CHAT_Handle *handle = (UI_CHAT_Handle*) user_data;
   UI_MESSENGER_Handle *messenger = &(handle->app->ui.messenger);
 
@@ -93,16 +92,6 @@ handle_chat_details_switched(HdySwipeable* swipeable,
   );
 
   g_value_unset(&value);
-}
-
-static void
-handle_chat_details_folded(GObject* object,
-                           GParamSpec* pspec,
-                           gpointer user_data)
-{
-  g_assert((object) && (pspec) && (user_data));
-
-  printf("debug: %s\n", g_param_spec_get_name(pspec));
 }
 
 static gboolean
@@ -1237,14 +1226,7 @@ ui_chat_new(MESSENGER_Application *app,
 
   g_signal_connect(
     handle->flap_chat_details,
-    "child-switched",
-    G_CALLBACK(handle_chat_details_switched),
-    handle
-  );
-
-  g_signal_connect(
-    handle->flap_chat_details,
-    "notify",
+    "notify::reveal-flap",
     G_CALLBACK(handle_chat_details_folded),
     handle
   );
