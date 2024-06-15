@@ -95,6 +95,16 @@ handle_chat_details_switched(HdySwipeable* swipeable,
   g_value_unset(&value);
 }
 
+static void
+handle_chat_details_folded(GObject* object,
+                           GParamSpec* pspec,
+                           gpointer user_data)
+{
+  g_assert((object) && (pspec) && (user_data));
+
+  printf("debug: %s\n", g_param_spec_get_name(pspec));
+}
+
 static gboolean
 _flap_chat_details_reveal_switch(gpointer user_data)
 {
@@ -1229,6 +1239,13 @@ ui_chat_new(MESSENGER_Application *app,
     handle->flap_chat_details,
     "child-switched",
     G_CALLBACK(handle_chat_details_switched),
+    handle
+  );
+
+  g_signal_connect(
+    handle->flap_chat_details,
+    "notify",
+    G_CALLBACK(handle_chat_details_folded),
     handle
   );
 
