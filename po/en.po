@@ -22,7 +22,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unnamed project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-24 16:41+0200\n"
+"POT-Creation-Date: 2024-06-16 01:30+0200\n"
 "PO-Revision-Date: 2024-04-01 22:18+0200\n"
 "Last-Translator: Tobias Frisch <>\n"
 "Language-Team: English\n"
@@ -46,7 +46,7 @@ msgid "Translators"
 msgstr "Tobias Frisch"
 
 #: resources/ui/about.ui:71 resources/ui/accounts.ui:42
-#: resources/ui/contact_info.ui:73 resources/ui/contacts.ui:42
+#: resources/ui/contact_info.ui:78 resources/ui/contacts.ui:42
 #: resources/ui/files.ui:34 resources/ui/invite_contact.ui:42
 msgid "Close"
 msgstr "Close"
@@ -55,113 +55,122 @@ msgstr "Close"
 msgid "Accounts"
 msgstr "Accounts"
 
-#: resources/ui/accounts.ui:105 resources/ui/messenger.ui:378
+#: resources/ui/accounts.ui:105 resources/ui/messenger.ui:329
 msgid "Add Account"
 msgstr "Add Account"
 
-#: resources/ui/chat.ui:721 resources/ui/contact_info.ui:228
+#: resources/ui/chat.ui:459 resources/ui/contact_info.ui:234
 msgid "Reveal Identity"
 msgstr "Reveal Identity"
 
-#: resources/ui/chat.ui:771 resources/ui/contact_info.ui:365
+#: resources/ui/chat.ui:505
+msgid "Open Discourse"
+msgstr "Open Discourse"
+
+#: resources/ui/chat.ui:555 resources/ui/contact_info.ui:371
 msgid "Block Contact"
 msgstr "Block Contact"
 
-#: resources/ui/chat.ui:817 resources/ui/contact_info.ui:409
+#: resources/ui/chat.ui:601 resources/ui/contact_info.ui:415
 msgid "Unblock Contact"
 msgstr "Unblock Contact"
 
-#: resources/ui/chat.ui:871
+#: resources/ui/chat.ui:655
 msgid "Leave Chat"
 msgstr "Leave Chat"
 
-#: resources/ui/chat.ui:910 resources/ui/settings.ui:176
+#: resources/ui/chat.ui:694 resources/ui/settings.ui:176
 #: resources/ui/settings.ui:181
 msgid "Notifications"
 msgstr "Notifications"
 
-#: resources/ui/chat.ui:949 resources/ui/contacts.ui:27
-#: resources/ui/messenger.ui:585
+#: resources/ui/chat.ui:733 resources/ui/contacts.ui:27
+#: resources/ui/messenger.ui:536
 msgid "Contacts"
 msgstr "Contacts"
 
-#: resources/ui/chat.ui:998 resources/ui/invite_contact.ui:27
+#: resources/ui/chat.ui:782 resources/ui/invite_contact.ui:27
 msgid "Invite Contact"
 msgstr "Invite Contact"
 
-#: resources/ui/chat.ui:1038
+#: resources/ui/chat.ui:822
 msgid "Media"
 msgstr "Media"
 
-#: resources/ui/chat.ui:1086 resources/ui/files.ui:7
+#: resources/ui/chat.ui:870 resources/ui/files.ui:7
 #: resources/ui/settings.ui:676
 msgid "Files"
 msgstr "Files"
 
-#: resources/ui/chat.ui:1169
+#: resources/ui/chat.ui:941
 msgid "Send Later"
 msgstr "Send Later"
 
-#: resources/ui/chat.ui:1184
+#: resources/ui/chat.ui:956
 msgid "Send Now"
 msgstr "Send Now"
 
-#: resources/ui/contact_info.ui:46
+#: resources/ui/contact_info.ui:51
 msgid "Contact Information"
 msgstr "Contact Information"
 
-#: resources/ui/contact_info.ui:61 resources/ui/files.ui:22
+#: resources/ui/contact_info.ui:66 resources/ui/files.ui:22
 msgid "Back"
 msgstr "Back"
 
-#: resources/ui/contact_info.ui:136 resources/ui/contact_info.ui:596
-#: resources/ui/contact_info.ui:764 resources/ui/new_account.ui:103
+#: resources/ui/contact_info.ui:141 resources/ui/contact_info.ui:602
+#: resources/ui/contact_info.ui:770 resources/ui/new_account.ui:109
 msgid "Name:"
 msgstr "Name:"
 
-#: resources/ui/contact_info.ui:273
+#: resources/ui/contact_info.ui:199 resources/ui/new_account.ui:135
+#, fuzzy
+msgid "Select profile picture"
+msgstr "Select profile picture"
+
+#: resources/ui/contact_info.ui:279
 msgid "List Attributes"
 msgstr "List Attributes"
 
-#: resources/ui/contact_info.ui:317
+#: resources/ui/contact_info.ui:323
 msgid "Share Attributes"
 msgstr "Share Attributes"
 
-#: resources/ui/contact_info.ui:461
+#: resources/ui/contact_info.ui:467
 msgid "Open Private Chat"
 msgstr "Open Private Chat"
 
-#: resources/ui/contact_info.ui:533 resources/ui/new_contact.ui:271
+#: resources/ui/contact_info.ui:539 resources/ui/new_contact.ui:271
 #: resources/ui/new_lobby.ui:354
 msgid "ID:"
 msgstr "ID:"
 
-#: resources/ui/contact_info.ui:572
+#: resources/ui/contact_info.ui:578
 msgid "Attributes:"
 msgstr "Attributes:"
 
-#: resources/ui/contact_info.ui:615
+#: resources/ui/contact_info.ui:621
 msgid "Value:"
 msgstr "Value:"
 
-#: resources/ui/contact_info.ui:647
+#: resources/ui/contact_info.ui:653
 msgid "New Attribute:"
 msgstr "New Attribute:"
 
-#: resources/ui/contact_info.ui:660
+#: resources/ui/contact_info.ui:666
 #, fuzzy
 msgid "Name"
 msgstr "Name:"
 
-#: resources/ui/contact_info.ui:679
+#: resources/ui/contact_info.ui:685
 msgid "Value"
 msgstr "Value"
 
-#: resources/ui/contact_info.ui:740
+#: resources/ui/contact_info.ui:746
 msgid "Shared Attributes:"
 msgstr "Shared Attributes:"
 
-#: resources/ui/contact_info.ui:782
+#: resources/ui/contact_info.ui:788
 msgid "Share:"
 msgstr "Share:"
 
@@ -213,16 +222,16 @@ msgstr "30 seconds"
 msgid "Delete Messages"
 msgstr "Delete Messages"
 
-#: resources/ui/delete_messages.ui:64 resources/ui/new_account.ui:43
+#: resources/ui/delete_messages.ui:64 resources/ui/new_account.ui:48
 #: resources/ui/new_contact.ui:52 resources/ui/new_group.ui:43
 #: resources/ui/new_lobby.ui:86 resources/ui/new_platform.ui:43
-#: resources/ui/new_tag.ui:43 resources/ui/send_file.ui:41 src/ui/chat.c:604
+#: resources/ui/new_tag.ui:43 resources/ui/send_file.ui:41 src/ui/chat.c:490
 msgid "Cancel"
 msgstr "Cancel"
 
-#: resources/ui/delete_messages.ui:77 resources/ui/new_account.ui:56
+#: resources/ui/delete_messages.ui:77 resources/ui/new_account.ui:61
 #: resources/ui/new_group.ui:81 resources/ui/new_platform.ui:56
-#: resources/ui/new_tag.ui:56 src/ui/chat.c:606
+#: resources/ui/new_tag.ui:56 src/ui/chat.c:492
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -234,39 +243,36 @@ msgstr "When do you want those messages to be deleted?"
 msgid "Hide this dialog in the future"
 msgstr "Hide this dialog in the future"
 
-#: resources/ui/messenger.ui:441 resources/ui/new_contact.ui:35
+#: resources/ui/messenger.ui:392 resources/ui/new_contact.ui:35
 msgid "New Contact"
 msgstr "New Contact"
 
-#: resources/ui/messenger.ui:489 resources/ui/new_group.ui:28
+#: resources/ui/messenger.ui:440 resources/ui/new_group.ui:28
 msgid "New Group"
 msgstr "New Group"
 
-#: resources/ui/messenger.ui:537 resources/ui/new_platform.ui:28
+#: resources/ui/messenger.ui:488 resources/ui/new_platform.ui:28
 msgid "New Platform"
 msgstr "New Platform"
 
-#: resources/ui/messenger.ui:633 resources/ui/settings.ui:70
+#: resources/ui/messenger.ui:584 resources/ui/settings.ui:70
 msgid "Settings"
 msgstr "Settings"
 
-#: resources/ui/messenger.ui:680
+#: resources/ui/messenger.ui:631
 msgid "About"
 msgstr "About"
 
-#: resources/ui/messenger.ui:793
+#: resources/ui/messenger.ui:747
 msgid "Select a chat to start messaging..."
 msgstr "Select a chat to start messaging..."
 
-#: resources/ui/messenger.ui:822
-msgid "Messenger"
-msgstr "Messenger"
+#: resources/ui/messenger.ui:808
+#, fuzzy
+msgid "GNUnet Messenger"
+msgstr "GNUnet Messenger"
 
-#: resources/ui/messenger.ui:823
-msgid "GNUnet"
-msgstr "GNUnet"
-
-#: resources/ui/new_account.ui:28
+#: resources/ui/new_account.ui:33
 msgid "New Account"
 msgstr "New Account"
 
@@ -346,7 +352,11 @@ msgstr "GIF"
 msgid "Stickers"
 msgstr "Stickers"
 
-#: resources/ui/play_media.ui:132
+#: resources/ui/play_media.ui:56
+msgid "Play Media"
+msgstr "Play Media"
+
+#: resources/ui/play_media.ui:134
 msgid "Video source invalid!"
 msgstr "Video source invalid!"
 
@@ -462,7 +472,7 @@ msgstr "Delete all files"
 #: resources/ui/settings.ui:840
 #, fuzzy
 msgid "Show all files"
-msgstr "Delete all files"
+msgstr "Show all files"
 
 #: resources/ui/settings.ui:865
 msgid "Chats"
@@ -476,40 +486,38 @@ msgstr "Leave chats automatically"
 msgid "Leave all chats"
 msgstr "Leave all chats"
 
-#: src/event.c:556
+#: src/event.c:595
 msgid "joined the chat"
 msgstr "joined the chat"
 
-#: src/event.c:556
+#: src/event.c:595
 msgid "left the chat"
 msgstr "left the chat"
 
-#: src/event.c:689
+#: src/event.c:728
 #, c-format
 msgid "invited %s to a chat"
 msgstr "invited %s to a chat"
 
-#: src/event.c:693
+#: src/event.c:732
 msgid "you"
 msgstr "you"
 
-#: src/ui/chat.c:601
+#: src/ui/chat.c:487
 msgid "Select file"
 msgstr "Select file"
 
-#: src/ui/chat.c:2124
-#, c-format
-msgid "%d members"
-msgstr "%d members"
-
-#: src/ui/chat_entry.c:199
+#: src/ui/chat_entry.c:200
 msgid "Yesterday"
 msgstr "Yesterday"
-
-#: src/ui/play_media.c:659
-msgid "Play Media"
-msgstr "Play Media"
 
 #: src/ui/send_file.c:307
 msgid "Send File"
 msgstr "Send File"
+
+#~ msgid "GNUnet"
+#~ msgstr "GNUnet"
+
+#, c-format
+#~ msgid "%d members"
+#~ msgstr "%d members"
