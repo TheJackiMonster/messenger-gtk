@@ -42,6 +42,49 @@
 #include "../ui.h"
 
 static void
+handle_user_details_folded(GObject* object,
+                           GParamSpec* pspec,
+                           gpointer user_data)
+{
+  g_assert((object) && (pspec) && (user_data));
+
+  HdyFlap* flap = HDY_FLAP(object);
+  UI_MESSENGER_Handle *handle = (UI_MESSENGER_Handle*) user_data;
+
+  const gboolean revealed = hdy_flap_get_reveal_flap(flap);
+
+  gtk_widget_set_sensitive(
+    GTK_WIDGET(handle->chats_search_entry),
+    !revealed
+  );
+
+  gtk_widget_set_sensitive(
+    GTK_WIDGET(handle->chats_search_button),
+    !revealed
+  );
+
+  GValue value = G_VALUE_INIT;
+  g_value_init(&value, G_TYPE_BOOLEAN);
+  g_value_set_boolean(&value, !revealed);
+
+  gtk_container_child_set_property(
+    GTK_CONTAINER(handle->leaflet_title),
+    GTK_WIDGET(handle->main_bar),
+    "navigatable",
+    &value
+  );
+
+  gtk_container_child_set_property(
+    GTK_CONTAINER(handle->leaflet_chat),
+    handle->main_box,
+    "navigatable",
+    &value
+  );
+
+  g_value_unset(&value);
+}
+
+static void
 handle_profile_button_click(UNUSED GtkButton* button,
 				                             gpointer user_data)
 {
@@ -466,6 +509,13 @@ ui_messenger_init(MESSENGER_Application *app,
 
   handle->flap_user_details = HDY_FLAP(
     gtk_builder_get_object(handle->builder, "flap_user_details")
+  );
+
+  g_signal_connect(
+    handle->flap_user_details,
+    "notify::reveal-flap",
+    G_CALLBACK(handle_user_details_folded),
+    handle
   );
 
   handle->nav_box = GTK_WIDGET(
