@@ -129,7 +129,7 @@ Author: Tobias Frisch
                         <property name="receives-default">True</property>
                         <property name="relief">none</property>
                         <child>
-                          <object class="GtkStack">
+                          <object class="GtkStack" id="microphone_stack">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
@@ -139,8 +139,7 @@ Author: Tobias Frisch
                                 <property name="icon-name">microphone-sensitivity-high-symbolic</property>
                               </object>
                               <packing>
-                                <property name="name">page0</property>
-                                <property name="title" translatable="yes">page0</property>
+                                <property name="name">on_page</property>
                               </packing>
                             </child>
                             <child>
@@ -150,8 +149,7 @@ Author: Tobias Frisch
                                 <property name="icon-name">microphone-sensitivity-muted-symbolic</property>
                               </object>
                               <packing>
-                                <property name="name">page1</property>
-                                <property name="title" translatable="yes">page1</property>
+                                <property name="name">off_page</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
@@ -248,7 +246,7 @@ audio-volume-medium-symbolic</property>
                         <property name="receives-default">True</property>
                         <property name="relief">none</property>
                         <child>
-                          <object class="GtkStack">
+                          <object class="GtkStack" id="call_stack">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
@@ -258,8 +256,7 @@ audio-volume-medium-symbolic</property>
                                 <property name="icon-name">call-start-symbolic</property>
                               </object>
                               <packing>
-                                <property name="name">page0</property>
-                                <property name="title" translatable="yes">page0</property>
+                                <property name="name">start_page</property>
                               </packing>
                             </child>
                             <child>
@@ -269,8 +266,7 @@ audio-volume-medium-symbolic</property>
                                 <property name="icon-name">call-stop-symbolic</property>
                               </object>
                               <packing>
-                                <property name="name">page1</property>
-                                <property name="title" translatable="yes">page1</property>
+                                <property name="name">stop_page</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>

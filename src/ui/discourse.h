@@ -27,6 +27,8 @@
 
 #include "messenger.h"
 
+#include <gnunet/gnunet_chat_lib.h>
+
 #include <glib-2.0/glib.h>
 #include <gstreamer-1.0/gst/gst.h>
 #include <pthread.h>
@@ -35,6 +37,10 @@ typedef struct UI_DISCOURSE_Handle
 {
   MESSENGER_Application *app;
   struct GNUNET_CHAT_Context *context;
+
+  struct GNUNET_CHAT_Discourse *voice_discourse;
+
+  gboolean muted;
 
   GtkWindow *parent;
 
@@ -54,6 +60,14 @@ typedef struct UI_DISCOURSE_Handle
   GtkButton *screen_button;
   GtkVolumeButton *speakers_button;
   GtkButton *call_button;
+
+  GtkStack *microphone_stack;
+  GtkWidget *microphone_on_icon;
+  GtkWidget *microphone_off_icon;
+
+  GtkStack *call_stack;
+  GtkWidget *call_start_icon;
+  GtkWidget *call_stop_icon;
 
   GtkButton *close_details_button;
   GtkListBox *contacts_listbox;

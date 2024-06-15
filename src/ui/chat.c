@@ -25,8 +25,8 @@
 #include "chat.h"
 
 #include <gdk/gdkkeysyms.h>
-#include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <stdlib.h>
 

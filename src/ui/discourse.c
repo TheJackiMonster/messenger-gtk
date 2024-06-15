@@ -24,11 +24,18 @@
 
 #include "discourse.h"
 
+#include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_time_lib.h>
+
 #include "account_entry.h"
 
 #include "../application.h"
 #include "../ui.h"
 #include "../util.h"
+#include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_common.h>
+#include <string.h>
 
 static void
 handle_back_button_click(UNUSED GtkButton *button,
@@ -70,6 +77,64 @@ handle_details_folded(GObject* object,
 }
 
 static void
+_update_microphone_icon(UI_DISCOURSE_Handle *handle)
+{
+  g_assert(handle);
+
+  if (handle->muted)
+    gtk_stack_set_visible_child(handle->microphone_stack, handle->microphone_off_icon);
+  else
+    gtk_stack_set_visible_child(handle->microphone_stack, handle->microphone_on_icon);
+}
+
+static void
+handle_microphone_button_click(UNUSED GtkButton *button,
+			                         gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
+
+  handle->muted = !(handle->muted);
+  _update_microphone_icon(handle);
+}
+
+static void
+handle_call_button_click(UNUSED GtkButton *button,
+			                   gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
+
+  if (!(handle->context))
+    return;
+
+  const gboolean calling = (
+    (handle->voice_discourse) && 
+    (GNUNET_YES == GNUNET_CHAT_discourse_is_open(handle->voice_discourse))
+  );
+
+  struct GNUNET_ShortHashCode voice_id;
+  memset(&voice_id, 0, sizeof(voice_id));
+
+  if (calling)
+  {
+    GNUNET_CHAT_discourse_close(handle->voice_discourse);
+    handle->voice_discourse = NULL;
+  }
+  else
+    handle->voice_discourse = GNUNET_CHAT_context_open_discourse(
+      handle->context, &voice_id
+    );
+
+  if (handle->voice_discourse)
+    gtk_stack_set_visible_child(handle->call_stack, handle->call_stop_icon);
+  else
+    gtk_stack_set_visible_child(handle->call_stack, handle->call_start_icon);
+}
+
+static void
 handle_window_destroy(UNUSED GtkWidget *window,
 		                  gpointer user_data)
 {
@@ -86,6 +151,9 @@ ui_discourse_window_init(MESSENGER_Application *app,
 
   handle->app = app;
   handle->context = NULL;
+
+  handle->voice_discourse = NULL;
+  handle->muted = TRUE;
 
   handle->parent = GTK_WINDOW(app->ui.messenger.main_window);
 
@@ -152,6 +220,13 @@ ui_discourse_window_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "microphone_button")
   );
 
+  g_signal_connect(
+    handle->microphone_button,
+    "clicked",
+    G_CALLBACK(handle_microphone_button_click),
+    handle
+  );
+
   handle->camera_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "camera_button")
   );
@@ -166,6 +241,37 @@ ui_discourse_window_init(MESSENGER_Application *app,
 
   handle->call_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "call_button")
+  );
+
+  g_signal_connect(
+    handle->call_button,
+    "clicked",
+    G_CALLBACK(handle_call_button_click),
+    handle
+  );
+
+  handle->microphone_stack = GTK_STACK(
+    gtk_builder_get_object(handle->builder, "microphone_stack")
+  );
+
+  handle->microphone_on_icon = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "microphone_on_icon")
+  );
+
+  handle->microphone_off_icon = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "microphone_off_icon")
+  );
+
+  handle->call_stack = GTK_STACK(
+    gtk_builder_get_object(handle->builder, "call_stack")
+  );
+
+  handle->call_start_icon = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "call_start_icon")
+  );
+
+  handle->call_stop_icon = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "call_stop_icon")
   );
 
   handle->close_details_button = GTK_BUTTON(
@@ -191,6 +297,49 @@ ui_discourse_window_init(MESSENGER_Application *app,
   );
 
   gtk_widget_show_all(GTK_WIDGET(handle->window));
+}
+
+static enum GNUNET_GenericReturnValue
+iterate_ui_discourse_update_discourse_members(void *cls,
+                                              const struct GNUNET_CHAT_Discourse *discourse,
+                                              struct GNUNET_CHAT_Contact *contact)
+{
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) cls;
+
+  printf("%s\n", GNUNET_CHAT_contact_get_name(contact));
+
+  return GNUNET_YES;
+}
+
+static enum GNUNET_GenericReturnValue
+iterate_ui_discourse_update_context_discourses(void *cls,
+                                               UNUSED struct GNUNET_CHAT_Context *context,
+                                               struct GNUNET_CHAT_Discourse *discourse)
+{
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) cls;
+
+  GNUNET_CHAT_discourse_iterate_contacts(
+    discourse,
+    iterate_ui_discourse_update_discourse_members,
+    handle
+  );
+
+  return GNUNET_YES;
+}
+
+static void
+_discourse_update_members(UI_DISCOURSE_Handle *handle)
+{
+  g_assert(handle);
+
+  if (!(handle->context))
+    return;
+
+  GNUNET_CHAT_context_iterate_discourses(
+    handle->context,
+    iterate_ui_discourse_update_context_discourses,
+    handle
+  );
 }
 
 struct IterateChatClosure {
@@ -286,6 +435,9 @@ ui_discourse_window_update(UI_DISCOURSE_Handle *handle,
   }
 
   handle->context = context;
+
+  _update_microphone_icon(handle);
+  _discourse_update_members(handle);
 
   struct GNUNET_CHAT_Group* group = GNUNET_CHAT_context_get_group(
     handle->context
