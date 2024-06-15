@@ -86,6 +86,7 @@ typedef struct UI_CHAT_Handle
   HdyAvatar *chat_details_avatar;
 
   GtkButton *reveal_identity_button;
+  GtkButton *discourse_button;
   GtkStack *block_stack;
   GtkButton *block_button;
   GtkButton *unblock_button;

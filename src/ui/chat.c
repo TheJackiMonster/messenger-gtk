@@ -1281,6 +1281,10 @@ ui_chat_new(MESSENGER_Application *app,
     handle
   );
 
+  handle->discourse_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "discourse_button")
+  );
+
   handle->block_stack = GTK_STACK(
     gtk_builder_get_object(handle->builder, "block_stack")
   );

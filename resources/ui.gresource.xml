@@ -2,6 +2,7 @@
 <gresources>
 	<gresource prefix="/org/gnunet/Messenger">
 		<file compressed="true">ui/about.ui</file>
+		<file compressed="true">ui/account_entry.ui</file>
 		<file compressed="true">ui/accounts.ui</file>
 		<file compressed="true">ui/chat_entry.ui</file>
 		<file compressed="true">ui/chat_title.ui</file>
@@ -10,6 +11,7 @@
 		<file compressed="true">ui/contact_info.ui</file>
 		<file compressed="true">ui/contacts.ui</file>
 		<file compressed="true">ui/delete_messages.ui</file>
+		<file compressed="true">ui/discourse.ui</file>
 		<file compressed="true">ui/files.ui</file>
 		<file compressed="true">ui/file_entry.ui</file>
 		<file compressed="true">ui/file_load_entry.ui</file>
@@ -28,7 +30,6 @@
 		<file compressed="true">ui/new_tag.ui</file>
 		<file compressed="true">ui/picker.ui</file>
 		<file compressed="true">ui/play_media.ui</file>
-		<file compressed="true">ui/account_entry.ui</file>
 		<file compressed="true">ui/send_file.ui</file>
 		<file compressed="true">ui/settings.ui</file>
 		<file compressed="true">ui/tag.ui</file>
