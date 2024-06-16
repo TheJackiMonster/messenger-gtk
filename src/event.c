@@ -1012,3 +1012,24 @@ event_update_attributes(MESSENGER_Application *app)
     app
   );
 }
+
+void
+event_discourse(MESSENGER_Application *app,
+                struct GNUNET_CHAT_Context *context,
+                const struct GNUNET_CHAT_Message *msg)
+{
+  g_assert((app) && (context) && (msg));
+
+  if (context == app->ui.discourse.context)
+    ui_discourse_window_update(&(app->ui.discourse), context);
+}
+
+void
+event_discourse_data(MESSENGER_Application *app,
+                     struct GNUNET_CHAT_Context *context,
+                     const struct GNUNET_CHAT_Message *msg)
+{
+  g_assert((app) && (context) && (msg));
+
+  // TODO
+}

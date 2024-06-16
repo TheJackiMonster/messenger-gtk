@@ -184,4 +184,30 @@ event_tag_message(MESSENGER_Application *app,
 void
 event_update_attributes(MESSENGER_Application *app);
 
+/**
+ * Event for the UI to be called whenever a discourse
+ * message gets received in a given context.
+ *
+ * @param app Messenger application
+ * @param context Chat context
+ * @param msg Discourse message
+ */
+void
+event_discourse(MESSENGER_Application *app,
+                struct GNUNET_CHAT_Context *context,
+                const struct GNUNET_CHAT_Message *msg);
+
+/**
+ * Event for the UI to be called whenever a data
+ * message gets received in a given context.
+ *
+ * @param app Messenger application
+ * @param context Chat context
+ * @param msg Data message
+ */
+void
+event_discourse_data(MESSENGER_Application *app,
+                     struct GNUNET_CHAT_Context *context,
+                     const struct GNUNET_CHAT_Message *msg);
+
 #endif /* EVENT_H_ */

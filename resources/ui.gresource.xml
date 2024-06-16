@@ -11,6 +11,7 @@
 		<file compressed="true">ui/contact_info.ui</file>
 		<file compressed="true">ui/contacts.ui</file>
 		<file compressed="true">ui/delete_messages.ui</file>
+		<file compressed="true">ui/discourse_panel.ui</file>
 		<file compressed="true">ui/discourse.ui</file>
 		<file compressed="true">ui/files.ui</file>
 		<file compressed="true">ui/file_entry.ui</file>

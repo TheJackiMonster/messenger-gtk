@@ -213,6 +213,26 @@ _chat_messenger_message(void *cls,
       application_call_event(app, event_update_attributes);
       break;
     }
+    case GNUNET_CHAT_KIND_DISCOURSE:
+    {
+      application_call_message_event(
+          app,
+          event_discourse,
+          context,
+          message
+      );
+      break;
+    }
+    case GNUNET_CHAT_KIND_DATA:
+    {
+      application_call_message_event(
+          app,
+          event_discourse_data,
+          context,
+          message
+      );
+      break;
+    }
     default:
       break;
   }

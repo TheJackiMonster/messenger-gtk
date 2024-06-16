@@ -29,6 +29,7 @@
 #include <gnunet/gnunet_time_lib.h>
 
 #include "account_entry.h"
+#include "discourse_panel.h"
 
 #include "../application.h"
 #include "../ui.h"
@@ -110,10 +111,7 @@ handle_call_button_click(UNUSED GtkButton *button,
   if (!(handle->context))
     return;
 
-  const gboolean calling = (
-    (handle->voice_discourse) && 
-    (GNUNET_YES == GNUNET_CHAT_discourse_is_open(handle->voice_discourse))
-  );
+  const gboolean calling = (handle->voice_discourse? TRUE : FALSE);
 
   struct GNUNET_ShortHashCode voice_id;
   memset(&voice_id, 0, sizeof(voice_id));
@@ -299,29 +297,53 @@ ui_discourse_window_init(MESSENGER_Application *app,
   gtk_widget_show_all(GTK_WIDGET(handle->window));
 }
 
+struct IterateDiscourseClosure {
+  MESSENGER_Application *app;
+  GtkContainer *container;
+};
+
 static enum GNUNET_GenericReturnValue
 iterate_ui_discourse_update_discourse_members(void *cls,
                                               const struct GNUNET_CHAT_Discourse *discourse,
                                               struct GNUNET_CHAT_Contact *contact)
 {
-  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) cls;
+  struct IterateDiscourseClosure *closure = (
+    (struct IterateDiscourseClosure*) cls
+  );
 
-  printf("%s\n", GNUNET_CHAT_contact_get_name(contact));
+  GtkFlowBox *flowbox = GTK_FLOW_BOX(closure->container);
+  UI_DISCOURSE_PANEL_Handle* panel = ui_discourse_panel_new(closure->app);
+
+  ui_discourse_panel_set_contact(panel, contact);
+
+  gtk_flow_box_insert(flowbox, panel->panel_box, -1);
+
+  GtkFlowBoxChild *child = GTK_FLOW_BOX_CHILD(
+    gtk_widget_get_parent(panel->panel_box)
+  );
+
+  g_object_set_qdata(G_OBJECT(child), closure->app->quarks.data, contact);
+  g_object_set_qdata_full(
+    G_OBJECT(child),
+    closure->app->quarks.ui,
+    panel,
+    (GDestroyNotify) ui_discourse_panel_delete
+  );
 
   return GNUNET_YES;
 }
 
 static enum GNUNET_GenericReturnValue
 iterate_ui_discourse_update_context_discourses(void *cls,
-                                               UNUSED struct GNUNET_CHAT_Context *context,
+                                               struct GNUNET_CHAT_Context *context,
                                                struct GNUNET_CHAT_Discourse *discourse)
 {
-  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) cls;
+  g_assert((cls) && (context) && (discourse));
 
   GNUNET_CHAT_discourse_iterate_contacts(
     discourse,
     iterate_ui_discourse_update_discourse_members,
-    handle
+    cls
   );
 
   return GNUNET_YES;
@@ -332,28 +354,45 @@ _discourse_update_members(UI_DISCOURSE_Handle *handle)
 {
   g_assert(handle);
 
+  GList* children = gtk_container_get_children(
+    GTK_CONTAINER(handle->members_flowbox)
+  );
+
+  GList *item = children;
+  while ((item) && (item->next)) {
+    GtkWidget *widget = GTK_WIDGET(item->data);
+    item = item->next;
+
+    gtk_container_remove(
+      GTK_CONTAINER(handle->members_flowbox),
+      widget
+    );
+  }
+
+  if (children)
+    g_list_free(children);
+
   if (!(handle->context))
     return;
+
+  struct IterateDiscourseClosure closure;
+  closure.app = handle->app;
+  closure.container = GTK_CONTAINER(handle->members_flowbox);
 
   GNUNET_CHAT_context_iterate_discourses(
     handle->context,
     iterate_ui_discourse_update_context_discourses,
-    handle
+    &closure
   );
 }
-
-struct IterateChatClosure {
-  MESSENGER_Application *app;
-  GtkContainer *container;
-};
 
 static enum GNUNET_GenericReturnValue
 iterate_ui_discourse_update_group_contacts(void *cls,
                                            UNUSED const struct GNUNET_CHAT_Group *group,
                                            struct GNUNET_CHAT_Contact *contact)
 {
-  struct IterateChatClosure *closure = (
-    (struct IterateChatClosure*) cls
+  struct IterateDiscourseClosure *closure = (
+    (struct IterateDiscourseClosure*) cls
   );
 
   GtkListBox *listbox = GTK_LIST_BOX(closure->container);
@@ -404,7 +443,7 @@ _discourse_update_contacts(UI_DISCOURSE_Handle *handle,
 
   if (group)
   {
-    struct IterateChatClosure closure;
+    struct IterateDiscourseClosure closure;
     closure.app = handle->app;
     closure.container = GTK_CONTAINER(handle->contacts_listbox);
 
@@ -430,8 +469,6 @@ ui_discourse_window_update(UI_DISCOURSE_Handle *handle,
   if (handle->context)
   {
     // TODO
-
-
   }
 
   handle->context = context;
