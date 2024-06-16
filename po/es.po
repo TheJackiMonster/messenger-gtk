@@ -16,7 +16,7 @@
 #
 # SPDX-License-Identifier: AGPL3.0-or-later
 #
-# carlosgonz <>, 2024.
+# carlosgonz <carlosgonz@protonmail.com>, 2024.
 #
 msgid ""
 msgstr ""
@@ -65,7 +65,7 @@ msgstr "Revelar Identidad"
 
 #: resources/ui/chat.ui:505
 msgid "Open Discourse"
-msgstr ""
+msgstr " Abrir Discurso"
 
 #: resources/ui/chat.ui:555 resources/ui/contact_info.ui:371
 msgid "Block Contact"
@@ -82,7 +82,7 @@ msgstr "Salir de Charla"
 #: resources/ui/chat.ui:694 resources/ui/settings.ui:176
 #: resources/ui/settings.ui:181
 msgid "Notifications"
-msgstr "Notificaciones"
+msgstr "Timbres"
 
 #: resources/ui/chat.ui:733 resources/ui/contacts.ui:27
 #: resources/ui/messenger.ui:536
@@ -181,7 +181,7 @@ msgstr "Agregar Contacto"
 #: resources/ui/delete_messages.ui:14 resources/ui/new_lobby.ui:35
 #: resources/ui/settings.ui:35
 msgid "Off"
-msgstr "Apagar"
+msgstr "Apagado"
 
 #: resources/ui/delete_messages.ui:18 resources/ui/new_lobby.ui:39
 #: resources/ui/settings.ui:39
@@ -374,7 +374,7 @@ msgstr "Sistema"
 
 #: resources/ui/settings.ui:89 resources/ui/settings.ui:98
 msgid "Start on login"
-msgstr "Iniciar Sesión"
+msgstr "Modo Sesión"
 
 #: resources/ui/settings.ui:130 resources/ui/settings.ui:139
 msgid "Run in background"
@@ -386,7 +386,7 @@ msgstr "Habilitar Notificationes"
 
 #: resources/ui/settings.ui:227 resources/ui/settings.ui:236
 msgid "Play notification sounds"
-msgstr "Habilitar sonidos de Notificación"
+msgstr "Habilitar Sonidos"
 
 #: resources/ui/settings.ui:274
 msgid "Privacy"
@@ -394,7 +394,7 @@ msgstr "Privacidad"
 
 #: resources/ui/settings.ui:279
 msgid "Blocked"
-msgstr "Bloqueado"
+msgstr "Bloqueados"
 
 #: resources/ui/settings.ui:294 src/ui/settings.c:411
 #, c-format
@@ -403,7 +403,7 @@ msgstr "%u contactos bloqueados"
 
 #: resources/ui/settings.ui:342
 msgid "Messaging"
-msgstr "Mensajiando"
+msgstr "Mensajes"
 
 #: resources/ui/settings.ui:347 resources/ui/settings.ui:356
 msgid "Send read receipts"
@@ -411,7 +411,7 @@ msgstr "Enviar recibos de Lectura"
 
 #: resources/ui/settings.ui:390
 msgid "Disappearing messages"
-msgstr "Mensajes Desapareciendos"
+msgstr "Desaparecidos"
 
 #: resources/ui/settings.ui:395 resources/ui/settings.ui:404
 msgid "Delete messages automatically"
@@ -455,11 +455,11 @@ msgstr "Autoaceptar Archivos"
 
 #: resources/ui/settings.ui:722 resources/ui/settings.ui:731
 msgid "Download folder"
-msgstr "Bajar Carpeta"
+msgstr "Ruta de Carpeta"
 
 #: resources/ui/settings.ui:746
 msgid "Select download folder"
-msgstr "Seleccionar carpeta de Bajada"
+msgstr "Seleccionar Carpeta de Bajada"
 
 #: resources/ui/settings.ui:765 resources/ui/settings.ui:774
 msgid "Delete files automatically"
