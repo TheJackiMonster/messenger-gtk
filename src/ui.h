@@ -114,4 +114,30 @@ void
 ui_avatar_set_icon(HdyAvatar *avatar,
                    GIcon *icon);
 
+/**
+ * Searches for a specific data set as qdata inside a 
+ * container.
+ *
+ * @param container Container
+ * @param quark Quark
+ * @param data Data
+ */
+gboolean
+ui_find_qdata_in_container(GtkContainer *container,
+                           GQuark quark,
+                           const gpointer data);
+
+/**
+ * Removes children from container which qdata is missing
+ * inside a list of data.
+ *
+ * @param container Container
+ * @param quark Quark
+ * @param list List of data
+ */
+void
+ui_clear_container_of_missing_qdata(GtkContainer *container,
+                                    GQuark quark,
+                                    const GList *list);
+
 #endif /* UI_H_ */

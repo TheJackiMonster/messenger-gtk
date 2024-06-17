@@ -59,15 +59,14 @@ typedef struct UI_DISCOURSE_Handle
   GtkButton *camera_button;
   GtkButton *screen_button;
   GtkVolumeButton *speakers_button;
-  GtkButton *call_button;
 
   GtkStack *microphone_stack;
   GtkWidget *microphone_on_icon;
   GtkWidget *microphone_off_icon;
 
   GtkStack *call_stack;
-  GtkWidget *call_start_icon;
-  GtkWidget *call_stop_icon;
+  GtkWidget *call_start_button;
+  GtkWidget *call_stop_button;
 
   GtkButton *close_details_button;
   GtkListBox *contacts_listbox;

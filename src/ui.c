@@ -245,3 +245,61 @@ ui_avatar_set_icon(HdyAvatar *avatar,
   else
     hdy_avatar_set_loadable_icon(avatar, G_LOADABLE_ICON(icon));
 }
+
+gboolean
+ui_find_qdata_in_container(GtkContainer *container,
+                           GQuark quark,
+                           const gpointer data)
+{
+  g_assert((container) && (data));
+
+  GList* children = gtk_container_get_children(container);
+  GList *item = children;
+
+  while (item)
+  {
+    GtkWidget *widget = GTK_WIDGET(item->data);
+
+    if (data == g_object_get_qdata(G_OBJECT(widget), quark))
+      break;
+
+    item = item->next;
+  }
+
+  if (children)
+    g_list_free(children);
+
+  return item? TRUE : FALSE;
+}
+
+void
+ui_clear_container_of_missing_qdata(GtkContainer *container,
+                                    GQuark quark,
+                                    const GList *list)
+{
+  g_assert(container);
+
+  GList* children = gtk_container_get_children(container);
+  GList *item = children;
+
+  while (item) {
+    GtkWidget *widget = GTK_WIDGET(item->data);
+    const GList *data = list;
+
+    while (data)
+    {
+      if (data->data == g_object_get_qdata(G_OBJECT(widget), quark))
+        break;
+
+      data = data->next;
+    }
+
+    if (!data)
+      gtk_container_remove(container, widget);
+
+    item = item->next;
+  }
+
+  if (children)
+    g_list_free(children);
+}

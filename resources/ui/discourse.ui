@@ -99,15 +99,30 @@ Author: Tobias Frisch
                 <property name="can-focus">False</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkFlowBox" id="members_flowbox">
+                  <object class="GtkScrolledWindow">
                     <property name="width-request">280</property>
                     <property name="height-request">180</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="border-width">16</property>
-                    <property name="column-spacing">2</property>
-                    <property name="row-spacing">2</property>
-                    <property name="selection-mode">none</property>
+                    <property name="can-focus">True</property>
+                    <child>
+                      <object class="GtkViewport">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <object class="GtkFlowBox" id="members_flowbox">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="halign">center</property>
+                            <property name="valign">center</property>
+                            <property name="border-width">16</property>
+                            <property name="column-spacing">2</property>
+                            <property name="row-spacing">2</property>
+                            <property name="min-children-per-line">2</property>
+                            <property name="selection-mode">none</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -133,16 +148,6 @@ Author: Tobias Frisch
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkImage" id="microphone_on_icon">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">microphone-sensitivity-high-symbolic</property>
-                              </object>
-                              <packing>
-                                <property name="name">on_page</property>
-                              </packing>
-                            </child>
-                            <child>
                               <object class="GtkImage" id="microphone_off_icon">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
@@ -150,11 +155,24 @@ Author: Tobias Frisch
                               </object>
                               <packing>
                                 <property name="name">off_page</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkImage" id="microphone_on_icon">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="icon-name">microphone-sensitivity-high-symbolic</property>
+                              </object>
+                              <packing>
+                                <property name="name">on_page</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
                         </child>
+                        <style>
+                          <class name="discourse-action"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -175,6 +193,9 @@ Author: Tobias Frisch
                             <property name="icon-name">camera-web-symbolic</property>
                           </object>
                         </child>
+                        <style>
+                          <class name="discourse-action"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -195,6 +216,9 @@ Author: Tobias Frisch
                             <property name="icon-name">video-display-symbolic</property>
                           </object>
                         </child>
+                        <style>
+                          <class name="discourse-action"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -232,6 +256,9 @@ audio-volume-medium-symbolic</property>
                             <property name="relief">none</property>
                           </object>
                         </child>
+                        <style>
+                          <class name="discourse-action"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -240,43 +267,59 @@ audio-volume-medium-symbolic</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="call_button">
+                      <object class="GtkStack" id="call_stack">
                         <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="relief">none</property>
+                        <property name="can-focus">False</property>
                         <child>
-                          <object class="GtkStack" id="call_stack">
+                          <object class="GtkButton" id="call_stop_button">
                             <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <property name="relief">none</property>
                             <child>
-                              <object class="GtkImage" id="call_start_icon">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">call-start-symbolic</property>
-                              </object>
-                              <packing>
-                                <property name="name">start_page</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkImage" id="call_stop_icon">
+                              <object class="GtkImage">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="icon-name">call-stop-symbolic</property>
                               </object>
-                              <packing>
-                                <property name="name">stop_page</property>
-                                <property name="position">1</property>
-                              </packing>
                             </child>
+                            <style>
+                              <class name="discourse-action"/>
+                              <class name="error-action"/>
+                            </style>
                           </object>
+                          <packing>
+                            <property name="name">stop_page</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="call_start_button">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="icon-name">call-start-symbolic</property>
+                              </object>
+                            </child>
+                            <style>
+                              <class name="discourse-action"/>
+                              <class name="success-action"/>
+                            </style>
+                          </object>
+                          <packing>
+                            <property name="name">page0</property>
+                            <property name="title" translatable="yes">page0</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="position">5</property>
+                        <property name="position">4</property>
                       </packing>
                     </child>
                   </object>

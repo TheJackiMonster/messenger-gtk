@@ -34,9 +34,23 @@
 #include "../application.h"
 #include "../ui.h"
 #include "../util.h"
-#include <gnunet/gnunet_chat_lib.h>
-#include <gnunet/gnunet_common.h>
+
 #include <string.h>
+
+static const struct GNUNET_ShortHashCode*
+get_voice_discourse_id()
+{
+  static enum GNUNET_GenericReturnValue init = GNUNET_NO;
+  static struct GNUNET_ShortHashCode id;
+
+  if (GNUNET_YES != init)
+  {
+    memset(&id, 0, sizeof(id));
+    init = GNUNET_YES;
+  }
+
+  return &id;
+}
 
 static void
 handle_back_button_click(UNUSED GtkButton *button,
@@ -101,8 +115,20 @@ handle_microphone_button_click(UNUSED GtkButton *button,
 }
 
 static void
-handle_call_button_click(UNUSED GtkButton *button,
-			                   gpointer user_data)
+_update_call_button(UI_DISCOURSE_Handle *handle)
+{
+  g_assert(handle);
+
+  if ((handle->voice_discourse) && 
+      (GNUNET_YES ==GNUNET_CHAT_discourse_is_open(handle->voice_discourse)))
+    gtk_stack_set_visible_child(handle->call_stack, handle->call_stop_button);
+  else
+    gtk_stack_set_visible_child(handle->call_stack, handle->call_start_button);
+}
+
+static void
+handle_call_start_button_click(UNUSED GtkButton *button,
+			                         gpointer user_data)
 {
   g_assert(user_data);
 
@@ -111,25 +137,28 @@ handle_call_button_click(UNUSED GtkButton *button,
   if (!(handle->context))
     return;
 
-  const gboolean calling = (handle->voice_discourse? TRUE : FALSE);
+  handle->voice_discourse = GNUNET_CHAT_context_open_discourse(
+    handle->context, get_voice_discourse_id()
+  );
 
-  struct GNUNET_ShortHashCode voice_id;
-  memset(&voice_id, 0, sizeof(voice_id));
+  _update_call_button(handle);
+}
 
-  if (calling)
-  {
-    GNUNET_CHAT_discourse_close(handle->voice_discourse);
-    handle->voice_discourse = NULL;
-  }
-  else
-    handle->voice_discourse = GNUNET_CHAT_context_open_discourse(
-      handle->context, &voice_id
-    );
+static void
+handle_call_stop_button_click(UNUSED GtkButton *button,
+			                        gpointer user_data)
+{
+  g_assert(user_data);
 
-  if (handle->voice_discourse)
-    gtk_stack_set_visible_child(handle->call_stack, handle->call_stop_icon);
-  else
-    gtk_stack_set_visible_child(handle->call_stack, handle->call_start_icon);
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
+
+  if ((!(handle->context)) || (!(handle->voice_discourse)))
+    return;
+
+  GNUNET_CHAT_discourse_close(handle->voice_discourse);
+  handle->voice_discourse = NULL;
+
+  _update_call_button(handle);
 }
 
 static void
@@ -237,17 +266,6 @@ ui_discourse_window_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "speakers_button")
   );
 
-  handle->call_button = GTK_BUTTON(
-    gtk_builder_get_object(handle->builder, "call_button")
-  );
-
-  g_signal_connect(
-    handle->call_button,
-    "clicked",
-    G_CALLBACK(handle_call_button_click),
-    handle
-  );
-
   handle->microphone_stack = GTK_STACK(
     gtk_builder_get_object(handle->builder, "microphone_stack")
   );
@@ -264,12 +282,26 @@ ui_discourse_window_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "call_stack")
   );
 
-  handle->call_start_icon = GTK_WIDGET(
-    gtk_builder_get_object(handle->builder, "call_start_icon")
+  handle->call_start_button = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "call_start_button")
   );
 
-  handle->call_stop_icon = GTK_WIDGET(
-    gtk_builder_get_object(handle->builder, "call_stop_icon")
+  g_signal_connect(
+    handle->call_start_button,
+    "clicked",
+    G_CALLBACK(handle_call_start_button_click),
+    handle
+  );
+
+  handle->call_stop_button = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "call_stop_button")
+  );
+
+  g_signal_connect(
+    handle->call_stop_button,
+    "clicked",
+    G_CALLBACK(handle_call_stop_button_click),
+    handle
   );
 
   handle->close_details_button = GTK_BUTTON(
@@ -297,6 +329,46 @@ ui_discourse_window_init(MESSENGER_Application *app,
   gtk_widget_show_all(GTK_WIDGET(handle->window));
 }
 
+static enum GNUNET_GenericReturnValue
+append_discourse_members_to_list(void *cls,
+                                 UNUSED const struct GNUNET_CHAT_Discourse *discourse,
+                                 struct GNUNET_CHAT_Contact *contact)
+{
+  g_assert((cls) && (contact));
+
+  GList **list = (GList**) cls;
+  *list = g_list_append(*list, contact);
+  return GNUNET_YES;
+}
+
+static enum GNUNET_GenericReturnValue
+append_discourses_members(void *cls,
+                          UNUSED struct GNUNET_CHAT_Context *context,
+                          struct GNUNET_CHAT_Discourse *discourse)
+{
+  g_assert((cls) && (discourse));
+
+  GNUNET_CHAT_discourse_iterate_contacts(
+    discourse,
+    append_discourse_members_to_list,
+    cls
+  );
+
+  return GNUNET_YES;
+}
+
+static enum GNUNET_GenericReturnValue
+append_group_contacts(void *cls,
+                      UNUSED const struct GNUNET_CHAT_Group *group,
+                      struct GNUNET_CHAT_Contact *contact)
+{
+  g_assert((cls) && (contact));
+
+  GList **list = (GList**) cls;
+  *list = g_list_append(*list, contact);
+  return GNUNET_YES;
+}
+
 struct IterateDiscourseClosure {
   MESSENGER_Application *app;
   GtkContainer *container;
@@ -311,9 +383,12 @@ iterate_ui_discourse_update_discourse_members(void *cls,
     (struct IterateDiscourseClosure*) cls
   );
 
-  GtkFlowBox *flowbox = GTK_FLOW_BOX(closure->container);
-  UI_DISCOURSE_PANEL_Handle* panel = ui_discourse_panel_new(closure->app);
+  if (ui_find_qdata_in_container(closure->container, closure->app->quarks.data, contact))
+    return GNUNET_YES;
 
+  GtkFlowBox *flowbox = GTK_FLOW_BOX(closure->container);
+
+  UI_DISCOURSE_PANEL_Handle* panel = ui_discourse_panel_new(closure->app);
   ui_discourse_panel_set_contact(panel, contact);
 
   gtk_flow_box_insert(flowbox, panel->panel_box, -1);
@@ -354,23 +429,21 @@ _discourse_update_members(UI_DISCOURSE_Handle *handle)
 {
   g_assert(handle);
 
-  GList* children = gtk_container_get_children(
-    GTK_CONTAINER(handle->members_flowbox)
+  GList *list = NULL;
+  GNUNET_CHAT_context_iterate_discourses(
+    handle->context,
+    append_discourses_members,
+    &list
+  );
+  
+  ui_clear_container_of_missing_qdata(
+    GTK_CONTAINER(handle->members_flowbox),
+    handle->app->quarks.data,
+    list
   );
 
-  GList *item = children;
-  while ((item) && (item->next)) {
-    GtkWidget *widget = GTK_WIDGET(item->data);
-    item = item->next;
-
-    gtk_container_remove(
-      GTK_CONTAINER(handle->members_flowbox),
-      widget
-    );
-  }
-
-  if (children)
-    g_list_free(children);
+  if (list)
+    g_list_free(list);
 
   if (!(handle->context))
     return;
@@ -394,6 +467,9 @@ iterate_ui_discourse_update_group_contacts(void *cls,
   struct IterateDiscourseClosure *closure = (
     (struct IterateDiscourseClosure*) cls
   );
+
+  if (ui_find_qdata_in_container(closure->container, closure->app->quarks.data, contact))
+    return GNUNET_YES;
 
   GtkListBox *listbox = GTK_LIST_BOX(closure->container);
   UI_ACCOUNT_ENTRY_Handle* entry = ui_account_entry_new(closure->app);
@@ -423,23 +499,22 @@ _discourse_update_contacts(UI_DISCOURSE_Handle *handle,
 {
   g_assert((handle) && (handle->app));
 
-  GList* children = gtk_container_get_children(
-    GTK_CONTAINER(handle->contacts_listbox)
+  GList *list = NULL;
+  if (group)
+    GNUNET_CHAT_group_iterate_contacts(
+	    group,
+      append_group_contacts,
+      &list
+    );
+  
+  ui_clear_container_of_missing_qdata(
+    GTK_CONTAINER(handle->contacts_listbox),
+    handle->app->quarks.data,
+    list
   );
 
-  GList *item = children;
-  while ((item) && (item->next)) {
-    GtkWidget *widget = GTK_WIDGET(item->data);
-    item = item->next;
-
-    gtk_container_remove(
-      GTK_CONTAINER(handle->contacts_listbox),
-      widget
-    );
-  }
-
-  if (children)
-    g_list_free(children);
+  if (list)
+    g_list_free(list);
 
   if (group)
   {
@@ -460,19 +535,48 @@ _discourse_update_contacts(UI_DISCOURSE_Handle *handle,
   );
 }
 
+static enum GNUNET_GenericReturnValue
+iterate_ui_discourse_search_context_discourses(void *cls,
+                                               struct GNUNET_CHAT_Context *context,
+                                               struct GNUNET_CHAT_Discourse *discourse)
+{
+  g_assert((cls) && (context) && (discourse));
+
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) cls;
+
+  if (0 == GNUNET_memcmp(GNUNET_CHAT_discourse_get_id(discourse), get_voice_discourse_id()))
+    handle->voice_discourse = discourse;
+
+  return GNUNET_YES;
+}
+
+static void
+_update_discourse_via_context(UI_DISCOURSE_Handle *handle)
+{
+  g_assert(handle);
+
+  handle->voice_discourse = NULL;
+
+  if (!(handle->context))
+    return;
+
+  GNUNET_CHAT_context_iterate_discourses(
+    handle->context,
+    iterate_ui_discourse_search_context_discourses,
+    handle
+  );
+}
+
 void
 ui_discourse_window_update(UI_DISCOURSE_Handle *handle,
                            struct GNUNET_CHAT_Context *context)
 {
   g_assert(handle);
 
-  if (handle->context)
-  {
-    // TODO
-  }
-
   handle->context = context;
 
+  _update_discourse_via_context(handle);
+  _update_call_button(handle);
   _update_microphone_icon(handle);
   _discourse_update_members(handle);
 

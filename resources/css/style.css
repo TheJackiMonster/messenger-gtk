@@ -51,6 +51,20 @@
 	padding: 4px;
 }
 
+.discourse-action {
+	background-color: @theme_selected_bg_color;
+	background-image: none;
+	color: @theme_selected_fg_color;
+}
+
+.success-action {
+	background-color: @success_color;
+}
+
+.error-action {
+	background-color: @error_color;
+}
+
 .message-avatar {
 	margin: 4px;
 }

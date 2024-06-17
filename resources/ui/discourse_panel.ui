@@ -33,7 +33,7 @@ Author: Tobias Frisch
         <property name="can-focus">False</property>
         <child>
           <object class="GtkBox" id="avatar_box">
-            <property name="width-request">140</property>
+            <property name="width-request">124</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="border-width">8</property>
