@@ -53,6 +53,10 @@ typedef struct UI_DISCOURSE_Handle
 
   HdyFlap *details_flap;
 
+  GtkStack *discourse_stack;
+  GtkWidget *offline_page;
+  GtkWidget *members_page;
+
   GtkFlowBox *members_flowbox;
 
   GtkButton *microphone_button;

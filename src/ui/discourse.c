@@ -239,6 +239,18 @@ ui_discourse_window_init(MESSENGER_Application *app,
     handle
   );
 
+  handle->discourse_stack = GTK_STACK(
+    gtk_builder_get_object(handle->builder, "discourse_stack")
+  );
+
+  handle->offline_page = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "offline_page")
+  );
+
+  handle->members_page = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "members_page")
+  );
+
   handle->members_flowbox = GTK_FLOW_BOX(
     gtk_builder_get_object(handle->builder, "members_flowbox")
   );
@@ -443,7 +455,12 @@ _discourse_update_members(UI_DISCOURSE_Handle *handle)
   );
 
   if (list)
+  {
+    gtk_stack_set_visible_child(handle->discourse_stack, handle->members_page);
     g_list_free(list);
+  }
+  else
+    gtk_stack_set_visible_child(handle->discourse_stack, handle->offline_page);
 
   if (!(handle->context))
     return;
