@@ -27,6 +27,7 @@
 #include "account.h"
 #include "application.h"
 #include "contact.h"
+#include "discourse.h"
 #include "file.h"
 #include "ui.h"
 
@@ -1020,6 +1021,18 @@ event_discourse(MESSENGER_Application *app,
 {
   g_assert((app) && (context) && (msg));
 
+  struct GNUNET_CHAT_Discourse *discourse = GNUNET_CHAT_message_get_discourse(
+    msg
+  );
+
+  if (GNUNET_YES == GNUNET_CHAT_message_is_sent(msg))
+  {
+    if (GNUNET_YES == GNUNET_CHAT_discourse_is_open(discourse))
+      discourse_create_info(discourse);
+    else
+      discourse_destroy_info(discourse);
+  }
+
   if (context == app->ui.discourse.context)
     ui_discourse_window_update(&(app->ui.discourse), context);
 }
@@ -1030,6 +1043,9 @@ event_discourse_data(MESSENGER_Application *app,
                      const struct GNUNET_CHAT_Message *msg)
 {
   g_assert((app) && (context) && (msg));
+
+  if (GNUNET_YES == GNUNET_CHAT_message_is_sent(msg))
+    return;
 
   // TODO
 }
