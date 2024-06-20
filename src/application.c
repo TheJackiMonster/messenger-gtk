@@ -26,8 +26,8 @@
 #include "request.h"
 #include "resources.h"
 
-#include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_chat_lib.h>
 #include <gstreamer-1.0/gst/gst.h>
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
