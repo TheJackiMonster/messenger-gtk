@@ -115,6 +115,12 @@ discourse_destroy_info(struct GNUNET_CHAT_Discourse *discourse)
     gst_object_unref(GST_OBJECT(info->record_pipeline));
   }
 
+  if (info->mix_pipeline)
+  {
+    gst_element_set_state(info->mix_pipeline, GST_STATE_NULL);
+    gst_object_unref(GST_OBJECT(info->mix_pipeline));
+  }
+
   g_free(info);
 
   GNUNET_CHAT_discourse_set_user_pointer(discourse, NULL);
