@@ -27,13 +27,8 @@
 
 #include "application.h"
 
+#include <glib-2.0/glib.h>
 #include <gnunet/gnunet_chat_lib.h>
-
-typedef struct MESSENGER_DiscourseSubscriptionInfo
-{
-  GstElement *stream_pipeline;
-  GstElement *stream_src;
-} MESSENGER_DiscourseSubscriptionInfo;
 
 typedef struct MESSENGER_DiscourseInfo
 {
@@ -44,12 +39,35 @@ typedef struct MESSENGER_DiscourseInfo
 
   GstElement *mix_pipeline;
   GstElement *mix_element;
+
+  GList *subscriptions;
 } MESSENGER_DiscourseInfo;
+
+typedef struct MESSENGER_DiscourseSubscriptionInfo
+{
+  MESSENGER_DiscourseInfo *discourse;
+  struct GNUNET_CHAT_Contact *contact;
+
+  GstElement *stream_src;
+  GstElement *decoder;
+  GstElement *converter;
+
+  GstPad *mix_pad;
+
+  uint64_t position;
+} MESSENGER_DiscourseSubscriptionInfo;
 
 enum GNUNET_GenericReturnValue
 discourse_create_info(struct GNUNET_CHAT_Discourse *discourse);
 
 void
 discourse_destroy_info(struct GNUNET_CHAT_Discourse *discourse);
+
+void
+discourse_update_subscriptions(struct GNUNET_CHAT_Discourse *discourse);
+
+void
+discourse_stream_message(struct GNUNET_CHAT_Discourse *discourse,
+                         const struct GNUNET_CHAT_Message *message);
 
 #endif /* DISCOURSE_H_ */

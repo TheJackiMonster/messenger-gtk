@@ -1025,6 +1025,9 @@ event_discourse(MESSENGER_Application *app,
     msg
   );
 
+  if (!discourse)
+    return;
+
   if (GNUNET_YES == GNUNET_CHAT_message_is_sent(msg))
   {
     if (GNUNET_YES == GNUNET_CHAT_discourse_is_open(discourse))
@@ -1032,6 +1035,8 @@ event_discourse(MESSENGER_Application *app,
     else
       discourse_destroy_info(discourse);
   }
+
+  discourse_update_subscriptions(discourse);
 
   if (context == app->ui.discourse.context)
     ui_discourse_window_update(&(app->ui.discourse), context);
@@ -1044,8 +1049,15 @@ event_discourse_data(MESSENGER_Application *app,
 {
   g_assert((app) && (context) && (msg));
 
+  struct GNUNET_CHAT_Discourse *discourse = GNUNET_CHAT_message_get_discourse(
+    msg
+  );
+
+  if (!discourse)
+    return;
+
   if (GNUNET_YES == GNUNET_CHAT_message_is_sent(msg))
     return;
 
-  // TODO
+  discourse_stream_message(discourse, msg);
 }
