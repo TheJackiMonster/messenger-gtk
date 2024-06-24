@@ -49,12 +49,12 @@ _setup_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
 {
   g_assert(info);
 
-  info->stream_src = gst_element_factory_make("appsrc", "src");
+  info->stream_source = gst_element_factory_make("appsrc", "src");
   info->decoder = gst_element_factory_make("rtpL16depay", "decoder");
   info->converter = gst_element_factory_make("audioconvert", "audio");
 
-  gst_bin_add_many(GST_BIN(info->discourse->mix_pipeline), info->stream_src, info->decoder, info->converter, NULL);
-  gst_element_link_many(info->stream_src, info->decoder, info->converter, NULL);
+  gst_bin_add_many(GST_BIN(info->discourse->mix_pipeline), info->stream_source, info->decoder, info->converter, NULL);
+  gst_element_link_many(info->stream_source, info->decoder, info->converter, NULL);
 
   {
     GstCaps *caps = gst_caps_new_simple (
@@ -67,7 +67,7 @@ _setup_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
       NULL
     );
 
-    g_object_set(info->stream_src, "format", GST_FORMAT_TIME, "caps", caps, NULL);
+    g_object_set(info->stream_source, "format", GST_FORMAT_TIME, "caps", caps, NULL);
     gst_caps_unref(caps);
   }
 
@@ -84,7 +84,7 @@ _setup_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
     gst_pad_link(pad, info->mix_pad);
   }
 
-  gst_element_sync_state_with_parent(info->stream_src);
+  gst_element_sync_state_with_parent(info->stream_source);
   gst_element_sync_state_with_parent(info->decoder);
   gst_element_sync_state_with_parent(info->converter);
 }
@@ -105,7 +105,7 @@ discourse_subscription_create_info(MESSENGER_DiscourseInfo *discourse,
   info->discourse = discourse;
   info->contact = contact;
 
-  info->stream_src = NULL;
+  info->stream_source = NULL;
   info->decoder = NULL;
   info->converter = NULL;
 
@@ -122,7 +122,7 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
 {
   g_assert(info);
 
-  gst_element_set_state(info->stream_src, GST_STATE_NULL);
+  gst_element_set_state(info->stream_source, GST_STATE_NULL);
   gst_element_set_state(info->decoder, GST_STATE_NULL);
   gst_element_set_state(info->converter, GST_STATE_NULL);
 
@@ -138,8 +138,8 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
     gst_object_unref(GST_OBJECT(info->mix_pad));
   }
 
-  gst_element_unlink_many(info->stream_src, info->decoder, info->converter, NULL);
-  gst_bin_remove_many(GST_BIN(info->discourse->mix_pipeline), info->stream_src, info->decoder, info->converter, NULL);
+  gst_element_unlink_many(info->stream_source, info->decoder, info->converter, NULL);
+  gst_bin_remove_many(GST_BIN(info->discourse->mix_pipeline), info->stream_source, info->decoder, info->converter, NULL);
 
   g_free(info);
 }
@@ -180,7 +180,7 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
   else
     goto skip_buffer;
 
-  g_signal_emit_by_name(info->stream_src, "push-buffer", buffer, &ret);
+  g_signal_emit_by_name(info->stream_source, "push-buffer", buffer, &ret);
   info->position += samples;
 
 skip_buffer:

@@ -48,7 +48,7 @@ typedef struct MESSENGER_DiscourseSubscriptionInfo
   MESSENGER_DiscourseInfo *discourse;
   struct GNUNET_CHAT_Contact *contact;
 
-  GstElement *stream_src;
+  GstElement *stream_source;
   GstElement *decoder;
   GstElement *converter;
 
