@@ -32,6 +32,7 @@
 #include "discourse_panel.h"
 
 #include "../application.h"
+#include "../discourse.h"
 #include "../ui.h"
 #include "../util.h"
 
@@ -46,6 +47,21 @@ get_voice_discourse_id()
   if (GNUNET_YES != init)
   {
     memset(&id, 0, sizeof(id));
+    init = GNUNET_YES;
+  }
+
+  return &id;
+}
+
+static const struct GNUNET_ShortHashCode*
+get_video_discourse_id()
+{
+  static enum GNUNET_GenericReturnValue init = GNUNET_NO;
+  static struct GNUNET_ShortHashCode id;
+
+  if (GNUNET_YES != init)
+  {
+    memset(&id, 1, sizeof(id));
     init = GNUNET_YES;
   }
 
@@ -111,7 +127,23 @@ handle_microphone_button_click(UNUSED GtkButton *button,
   UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
 
   handle->muted = !(handle->muted);
+  if (handle->voice_discourse)
+    discourse_set_mute(handle->voice_discourse, handle->muted);
+
   _update_microphone_icon(handle);
+}
+
+static void
+handle_speakers_button_value_changed(UNUSED GtkScaleButton *button,
+                                     gdouble value,
+                                     gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
+
+  if (handle->voice_discourse)
+    discourse_set_volume(handle->voice_discourse, value);
 }
 
 static void
@@ -276,6 +308,13 @@ ui_discourse_window_init(MESSENGER_Application *app,
 
   handle->speakers_button = GTK_VOLUME_BUTTON(
     gtk_builder_get_object(handle->builder, "speakers_button")
+  );
+
+  g_signal_connect(
+    handle->speakers_button,
+    "value-changed",
+    G_CALLBACK(handle_speakers_button_value_changed),
+    handle
   );
 
   handle->microphone_stack = GTK_STACK(
@@ -559,10 +598,14 @@ iterate_ui_discourse_search_context_discourses(void *cls,
 {
   g_assert((cls) && (context) && (discourse));
 
-  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) cls;
+  struct GNUNET_CHAT_Discourse **discourses = (struct GNUNET_CHAT_Discourse**) cls;
 
-  if (0 == GNUNET_memcmp(GNUNET_CHAT_discourse_get_id(discourse), get_voice_discourse_id()))
-    handle->voice_discourse = discourse;
+  const struct GNUNET_ShortHashCode *id = GNUNET_CHAT_discourse_get_id(discourse);
+
+  if (0 == GNUNET_memcmp(id, get_voice_discourse_id()))
+    discourses[0] = discourse;
+  else if (0 == GNUNET_memcmp(id, get_video_discourse_id()))
+    discourses[1] = discourse;
 
   return GNUNET_YES;
 }
@@ -573,15 +616,45 @@ _update_discourse_via_context(UI_DISCOURSE_Handle *handle)
   g_assert(handle);
 
   handle->voice_discourse = NULL;
+  handle->video_discourse = NULL;
 
   if (!(handle->context))
     return;
 
+  struct GNUNET_CHAT_Discourse *discourses [2];
+  memset(discourses, 0, sizeof(struct GNUNET_CHAT_Discourse*) * 2);
+
   GNUNET_CHAT_context_iterate_discourses(
     handle->context,
     iterate_ui_discourse_search_context_discourses,
-    handle
+    discourses
   );
+
+  const gboolean has_voice_controls = discourse_has_controls(
+    discourses[0]
+  );
+
+  const gboolean has_video_controls = discourse_has_controls(
+    discourses[1]
+  );
+
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->microphone_button), has_voice_controls);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->camera_button), has_video_controls);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->screen_button), has_video_controls);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->speakers_button), has_voice_controls);
+
+  if (discourses[0])
+  {
+    handle->muted = discourse_is_mute(discourses[0]);
+
+    gtk_scale_button_set_value(
+      GTK_SCALE_BUTTON(handle->speakers_button),
+      discourse_get_volume(discourses[0])
+    );
+  }
+
+  handle->voice_discourse = discourses[0];
+  handle->video_discourse = discourses[1];
 }
 
 void

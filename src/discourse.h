@@ -39,6 +39,7 @@ typedef struct MESSENGER_DiscourseInfo
 
   GstElement *mix_pipeline;
   GstElement *mix_element;
+  GstElement *volume_element;
 
   GList *subscriptions;
 } MESSENGER_DiscourseInfo;
@@ -69,5 +70,22 @@ discourse_update_subscriptions(struct GNUNET_CHAT_Discourse *discourse);
 void
 discourse_stream_message(struct GNUNET_CHAT_Discourse *discourse,
                          const struct GNUNET_CHAT_Message *message);
+
+bool
+discourse_has_controls(struct GNUNET_CHAT_Discourse *discourse);
+
+void
+discourse_set_volume(struct GNUNET_CHAT_Discourse *discourse,
+                     double volume);
+
+double
+discourse_get_volume(struct GNUNET_CHAT_Discourse *discourse);
+
+void
+discourse_set_mute(struct GNUNET_CHAT_Discourse *discourse,
+                   bool mute);
+
+bool
+discourse_is_mute(struct GNUNET_CHAT_Discourse *discourse);
 
 #endif /* DISCOURSE_H_ */

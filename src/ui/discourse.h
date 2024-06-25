@@ -39,6 +39,7 @@ typedef struct UI_DISCOURSE_Handle
   struct GNUNET_CHAT_Context *context;
 
   struct GNUNET_CHAT_Discourse *voice_discourse;
+  struct GNUNET_CHAT_Discourse *video_discourse;
 
   gboolean muted;
 

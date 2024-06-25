@@ -265,12 +265,16 @@ _setup_gst_pipelines(MESSENGER_DiscourseInfo *info)
   }
 
   info->mix_pipeline = gst_parse_launch(
-    "audiomixer name=mixer ! autoaudiosink",
+    "audiomixer name=mixer ! volume name=control ! autoaudiosink",
     NULL
   );
 
   info->mix_element = gst_bin_get_by_name(
     GST_BIN(info->mix_pipeline), "mixer"
+  );
+
+  info->volume_element = gst_bin_get_by_name(
+    GST_BIN(info->mix_pipeline), "control"
   );
 
   {
@@ -301,6 +305,7 @@ discourse_create_info(struct GNUNET_CHAT_Discourse *discourse)
 
   info->mix_pipeline = NULL;
   info->mix_element = NULL;
+  info->volume_element = NULL;
 
   info->subscriptions = NULL;
 
@@ -467,4 +472,78 @@ discourse_stream_message(struct GNUNET_CHAT_Discourse *discourse,
     return;
 
   discourse_subscription_stream_message(sub_info, message);
+}
+
+bool
+discourse_has_controls(struct GNUNET_CHAT_Discourse *discourse)
+{
+  MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
+
+  if (!info)
+    return FALSE;
+
+  if ((!(info->record_pipeline)) && (!(info->mix_pipeline)))
+    return FALSE;
+
+  return TRUE;
+}
+
+void
+discourse_set_volume(struct GNUNET_CHAT_Discourse *discourse,
+                     double volume)
+{
+  MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
+
+  if ((!info) || (!(info->mix_pipeline)) || (!(info->volume_element)))
+    return;
+
+  g_object_set(info->volume_element, "volume", volume, NULL);
+}
+
+double
+discourse_get_volume(struct GNUNET_CHAT_Discourse *discourse)
+{
+  MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
+
+  if ((!info) || (!(info->mix_pipeline)) || (!(info->volume_element)))
+    return 0.0;
+
+  gdouble volume;
+  g_object_get(info->volume_element, "volume", &volume, NULL);
+
+  return volume;
+}
+
+void
+discourse_set_mute(struct GNUNET_CHAT_Discourse *discourse,
+                   bool mute)
+{
+  MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
+
+  if ((!info) || (!(info->record_pipeline)))
+    return;
+
+  gst_element_set_state(
+    info->record_pipeline,
+    mute? GST_STATE_NULL : GST_STATE_PLAYING
+  );
+}
+
+bool
+discourse_is_mute(struct GNUNET_CHAT_Discourse *discourse)
+{
+  MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
+
+  if ((!info) || (!(info->record_pipeline)))
+    return TRUE;
+
+  GstState state;
+  gst_element_get_state(
+    info->record_pipeline,
+    &state,
+    NULL,
+    GST_CLOCK_TIME_NONE
+  );
+
+  return (GST_STATE_PLAYING != state);
 }

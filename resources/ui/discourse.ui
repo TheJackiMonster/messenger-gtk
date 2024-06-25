@@ -189,6 +189,7 @@ Author: Tobias Frisch
                     <child>
                       <object class="GtkButton" id="microphone_button">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="relief">none</property>
@@ -232,6 +233,7 @@ Author: Tobias Frisch
                     <child>
                       <object class="GtkButton" id="camera_button">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="relief">none</property>
@@ -255,6 +257,7 @@ Author: Tobias Frisch
                     <child>
                       <object class="GtkButton" id="screen_button">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="relief">none</property>
@@ -278,6 +281,7 @@ Author: Tobias Frisch
                     <child>
                       <object class="GtkVolumeButton" id="speakers_button">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="focus-on-click">False</property>
                         <property name="receives-default">True</property>
