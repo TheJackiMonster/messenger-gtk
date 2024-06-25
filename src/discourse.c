@@ -49,9 +49,9 @@ _setup_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
 {
   g_assert(info);
 
-  info->stream_source = gst_element_factory_make("appsrc", "src");
-  info->decoder = gst_element_factory_make("rtpL16depay", "decoder");
-  info->converter = gst_element_factory_make("audioconvert", "audio");
+  info->stream_source = gst_element_factory_make("appsrc", NULL);
+  info->decoder = gst_element_factory_make("rtpL16depay", NULL);
+  info->converter = gst_element_factory_make("audioconvert", NULL);
 
   gst_bin_add_many(GST_BIN(info->discourse->mix_pipeline), info->stream_source, info->decoder, info->converter, NULL);
   gst_element_link_many(info->stream_source, info->decoder, info->converter, NULL);
@@ -290,6 +290,9 @@ discourse_create_info(struct GNUNET_CHAT_Discourse *discourse)
     return GNUNET_NO;
 
   MESSENGER_DiscourseInfo* info = g_malloc(sizeof(MESSENGER_DiscourseInfo));
+
+  if (!info)
+    return GNUNET_NO;
 
   info->discourse = discourse;
 
