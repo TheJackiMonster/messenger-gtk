@@ -29,6 +29,7 @@
 
 #include <glib-2.0/glib.h>
 #include <gnunet/gnunet_chat_lib.h>
+#include <pthread.h>
 
 typedef struct MESSENGER_DiscourseInfo
 {
@@ -41,6 +42,10 @@ typedef struct MESSENGER_DiscourseInfo
   GstElement *mix_element;
   GstElement *volume_element;
 
+  guint sending_task;
+  pthread_mutex_t mutex;
+
+  GList *samples;
   GList *subscriptions;
 } MESSENGER_DiscourseInfo;
 
