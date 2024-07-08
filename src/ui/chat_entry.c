@@ -29,9 +29,12 @@
 
 #include "../application.h"
 #include "../contact.h"
+#include "../discourse.h"
 #include "../ui.h"
 
+#include <glib-2.0/glib.h>
 #include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_time_lib.h>
 
 UI_CHAT_ENTRY_Handle*
@@ -239,12 +242,32 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
   gtk_list_box_invalidate_sort(app->ui.messenger.chats_listbox);
 }
 
+static enum GNUNET_GenericReturnValue
+_ui_chat_entry_delete_discourses (void *cls,
+                                  UNUSED struct GNUNET_CHAT_Context *context,
+                                  struct GNUNET_CHAT_Discourse *discourse)
+{
+  g_assert(discourse);
+
+  if (GNUNET_YES == GNUNET_CHAT_discourse_is_open(discourse))
+    GNUNET_CHAT_discourse_close(discourse);
+
+  discourse_destroy_info(discourse);
+  return GNUNET_YES;
+}
+
 void
 ui_chat_entry_delete(UI_CHAT_ENTRY_Handle *handle)
 {
   g_assert(handle);
 
   ui_chat_delete(handle->chat);
+
+  GNUNET_CHAT_context_iterate_discourses(
+    handle->context,
+    _ui_chat_entry_delete_discourses,
+    NULL
+  );
 
   g_object_unref(handle->builder);
 
