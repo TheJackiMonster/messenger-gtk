@@ -55,7 +55,6 @@ typedef struct MESSENGER_DiscourseSubscriptionInfo
   struct GNUNET_CHAT_Contact *contact;
 
   GstElement *stream_source;
-  GstElement *decoder;
   GstElement *converter;
 
   GstPad *mix_pad;

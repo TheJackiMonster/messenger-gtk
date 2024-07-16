@@ -52,24 +52,39 @@ _setup_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
   g_assert(info);
 
   info->stream_source = gst_element_factory_make("appsrc", NULL);
-  info->decoder = gst_element_factory_make("rtpL16depay", NULL);
   info->converter = gst_element_factory_make("audioconvert", NULL);
 
-  gst_bin_add_many(GST_BIN(info->discourse->mix_pipeline), info->stream_source, info->decoder, info->converter, NULL);
-  gst_element_link_many(info->stream_source, info->decoder, info->converter, NULL);
+  gst_bin_add_many(
+    GST_BIN(info->discourse->mix_pipeline),
+    info->stream_source,
+    info->converter,
+    NULL
+  );
+
+  gst_element_link_many(
+    info->stream_source,
+    info->converter,
+    NULL
+  );
 
   {
     GstCaps *caps = gst_caps_new_simple (
-      "application/x-rtp",
-      "media", G_TYPE_STRING, "audio",
-      "payload", G_TYPE_INT, 96,
-      "clock-rate", G_TYPE_INT, 44100,
-      "encoding-name", G_TYPE_STRING, "L16",
+      "audio/x-raw",
+      "format", G_TYPE_STRING, "S16BE",
+      "layout", G_TYPE_STRING, "interleaved",
+      "rate", G_TYPE_INT, 44100,
       "channels", G_TYPE_INT, 1,
       NULL
     );
 
-    g_object_set(info->stream_source, "format", GST_FORMAT_TIME, "caps", caps, "is-live", TRUE, NULL);
+    g_object_set(
+      info->stream_source,
+      "format", GST_FORMAT_TIME,
+      "caps", caps,
+      "is-live", TRUE,
+      NULL
+    );
+
     gst_caps_unref(caps);
   }
 
@@ -87,7 +102,6 @@ _setup_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
   }
 
   gst_element_sync_state_with_parent(info->stream_source);
-  gst_element_sync_state_with_parent(info->decoder);
   gst_element_sync_state_with_parent(info->converter);
 }
 
@@ -108,7 +122,6 @@ discourse_subscription_create_info(MESSENGER_DiscourseInfo *discourse,
   info->contact = contact;
 
   info->stream_source = NULL;
-  info->decoder = NULL;
   info->converter = NULL;
 
   info->mix_pad = NULL;
@@ -125,7 +138,6 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
   g_assert(info);
 
   gst_element_set_state(info->stream_source, GST_STATE_NULL);
-  gst_element_set_state(info->decoder, GST_STATE_NULL);
   gst_element_set_state(info->converter, GST_STATE_NULL);
 
   if (info->mix_pad)
@@ -140,8 +152,18 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
     gst_object_unref(GST_OBJECT(info->mix_pad));
   }
 
-  gst_element_unlink_many(info->stream_source, info->decoder, info->converter, NULL);
-  gst_bin_remove_many(GST_BIN(info->discourse->mix_pipeline), info->stream_source, info->decoder, info->converter, NULL);
+  gst_element_unlink_many(
+    info->stream_source,
+    info->converter,
+    NULL
+  );
+
+  gst_bin_remove_many(
+    GST_BIN(info->discourse->mix_pipeline),
+    info->stream_source,
+    info->converter,
+    NULL
+  );
 
   g_free(info);
 }
@@ -198,7 +220,7 @@ _setup_gst_pipelines(MESSENGER_DiscourseInfo *info)
   g_assert(info);
 
   info->record_pipeline = gst_parse_launch(
-    "autoaudiosrc ! audioconvert ! rtpL16pay ! capsfilter name=filter ! fdsink name=sink",
+    "autoaudiosrc ! audioconvert ! capsfilter name=filter ! fdsink name=sink",
     NULL
   );
 
@@ -217,11 +239,10 @@ _setup_gst_pipelines(MESSENGER_DiscourseInfo *info)
     gst_object_unref(bus);
 
     GstCaps *caps = gst_caps_new_simple (
-      "application/x-rtp",
-      "media", G_TYPE_STRING, "audio",
-      "payload", G_TYPE_INT, 96,
-      "clock-rate", G_TYPE_INT, 44100,
-      "encoding-name", G_TYPE_STRING, "L16",
+      "audio/x-raw",
+      "format", G_TYPE_STRING, "S16BE",
+      "layout", G_TYPE_STRING, "interleaved",
+      "rate", G_TYPE_INT, 44100,
       "channels", G_TYPE_INT, 1,
       NULL
     );
