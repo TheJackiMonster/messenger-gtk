@@ -55,6 +55,7 @@
 #include "ui/send_file.h"
 #include "ui/settings.h"
 
+#include "schedule.h"
 #include "util.h"
 
 #define MESSENGER_APPLICATION_APPNAME "GNUnet Messenger"
@@ -109,10 +110,9 @@ typedef struct MESSENGER_Application
     pthread_t tid;
     char *identity;
 
-    int pipe [2];
-    pthread_mutex_t mutex;
-
     CHAT_MESSENGER_Handle messenger;
+
+    MESSENGER_Schedule schedule;
   } chat;
 
   struct {
@@ -139,6 +139,8 @@ typedef struct MESSENGER_Application
     UI_FILES_Handle files;
     UI_CONTACTS_Handle contacts;
     UI_SETTINGS_Handle settings;
+
+    MESSENGER_Schedule schedule;
   } ui;
 
   struct {

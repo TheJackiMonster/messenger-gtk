@@ -28,29 +28,6 @@
 #include <gnunet/gnunet_chat_lib.h>
 
 static void
-_chat_messenger_quit(void *cls)
-{
-  g_assert(cls);
-
-  MESSENGER_Application *app = (MESSENGER_Application*) cls;
-
-  if (app->chat.messenger.idle)
-    GNUNET_SCHEDULER_cancel(app->chat.messenger.idle);
-
-  MESSENGER_ApplicationSignal signal;
-  int received = read(app->chat.pipe[0], &signal, sizeof(signal));
-
-  if (received < 0)
-    signal = MESSENGER_FAIL;
-
-  GNUNET_CHAT_disconnect(app->chat.messenger.handle);
-  GNUNET_CHAT_stop(app->chat.messenger.handle);
-  app->chat.messenger.handle = NULL;
-
-  GNUNET_SCHEDULER_shutdown();
-}
-
-static void
 _chat_messenger_idle(void *cls)
 {
   g_assert(cls);
@@ -75,9 +52,6 @@ _chat_messenger_message(void *cls,
   g_assert((cls) && (message));
 
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
-
-  // Locking the mutex for synchronization
-  pthread_mutex_lock(&(app->chat.mutex));
 
   if (GNUNET_YES == GNUNET_CHAT_message_is_deleted(message))
   {
@@ -238,7 +212,6 @@ _chat_messenger_message(void *cls,
   }
 
 skip_message_handling:
-  pthread_mutex_unlock(&(app->chat.mutex));
   return GNUNET_YES;
 }
 
@@ -252,23 +225,12 @@ chat_messenger_run(void *cls,
 
   MESSENGER_Application *app = (MESSENGER_Application*) cls;
 
+  schedule_load_gnunet(&(app->chat.schedule));
+
   // Start libgnunetchat handle
   app->chat.messenger.handle = GNUNET_CHAT_start(
       cfg,
       &_chat_messenger_message,
-      app
-  );
-
-  // Setup pipe to handle closing the application from the other thread
-  struct GNUNET_NETWORK_FDSet *fd = GNUNET_NETWORK_fdset_create ();
-  GNUNET_NETWORK_fdset_set_native(fd, app->chat.pipe[0]);
-
-  app->chat.messenger.quit = GNUNET_SCHEDULER_add_select(
-      GNUNET_SCHEDULER_PRIORITY_URGENT,
-      GNUNET_TIME_relative_get_forever_(),
-      fd,
-      NULL,
-      &_chat_messenger_quit,
       app
   );
 
@@ -278,6 +240,4 @@ chat_messenger_run(void *cls,
       &_chat_messenger_idle,
       app
   );
-
-  GNUNET_NETWORK_fdset_destroy(fd);
 }

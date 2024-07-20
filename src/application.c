@@ -97,6 +97,8 @@ _application_init(MESSENGER_Application *app)
 {
   g_assert(app);
 
+  schedule_load_glib(&(app->ui.schedule));
+
   ui_messenger_init(app, &(app->ui.messenger));
 
 #ifndef MESSENGER_APPLICATION_NO_PORTAL
@@ -312,11 +314,11 @@ application_init(MESSENGER_Application *app,
 
   _load_ui_stylesheets(app);
 
+  schedule_init(&(app->chat.schedule));
+  schedule_init(&(app->ui.schedule));
+
   app->chat.status = EXIT_FAILURE;
   app->chat.tid = 0;
-  pipe(app->chat.pipe);
-
-  pthread_mutex_init(&(app->chat.mutex), NULL);
 
   app->quarks.widget = g_quark_from_string("messenger_widget");
   app->quarks.data = g_quark_from_string("messenger_data");
@@ -440,11 +442,6 @@ application_run(MESSENGER_Application *app)
 
   // Wait for other thread to stop properly
   pthread_join(app->chat.tid, NULL);
-
-  close(app->chat.pipe[0]);
-  close(app->chat.pipe[1]);
-
-  pthread_mutex_destroy(&(app->chat.mutex));
 
   GList *list;
   
@@ -627,13 +624,10 @@ _application_event_call(gpointer user_data)
 
   call = (MESSENGER_ApplicationEventCall*) user_data;
 
-  // Locking the mutex for synchronization
-  pthread_mutex_lock(&(call->app->chat.mutex));
   call->event(call->app);
-  pthread_mutex_unlock(&(call->app->chat.mutex));
 
   GNUNET_free(call);
-  return FALSE;
+  return TRUE;
 }
 
 void
@@ -651,7 +645,11 @@ application_call_event(MESSENGER_Application *app,
   call->app = app;
   call->event = event;
 
-  util_immediate_add(G_SOURCE_FUNC(_application_event_call), call);
+  schedule_sync_run(
+    &(app->ui.schedule),
+    G_SOURCE_FUNC(_application_event_call),
+    call
+  );
 }
 
 static gboolean
@@ -664,12 +662,9 @@ _application_sync_event_call(gpointer user_data)
   call = (MESSENGER_ApplicationEventCall*) user_data;
 
   call->event(call->app);
-  util_scheduler_cleanup();
-
-  pthread_mutex_unlock(&(call->app->chat.mutex));
 
   GNUNET_free(call);
-  return FALSE;
+  return TRUE;
 }
 
 void
@@ -687,11 +682,11 @@ application_call_sync_event(MESSENGER_Application *app,
   call->app = app;
   call->event = event;
 
-  util_scheduler_cleanup();
-  util_immediate_add(G_SOURCE_FUNC(_application_sync_event_call), call);
-
-  // Locking the mutex for synchronization
-  pthread_mutex_lock(&(app->chat.mutex));
+  schedule_sync_run(
+    &(app->ui.schedule),
+    G_SOURCE_FUNC(_application_sync_event_call),
+    call
+  );
 }
 
 typedef struct MESSENGER_ApplicationMessageEventCall
@@ -712,13 +707,10 @@ _application_message_event_call(gpointer user_data)
 
   call = (MESSENGER_ApplicationMessageEventCall*) user_data;
 
-  // Locking the mutex for synchronization
-  pthread_mutex_lock(&(call->app->chat.mutex));
   call->event(call->app, call->context, call->message);
-  pthread_mutex_unlock(&(call->app->chat.mutex));
 
   GNUNET_free(call);
-  return FALSE;
+  return TRUE;
 }
 
 void
@@ -741,7 +733,27 @@ application_call_message_event(MESSENGER_Application *app,
   call->context = context;
   call->message = message;
 
-  util_immediate_add(G_SOURCE_FUNC(_application_message_event_call), call);
+  schedule_sync_run(
+    &(app->ui.schedule),
+    G_SOURCE_FUNC(_application_message_event_call),
+    call
+  );
+}
+
+static gboolean
+_application_stop_chat(gpointer user_data)
+{
+  MESSENGER_Application *app = user_data;
+
+  if (app->chat.messenger.idle)
+    GNUNET_SCHEDULER_cancel(app->chat.messenger.idle);
+
+  GNUNET_CHAT_disconnect(app->chat.messenger.handle);
+  GNUNET_CHAT_stop(app->chat.messenger.handle);
+  app->chat.messenger.handle = NULL;
+
+  GNUNET_SCHEDULER_shutdown();
+  return FALSE;
 }
 
 void
@@ -750,10 +762,14 @@ application_exit(MESSENGER_Application *app,
 {
   g_assert(app);
 
-  // Forward a signal to the other thread causing it to shutdown the
-  // GNUnet handles of the application.
-  write(app->chat.pipe[1], &signal, sizeof(signal));
+  schedule_sync_run(
+    &(app->chat.schedule),
+    G_SOURCE_FUNC(_application_stop_chat),
+    app
+  );
 
+  schedule_cleanup(&(app->chat.schedule));
+  schedule_cleanup(&(app->ui.schedule));
   application_pw_core_cleanup(app);
 
   if (app->pw.context)

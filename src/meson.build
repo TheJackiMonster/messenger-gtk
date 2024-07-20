@@ -30,6 +30,7 @@ messenger_gtk_sources = files([
     'file.c', 'file.h',
     'request.c', 'request.h',
     'resources.c', 'resources.h',
+    'schedule.c', 'schedule.h',
     'ui.c', 'ui.h',
     'util.c', 'util.h',
     'messenger_gtk.c',
