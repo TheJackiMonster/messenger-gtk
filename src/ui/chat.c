@@ -1564,6 +1564,12 @@ ui_chat_new(MESSENGER_Application *app,
 
   g_object_set_qdata(
     G_OBJECT(handle->send_text_view),
+    app->quarks.data,
+    context
+  );
+
+  g_object_set_qdata(
+    G_OBJECT(handle->send_text_view),
     app->quarks.ui,
     handle
   );
