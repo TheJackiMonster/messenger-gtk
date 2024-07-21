@@ -27,23 +27,6 @@
 #include "../event.h"
 #include <gnunet/gnunet_chat_lib.h>
 
-static void
-_chat_messenger_idle(void *cls)
-{
-  g_assert(cls);
-
-  MESSENGER_Application *app = (MESSENGER_Application*) cls;
-
-  // Idling until the application shuts down
-  // (required to get events immediately).
-  app->chat.messenger.idle = GNUNET_SCHEDULER_add_delayed_with_priority(
-      GNUNET_TIME_relative_get_second_(),
-      GNUNET_SCHEDULER_PRIORITY_IDLE,
-      &_chat_messenger_idle,
-      app
-  );
-}
-
 static int
 _chat_messenger_message(void *cls,
                         struct GNUNET_CHAT_Context *context,
@@ -227,17 +210,9 @@ chat_messenger_run(void *cls,
 
   schedule_load_gnunet(&(app->chat.schedule));
 
-  // Start libgnunetchat handle
   app->chat.messenger.handle = GNUNET_CHAT_start(
       cfg,
       &_chat_messenger_message,
-      app
-  );
-
-  // The idle callback seems to be necessary to not wait too long for
-  // other events
-  app->chat.messenger.idle = GNUNET_SCHEDULER_add_now(
-      &_chat_messenger_idle,
       app
   );
 }

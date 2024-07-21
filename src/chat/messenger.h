@@ -32,8 +32,6 @@ typedef struct MESSENGER_Application MESSENGER_Application;
 typedef struct CHAT_MESSENGER_Handle
 {
   struct GNUNET_CHAT_Handle *handle;
-  struct GNUNET_SCHEDULER_Task *quit;
-  struct GNUNET_SCHEDULER_Task *idle;
 } CHAT_MESSENGER_Handle;
 
 /**
