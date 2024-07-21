@@ -73,29 +73,29 @@ handle_contacts_listbox_row_activated(UNUSED GtkListBox* listbox,
   if (!contact)
     goto close_dialog;
 
-  schedule_sync_lock(&(app->chat.schedule));
+  application_chat_lock(app);
   const gboolean closing = (
     (!GNUNET_CHAT_contact_get_key(contact)) ||
     (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
   );
-  schedule_sync_unlock(&(app->chat.schedule));
+  application_chat_unlock(app);
 
   if (closing)
     goto close_dialog;
 
-  schedule_sync_lock(&(app->chat.schedule));
+  application_chat_lock(app);
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
       contact
   );
-  schedule_sync_unlock(&(app->chat.schedule));
+  application_chat_unlock(app);
 
   if (!context)
     goto close_dialog;
 
-  schedule_sync_lock(&(app->chat.schedule));
+  application_chat_lock(app);
   if (GNUNET_SYSERR == GNUNET_CHAT_context_get_status(context))
     GNUNET_CHAT_context_request(context);
-  schedule_sync_unlock(&(app->chat.schedule));
+  application_chat_unlock(app);
 
 close_dialog:
   gtk_window_close(GTK_WINDOW(app->ui.contacts.dialog));

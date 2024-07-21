@@ -212,13 +212,13 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   if (!account)
     return;
 
-  schedule_sync_lock(&(app->chat.schedule));
+  application_chat_lock(app);
   
   const struct GNUNET_CHAT_Account *current = GNUNET_CHAT_get_connected(
     app->chat.messenger.handle
   );
 
-  schedule_sync_unlock(&(app->chat.schedule));
+  application_chat_unlock(app);
 
   if (account == current)
     return;
@@ -226,9 +226,9 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   _switch_details_revealer_visibility(&(app->ui.messenger), FALSE);
   hdy_flap_set_reveal_flap(HDY_FLAP(app->ui.messenger.flap_user_details), FALSE);
 
-  schedule_sync_lock(&(app->chat.schedule));
+  application_chat_lock(app);
   GNUNET_CHAT_connect(app->chat.messenger.handle, account);
-  schedule_sync_unlock(&(app->chat.schedule));
+  application_chat_unlock(app);
 }
 
 static void

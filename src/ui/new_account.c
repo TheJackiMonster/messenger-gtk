@@ -37,13 +37,13 @@ _open_new_account(GtkEntry *entry,
 
   const gchar *name = gtk_entry_get_text(entry);
 
-  schedule_sync_lock(&(app->chat.schedule));
+  application_chat_lock(app);
 
   const enum GNUNET_GenericReturnValue result = GNUNET_CHAT_account_create(
     app->chat.messenger.handle, name
   );
 
-  schedule_sync_unlock(&(app->chat.schedule));
+  application_chat_unlock(app);
 
   if (GNUNET_OK != result)
     return;

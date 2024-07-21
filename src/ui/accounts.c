@@ -96,9 +96,9 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
 	    G_SOURCE_FUNC(_show_messenger_main_window), app
     );
   
-  schedule_sync_lock(&(app->chat.schedule));
+  application_chat_lock(app);
   GNUNET_CHAT_connect(app->chat.messenger.handle, account);
-  schedule_sync_unlock(&(app->chat.schedule));
+  application_chat_unlock(app);
 
   gtk_list_box_unselect_all(app->ui.messenger.accounts_listbox);
   gtk_widget_set_sensitive(GTK_WIDGET(app->ui.accounts.dialog), FALSE);

@@ -282,6 +282,12 @@ application_call_message_event(MESSENGER_Application *app,
                                struct GNUNET_CHAT_Context *context,
                                const struct GNUNET_CHAT_Message *message);
 
+void
+application_chat_lock(MESSENGER_Application *app);
+
+void
+application_chat_unlock(MESSENGER_Application *app);
+
 /**
  * Signals the second thread to exit the application.
  *

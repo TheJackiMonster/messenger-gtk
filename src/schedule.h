@@ -40,6 +40,7 @@ typedef struct MESSENGER_Schedule {
 
   pthread_mutex_t push_mutex;
   pthread_mutex_t sync_mutex;
+  gboolean locked;
 
   GSourceFunc function;
   gpointer data;

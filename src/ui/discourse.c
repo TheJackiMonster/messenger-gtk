@@ -169,13 +169,13 @@ handle_call_start_button_click(UNUSED GtkButton *button,
   if (!(handle->context))
     return;
 
-  schedule_sync_lock(&(handle->app->chat.schedule));
+  application_chat_lock(handle->app);
   handle->voice_discourse = GNUNET_CHAT_context_open_discourse(
     handle->context, get_voice_discourse_id()
   );
 
   _update_call_button(handle);
-  schedule_sync_unlock(&(handle->app->chat.schedule));
+  application_chat_unlock(handle->app);
 }
 
 static void
@@ -189,12 +189,12 @@ handle_call_stop_button_click(UNUSED GtkButton *button,
   if ((!(handle->context)) || (!(handle->voice_discourse)))
     return;
 
-  schedule_sync_lock(&(handle->app->chat.schedule));
+  application_chat_lock(handle->app);
   GNUNET_CHAT_discourse_close(handle->voice_discourse);
   handle->voice_discourse = NULL;
 
   _update_call_button(handle);
-  schedule_sync_unlock(&(handle->app->chat.schedule));
+  application_chat_unlock(handle->app);
 }
 
 static void

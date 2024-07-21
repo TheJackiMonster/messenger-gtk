@@ -161,7 +161,7 @@ handle_leave_chats_button_click(UNUSED GtkButton* button,
 
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
-  schedule_sync_lock(&(app->chat.schedule));
+  application_chat_lock(app);
 
   GNUNET_CHAT_iterate_groups(
     app->chat.messenger.handle,
@@ -175,7 +175,7 @@ handle_leave_chats_button_click(UNUSED GtkButton* button,
     NULL
   );
 
-  schedule_sync_unlock(&(app->chat.schedule));
+  application_chat_unlock(app);
 }
 
 static void

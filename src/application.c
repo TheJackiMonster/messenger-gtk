@@ -26,6 +26,7 @@
 #include "request.h"
 #include "resources.h"
 
+#include <glib-2.0/glib.h>
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_chat_lib.h>
 #include <gstreamer-1.0/gst/gst.h>
@@ -738,6 +739,34 @@ application_call_message_event(MESSENGER_Application *app,
     G_SOURCE_FUNC(_application_message_event_call),
     call
   );
+}
+
+void
+application_chat_lock(MESSENGER_Application *app)
+{
+  g_assert(app);
+
+  if (app->ui.schedule.function)
+  {
+    g_assert(!(app->chat.schedule.locked));
+    return;
+  }
+  
+  schedule_sync_lock(&(app->chat.schedule));
+}
+
+void
+application_chat_unlock(MESSENGER_Application *app)
+{
+  g_assert(app);
+
+  if (app->ui.schedule.function)
+  {
+    g_assert(!(app->chat.schedule.locked));
+    return;
+  }
+
+  schedule_sync_unlock(&(app->chat.schedule));
 }
 
 static gboolean

@@ -184,7 +184,12 @@ schedule_sync_run(MESSENGER_Schedule *schedule,
                   GSourceFunc function,
                   gpointer data)
 {
-  g_assert((schedule) && (function));
+  g_assert(
+    (schedule) &&
+    (!(schedule->locked)) &&
+    (!(schedule->function)) &&
+    (function)
+  );
 
   schedule->function = function;
   schedule->data = data;
@@ -200,7 +205,11 @@ schedule_sync_run(MESSENGER_Schedule *schedule,
 void
 schedule_sync_lock(MESSENGER_Schedule *schedule)
 {
-  g_assert(schedule);
+  g_assert(
+    (schedule) &&
+    (!(schedule->locked)) &&
+    (!(schedule->function))
+  );
 
   const MESSENGER_ScheduleSignal push = MESSENGER_SCHEDULE_SIGNAL_LOCK;
 
@@ -211,12 +220,18 @@ schedule_sync_lock(MESSENGER_Schedule *schedule)
 
   pthread_mutex_lock(&(schedule->push_mutex));
   pthread_mutex_unlock(&(schedule->push_mutex));
+
+  schedule->locked = TRUE;
 }
 
 void
 schedule_sync_unlock(MESSENGER_Schedule *schedule)
 {
-  g_assert(schedule);
+  g_assert(
+    (schedule) &&
+    (schedule->locked) &&
+    (!(schedule->function))
+  );
 
   MESSENGER_ScheduleSignal sync;
 
@@ -224,4 +239,6 @@ schedule_sync_unlock(MESSENGER_Schedule *schedule)
 
   g_assert(sizeof(sync) == read(schedule->sync_pipe[0], &sync, sizeof(sync)));
   g_assert(MESSENGER_SCHEDULE_SIGNAL_LOCK == sync);
+
+  schedule->locked = FALSE;
 }
