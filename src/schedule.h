@@ -49,26 +49,58 @@ typedef struct MESSENGER_Schedule {
   guint poll;
 } MESSENGER_Schedule;
 
+/**
+ * Initializes a schedule to synchronize a current thread
+ * with another certain thread via pipes and mutexes.
+ */
 void
 schedule_init(MESSENGER_Schedule *schedule);
 
+/**
+ * Completes initialization of a schedule to synchronize
+ * another thread with the GNUnet scheduler.
+ */
 void
 schedule_load_gnunet(MESSENGER_Schedule *schedule);
 
+/**
+ * Completes initialization of a schedule to synchronize
+ * another thread with the GLib/GTK scheduler.
+ */
 void
 schedule_load_glib(MESSENGER_Schedule *schedule);
 
+/**
+ * Cleanup a schedule and all of its resources for
+ * its synchronization.
+ */
 void
 schedule_cleanup(MESSENGER_Schedule *schedule);
 
+/**
+ * Calls a given function from the thread of a given
+ * schedule and waits for its completion until then
+ * in the current thread.
+ */
 void
 schedule_sync_run(MESSENGER_Schedule *schedule,
                   GSourceFunc function,
                   gpointer data);
 
+/**
+ * Locks the thread of a given schedule to wait
+ * until the schedule gets unlocked again from
+ * the current thread. Execution only continues
+ * in the current thread afterwards.
+ */
 void
 schedule_sync_lock(MESSENGER_Schedule *schedule);
 
+/**
+ * Unlocks the thread of a given schedule from
+ * the current thread. Execution continues in 
+ * parallel again afterwards.
+ */
 void
 schedule_sync_unlock(MESSENGER_Schedule *schedule);
 
