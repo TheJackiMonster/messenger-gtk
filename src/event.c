@@ -348,7 +348,7 @@ event_update_profile(MESSENGER_Application *app)
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
 
-  _reload_accounts(app);
+  event_refresh_accounts(app);
 
   const char *name = GNUNET_CHAT_get_name(chat->handle);
 
