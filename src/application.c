@@ -774,9 +774,6 @@ _application_stop_chat(gpointer user_data)
 {
   MESSENGER_Application *app = user_data;
 
-  if (app->chat.messenger.idle)
-    GNUNET_SCHEDULER_cancel(app->chat.messenger.idle);
-
   GNUNET_CHAT_disconnect(app->chat.messenger.handle);
   GNUNET_CHAT_stop(app->chat.messenger.handle);
   app->chat.messenger.handle = NULL;
