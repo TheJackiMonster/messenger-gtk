@@ -66,8 +66,12 @@ handle_confirm_button_click(UNUSED GtkButton *button,
   if (!uri)
     goto close_dialog;
 
+  schedule_sync_lock(&(app->chat.schedule));
   GNUNET_CHAT_lobby_join(app->chat.messenger.handle, uri);
+  schedule_sync_unlock(&(app->chat.schedule));
+
   GNUNET_CHAT_uri_destroy(uri);
+
 
 close_dialog:
   gtk_window_close(GTK_WINDOW(app->ui.new_contact.dialog));

@@ -37,7 +37,15 @@ _open_new_account(GtkEntry *entry,
 
   const gchar *name = gtk_entry_get_text(entry);
 
-  if (GNUNET_OK != GNUNET_CHAT_account_create(app->chat.messenger.handle, name))
+  schedule_sync_lock(&(app->chat.schedule));
+
+  const enum GNUNET_GenericReturnValue result = GNUNET_CHAT_account_create(
+    app->chat.messenger.handle, name
+  );
+
+  schedule_sync_unlock(&(app->chat.schedule));
+
+  if (GNUNET_OK != result)
     return;
 
   gtk_list_box_unselect_all(app->ui.messenger.accounts_listbox);

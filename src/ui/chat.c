@@ -165,8 +165,12 @@ handle_chat_contacts_listbox_row_activated(GtkListBox *listbox,
 
   hdy_flap_set_reveal_flap(handle->flap_chat_details, FALSE);
 
+  schedule_sync_lock(&(app->chat.schedule));
+
   ui_contact_info_dialog_init(app, &(app->ui.contact_info));
   ui_contact_info_dialog_update(&(app->ui.contact_info), contact, FALSE);
+
+  schedule_sync_unlock(&(app->chat.schedule));
 
   gtk_widget_show(GTK_WIDGET(app->ui.contact_info.dialog));
 }
@@ -214,8 +218,12 @@ handle_reveal_identity_button_click(GtkButton *button,
 
   hdy_flap_set_reveal_flap(handle->flap_chat_details, FALSE);
 
+  schedule_sync_lock(&(app->chat.schedule));
+
   ui_contact_info_dialog_init(app, &(app->ui.contact_info));
   ui_contact_info_dialog_update(&(app->ui.contact_info), contact, TRUE);
+
+  schedule_sync_unlock(&(app->chat.schedule));
 
   gtk_widget_show(GTK_WIDGET(app->ui.contact_info.dialog));
 }
@@ -252,7 +260,9 @@ handle_block_button_click(UNUSED GtkButton *button,
   if (!contact)
     return;
 
+  schedule_sync_lock(&(handle->app->chat.schedule));
   GNUNET_CHAT_contact_set_blocked(contact, GNUNET_YES);
+  schedule_sync_unlock(&(handle->app->chat.schedule));
 
   gtk_stack_set_visible_child(handle->block_stack, GTK_WIDGET(handle->unblock_button));
 }
@@ -272,7 +282,9 @@ handle_unblock_button_click(UNUSED GtkButton *button,
   if (!contact)
     return;
 
+  schedule_sync_lock(&(handle->app->chat.schedule));
   GNUNET_CHAT_contact_set_blocked(contact, GNUNET_NO);
+  schedule_sync_unlock(&(handle->app->chat.schedule));
 
   gtk_stack_set_visible_child(handle->block_stack, GTK_WIDGET(handle->block_button));
 }
@@ -288,6 +300,8 @@ handle_leave_chat_button_click(UNUSED GtkButton *button,
   if ((!handle) || (!(handle->context)))
     return;
 
+  schedule_sync_lock(&(handle->app->chat.schedule));
+
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_context_get_contact(
     handle->context
   );
@@ -300,6 +314,8 @@ handle_leave_chat_button_click(UNUSED GtkButton *button,
     GNUNET_CHAT_contact_delete(contact);
   else if (group)
     GNUNET_CHAT_group_leave(group);
+
+  schedule_sync_unlock(&(handle->app->chat.schedule));
 
   UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(
     handle->context
@@ -422,11 +438,15 @@ handle_chat_messages_filter(GtkListBoxRow *row,
     filterTags.filter = &(filter[1]);
     filterTags.matching = FALSE;
 
+    schedule_sync_lock(&(app->chat.schedule));
+
     GNUNET_CHAT_message_iterate_tags(
       message->msg,
       _iterate_message_tags,
       &filterTags
     );
+
+    schedule_sync_unlock(&(app->chat.schedule));
 
     result |= filterTags.matching;
   }
@@ -589,7 +609,11 @@ _send_text_from_view(MESSENGER_Application *app,
   }
 
   if (handle->context)
+  {
+    schedule_sync_lock(&(app->chat.schedule));
     GNUNET_CHAT_context_send_text(handle->context, text);
+    schedule_sync_unlock(&(app->chat.schedule));
+  }
 
   g_free(text);
   gtk_text_buffer_delete(buffer, &start, &end);
@@ -664,6 +688,8 @@ handle_send_record_button_click(GtkButton *button,
     ui_label_set_text(file_load->file_label, handle->recording_filename);
     gtk_progress_bar_set_fraction(file_load->load_progress_bar, 0.0);
 
+    schedule_sync_lock(&(app->chat.schedule));
+
     struct GNUNET_CHAT_File *file = GNUNET_CHAT_context_send_file(
       handle->context,
       handle->recording_filename,
@@ -679,6 +705,8 @@ handle_send_record_button_click(GtkButton *button,
     }
     else if (file_load)
       ui_file_load_entry_delete(file_load);
+
+    schedule_sync_unlock(&(app->chat.schedule));
 
     _drop_any_recording(handle);
     return;

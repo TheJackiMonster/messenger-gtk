@@ -70,6 +70,8 @@ handle_files_listbox_row_activated(UNUSED GtkListBox* listbox,
     g_object_get_qdata(G_OBJECT(row), app->quarks.data)
   );
 
+  schedule_sync_lock(&(app->chat.schedule));
+
   const gdouble progress = (
     (gdouble) GNUNET_CHAT_file_get_local_size(file) /
     GNUNET_CHAT_file_get_size(file)
@@ -86,6 +88,8 @@ handle_files_listbox_row_activated(UNUSED GtkListBox* listbox,
     GTK_WIDGET(handle->play_pause_button),
     GNUNET_YES != GNUNET_CHAT_file_is_ready(file)
   );
+
+  schedule_sync_unlock(&(app->chat.schedule));
 
   UI_FILE_ENTRY_Handle *entry = (UI_FILE_ENTRY_Handle*) (
     g_object_get_qdata(G_OBJECT(row), app->quarks.ui)

@@ -72,16 +72,25 @@ handle_file_button_click(GtkButton *button,
   if (!file)
     return;
 
+  schedule_sync_lock(&(app->chat.schedule));
   uint64_t size = GNUNET_CHAT_file_get_size(file);
+  schedule_sync_unlock(&(app->chat.schedule));
 
   if (size <= 0)
     return;
 
-  uint64_t local_size = GNUNET_CHAT_file_get_local_size(file);
+  schedule_sync_lock(&(app->chat.schedule));
 
-  if (GNUNET_YES == GNUNET_CHAT_file_is_downloading(file))
+  uint64_t local_size = GNUNET_CHAT_file_get_local_size(file);
+  const gboolean downloading = (GNUNET_YES == GNUNET_CHAT_file_is_downloading(file));
+
+  schedule_sync_unlock(&(app->chat.schedule));
+
+  if (downloading)
   {
+    schedule_sync_lock(&(app->chat.schedule));
     GNUNET_CHAT_file_stop_download(file);
+    schedule_sync_unlock(&(app->chat.schedule));
 
     gtk_image_set_from_icon_name(
       handle->file_status_image,
@@ -91,11 +100,13 @@ handle_file_button_click(GtkButton *button,
   }
   else if (local_size < size)
   {
+    schedule_sync_lock(&(app->chat.schedule));
     GNUNET_CHAT_file_start_download(
       file,
       handle_downloading_file,
       app
     );
+    schedule_sync_unlock(&(app->chat.schedule));
 
     gtk_image_set_from_icon_name(
     	handle->file_status_image,
@@ -105,7 +116,9 @@ handle_file_button_click(GtkButton *button,
   }
   else if (size > 0)
   {
+    schedule_sync_lock(&(app->chat.schedule));
     const gchar *preview = GNUNET_CHAT_file_open_preview(file);
+    schedule_sync_unlock(&(app->chat.schedule));
 
     if (!preview)
       return;
@@ -114,7 +127,11 @@ handle_file_button_click(GtkButton *button,
     g_string_append(uri, preview);
 
     if (!g_app_info_launch_default_for_uri(uri->str, NULL, NULL))
+    {
+      schedule_sync_lock(&(app->chat.schedule));
       GNUNET_CHAT_file_close_preview(file);
+      schedule_sync_unlock(&(app->chat.schedule));
+    }
 
     g_string_free(uri, TRUE);
   }
@@ -142,7 +159,9 @@ handle_media_button_click(GtkButton *button,
   if (!file)
     return;
 
+  schedule_sync_lock(&(app->chat.schedule));
   const gchar *preview = GNUNET_CHAT_file_open_preview(file);
+  schedule_sync_unlock(&(app->chat.schedule));
 
   if (!preview)
     return;

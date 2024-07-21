@@ -469,6 +469,8 @@ _delayed_context_drop(gpointer user_data)
 
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) user_data;
 
+  // TODO: schedule_sync_lock(&(app->chat.schedule));
+
   struct GNUNET_CHAT_Group *group = GNUNET_CHAT_context_get_group(context);
   struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_context_get_contact(context);
 
@@ -476,6 +478,8 @@ _delayed_context_drop(gpointer user_data)
     GNUNET_CHAT_group_leave(group);
   else if (contact)
     GNUNET_CHAT_contact_delete(contact);
+
+  // TODO: schedule_sync_unlock(&(app->chat.schedule));
 
   return FALSE;
 }

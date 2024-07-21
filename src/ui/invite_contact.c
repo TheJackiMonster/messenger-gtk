@@ -55,6 +55,8 @@ handle_contacts_listbox_row_activated(GtkListBox* listbox,
     g_object_get_qdata(G_OBJECT(row), app->quarks.data)
   );
 
+  schedule_sync_lock(&(app->chat.schedule));
+
   if ((!contact) || (!GNUNET_CHAT_contact_get_key(contact)) ||
       (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact)) ||
       (!text_view))
@@ -75,6 +77,8 @@ handle_contacts_listbox_row_activated(GtkListBox* listbox,
     GNUNET_CHAT_group_invite_contact(group, contact);
 
 close_dialog:
+  schedule_sync_unlock(&(app->chat.schedule));
+
   gtk_window_close(GTK_WINDOW(app->ui.invite_contact.dialog));
 }
 

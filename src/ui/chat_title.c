@@ -131,11 +131,15 @@ _new_tag_callback(MESSENGER_Application *app,
     if ((!message) || (!(message->msg)))
       goto skip_row;
 
+    schedule_sync_lock(&(app->chat.schedule));
+
     GNUNET_CHAT_context_send_tag(
       handle->context,
       message->msg,
       tag
     );
+
+    schedule_sync_unlock(&(app->chat.schedule));
 
   skip_row:
     selected = selected->next;
@@ -193,6 +197,8 @@ _delete_messages_callback(MESSENGER_Application *app,
     if ((!message) || (!(message->msg)))
       goto skip_row;
 
+    schedule_sync_lock(&(app->chat.schedule));
+
     GNUNET_CHAT_message_delete(
     	message->msg,
     	GNUNET_TIME_relative_multiply(
@@ -200,6 +206,8 @@ _delete_messages_callback(MESSENGER_Application *app,
 	      delay
 	    )
     );
+
+    schedule_sync_unlock(&(app->chat.schedule));
 
   skip_row:
     selected = selected->next;

@@ -102,12 +102,16 @@ handle_send_button_click(GtkButton *button,
     gtk_label_set_text(file_load->file_label, filename);
     gtk_progress_bar_set_fraction(file_load->load_progress_bar, 0.0);
 
+    schedule_sync_lock(&(app->chat.schedule));
+
     file = GNUNET_CHAT_context_send_file(
       context,
       filename,
       handle_sending_upload_file,
       file_load
     );
+
+    schedule_sync_unlock(&(app->chat.schedule));
   }
 
   g_free(filename);

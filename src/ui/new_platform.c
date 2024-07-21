@@ -37,6 +37,8 @@ _open_new_platform(GtkEntry *entry,
 
   GString *topic_string = g_string_new(topic);
 
+  schedule_sync_lock(&(app->chat.schedule));
+
   struct GNUNET_CHAT_Group *group = GNUNET_CHAT_group_create(
     app->chat.messenger.handle,
     topic_string->str
@@ -44,6 +46,8 @@ _open_new_platform(GtkEntry *entry,
 
   g_string_prepend_c(topic_string, '#');
   GNUNET_CHAT_group_set_name(group, topic_string->str);
+
+  schedule_sync_unlock(&(app->chat.schedule));
 
   g_string_free(topic_string, TRUE);
 }

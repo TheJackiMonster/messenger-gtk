@@ -25,6 +25,8 @@
 #include "schedule.h"
 
 #include <glib-2.0/glib-unix.h>
+#include <glib-2.0/glib.h>
+#include <pthread.h>
 
 void
 schedule_init(MESSENGER_Schedule *schedule)
@@ -34,6 +36,43 @@ schedule_init(MESSENGER_Schedule *schedule)
 
   g_assert(0 == pipe(schedule->push_pipe));
   g_assert(0 == pipe(schedule->sync_pipe));
+
+  pthread_mutex_init(&(schedule->push_mutex), NULL);
+  pthread_mutex_init(&(schedule->sync_mutex), NULL);
+}
+
+static gboolean
+__schedule_pushed_handling(MESSENGER_Schedule *schedule,
+                           MESSENGER_ScheduleSignal val)
+{
+  g_assert(schedule);
+
+  gboolean keep;
+
+  switch (val)
+  {
+    case MESSENGER_SCHEDULE_SIGNAL_RUN:
+      g_assert(schedule->function);
+
+      keep = schedule->function(schedule->data);
+
+      schedule->function = NULL;
+      schedule->data = NULL;
+      break;
+    case MESSENGER_SCHEDULE_SIGNAL_LOCK:
+      g_assert(!(schedule->function));
+
+      keep = TRUE;
+
+      pthread_mutex_unlock(&(schedule->push_mutex));
+      pthread_mutex_lock(&(schedule->sync_mutex));
+      pthread_mutex_unlock(&(schedule->sync_mutex));
+      break;
+    default:
+      return FALSE;
+  }
+
+  return keep;
 }
 
 static void
@@ -43,20 +82,14 @@ static void
 __schedule_pushed_task(void *cls)
 {
   MESSENGER_Schedule *schedule = cls;
-  gboolean keep;
-  char val;
+  MESSENGER_ScheduleSignal val;
 
   g_assert(schedule);
   schedule->task = NULL;
 
   g_assert(sizeof(val) == read(schedule->push_pipe[0], &val, sizeof(val)));
 
-  keep = schedule->function(schedule->data);
-
-  schedule->function = NULL;
-  schedule->data = NULL;
-
-  if (keep)
+  if (__schedule_pushed_handling(schedule, val))
     __schedule_setup_push_task(schedule);
 
   g_assert(sizeof(val) == write(schedule->sync_pipe[1], &val, sizeof(val)));
@@ -93,9 +126,9 @@ __schedule_pushed(gint fd,
                   gpointer user_data)
 {
   MESSENGER_Schedule *schedule = user_data;
+  MESSENGER_ScheduleSignal val;
   gboolean keep;
   guint task;
-  char val;
 
   g_assert(schedule);
   task = schedule->poll;
@@ -103,10 +136,7 @@ __schedule_pushed(gint fd,
 
   g_assert(sizeof(val) == read(schedule->push_pipe[0], &val, sizeof(val)));
 
-  keep = schedule->function(schedule->data);
-
-  schedule->function = NULL;
-  schedule->data = NULL;
+  keep = __schedule_pushed_handling(schedule, val);
 
   if (keep)
     schedule->poll = task;
@@ -137,6 +167,9 @@ schedule_cleanup(MESSENGER_Schedule *schedule)
   if (schedule->poll)
     g_source_remove(schedule->poll);
 
+  pthread_mutex_destroy(&(schedule->push_mutex));
+  pthread_mutex_destroy(&(schedule->sync_mutex));
+
   close(schedule->push_pipe[0]);
   close(schedule->push_pipe[1]);
 
@@ -156,10 +189,39 @@ schedule_sync_run(MESSENGER_Schedule *schedule,
   schedule->function = function;
   schedule->data = data;
 
-  const char push = 1;
-  char sync;
+  const MESSENGER_ScheduleSignal push = MESSENGER_SCHEDULE_SIGNAL_RUN;
+  MESSENGER_ScheduleSignal sync;
 
   g_assert(sizeof(push) == write(schedule->push_pipe[1], &push, sizeof(push)));
   g_assert(sizeof(sync) == read(schedule->sync_pipe[0], &sync, sizeof(sync)));
   g_assert(push == sync);
+}
+
+void
+schedule_sync_lock(MESSENGER_Schedule *schedule)
+{
+  g_assert(schedule);
+
+  const MESSENGER_ScheduleSignal push = MESSENGER_SCHEDULE_SIGNAL_LOCK;
+
+  pthread_mutex_lock(&(schedule->push_mutex));
+  pthread_mutex_lock(&(schedule->sync_mutex));
+
+  g_assert(sizeof(push) == write(schedule->push_pipe[1], &push, sizeof(push)));
+
+  pthread_mutex_lock(&(schedule->push_mutex));
+  pthread_mutex_unlock(&(schedule->push_mutex));
+}
+
+void
+schedule_sync_unlock(MESSENGER_Schedule *schedule)
+{
+  g_assert(schedule);
+
+  MESSENGER_ScheduleSignal sync;
+
+  pthread_mutex_unlock(&(schedule->sync_mutex));
+
+  g_assert(sizeof(sync) == read(schedule->sync_pipe[0], &sync, sizeof(sync)));
+  g_assert(MESSENGER_SCHEDULE_SIGNAL_LOCK == sync);
 }

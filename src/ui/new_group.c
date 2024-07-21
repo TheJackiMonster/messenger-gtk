@@ -37,6 +37,8 @@ _open_new_group(GtkEntry *entry,
 
   const gchar *name = gtk_entry_get_text(entry);
 
+  schedule_sync_lock(&(app->chat.schedule));
+
   struct GNUNET_CHAT_Group *group = GNUNET_CHAT_group_create(
       app->chat.messenger.handle,
       NULL
@@ -44,6 +46,8 @@ _open_new_group(GtkEntry *entry,
 
   if ((name) && (strlen(name) > 0))
     GNUNET_CHAT_group_set_name(group, name);
+
+  schedule_sync_unlock(&(app->chat.schedule));
 
   GList *selected = gtk_list_box_get_selected_rows(listbox);
 
@@ -58,7 +62,9 @@ _open_new_group(GtkEntry *entry,
 	      g_object_get_qdata(G_OBJECT(row), app->quarks.data)
       );
 
+      schedule_sync_lock(&(app->chat.schedule));
       GNUNET_CHAT_group_invite_contact(group, contact);
+      schedule_sync_unlock(&(app->chat.schedule));
     }
 
     item = item->next;

@@ -27,10 +27,19 @@
 
 #include <glib-2.0/glib.h>
 #include <gnunet/gnunet_util_lib.h>
+#include <pthread.h>
+
+typedef enum MESSENGER_ScheduleSignal : unsigned char {
+  MESSENGER_SCHEDULE_SIGNAL_RUN = 1,
+  MESSENGER_SCHEDULE_SIGNAL_LOCK = 2,
+} MESSENGER_ScheduleSignal;
 
 typedef struct MESSENGER_Schedule {
   int push_pipe [2];
   int sync_pipe [2];
+
+  pthread_mutex_t push_mutex;
+  pthread_mutex_t sync_mutex;
 
   GSourceFunc function;
   gpointer data;
@@ -55,5 +64,11 @@ void
 schedule_sync_run(MESSENGER_Schedule *schedule,
                   GSourceFunc function,
                   gpointer data);
+
+void
+schedule_sync_lock(MESSENGER_Schedule *schedule);
+
+void
+schedule_sync_unlock(MESSENGER_Schedule *schedule);
 
 #endif /* SCHEDULE_H_ */

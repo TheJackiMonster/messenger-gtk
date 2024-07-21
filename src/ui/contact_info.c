@@ -62,6 +62,8 @@ handle_contact_edit_button_click(UNUSED GtkButton *button,
   if ((name) && (0 == g_utf8_strlen(name, 1)))
     name = NULL;
 
+  schedule_sync_lock(&(handle->app->chat.schedule));
+
   if (change_own_name)
   {
     if (GNUNET_YES != GNUNET_CHAT_set_name(handle->app->chat.messenger.handle, name))
@@ -72,6 +74,8 @@ handle_contact_edit_button_click(UNUSED GtkButton *button,
   }
   else
     GNUNET_CHAT_contact_set_name(handle->contact, name);
+
+  schedule_sync_unlock(&(handle->app->chat.schedule));
 
 skip_change_name:
   gtk_image_set_from_icon_name(
@@ -188,12 +192,16 @@ handle_profile_chooser_file_set(GtkFileChooserButton *button,
   if (!filename)
     return;
 
+  schedule_sync_lock(&(handle->app->chat.schedule));
+
   GNUNET_CHAT_upload_file(
     handle->app->chat.messenger.handle,
     filename,
     _cb_file_upload,
     handle->app
   );
+
+  schedule_sync_unlock(&(handle->app->chat.schedule));
 
   g_free(filename);
 }
@@ -256,7 +264,9 @@ handle_block_button_click(UNUSED GtkButton *button,
   if (!(handle->contact))
     return;
 
+  schedule_sync_lock(&(handle->app->chat.schedule));
   GNUNET_CHAT_contact_set_blocked(handle->contact, GNUNET_YES);
+  schedule_sync_unlock(&(handle->app->chat.schedule));
 
   gtk_stack_set_visible_child(
     handle->block_stack,
@@ -275,7 +285,9 @@ handle_unblock_button_click(UNUSED GtkButton *button,
   if (!(handle->contact))
     return;
 
+  schedule_sync_lock(&(handle->app->chat.schedule));
   GNUNET_CHAT_contact_set_blocked(handle->contact, GNUNET_NO);
+  schedule_sync_unlock(&(handle->app->chat.schedule));
 
   gtk_stack_set_visible_child(
     handle->block_stack, 
@@ -671,8 +683,11 @@ handle_value_renderer_edit(GtkCellRendererText *renderer,
   if (!chat)
     return;
 
-  if ((handle->contact) && 
-      (GNUNET_YES != GNUNET_CHAT_contact_is_owned(handle->contact)))
+  schedule_sync_lock(&(handle->app->chat.schedule));
+  const gboolean owned = (GNUNET_YES == GNUNET_CHAT_contact_is_owned(handle->contact));
+  schedule_sync_unlock(&(handle->app->chat.schedule));
+
+  if ((handle->contact) && (!owned))
     return;
 
   GValue value = G_VALUE_INIT;
@@ -682,12 +697,18 @@ handle_value_renderer_edit(GtkCellRendererText *renderer,
 
   if ((new_text) && (strlen(new_text)))
   {
+    schedule_sync_lock(&(handle->app->chat.schedule));
     GNUNET_CHAT_set_attribute(chat, name, new_text, GNUNET_TIME_relative_get_forever_());
+    schedule_sync_unlock(&(handle->app->chat.schedule));
+
     gtk_list_store_set(handle->attributes_list, &iter, 1, new_text, -1);
   }
   else
   {
+    schedule_sync_lock(&(handle->app->chat.schedule));
     GNUNET_CHAT_delete_attribute(chat, name);
+    schedule_sync_unlock(&(handle->app->chat.schedule));
+
     gtk_list_store_remove(handle->attributes_list, &iter);
   }
 
@@ -726,7 +747,10 @@ handle_add_attribute_button_click(UNUSED GtkButton *button,
 
   if ((name) && (value))
   {
+    schedule_sync_lock(&(handle->app->chat.schedule));
     GNUNET_CHAT_set_attribute(chat, name, value, GNUNET_TIME_relative_get_forever_());
+    schedule_sync_unlock(&(handle->app->chat.schedule));
+
     gtk_list_store_insert_with_values(
       handle->attributes_list,
       NULL,
@@ -772,8 +796,11 @@ handle_share_renderer_toggle(GtkCellRendererToggle *renderer,
   if (!chat)
     return;
 
-  if ((!(handle->contact)) || 
-      (GNUNET_YES == GNUNET_CHAT_contact_is_owned(handle->contact)))
+  schedule_sync_lock(&(handle->app->chat.schedule));
+  const gboolean owned = (GNUNET_YES == GNUNET_CHAT_contact_is_owned(handle->contact));
+  schedule_sync_unlock(&(handle->app->chat.schedule));
+
+  if ((!(handle->contact)) || (owned))
     return;
 
   GValue value_name = G_VALUE_INIT;
@@ -785,10 +812,14 @@ handle_share_renderer_toggle(GtkCellRendererToggle *renderer,
   const gchar *name = g_value_get_string(&value_name);
   const gboolean shared = g_value_get_boolean(&value_shared);
 
+  schedule_sync_lock(&(handle->app->chat.schedule));
+
   if (shared)
     GNUNET_CHAT_unshare_attribute_from(chat, handle->contact, name);
   else
     GNUNET_CHAT_share_attribute_with(chat, handle->contact, name);
+
+  schedule_sync_unlock(&(handle->app->chat.schedule));
 
   gtk_list_store_set(handle->sharing_list, &iter, 2, !shared, -1);
 
