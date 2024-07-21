@@ -799,6 +799,9 @@ application_exit(MESSENGER_Application *app,
 
   schedule_cleanup(&(app->chat.schedule));
   schedule_cleanup(&(app->ui.schedule));
+
+  util_scheduler_cleanup();
+
   application_pw_core_cleanup(app);
 
   if (app->pw.context)
