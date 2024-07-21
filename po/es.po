@@ -22,7 +22,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unnamed project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-16 01:30+0200\n"
+"POT-Creation-Date: 2024-07-21 03:36+0200\n"
 "PO-Revision-Date: 2024-04-01 22:18+0200\n"
 "Last-Translator: carlosgonz <>\n"
 "Language-Team: Spanish\n"
@@ -225,13 +225,13 @@ msgstr "Borrar Mensajes"
 #: resources/ui/delete_messages.ui:64 resources/ui/new_account.ui:48
 #: resources/ui/new_contact.ui:52 resources/ui/new_group.ui:43
 #: resources/ui/new_lobby.ui:86 resources/ui/new_platform.ui:43
-#: resources/ui/new_tag.ui:43 resources/ui/send_file.ui:41 src/ui/chat.c:490
+#: resources/ui/new_tag.ui:43 resources/ui/send_file.ui:41 src/ui/chat.c:510
 msgid "Cancel"
 msgstr "Cancelar"
 
 #: resources/ui/delete_messages.ui:77 resources/ui/new_account.ui:61
 #: resources/ui/new_group.ui:81 resources/ui/new_platform.ui:56
-#: resources/ui/new_tag.ui:56 src/ui/chat.c:492
+#: resources/ui/new_tag.ui:56 src/ui/chat.c:512
 msgid "Confirm"
 msgstr "Confirmar"
 
@@ -396,7 +396,7 @@ msgstr "Privacidad"
 msgid "Blocked"
 msgstr "Bloqueados"
 
-#: resources/ui/settings.ui:294 src/ui/settings.c:411
+#: resources/ui/settings.ui:294 src/ui/settings.c:415
 #, c-format
 msgid "%u blocked contacts"
 msgstr "%u contactos bloqueados"
@@ -486,32 +486,32 @@ msgstr "Autosalir de Charlas"
 msgid "Leave all chats"
 msgstr "Salir todas Charlas"
 
-#: src/event.c:595
+#: src/event.c:600
 msgid "joined the chat"
 msgstr "unirse a charla"
 
-#: src/event.c:595
+#: src/event.c:600
 msgid "left the chat"
 msgstr "dejar charla"
 
-#: src/event.c:728
+#: src/event.c:733
 #, c-format
 msgid "invited %s to a chat"
 msgstr "invitado %s a charla"
 
-#: src/event.c:732
+#: src/event.c:737
 msgid "you"
 msgstr "usted"
 
-#: src/ui/chat.c:487
+#: src/ui/chat.c:507
 msgid "Select file"
 msgstr "Seleccionar Archivo"
 
-#: src/ui/chat_entry.c:200
+#: src/ui/chat_entry.c:203
 msgid "Yesterday"
 msgstr "Ayer"
 
-#: src/ui/send_file.c:307
+#: src/ui/send_file.c:311
 msgid "Send File"
 msgstr "Enviar Archivo"
 
