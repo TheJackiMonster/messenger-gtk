@@ -44,15 +44,10 @@ handle_preview_drawing_area_draw(GtkWidget* drawing_area,
 
   gtk_render_background(context, cairo, 0, 0, width, height);
 
-  struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File *) g_object_get_qdata(
-    G_OBJECT(handle->preview_drawing_area),
-    handle->app->quarks.data
-  );
-
-  if (!file)
+  if (!(handle->file))
     return FALSE;
 
-  GdkPixbuf *image = file_get_current_preview_image(file);
+  GdkPixbuf *image = file_get_current_preview_image(handle->file);
 
   if (!image)
     return FALSE;
