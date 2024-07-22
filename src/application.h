@@ -72,6 +72,14 @@ typedef enum MESSENGER_ApplicationSignal
   MESSENGER_FAIL = 2
 } MESSENGER_ApplicationSignal;
 
+typedef enum MESSENGER_ApplicationState
+{
+  MESSENGER_STATE_UNKNOWN = 0,
+  MESSENGER_STATE_ACCOUNTS = 1,
+  MESSENGER_STATE_NEW_ACCOUNT = 2,
+  MESSENGER_STATE_MAIN_WINDOW = 3
+} MESSENGER_ApplicationState;
+
 typedef struct MESSENGER_Application
 {
   char **argv;
@@ -116,6 +124,7 @@ typedef struct MESSENGER_Application
   } chat;
 
   struct {
+    MESSENGER_ApplicationState state;
     int status;
 
     UI_MESSENGER_Handle messenger;

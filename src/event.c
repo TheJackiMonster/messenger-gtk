@@ -135,11 +135,14 @@ _iterate_reload_account(void *cls,
   return GNUNET_YES;
 }
 
-static void
-_reload_accounts(MESSENGER_Application *app)
+void
+event_refresh_accounts(MESSENGER_Application *app)
 {
+  g_assert(app);
+
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
+  const struct GNUNET_CHAT_Account *account;
 
   GNUNET_CHAT_iterate_accounts(
     chat->handle,
@@ -147,47 +150,22 @@ _reload_accounts(MESSENGER_Application *app)
     app
   );
 
-  if (gtk_widget_is_visible(GTK_WIDGET(ui->main_window)))
-    ui_messenger_refresh(app, ui);
-  else
-    ui_accounts_dialog_refresh(app, &(app->ui.accounts));
+  switch (app->ui.state)
+  {
+    case MESSENGER_STATE_ACCOUNTS:
+      ui_accounts_dialog_refresh(app, &(app->ui.accounts));
+      break;
+    case MESSENGER_STATE_MAIN_WINDOW:
+      ui_messenger_refresh(app, ui);
+      break;
+    default:
+      break;
+  }
 
-  if (GNUNET_CHAT_get_connected(chat->handle))
+  account = GNUNET_CHAT_get_connected(chat->handle);
+
+  if (account)
     application_show_window(app);
-}
-
-static gboolean
-_idle_refresh_accounts(gpointer user_data)
-{
-  g_assert(user_data);
-
-  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
-
-  app->ui.messenger.account_refresh = 0;
-
-  if (!(app->ui.messenger.main_window))
-    return FALSE;
-
-  _reload_accounts(app);
-
-  return FALSE;
-}
-
-void
-event_refresh_accounts(MESSENGER_Application *app)
-{
-  g_assert(app);
-
-  if (app->ui.messenger.account_refresh)
-    util_source_remove(app->ui.messenger.account_refresh);
-
-  if (app->ui.messenger.main_window)
-    app->ui.messenger.account_refresh = util_idle_add(
-      G_SOURCE_FUNC(_idle_refresh_accounts),
-      app
-    );
-  else
-    app->ui.messenger.account_refresh = 0;
 }
 
 static gboolean
@@ -342,8 +320,12 @@ event_update_profile(MESSENGER_Application *app)
 {
   g_assert(app);
 
-  if (app->ui.new_account.dialog)
+  if (MESSENGER_STATE_NEW_ACCOUNT == app->ui.state)
+  {
+    app->ui.state = MESSENGER_STATE_MAIN_WINDOW;
+
     ui_new_account_dialog_update(app, &(app->ui.new_account));
+  }
 
   UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
@@ -451,15 +433,12 @@ event_select_profile(MESSENGER_Application *app,
 {
   g_assert((app) && (!context) && (msg));
 
-  UI_MESSENGER_Handle *ui = &(app->ui.messenger);
   CHAT_MESSENGER_Handle *chat = &(app->chat.messenger);
 
   const struct GNUNET_CHAT_Account *account = GNUNET_CHAT_message_get_account(msg);
 
   if (GNUNET_CHAT_KIND_CREATED_ACCOUNT == GNUNET_CHAT_message_get_kind(msg))
     GNUNET_CHAT_connect(chat->handle, account);
-
-  ui_messenger_refresh(app, ui);
 }
 
 gboolean

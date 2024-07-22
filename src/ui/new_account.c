@@ -48,6 +48,8 @@ _open_new_account(GtkEntry *entry,
   if (GNUNET_OK != result)
     return;
 
+  app->ui.state = MESSENGER_STATE_NEW_ACCOUNT;
+
   gtk_list_box_unselect_all(app->ui.messenger.accounts_listbox);
   gtk_widget_set_sensitive(GTK_WIDGET(app->ui.new_account.dialog), FALSE);
 }
@@ -165,8 +167,10 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
 
   ui_new_account_dialog_cleanup(&(app->ui.new_account));
 
-  if (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
-    gtk_widget_destroy(GTK_WIDGET(app->ui.messenger.main_window));
+  if (MESSENGER_STATE_MAIN_WINDOW == app->ui.state)
+    return;
+
+  gtk_widget_destroy(GTK_WIDGET(app->ui.messenger.main_window));
 }
 
 void

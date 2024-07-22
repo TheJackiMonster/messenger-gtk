@@ -892,11 +892,15 @@ ui_messenger_refresh(MESSENGER_Application *app,
     handle->accounts_listbox
   );
 
+  application_chat_lock(app);
+
   GNUNET_CHAT_iterate_accounts(
     app->chat.messenger.handle,
     _messenger_iterate_accounts,
     app
   );
+
+  application_chat_unlock(app);
 
   if (gtk_list_box_get_selected_row(handle->accounts_listbox))
     return;

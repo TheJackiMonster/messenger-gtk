@@ -53,17 +53,6 @@ _open_new_account_dialog(gpointer user_data)
   return FALSE;
 }
 
-static gboolean
-_show_messenger_main_window(gpointer user_data)
-{
-  g_assert(user_data);
-
-  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
-
-  application_show_window(app);
-  return FALSE;
-}
-
 static void
 handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
                                       GtkListBoxRow* row,
@@ -90,11 +79,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
   if (!account)
     goto close_dialog;
 
-  // Handle the GUI swap asyncronously
-  if (!gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window)))
-    app->ui.accounts.show_queued = util_idle_add(
-	    G_SOURCE_FUNC(_show_messenger_main_window), app
-    );
+  app->ui.state = MESSENGER_STATE_MAIN_WINDOW;
   
   application_chat_lock(app);
   GNUNET_CHAT_connect(app->chat.messenger.handle, account);
@@ -118,7 +103,7 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
   ui_accounts_dialog_cleanup(&(app->ui.accounts), app);
 
   if ((app->ui.accounts.show_queued) ||
-      (gtk_widget_is_visible(GTK_WIDGET(app->ui.messenger.main_window))))
+      (MESSENGER_STATE_MAIN_WINDOW == app->ui.state))
     return;
 
   gtk_widget_destroy(GTK_WIDGET(app->ui.messenger.main_window));
@@ -254,11 +239,15 @@ ui_accounts_dialog_refresh(MESSENGER_Application *app,
 
   _ui_accounts_cleanup_listbox(handle, app);
 
+  application_chat_lock(app);
+
   GNUNET_CHAT_iterate_accounts(
     app->chat.messenger.handle,
     _iterate_accounts,
     app
   );
+
+  application_chat_unlock(app);
 }
 
 void

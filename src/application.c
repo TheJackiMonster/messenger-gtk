@@ -67,6 +67,7 @@ _application_accounts(gpointer user_data)
   MESSENGER_Application *app = (MESSENGER_Application*) user_data;
 
   app->init = 0;
+  app->ui.state = MESSENGER_STATE_ACCOUNTS;
 
   ui_accounts_dialog_init(app, &(app->ui.accounts));
   ui_accounts_dialog_refresh(app, &(app->ui.accounts));
@@ -109,6 +110,8 @@ _application_init(MESSENGER_Application *app)
 
   if (app->chat.identity)
   {
+    app->ui.state = MESSENGER_STATE_MAIN_WINDOW;
+
     GNUNET_CHAT_iterate_accounts(
       app->chat.messenger.handle,
       _application_select_account,
@@ -592,6 +595,9 @@ void
 application_show_window(MESSENGER_Application *app)
 {
   g_assert(app);
+  
+  if (MESSENGER_STATE_MAIN_WINDOW != app->ui.state)
+    return;
 
   gtk_widget_show(GTK_WIDGET(app->ui.messenger.main_window));
 
