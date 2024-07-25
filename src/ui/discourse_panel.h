@@ -43,7 +43,7 @@ typedef struct UI_DISCOURSE_PANEL_Handle
   HdyAvatar *panel_avatar;
   GtkLabel *panel_label;
 
-  GtkDrawingArea *video_drawing_area;
+  GtkWidget *video_box;
 } UI_DISCOURSE_PANEL_Handle;
 
 /**

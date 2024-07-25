@@ -72,9 +72,13 @@ Author: Tobias Frisch
           </packing>
         </child>
         <child>
-          <object class="GtkDrawingArea" id="video_drawing_area">
+          <object class="GtkBox" id="video_box">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <placeholder/>
+            </child>
           </object>
           <packing>
             <property name="name">video_page</property>

@@ -634,18 +634,21 @@ _update_discourse_via_context(UI_DISCOURSE_Handle *handle)
     discourses
   );
 
-  const gboolean has_voice_controls = discourse_has_controls(
-    discourses[0]
-  );
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->microphone_button), discourse_has_controls(
+    discourses[0], MESSENGER_DISCOURSE_CTRL_MICROPHONE
+  ));
 
-  const gboolean has_video_controls = discourse_has_controls(
-    discourses[1]
-  );
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->camera_button), discourse_has_controls(
+    discourses[1], MESSENGER_DISCOURSE_CTRL_WEBCAM
+  ));
 
-  gtk_widget_set_sensitive(GTK_WIDGET(handle->microphone_button), has_voice_controls);
-  gtk_widget_set_sensitive(GTK_WIDGET(handle->camera_button), has_video_controls);
-  gtk_widget_set_sensitive(GTK_WIDGET(handle->screen_button), has_video_controls);
-  gtk_widget_set_sensitive(GTK_WIDGET(handle->speakers_button), has_voice_controls);
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->screen_button), discourse_has_controls(
+    discourses[1], MESSENGER_DISCOURSE_CTRL_SCREEN_CAPTURE
+  ));
+
+  gtk_widget_set_sensitive(GTK_WIDGET(handle->speakers_button), discourse_has_controls(
+    discourses[0], MESSENGER_DISCOURSE_CTRL_SPEAKERS
+  ));
 
   if (discourses[0])
   {

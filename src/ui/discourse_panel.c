@@ -60,8 +60,8 @@ ui_discourse_panel_new(MESSENGER_Application *app)
     gtk_builder_get_object(handle->builder, "panel_label")
   );
 
-  handle->video_drawing_area = GTK_DRAWING_AREA(
-    gtk_builder_get_object(handle->builder, "video_drawing_area")
+  handle->video_box = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "video_box")
   );
 
   return handle;
