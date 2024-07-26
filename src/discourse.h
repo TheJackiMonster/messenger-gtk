@@ -104,10 +104,24 @@ discourse_destroy_info(struct GNUNET_CHAT_Discourse *discourse);
 void
 discourse_update_subscriptions(struct GNUNET_CHAT_Discourse *discourse);
 
+/**
+ * Pushes a data message of a given discourse to
+ * update UI elements or output regarding its content.
+ *
+ * @param discourse Chat discourse
+ * @param message Chat message
+ */
 void
 discourse_stream_message(struct GNUNET_CHAT_Discourse *discourse,
                          const struct GNUNET_CHAT_Message *message);
 
+/**
+ * Returns whether a given discourse should have controls
+ * regarding a given type of input/output.
+ *
+ * @param discourse Chat discourse
+ * @return #TRUE if there should be controls, otherwise #FALSE
+ */
 bool
 discourse_has_controls(struct GNUNET_CHAT_Discourse *discourse,
                        MESSENGER_DiscourseControl control);
