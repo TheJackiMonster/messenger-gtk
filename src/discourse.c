@@ -31,6 +31,36 @@
 #include <pthread.h>
 #include <stdlib.h>
 
+const struct GNUNET_ShortHashCode*
+get_voice_discourse_id()
+{
+  static enum GNUNET_GenericReturnValue init = GNUNET_NO;
+  static struct GNUNET_ShortHashCode id;
+
+  if (GNUNET_YES != init)
+  {
+    memset(&id, 0, sizeof(id));
+    init = GNUNET_YES;
+  }
+
+  return &id;
+}
+
+const struct GNUNET_ShortHashCode*
+get_video_discourse_id()
+{
+  static enum GNUNET_GenericReturnValue init = GNUNET_NO;
+  static struct GNUNET_ShortHashCode id;
+
+  if (GNUNET_YES != init)
+  {
+    memset(&id, 1, sizeof(id));
+    init = GNUNET_YES;
+  }
+
+  return &id;
+}
+
 static void
 error_cb(GstBus *bus,
          GstMessage *msg,
@@ -51,19 +81,19 @@ _setup_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
 {
   g_assert(info);
 
-  info->stream_source = gst_element_factory_make("appsrc", NULL);
-  info->converter = gst_element_factory_make("audioconvert", NULL);
+  info->audio_stream_source = gst_element_factory_make("appsrc", NULL);
+  info->audio_converter = gst_element_factory_make("audioconvert", NULL);
 
   gst_bin_add_many(
-    GST_BIN(info->discourse->mix_pipeline),
-    info->stream_source,
-    info->converter,
+    GST_BIN(info->discourse->audio_mix_pipeline),
+    info->audio_stream_source,
+    info->audio_converter,
     NULL
   );
 
   gst_element_link_many(
-    info->stream_source,
-    info->converter,
+    info->audio_stream_source,
+    info->audio_converter,
     NULL
   );
 
@@ -78,7 +108,7 @@ _setup_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
     );
 
     g_object_set(
-      info->stream_source,
+      info->audio_stream_source,
       "format", GST_FORMAT_TIME,
       "caps", caps,
       "is-live", TRUE,
@@ -88,21 +118,21 @@ _setup_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
     gst_caps_unref(caps);
   }
 
-  info->mix_pad = gst_element_request_pad_simple(
-    info->discourse->mix_element, "sink_%u"
+  info->audio_mix_pad = gst_element_request_pad_simple(
+    info->discourse->audio_mix_element, "sink_%u"
   );
 
   {
     GstPad *pad = gst_element_get_static_pad(
-      info->converter, "src"
+      info->audio_converter, "src"
     );
 
-    g_object_set(info->mix_pad, "mute", FALSE, "volume", 1.0, NULL);
-    gst_pad_link(pad, info->mix_pad);
+    g_object_set(info->audio_mix_pad, "mute", FALSE, "volume", 1.0, NULL);
+    gst_pad_link(pad, info->audio_mix_pad);
   }
 
-  gst_element_sync_state_with_parent(info->stream_source);
-  gst_element_sync_state_with_parent(info->converter);
+  gst_element_sync_state_with_parent(info->audio_stream_source);
+  gst_element_sync_state_with_parent(info->audio_converter);
 }
 
 static MESSENGER_DiscourseSubscriptionInfo*
@@ -121,10 +151,10 @@ discourse_subscription_create_info(MESSENGER_DiscourseInfo *discourse,
   info->discourse = discourse;
   info->contact = contact;
 
-  info->stream_source = NULL;
-  info->converter = NULL;
+  info->audio_stream_source = NULL;
+  info->audio_converter = NULL;
 
-  info->mix_pad = NULL;
+  info->audio_mix_pad = NULL;
 
   info->position = 0;
 
@@ -137,31 +167,31 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
 {
   g_assert(info);
 
-  gst_element_set_state(info->stream_source, GST_STATE_NULL);
-  gst_element_set_state(info->converter, GST_STATE_NULL);
+  gst_element_set_state(info->audio_stream_source, GST_STATE_NULL);
+  gst_element_set_state(info->audio_converter, GST_STATE_NULL);
 
-  if (info->mix_pad)
+  if (info->audio_mix_pad)
   {
     GstPad *pad = gst_element_get_static_pad(
-      info->converter, "src"
+      info->audio_converter, "src"
     );
 
-    gst_pad_unlink(pad, info->mix_pad);
+    gst_pad_unlink(pad, info->audio_mix_pad);
 
-    gst_element_release_request_pad(info->discourse->mix_element, info->mix_pad);
-    gst_object_unref(GST_OBJECT(info->mix_pad));
+    gst_element_release_request_pad(info->discourse->audio_mix_element, info->audio_mix_pad);
+    gst_object_unref(GST_OBJECT(info->audio_mix_pad));
   }
 
   gst_element_unlink_many(
-    info->stream_source,
-    info->converter,
+    info->audio_stream_source,
+    info->audio_converter,
     NULL
   );
 
   gst_bin_remove_many(
-    GST_BIN(info->discourse->mix_pipeline),
-    info->stream_source,
-    info->converter,
+    GST_BIN(info->discourse->audio_mix_pipeline),
+    info->audio_stream_source,
+    info->audio_converter,
     NULL
   );
 
@@ -204,7 +234,7 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
   else
     goto skip_buffer;
 
-  g_signal_emit_by_name(info->stream_source, "push-buffer", buffer, &ret);
+  g_signal_emit_by_name(info->audio_stream_source, "push-buffer", buffer, &ret);
   info->position += samples;
 
 skip_buffer:
@@ -215,25 +245,25 @@ skip_buffer:
 }
 
 static void
-_setup_gst_pipelines(MESSENGER_DiscourseInfo *info)
+_setup_audio_gst_pipelines(MESSENGER_DiscourseInfo *info)
 {
   g_assert(info);
 
-  info->record_audio_pipeline = gst_parse_launch(
+  info->audio_record_pipeline = gst_parse_launch(
     "autoaudiosrc ! audioconvert ! capsfilter name=filter ! fdsink name=sink",
     NULL
   );
 
-  info->record_audio_sink = gst_bin_get_by_name(
-    GST_BIN(info->record_audio_pipeline), "sink"
+  info->audio_record_sink = gst_bin_get_by_name(
+    GST_BIN(info->audio_record_pipeline), "sink"
   );
 
   GstElement *filter = gst_bin_get_by_name(
-    GST_BIN(info->record_audio_pipeline), "filter"
+    GST_BIN(info->audio_record_pipeline), "filter"
   );
 
   {
-    GstBus *bus = gst_element_get_bus(info->record_audio_pipeline);
+    GstBus *bus = gst_element_get_bus(info->audio_record_pipeline);
     gst_bus_add_signal_watch(bus);
     g_signal_connect(G_OBJECT(bus), "message::error", (GCallback)error_cb, info);
     gst_object_unref(bus);
@@ -252,31 +282,75 @@ _setup_gst_pipelines(MESSENGER_DiscourseInfo *info)
 
     const int fd = GNUNET_CHAT_discourse_get_fd(info->discourse);
     if (-1 != fd)
-      g_object_set(info->record_audio_sink, "fd", fd, NULL);
+      g_object_set(info->audio_record_sink, "fd", fd, NULL);
 
-    gst_element_set_state(info->record_audio_pipeline, GST_STATE_PLAYING);
+    gst_element_set_state(info->audio_record_pipeline, GST_STATE_PLAYING);
   }
 
-  info->mix_pipeline = gst_parse_launch(
+  info->audio_mix_pipeline = gst_parse_launch(
     "audiomixer name=mixer ! volume name=control ! autoaudiosink",
     NULL
   );
 
-  info->mix_element = gst_bin_get_by_name(
-    GST_BIN(info->mix_pipeline), "mixer"
+  info->audio_mix_element = gst_bin_get_by_name(
+    GST_BIN(info->audio_mix_pipeline), "mixer"
   );
 
-  info->volume_element = gst_bin_get_by_name(
-    GST_BIN(info->mix_pipeline), "control"
+  info->audio_volume_element = gst_bin_get_by_name(
+    GST_BIN(info->audio_mix_pipeline), "control"
   );
 
   {
-    GstBus *bus = gst_element_get_bus(info->mix_pipeline);
+    GstBus *bus = gst_element_get_bus(info->audio_mix_pipeline);
     gst_bus_add_signal_watch(bus);
     g_signal_connect(G_OBJECT(bus), "message::error", (GCallback)error_cb, info);
     gst_object_unref(bus);
 
-    gst_element_set_state(info->mix_pipeline, GST_STATE_PLAYING);
+    gst_element_set_state(info->audio_mix_pipeline, GST_STATE_PLAYING);
+  }
+}
+
+static void
+_setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
+{
+  g_assert(info);
+
+  info->video_record_pipeline = gst_parse_launch(
+    "videotestsrc ! videoconvert ! x264enc tune=zerolatency ! rtph264pay ! capsfilter name=filter ! fdsink name=sink",
+    NULL
+  );
+
+  info->video_record_sink = gst_bin_get_by_name(
+    GST_BIN(info->video_record_pipeline), "sink"
+  );
+
+  GstElement *filter = gst_bin_get_by_name(
+    GST_BIN(info->video_record_pipeline), "filter"
+  );
+
+  {
+    GstBus *bus = gst_element_get_bus(info->video_record_pipeline);
+    gst_bus_add_signal_watch(bus);
+    g_signal_connect(G_OBJECT(bus), "message::error", (GCallback)error_cb, info);
+    gst_object_unref(bus);
+
+    GstCaps *caps = gst_caps_new_simple (
+      "application/x-rtp",
+      "media", G_TYPE_STRING, "video",
+      "payload", G_TYPE_INT, 96,
+      "clock-rate", G_TYPE_INT, 90000,
+      "encoding-name", G_TYPE_STRING, "H264",
+      NULL
+    );
+
+    g_object_set(filter, "caps", caps, NULL);
+    gst_caps_unref(caps);
+
+    const int fd = GNUNET_CHAT_discourse_get_fd(info->discourse);
+    if (-1 != fd)
+      g_object_set(info->video_record_sink, "fd", fd, NULL);
+
+    gst_element_set_state(info->video_record_pipeline, GST_STATE_NULL);
   }
 }
 
@@ -293,12 +367,15 @@ discourse_create_info(struct GNUNET_CHAT_Discourse *discourse)
 
   info->discourse = discourse;
 
-  info->record_audio_pipeline = NULL;
-  info->record_audio_sink = NULL;
+  info->audio_record_pipeline = NULL;
+  info->audio_record_sink = NULL;
 
-  info->mix_pipeline = NULL;
-  info->mix_element = NULL;
-  info->volume_element = NULL;
+  info->video_record_pipeline = NULL;
+  info->video_record_sink = NULL;
+
+  info->audio_mix_pipeline = NULL;
+  info->audio_mix_element = NULL;
+  info->audio_volume_element = NULL;
 
   info->sending_task = 0;
   pthread_mutex_init(&(info->mutex), NULL);
@@ -306,7 +383,14 @@ discourse_create_info(struct GNUNET_CHAT_Discourse *discourse)
   info->samples = NULL;
   info->subscriptions = NULL;
 
-  _setup_gst_pipelines(info);
+  const struct GNUNET_ShortHashCode *id = GNUNET_CHAT_discourse_get_id(
+    info->discourse
+  );
+
+  if (0 == GNUNET_memcmp(id, get_voice_discourse_id()))
+     _setup_audio_gst_pipelines(info);
+  else if (0 == GNUNET_memcmp(id, get_video_discourse_id()))
+    _setup_video_gst_pipelines(info);
 
   GNUNET_CHAT_discourse_set_user_pointer(discourse, info);
   return GNUNET_YES;
@@ -336,16 +420,22 @@ discourse_destroy_info(struct GNUNET_CHAT_Discourse *discourse)
     g_list_free(info->subscriptions);
   }
 
-  if (info->mix_pipeline)
+  if (info->video_record_pipeline)
   {
-    gst_element_set_state(info->mix_pipeline, GST_STATE_NULL);
-    gst_object_unref(GST_OBJECT(info->mix_pipeline));
+    gst_element_set_state(info->video_record_pipeline, GST_STATE_NULL);
+    gst_object_unref(GST_OBJECT(info->video_record_pipeline));
   }
 
-  if (info->record_audio_pipeline)
+  if (info->audio_mix_pipeline)
   {
-    gst_element_set_state(info->record_audio_pipeline, GST_STATE_NULL);
-    gst_object_unref(GST_OBJECT(info->record_audio_pipeline));
+    gst_element_set_state(info->audio_mix_pipeline, GST_STATE_NULL);
+    gst_object_unref(GST_OBJECT(info->audio_mix_pipeline));
+  }
+
+  if (info->audio_record_pipeline)
+  {
+    gst_element_set_state(info->audio_record_pipeline, GST_STATE_NULL);
+    gst_object_unref(GST_OBJECT(info->audio_record_pipeline));
   }
 
   pthread_mutex_lock(&(info->mutex));
@@ -505,11 +595,11 @@ discourse_has_controls(struct GNUNET_CHAT_Discourse *discourse,
   switch (control)
   {
     case MESSENGER_DISCOURSE_CTRL_MICROPHONE:
-      return (info->record_audio_pipeline? TRUE : FALSE);
+      return (info->audio_record_pipeline? TRUE : FALSE);
     case MESSENGER_DISCOURSE_CTRL_SPEAKERS:
-      return (info->mix_pipeline? TRUE : FALSE);
+      return (info->audio_mix_pipeline? TRUE : FALSE);
     case MESSENGER_DISCOURSE_CTRL_WEBCAM:
-      return FALSE;
+      return (info->video_record_pipeline? TRUE : FALSE);
     case MESSENGER_DISCOURSE_CTRL_SCREEN_CAPTURE:
       return FALSE;
     default:
@@ -523,10 +613,10 @@ discourse_set_volume(struct GNUNET_CHAT_Discourse *discourse,
 {
   MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
 
-  if ((!info) || (!(info->mix_pipeline)) || (!(info->volume_element)))
+  if ((!info) || (!(info->audio_mix_pipeline)) || (!(info->audio_volume_element)))
     return;
 
-  g_object_set(info->volume_element, "volume", volume, NULL);
+  g_object_set(info->audio_volume_element, "volume", volume, NULL);
 }
 
 double
@@ -534,11 +624,11 @@ discourse_get_volume(struct GNUNET_CHAT_Discourse *discourse)
 {
   MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
 
-  if ((!info) || (!(info->mix_pipeline)) || (!(info->volume_element)))
+  if ((!info) || (!(info->audio_mix_pipeline)) || (!(info->audio_volume_element)))
     return 0.0;
 
   gdouble volume;
-  g_object_get(info->volume_element, "volume", &volume, NULL);
+  g_object_get(info->audio_volume_element, "volume", &volume, NULL);
 
   return volume;
 }
@@ -549,11 +639,11 @@ discourse_set_mute(struct GNUNET_CHAT_Discourse *discourse,
 {
   MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
 
-  if ((!info) || (!(info->record_audio_pipeline)))
+  if ((!info) || (!(info->audio_record_pipeline)))
     return;
 
   gst_element_set_state(
-    info->record_audio_pipeline,
+    info->audio_record_pipeline,
     mute? GST_STATE_NULL : GST_STATE_PLAYING
   );
 }
@@ -563,12 +653,12 @@ discourse_is_mute(struct GNUNET_CHAT_Discourse *discourse)
 {
   MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
 
-  if ((!info) || (!(info->record_audio_pipeline)))
+  if ((!info) || (!(info->audio_record_pipeline)))
     return TRUE;
 
   GstState state;
   gst_element_get_state(
-    info->record_audio_pipeline,
+    info->audio_record_pipeline,
     &state,
     NULL,
     GST_CLOCK_TIME_NONE

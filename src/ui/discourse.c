@@ -38,36 +38,6 @@
 
 #include <string.h>
 
-static const struct GNUNET_ShortHashCode*
-get_voice_discourse_id()
-{
-  static enum GNUNET_GenericReturnValue init = GNUNET_NO;
-  static struct GNUNET_ShortHashCode id;
-
-  if (GNUNET_YES != init)
-  {
-    memset(&id, 0, sizeof(id));
-    init = GNUNET_YES;
-  }
-
-  return &id;
-}
-
-static const struct GNUNET_ShortHashCode*
-get_video_discourse_id()
-{
-  static enum GNUNET_GenericReturnValue init = GNUNET_NO;
-  static struct GNUNET_ShortHashCode id;
-
-  if (GNUNET_YES != init)
-  {
-    memset(&id, 1, sizeof(id));
-    init = GNUNET_YES;
-  }
-
-  return &id;
-}
-
 static void
 handle_back_button_click(UNUSED GtkButton *button,
 			                   gpointer user_data)
@@ -151,8 +121,10 @@ _update_call_button(UI_DISCOURSE_Handle *handle)
 {
   g_assert(handle);
 
-  if ((handle->voice_discourse) && 
-      (GNUNET_YES ==GNUNET_CHAT_discourse_is_open(handle->voice_discourse)))
+  if (((handle->voice_discourse) && 
+      (GNUNET_YES == GNUNET_CHAT_discourse_is_open(handle->voice_discourse))) ||
+      ((handle->video_discourse) &&
+      (GNUNET_YES == GNUNET_CHAT_discourse_is_open(handle->video_discourse))))
     gtk_stack_set_visible_child(handle->call_stack, handle->call_stop_button);
   else
     gtk_stack_set_visible_child(handle->call_stack, handle->call_start_button);
@@ -170,8 +142,13 @@ handle_call_start_button_click(UNUSED GtkButton *button,
     return;
 
   application_chat_lock(handle->app);
+
   handle->voice_discourse = GNUNET_CHAT_context_open_discourse(
     handle->context, get_voice_discourse_id()
+  );
+
+  handle->video_discourse = GNUNET_CHAT_context_open_discourse(
+    handle->context, get_video_discourse_id()
   );
 
   _update_call_button(handle);
@@ -190,8 +167,18 @@ handle_call_stop_button_click(UNUSED GtkButton *button,
     return;
 
   application_chat_lock(handle->app);
-  GNUNET_CHAT_discourse_close(handle->voice_discourse);
-  handle->voice_discourse = NULL;
+  
+  if (handle->voice_discourse)
+  {
+    GNUNET_CHAT_discourse_close(handle->voice_discourse);
+    handle->voice_discourse = NULL;
+  }
+
+  if (handle->video_discourse)
+  {
+    GNUNET_CHAT_discourse_close(handle->video_discourse);
+    handle->video_discourse = NULL;
+  }
 
   _update_call_button(handle);
   application_chat_unlock(handle->app);

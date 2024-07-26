@@ -31,6 +31,22 @@
 #include <gnunet/gnunet_chat_lib.h>
 #include <pthread.h>
 
+/**
+ * Returns the discourse id for a typical voice chat.
+ *
+ * @return Voice chat discourse id
+ */
+const struct GNUNET_ShortHashCode*
+get_voice_discourse_id();
+
+/**
+ * Returns the discourse id for a typical video chat.
+ *
+ * @return Video chat discourse id
+ */
+const struct GNUNET_ShortHashCode*
+get_video_discourse_id();
+
 typedef enum MESSENGER_DiscourseControl {
   MESSENGER_DISCOURSE_CTRL_MICROPHONE = 1,
   MESSENGER_DISCOURSE_CTRL_SPEAKERS = 2,
@@ -44,15 +60,15 @@ typedef struct MESSENGER_DiscourseInfo
 {
   struct GNUNET_CHAT_Discourse *discourse;
 
-  GstElement *record_audio_pipeline;
-  GstElement *record_audio_sink;
+  GstElement *audio_record_pipeline;
+  GstElement *audio_record_sink;
 
-  GstElement *record_video_pipeline;
-  GstElement *record_video_sink;
+  GstElement *video_record_pipeline;
+  GstElement *video_record_sink;
 
-  GstElement *mix_pipeline;
-  GstElement *mix_element;
-  GstElement *volume_element;
+  GstElement *audio_mix_pipeline;
+  GstElement *audio_mix_element;
+  GstElement *audio_volume_element;
 
   guint sending_task;
   pthread_mutex_t mutex;
@@ -66,10 +82,10 @@ typedef struct MESSENGER_DiscourseSubscriptionInfo
   MESSENGER_DiscourseInfo *discourse;
   struct GNUNET_CHAT_Contact *contact;
 
-  GstElement *stream_source;
-  GstElement *converter;
+  GstElement *audio_stream_source;
+  GstElement *audio_converter;
 
-  GstPad *mix_pad;
+  GstPad *audio_mix_pad;
 
   uint64_t position;
 } MESSENGER_DiscourseSubscriptionInfo;
