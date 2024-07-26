@@ -62,12 +62,33 @@ typedef struct MESSENGER_DiscourseSubscriptionInfo
   uint64_t position;
 } MESSENGER_DiscourseSubscriptionInfo;
 
+/**
+ * Creates a discourse information struct to potentially
+ * update all GUI appearances of a specific discourse at
+ * once.
+ *
+ * @param discourse Chat discourse
+ * @return #GNUNET_YES on info creation, otherwise #GNUNET_NO
+ */
 enum GNUNET_GenericReturnValue
 discourse_create_info(struct GNUNET_CHAT_Discourse *discourse);
 
+/**
+ * Destroys and frees resources allocated for a given
+ * discourse information struct.
+ *
+ * @param discourse Chat discourse
+ */
 void
 discourse_destroy_info(struct GNUNET_CHAT_Discourse *discourse);
 
+/**
+ * Updates the connected UI elements for a given
+ * discourse and its subscriptions depending on the 
+ * current state.
+ *
+ * @param discourse Chat discourse
+ */
 void
 discourse_update_subscriptions(struct GNUNET_CHAT_Discourse *discourse);
 
@@ -78,17 +99,42 @@ discourse_stream_message(struct GNUNET_CHAT_Discourse *discourse,
 bool
 discourse_has_controls(struct GNUNET_CHAT_Discourse *discourse);
 
+/**
+ * Sets the volume for speakers of a given discourse.
+ *
+ * @param discourse Chat discourse
+ * @param volume Speakers volume
+ */
 void
 discourse_set_volume(struct GNUNET_CHAT_Discourse *discourse,
                      double volume);
 
+/**
+ * Returns the volume for speakers of a given discourse.
+ *
+ * @param discourse Chat discourse
+ * @return Speakers volume
+ */
 double
 discourse_get_volume(struct GNUNET_CHAT_Discourse *discourse);
 
+/**
+ * Mutes/Unmutes the microphone of a given discourse.
+ *
+ * @param discourse Chat discourse
+ * @param mute Mute flag
+ */
 void
 discourse_set_mute(struct GNUNET_CHAT_Discourse *discourse,
                    bool mute);
 
+/**
+ * Returns whether the microphone of a given discourse
+ * is muted or not.
+ *
+ * @param discourse Chat discourse
+ * @return #TRUE if muted, #FALSE otherwise
+ */
 bool
 discourse_is_mute(struct GNUNET_CHAT_Discourse *discourse);
 
