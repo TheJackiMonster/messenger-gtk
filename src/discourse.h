@@ -31,12 +31,24 @@
 #include <gnunet/gnunet_chat_lib.h>
 #include <pthread.h>
 
+typedef enum MESSENGER_DiscourseControl {
+  MESSENGER_DISCOURSE_CTRL_MICROPHONE = 1,
+  MESSENGER_DISCOURSE_CTRL_SPEAKERS = 2,
+  MESSENGER_DISCOURSE_CTRL_WEBCAM = 3,
+  MESSENGER_DISCOURSE_CTRL_SCREEN_CAPTURE = 4,
+
+  MESSENGER_DISCOURSE_CTRL_UNKNOWN = 0
+} MESSENGER_DiscourseControl;
+
 typedef struct MESSENGER_DiscourseInfo
 {
   struct GNUNET_CHAT_Discourse *discourse;
 
-  GstElement *record_pipeline;
-  GstElement *record_sink;
+  GstElement *record_audio_pipeline;
+  GstElement *record_audio_sink;
+
+  GstElement *record_video_pipeline;
+  GstElement *record_video_sink;
 
   GstElement *mix_pipeline;
   GstElement *mix_element;
@@ -97,7 +109,8 @@ discourse_stream_message(struct GNUNET_CHAT_Discourse *discourse,
                          const struct GNUNET_CHAT_Message *message);
 
 bool
-discourse_has_controls(struct GNUNET_CHAT_Discourse *discourse);
+discourse_has_controls(struct GNUNET_CHAT_Discourse *discourse,
+                       MESSENGER_DiscourseControl control);
 
 /**
  * Sets the volume for speakers of a given discourse.
