@@ -77,7 +77,7 @@ error_cb(GstBus *bus,
 }
 
 static void
-_setup_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
+_setup_audio_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
 {
   g_assert(info);
 
@@ -135,6 +135,50 @@ _setup_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
   gst_element_sync_state_with_parent(info->audio_converter);
 }
 
+static void
+_setup_video_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *info)
+{
+  g_assert(info);
+
+  info->video_stream_pipeline = gst_parse_launch(
+    "appsrc name=source ! capsfilter name=filter ! rtph264depay ! avdec_h264 ! videoconvert ! gtksink name=sink",
+    NULL
+  );
+
+  info->video_stream_source = gst_bin_get_by_name(
+    GST_BIN(info->video_stream_pipeline), "source"
+  );
+
+  info->video_stream_sink = gst_bin_get_by_name(
+    GST_BIN(info->video_stream_pipeline), "sink"
+  );
+
+  GstElement *filter = gst_bin_get_by_name(
+    GST_BIN(info->video_stream_pipeline), "filter"
+  );
+
+  {
+    GstBus *bus = gst_element_get_bus(info->video_stream_pipeline);
+    gst_bus_add_signal_watch(bus);
+    g_signal_connect(G_OBJECT(bus), "message::error", (GCallback)error_cb, info);
+    gst_object_unref(bus);
+
+    GstCaps *caps = gst_caps_new_simple (
+      "application/x-rtp",
+      "media", G_TYPE_STRING, "video",
+      "payload", G_TYPE_INT, 96,
+      "clock-rate", G_TYPE_INT, 90000,
+      "encoding-name", G_TYPE_STRING, "H264",
+      NULL
+    );
+
+    g_object_set(filter, "caps", caps, NULL);
+    gst_caps_unref(caps);
+
+    gst_element_set_state(info->video_stream_pipeline, GST_STATE_PLAYING);
+  }
+}
+
 static MESSENGER_DiscourseSubscriptionInfo*
 discourse_subscription_create_info(MESSENGER_DiscourseInfo *discourse,
                                    struct GNUNET_CHAT_Contact *contact)
@@ -154,11 +198,23 @@ discourse_subscription_create_info(MESSENGER_DiscourseInfo *discourse,
   info->audio_stream_source = NULL;
   info->audio_converter = NULL;
 
+  info->video_stream_pipeline = NULL;
+  info->video_stream_source = NULL;
+  info->video_stream_sink = NULL;
+
   info->audio_mix_pad = NULL;
 
   info->position = 0;
 
-  _setup_gst_pipelines_of_subscription(info);
+  const struct GNUNET_ShortHashCode *id = GNUNET_CHAT_discourse_get_id(
+    info->discourse->discourse
+  );
+
+  if (0 == GNUNET_memcmp(id, get_voice_discourse_id()))
+    _setup_audio_gst_pipelines_of_subscription(info);
+  else if (0 == GNUNET_memcmp(id, get_video_discourse_id()))
+    _setup_video_gst_pipelines_of_subscription(info);
+
   return info;
 }
 
@@ -167,8 +223,17 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
 {
   g_assert(info);
 
-  gst_element_set_state(info->audio_stream_source, GST_STATE_NULL);
-  gst_element_set_state(info->audio_converter, GST_STATE_NULL);
+  if (info->audio_stream_source)
+    gst_element_set_state(info->audio_stream_source, GST_STATE_NULL);
+
+  if (info->audio_converter)
+    gst_element_set_state(info->audio_converter, GST_STATE_NULL);
+
+  if (info->video_stream_pipeline)
+  {
+    gst_element_set_state(info->video_stream_pipeline, GST_STATE_NULL);
+    gst_object_unref(GST_OBJECT(info->video_stream_pipeline));
+  }
 
   if (info->audio_mix_pad)
   {
@@ -182,18 +247,21 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
     gst_object_unref(GST_OBJECT(info->audio_mix_pad));
   }
 
-  gst_element_unlink_many(
-    info->audio_stream_source,
-    info->audio_converter,
-    NULL
-  );
+  if ((info->audio_stream_source) || (info->audio_converter))
+  {
+    gst_element_unlink_many(
+      info->audio_stream_source,
+      info->audio_converter,
+      NULL
+    );
 
-  gst_bin_remove_many(
-    GST_BIN(info->discourse->audio_mix_pipeline),
-    info->audio_stream_source,
-    info->audio_converter,
-    NULL
-  );
+    gst_bin_remove_many(
+      GST_BIN(info->discourse->audio_mix_pipeline),
+      info->audio_stream_source,
+      info->audio_converter,
+      NULL
+    );
+  }
 
   g_free(info);
 }

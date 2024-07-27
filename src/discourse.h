@@ -85,6 +85,10 @@ typedef struct MESSENGER_DiscourseSubscriptionInfo
   GstElement *audio_stream_source;
   GstElement *audio_converter;
 
+  GstElement *video_stream_pipeline;
+  GstElement *video_stream_source;
+  GstElement *video_stream_sink;
+
   GstPad *audio_mix_pad;
 
   uint64_t position;
