@@ -1039,8 +1039,5 @@ event_discourse_data(MESSENGER_Application *app,
   if (!discourse)
     return;
 
-  if (GNUNET_YES == GNUNET_CHAT_message_is_sent(msg))
-    return;
-
   discourse_stream_message(discourse, msg);
 }

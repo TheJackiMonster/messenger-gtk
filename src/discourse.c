@@ -141,7 +141,7 @@ _setup_video_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *
   g_assert(info);
 
   info->video_stream_pipeline = gst_parse_launch(
-    "appsrc name=source ! capsfilter name=filter ! rtph264depay ! avdec_h264 ! videoconvert ! gtksink name=sink",
+    "appsrc name=source ! avdec_h264 ! videoconvert ! gtksink name=sink",
     NULL
   );
 
@@ -153,10 +153,6 @@ _setup_video_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *
     GST_BIN(info->video_stream_pipeline), "sink"
   );
 
-  GstElement *filter = gst_bin_get_by_name(
-    GST_BIN(info->video_stream_pipeline), "filter"
-  );
-
   {
     GstBus *bus = gst_element_get_bus(info->video_stream_pipeline);
     gst_bus_add_signal_watch(bus);
@@ -164,15 +160,20 @@ _setup_video_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *
     gst_object_unref(bus);
 
     GstCaps *caps = gst_caps_new_simple (
-      "application/x-rtp",
-      "media", G_TYPE_STRING, "video",
-      "payload", G_TYPE_INT, 96,
-      "clock-rate", G_TYPE_INT, 90000,
-      "encoding-name", G_TYPE_STRING, "H264",
+      "video/x-h264",
+      "stream-format", G_TYPE_STRING, "avc",
+      "alignment", G_TYPE_STRING, "au",
       NULL
     );
 
-    g_object_set(filter, "caps", caps, NULL);
+    g_object_set(
+      info->video_stream_source,
+      "format", GST_FORMAT_TIME,
+      "caps", caps,
+      "is-live", TRUE,
+      NULL
+    );
+
     gst_caps_unref(caps);
 
     gst_element_set_state(info->video_stream_pipeline, GST_STATE_PLAYING);
@@ -267,14 +268,13 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
 }
 
 static void
-discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
-                                      const struct GNUNET_CHAT_Message *message)
+_stream_audio_message(MESSENGER_DiscourseSubscriptionInfo *info,
+                      const struct GNUNET_CHAT_Message *message,
+                      uint64_t available)
 {
-  g_assert((info) && (message));
+  g_assert((info) && (message) && (available));
 
-  const uint64_t available = GNUNET_CHAT_message_available(message);
-
-  if (!available)
+  if (GNUNET_YES == GNUNET_CHAT_message_is_sent(message))
     return;
 
   const uint64_t samples = available / 2;
@@ -310,6 +310,67 @@ skip_buffer:
 
   if (GST_FLOW_OK != ret)
     return;
+}
+
+static void
+_stream_video_message(MESSENGER_DiscourseSubscriptionInfo *info,
+                      const struct GNUNET_CHAT_Message *message,
+                      uint64_t available)
+{
+  g_assert((info) && (message) && (available));
+
+  GstBuffer *buffer = gst_buffer_new_and_alloc(available);
+  GstFlowReturn ret = GST_FLOW_OK;
+
+  if (!buffer)
+    return;
+
+  GST_BUFFER_TIMESTAMP(buffer) = gst_util_uint64_scale(info->position, GST_SECOND, 90000);
+  GST_BUFFER_DURATION(buffer) = gst_util_uint64_scale(available, GST_SECOND, 90000);
+
+  GstMapInfo mapping;
+  if (gst_buffer_map(buffer, &mapping, GST_MAP_WRITE))
+  {
+    if (mapping.size)
+    {
+      if (GNUNET_OK != GNUNET_CHAT_message_read(message, (char*) mapping.data, mapping.size))
+        memset(mapping.data, 0, mapping.size);
+    }
+
+    gst_buffer_unmap(buffer, &mapping);
+  }
+  else
+    goto skip_buffer;
+
+  g_signal_emit_by_name(info->video_stream_source, "push-buffer", buffer, &ret);
+  info->position += available;
+
+skip_buffer:
+  gst_buffer_unref(buffer);
+
+  if (GST_FLOW_OK != ret)
+    return;
+}
+
+static void
+discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
+                                      const struct GNUNET_CHAT_Message *message)
+{
+  g_assert((info) && (message));
+
+  const uint64_t available = GNUNET_CHAT_message_available(message);
+
+  if (!available)
+    return;
+
+  const struct GNUNET_ShortHashCode *id = GNUNET_CHAT_discourse_get_id(
+    info->discourse->discourse
+  );
+
+  if (0 == GNUNET_memcmp(id, get_voice_discourse_id()))
+    _stream_audio_message(info, message, available);
+  else if (0 == GNUNET_memcmp(id, get_video_discourse_id()))
+    _stream_video_message(info, message, available);
 }
 
 static void
@@ -384,7 +445,7 @@ _setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
   g_assert(info);
 
   info->video_record_pipeline = gst_parse_launch(
-    "videotestsrc ! videoconvert ! x264enc tune=zerolatency ! rtph264pay ! capsfilter name=filter ! fdsink name=sink",
+    "autovideosrc ! videoconvert ! video/x-raw,format=I420 ! x264enc tune=zerolatency ! capsfilter name=filter ! fdsink name=sink",
     NULL
   );
 
@@ -403,11 +464,9 @@ _setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
     gst_object_unref(bus);
 
     GstCaps *caps = gst_caps_new_simple (
-      "application/x-rtp",
-      "media", G_TYPE_STRING, "video",
-      "payload", G_TYPE_INT, 96,
-      "clock-rate", G_TYPE_INT, 90000,
-      "encoding-name", G_TYPE_STRING, "H264",
+      "video/x-h264",
+      "stream-format", G_TYPE_STRING, "avc",
+      "alignment", G_TYPE_STRING, "au",
       NULL
     );
 
@@ -418,7 +477,7 @@ _setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
     if (-1 != fd)
       g_object_set(info->video_record_sink, "fd", fd, NULL);
 
-    gst_element_set_state(info->video_record_pipeline, GST_STATE_NULL);
+    gst_element_set_state(info->video_record_pipeline, GST_STATE_PLAYING);
   }
 }
 
@@ -541,10 +600,6 @@ _append_contact_to_subscription_list(void *cls,
   g_assert((cls) && (discourse) && (contact));
 
   GList **list = cls;
-
-  if (GNUNET_YES == GNUNET_CHAT_contact_is_owned(contact))
-    return GNUNET_YES;
-
   *list = g_list_append(*list, contact);
   return GNUNET_YES;
 }
