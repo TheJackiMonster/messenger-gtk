@@ -50,7 +50,6 @@ typedef enum MESSENGER_ScheduleSignal : unsigned char {
 
 typedef struct MESSENGER_Schedule {
   MESSENGER_SignalHandle push_signal;
-  MESSENGER_SignalHandle sync_signal;
 
   MESSENGER_Semaphore push_sem;
   MESSENGER_Semaphore sync_sem;

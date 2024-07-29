@@ -156,7 +156,6 @@ schedule_init(MESSENGER_Schedule *schedule)
   memset(schedule, 0, sizeof(MESSENGER_Schedule));
 
   signal_init(&(schedule->push_signal));
-  signal_init(&(schedule->sync_signal));
 
   semaphore_init(&(schedule->push_sem), 0);
   semaphore_init(&(schedule->sync_sem), 0);
@@ -185,15 +184,23 @@ __schedule_pushed_handling(MESSENGER_Schedule *schedule,
 
       keep = TRUE;
 
-      semaphore_down(&(schedule->push_sem));
       semaphore_up(&(schedule->sync_sem));
-      semaphore_down(&(schedule->sync_sem));
+      semaphore_down(&(schedule->push_sem));
       break;
     default:
       return FALSE;
   }
 
   return keep;
+}
+
+static void
+__schedule_exit_handling(MESSENGER_Schedule *schedule,
+                         MESSENGER_ScheduleSignal val)
+{
+  g_assert(schedule);
+
+  semaphore_up(&(schedule->sync_sem));
 }
 
 static void
@@ -213,7 +220,7 @@ __schedule_pushed_task(void *cls)
   if (__schedule_pushed_handling(schedule, val))
     __schedule_setup_push_task(schedule);
 
-  signal_write(&(schedule->sync_signal), val);
+  __schedule_exit_handling(schedule, val);
 }
 
 static void
@@ -265,7 +272,7 @@ __schedule_pushed(gint fd,
   if (keep)
     schedule->poll = task;
 
-  signal_write(&(schedule->sync_signal), val);
+  __schedule_exit_handling(schedule, val);
   return keep;
 }
 
@@ -295,7 +302,6 @@ schedule_cleanup(MESSENGER_Schedule *schedule)
   semaphore_destroy(&(schedule->sync_sem));
 
   signal_destroy(&(schedule->push_signal));
-  signal_destroy(&(schedule->sync_signal));
 
   memset(schedule, 0, sizeof(MESSENGER_Schedule));
 }
@@ -316,11 +322,9 @@ schedule_sync_run(MESSENGER_Schedule *schedule,
   schedule->data = data;
 
   const MESSENGER_ScheduleSignal push = MESSENGER_SCHEDULE_SIGNAL_RUN;
-  MESSENGER_ScheduleSignal sync;
 
   signal_write(&(schedule->push_signal), push);
-  sync = signal_read(&(schedule->sync_signal));
-  g_assert(push == sync);
+  semaphore_down(&(schedule->sync_sem));
 }
 
 void
@@ -334,13 +338,8 @@ schedule_sync_lock(MESSENGER_Schedule *schedule)
 
   const MESSENGER_ScheduleSignal push = MESSENGER_SCHEDULE_SIGNAL_LOCK;
 
-  semaphore_up(&(schedule->push_sem));
-  semaphore_up(&(schedule->sync_sem));
-
   signal_write(&(schedule->push_signal), push);
-
-  semaphore_up(&(schedule->push_sem));
-  semaphore_down(&(schedule->push_sem));
+  semaphore_down(&(schedule->sync_sem));
 
   schedule->locked = TRUE;
 }
@@ -354,12 +353,8 @@ schedule_sync_unlock(MESSENGER_Schedule *schedule)
     (!(schedule->function))
   );
 
-  MESSENGER_ScheduleSignal sync;
-
+  semaphore_up(&(schedule->push_sem));
   semaphore_down(&(schedule->sync_sem));
-
-  sync = signal_read(&(schedule->sync_signal));
-  g_assert(MESSENGER_SCHEDULE_SIGNAL_LOCK == sync);
 
   schedule->locked = FALSE;
 }
