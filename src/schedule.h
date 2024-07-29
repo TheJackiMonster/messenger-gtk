@@ -29,17 +29,31 @@
 #include <gnunet/gnunet_util_lib.h>
 #include <pthread.h>
 
+typedef struct MESSENGER_Semaphore {
+  pthread_mutex_t mutex;
+  pthread_cond_t condition;
+  unsigned int counter;
+} MESSENGER_Semaphore;
+
+typedef struct MESSENGER_SignalHandle {
+#ifdef MESSENGER_APPLICATION_NO_EVENT_FD
+  int pipe_fds [2];
+#else
+  int event_fd;
+#endif
+} MESSENGER_SignalHandle;
+
 typedef enum MESSENGER_ScheduleSignal : unsigned char {
   MESSENGER_SCHEDULE_SIGNAL_RUN = 1,
   MESSENGER_SCHEDULE_SIGNAL_LOCK = 2,
 } MESSENGER_ScheduleSignal;
 
 typedef struct MESSENGER_Schedule {
-  int push_pipe [2];
-  int sync_pipe [2];
+  MESSENGER_SignalHandle push_signal;
+  MESSENGER_SignalHandle sync_signal;
 
-  pthread_mutex_t push_mutex;
-  pthread_mutex_t sync_mutex;
+  MESSENGER_Semaphore push_sem;
+  MESSENGER_Semaphore sync_sem;
   gboolean locked;
 
   GSourceFunc function;
