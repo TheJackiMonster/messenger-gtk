@@ -163,6 +163,8 @@ _setup_video_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *
       "video/x-h264",
       "stream-format", G_TYPE_STRING, "avc",
       "alignment", G_TYPE_STRING, "au",
+      "width", G_TYPE_INT, 1280,
+      "height", G_TYPE_INT, 720,
       NULL
     );
 
@@ -224,11 +226,8 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
 {
   g_assert(info);
 
-  if (info->audio_stream_source)
-    gst_element_set_state(info->audio_stream_source, GST_STATE_NULL);
-
-  if (info->audio_converter)
-    gst_element_set_state(info->audio_converter, GST_STATE_NULL);
+  if ((info->audio_stream_source) || (info->audio_converter))
+    gst_element_set_state(info->discourse->audio_mix_pipeline, GST_STATE_NULL);
 
   if (info->video_stream_pipeline)
   {
@@ -262,6 +261,8 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
       info->audio_converter,
       NULL
     );
+
+    gst_element_set_state(info->discourse->audio_mix_pipeline, GST_STATE_PLAYING);
   }
 
   g_free(info);
@@ -520,6 +521,8 @@ _setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
       "video/x-h264",
       "stream-format", G_TYPE_STRING, "avc",
       "alignment", G_TYPE_STRING, "au",
+      "width", G_TYPE_INT, 1280,
+      "height", G_TYPE_INT, 720,
       NULL
     );
 
@@ -692,18 +695,22 @@ discourse_update_subscriptions(struct GNUNET_CHAT_Discourse *discourse)
       continue;
     }
 
-    link = g_list_remove_link(info->subscriptions, link);
+    GList *rest = g_list_remove_link(info->subscriptions, link);
 
     if (!drop)
       drop = link;
     else
       drop = g_list_concat(drop, link);
+
+    if (!rest)
+      break;
   }
 
   sub = drop;
   while (sub)
   {
     sub_info = (MESSENGER_DiscourseSubscriptionInfo*) (sub->data);
+
     discourse_subscription_destroy_info(sub_info);
     sub = g_list_next(sub);
   }
@@ -859,9 +866,10 @@ discourse_link_widget(const struct GNUNET_CHAT_Discourse *discourse,
   while (sub)
   {
     sub_info = (MESSENGER_DiscourseSubscriptionInfo*) (sub->data);
-    if (contact == sub_info->contact)
+    if ((sub_info) && (contact == sub_info->contact))
       break;
 
+    sub_info = NULL;
     sub = g_list_next(sub);
   }
 
@@ -869,31 +877,4 @@ discourse_link_widget(const struct GNUNET_CHAT_Discourse *discourse,
     return FALSE;
 
   return discourse_subscription_link_widget(sub_info, container, TRUE);
-}
-
-gboolean
-discourse_unlink_widget(const struct GNUNET_CHAT_Discourse *discourse,
-                        const struct GNUNET_CHAT_Contact *contact)
-{
-  MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
-
-  if (!info)
-    return FALSE;
-
-  GList *sub = info->subscriptions;
-  MESSENGER_DiscourseSubscriptionInfo *sub_info = NULL;
-
-  while (sub)
-  {
-    sub_info = (MESSENGER_DiscourseSubscriptionInfo*) (sub->data);
-    if (contact == sub_info->contact)
-      break;
-
-    sub = g_list_next(sub);
-  }
-
-  if (!sub_info)
-    return FALSE;
-
-  return discourse_subscription_link_widget(sub_info, NULL, FALSE);
 }

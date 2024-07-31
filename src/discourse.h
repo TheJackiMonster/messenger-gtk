@@ -200,15 +200,4 @@ discourse_link_widget(const struct GNUNET_CHAT_Discourse *discourse,
                       const struct GNUNET_CHAT_Contact *contact,
                       GtkContainer *container);
 
-/**
- * Unlinks a widget from the video pipeline of a discourse
- * for a given chat contact from its current parent.
- *
- * @param discourse Chat discourse
- * @param contact Chat contact
- */
-gboolean
-discourse_unlink_widget(const struct GNUNET_CHAT_Discourse *discourse,
-                        const struct GNUNET_CHAT_Contact *contact);
-
 #endif /* DISCOURSE_H_ */
