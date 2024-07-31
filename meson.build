@@ -28,6 +28,7 @@ project(
 meson.add_dist_script('contrib/distribute_version.sh', meson.project_version())
 
 use_libportal = true
+use_eventfd = true
 
 messenger_gtk_id = 'org.gnunet.Messenger'
 
@@ -65,6 +66,13 @@ if use_libportal
 else
     messenger_gtk_args += [
         '-DMESSENGER_APPLICATION_NO_PORTAL=1',
+    ]
+endif
+
+if use_eventfd
+else
+    messenger_gtk_args += [
+        '-DMESSENGER_APPLICATION_NO_EVENT_FD=1',
     ]
 endif
 
