@@ -23,12 +23,16 @@ project(
     'c',
     license: 'AGPL3.0-or-later',
     version: run_command('contrib/get_version.sh').stdout().strip(),
+    default_options: [
+        'use_libportal=true',
+        'use_eventfd=true'
+    ]
 )
 
 meson.add_dist_script('contrib/distribute_version.sh', meson.project_version())
 
-use_libportal = true
-use_eventfd = true
+use_libportal = get_option('use_libportal')
+use_eventfd = get_option('use_eventfd')
 
 messenger_gtk_id = 'org.gnunet.Messenger'
 
