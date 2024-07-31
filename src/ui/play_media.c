@@ -249,8 +249,8 @@ _adjust_playing_media_state(UI_PLAY_MEDIA_Handle *handle, gboolean playing)
 
   if (handle->preview_stack)
     gtk_stack_set_visible_child(
-	handle->preview_stack,
-	handle->video_box
+      handle->preview_stack,
+      handle->video_box
     );
 }
 

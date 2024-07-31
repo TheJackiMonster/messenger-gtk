@@ -29,6 +29,7 @@
 
 #include <glib-2.0/glib.h>
 #include <gnunet/gnunet_chat_lib.h>
+#include <gtk-3.0/gtk/gtk.h>
 #include <pthread.h>
 
 /**
@@ -184,5 +185,30 @@ discourse_set_mute(struct GNUNET_CHAT_Discourse *discourse,
  */
 bool
 discourse_is_mute(struct GNUNET_CHAT_Discourse *discourse);
+
+/**
+ * Links a widget from the video pipeline of a discourse
+ * for a given chat contact to a selected container as
+ * child.
+ *
+ * @param discourse Chat discourse
+ * @param contact Chat contact
+ * @param container Container
+ */
+gboolean
+discourse_link_widget(const struct GNUNET_CHAT_Discourse *discourse,
+                      const struct GNUNET_CHAT_Contact *contact,
+                      GtkContainer *container);
+
+/**
+ * Unlinks a widget from the video pipeline of a discourse
+ * for a given chat contact from its current parent.
+ *
+ * @param discourse Chat discourse
+ * @param contact Chat contact
+ */
+gboolean
+discourse_unlink_widget(const struct GNUNET_CHAT_Discourse *discourse,
+                        const struct GNUNET_CHAT_Contact *contact);
 
 #endif /* DISCOURSE_H_ */

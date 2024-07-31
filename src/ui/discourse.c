@@ -24,6 +24,7 @@
 
 #include "discourse.h"
 
+#include <glib-2.0/glib.h>
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_time_lib.h>
@@ -413,6 +414,7 @@ append_group_contacts(void *cls,
 
 struct IterateDiscourseClosure {
   MESSENGER_Application *app;
+  UI_DISCOURSE_Handle *handle;
   GtkContainer *container;
 };
 
@@ -432,6 +434,10 @@ iterate_ui_discourse_update_discourse_members(void *cls,
 
   UI_DISCOURSE_PANEL_Handle* panel = ui_discourse_panel_new(closure->app);
   ui_discourse_panel_set_contact(panel, contact);
+
+  GtkWidget *parent = gtk_widget_get_parent(panel->panel_box);
+  if (parent)
+    gtk_container_remove(GTK_CONTAINER(parent), panel->panel_box);
 
   gtk_flow_box_insert(flowbox, panel->panel_box, -1);
 
@@ -462,6 +468,56 @@ iterate_ui_discourse_update_context_discourses(void *cls,
     iterate_ui_discourse_update_discourse_members,
     cls
   );
+
+  return GNUNET_YES;
+}
+
+struct IterateDiscourseVideoClosure {
+  MESSENGER_Application *app;
+  UI_DISCOURSE_Handle *handle;
+  GList *children;
+};
+
+static enum GNUNET_GenericReturnValue
+iterate_ui_discourse_update_discourse_video(void *cls,
+                                            const struct GNUNET_CHAT_Discourse *discourse,
+                                            struct GNUNET_CHAT_Contact *contact)
+{
+  g_assert((cls) && (discourse) && (contact));
+
+  struct IterateDiscourseVideoClosure *closure = (
+    (struct IterateDiscourseVideoClosure*) cls
+  );
+
+  GList *list = closure->children;
+  while (list)
+  {
+    GtkFlowBoxChild *child = GTK_FLOW_BOX_CHILD(list->data);
+
+    UI_DISCOURSE_PANEL_Handle* panel = (UI_DISCOURSE_PANEL_Handle*) (
+      g_object_get_qdata(
+        G_OBJECT(child),
+        closure->app->quarks.ui
+      )
+    );
+
+    if (contact != panel->contact)
+      goto skip_child;
+
+    const gboolean linked = discourse_link_widget(
+      discourse,
+      contact,
+      GTK_CONTAINER(panel->video_box)
+    );
+
+    if (linked)
+      gtk_stack_set_visible_child(panel->panel_stack, panel->video_box);
+    else
+      gtk_stack_set_visible_child(panel->panel_stack, panel->avatar_box);
+
+  skip_child:
+    list = g_list_next(list);
+  }
 
   return GNUNET_YES;
 }
@@ -497,6 +553,7 @@ _discourse_update_members(UI_DISCOURSE_Handle *handle)
 
   struct IterateDiscourseClosure closure;
   closure.app = handle->app;
+  closure.handle = handle;
   closure.container = GTK_CONTAINER(handle->members_flowbox);
 
   GNUNET_CHAT_context_iterate_discourses(
@@ -504,6 +561,23 @@ _discourse_update_members(UI_DISCOURSE_Handle *handle)
     iterate_ui_discourse_update_context_discourses,
     &closure
   );
+
+  list = gtk_container_get_children(GTK_CONTAINER(handle->members_flowbox));
+  if (list)
+  {
+    struct IterateDiscourseVideoClosure closure_video;
+    closure_video.app = handle->app;
+    closure_video.handle = handle;
+    closure_video.children = list;
+
+    GNUNET_CHAT_discourse_iterate_contacts(
+      handle->video_discourse,
+      iterate_ui_discourse_update_discourse_video,
+      &closure_video
+    );
+
+    g_list_free(list);
+  }
 }
 
 static enum GNUNET_GenericReturnValue

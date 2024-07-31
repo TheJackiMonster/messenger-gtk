@@ -176,7 +176,7 @@ _setup_video_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *
 
     gst_caps_unref(caps);
 
-    gst_element_set_state(info->video_stream_pipeline, GST_STATE_PLAYING);
+    gst_element_set_state(info->video_stream_pipeline, GST_STATE_NULL);
   }
 }
 
@@ -371,6 +371,59 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
     _stream_audio_message(info, message, available);
   else if (0 == GNUNET_memcmp(id, get_video_discourse_id()))
     _stream_video_message(info, message, available);
+}
+
+static gboolean
+discourse_subscription_link_widget(MESSENGER_DiscourseSubscriptionInfo *info,
+                                   GtkContainer *container,
+                                   gboolean link)
+{
+  g_assert((info) && (container));
+
+  GtkWidget *widget;
+  if (info->video_stream_sink)
+    g_object_get(info->video_stream_sink, "widget", &widget, NULL);
+  else
+    widget = NULL;
+
+  if (!widget)
+    return FALSE;
+
+  GtkWidget *parent = gtk_widget_get_parent(widget);
+  
+  if (parent)
+  {
+    GtkContainer *container = GTK_CONTAINER(parent);
+
+    gst_element_set_state(info->video_stream_pipeline, GST_STATE_NULL);
+
+    gtk_widget_hide(widget);
+    gtk_widget_unrealize(widget);
+
+    gtk_container_remove(
+      container,
+      widget
+    );
+  }
+
+  if (!link)
+    return TRUE;
+
+  gtk_box_pack_start(
+    GTK_BOX(container),
+    widget,
+    true,
+    true,
+    0
+  );
+
+  g_object_unref(widget);
+  gtk_widget_realize(widget);
+
+  gtk_widget_show_all(GTK_WIDGET(container));
+
+  gst_element_set_state(info->video_stream_pipeline, GST_STATE_PLAYING);
+  return TRUE;
 }
 
 static void
@@ -788,4 +841,59 @@ discourse_is_mute(struct GNUNET_CHAT_Discourse *discourse)
   );
 
   return (GST_STATE_PLAYING != state);
+}
+
+gboolean
+discourse_link_widget(const struct GNUNET_CHAT_Discourse *discourse,
+                      const struct GNUNET_CHAT_Contact *contact,
+                      GtkContainer *container)
+{
+  MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
+
+  if (!info)
+    return FALSE;
+
+  GList *sub = info->subscriptions;
+  MESSENGER_DiscourseSubscriptionInfo *sub_info = NULL;
+
+  while (sub)
+  {
+    sub_info = (MESSENGER_DiscourseSubscriptionInfo*) (sub->data);
+    if (contact == sub_info->contact)
+      break;
+
+    sub = g_list_next(sub);
+  }
+
+  if (!sub_info)
+    return FALSE;
+
+  return discourse_subscription_link_widget(sub_info, container, TRUE);
+}
+
+gboolean
+discourse_unlink_widget(const struct GNUNET_CHAT_Discourse *discourse,
+                        const struct GNUNET_CHAT_Contact *contact)
+{
+  MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
+
+  if (!info)
+    return FALSE;
+
+  GList *sub = info->subscriptions;
+  MESSENGER_DiscourseSubscriptionInfo *sub_info = NULL;
+
+  while (sub)
+  {
+    sub_info = (MESSENGER_DiscourseSubscriptionInfo*) (sub->data);
+    if (contact == sub_info->contact)
+      break;
+
+    sub = g_list_next(sub);
+  }
+
+  if (!sub_info)
+    return FALSE;
+
+  return discourse_subscription_link_widget(sub_info, NULL, FALSE);
 }
