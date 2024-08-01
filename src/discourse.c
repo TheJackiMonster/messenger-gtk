@@ -531,7 +531,7 @@ _setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
   g_assert(info);
 
   info->video_record_pipeline = gst_parse_launch(
-    "v4l2src ! videoconvert ! video/x-raw,format=I420,rate=30,width=1280,height=720 ! x264enc tune=zerolatency ! rtph264pay ! capsfilter name=filter ! fdsink name=sink",
+    "videotestsrc ! videoconvert ! video/x-raw,format=I420,rate=30,width=1280,height=720 ! x264enc tune=zerolatency ! rtph264pay ! capsfilter name=filter ! fdsink name=sink",
     NULL
   );
 
