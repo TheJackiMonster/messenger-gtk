@@ -212,6 +212,7 @@ discourse_subscription_create_info(MESSENGER_DiscourseInfo *discourse,
   info->video_stream_sink = NULL;
 
   info->audio_mix_pad = NULL;
+  info->buffers = NULL;
 
   info->position = 0;
   info->last_timestamp = 0;
@@ -232,6 +233,20 @@ static void
 discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
 {
   g_assert(info);
+
+  GList *buf = info->buffers;
+  while (buf)
+  {
+    GstBuffer *buffer = (GstBuffer*) buf->data;
+
+    if (buffer)
+      gst_buffer_unref(buffer);
+
+    buf = g_list_next(buf);
+  }
+
+  if (info->buffers)
+    g_list_free(info->buffers);
 
   if ((info->audio_stream_source) || (info->audio_depay) || (info->audio_converter))
     gst_element_set_state(info->discourse->audio_mix_pipeline, GST_STATE_NULL);
@@ -342,12 +357,39 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
 
     gst_rtp_buffer_unmap(&rtp);
   }
-  else
+
+  info->buffers = g_list_append(info->buffers, buffer);
+  buffer = NULL;
+
+  if (info->last_timestamp == timestamp)
     goto skip_buffer;
 
-  if ((!(info->position)) && (!(info->last_timestamp)))
-    goto skip_push_buffer;
+  buffer = gst_buffer_new();
   
+  GList *buf = info->buffers;
+  while (buf)
+  {
+    GstBuffer *sub_buffer = (GstBuffer*) buf->data;
+
+    if (sub_buffer)
+    {
+      gst_buffer_append_memory(
+        buffer,
+        gst_buffer_get_memory(sub_buffer, 0)
+      );
+
+      gst_buffer_unref(sub_buffer);
+    }
+
+    buf = g_list_next(buf);
+  }
+
+  if (info->buffers)
+  {
+    g_list_free(info->buffers);
+    info->buffers = NULL;
+  }
+
   const uint64_t duration = timestamp - info->last_timestamp;
 
   GST_BUFFER_TIMESTAMP(buffer) = gst_util_uint64_scale(info->position, GST_SECOND, clockrate);
@@ -356,12 +398,11 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
   g_signal_emit_by_name(appsrc, "push-buffer", buffer, &ret);
 
   info->position += duration;
-
-skip_push_buffer:
   info->last_timestamp = timestamp;
 
 skip_buffer:
-  gst_buffer_unref(buffer);
+  if (buffer)
+    gst_buffer_unref(buffer);
 
   if (GST_FLOW_OK != ret)
     return;
@@ -490,7 +531,7 @@ _setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
   g_assert(info);
 
   info->video_record_pipeline = gst_parse_launch(
-    "autovideosrc ! videoconvert ! video/x-raw,format=I420,rate=30,width=1280,height=720 ! x264enc tune=zerolatency ! rtph264pay ! capsfilter name=filter ! fdsink name=sink",
+    "v4l2src ! videoconvert ! video/x-raw,format=I420,rate=30,width=1280,height=720 ! x264enc tune=zerolatency ! rtph264pay ! capsfilter name=filter ! fdsink name=sink",
     NULL
   );
 
@@ -524,7 +565,7 @@ _setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
     if (-1 != fd)
       g_object_set(info->video_record_sink, "fd", fd, NULL);
 
-    gst_element_set_state(info->video_record_pipeline, GST_STATE_NULL);
+    gst_element_set_state(info->video_record_pipeline, GST_STATE_PLAYING);
   }
 }
 

@@ -92,6 +92,7 @@ typedef struct MESSENGER_DiscourseSubscriptionInfo
   GstElement *video_stream_sink;
 
   GstPad *audio_mix_pad;
+  GList *buffers; 
 
   uint64_t position;
   uint64_t last_timestamp;
