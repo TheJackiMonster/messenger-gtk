@@ -84,6 +84,7 @@ typedef struct MESSENGER_DiscourseSubscriptionInfo
   struct GNUNET_CHAT_Contact *contact;
 
   GstElement *audio_stream_source;
+  GstElement *audio_depay;
   GstElement *audio_converter;
 
   GstElement *video_stream_pipeline;
@@ -93,6 +94,7 @@ typedef struct MESSENGER_DiscourseSubscriptionInfo
   GstPad *audio_mix_pad;
 
   uint64_t position;
+  uint64_t last_timestamp;
 } MESSENGER_DiscourseSubscriptionInfo;
 
 /**

@@ -49,6 +49,7 @@ messenger_gtk_deps = [
     dependency('gtk+-3.0'),
     dependency('libhandy-1'),
     dependency('gstreamer-1.0'),
+    dependency('gstreamer-rtp-1.0'),
     dependency('libnotify'),
     dependency('libqrencode'),
     dependency('libpipewire-0.3'),
