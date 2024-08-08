@@ -42,6 +42,7 @@ typedef struct UI_DISCOURSE_Handle
   struct GNUNET_CHAT_Discourse *video_discourse;
 
   gboolean muted;
+  gboolean stream_camera;
 
   GtkWindow *parent;
 

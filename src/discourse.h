@@ -187,7 +187,7 @@ discourse_set_mute(struct GNUNET_CHAT_Discourse *discourse,
  * @return #TRUE if muted, #FALSE otherwise
  */
 bool
-discourse_is_mute(struct GNUNET_CHAT_Discourse *discourse);
+discourse_is_mute(const struct GNUNET_CHAT_Discourse *discourse);
 
 /**
  * Links a widget from the video pipeline of a discourse

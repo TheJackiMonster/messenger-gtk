@@ -105,6 +105,19 @@ handle_microphone_button_click(UNUSED GtkButton *button,
 }
 
 static void
+handle_camera_button_click(UNUSED GtkButton *button,
+                           gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
+
+  handle->stream_camera = !(handle->stream_camera);
+  if (handle->video_discourse)
+    discourse_set_mute(handle->video_discourse, !(handle->stream_camera));
+}
+
+static void
 handle_speakers_button_value_changed(UNUSED GtkScaleButton *button,
                                      gdouble value,
                                      gpointer user_data)
@@ -204,7 +217,10 @@ ui_discourse_window_init(MESSENGER_Application *app,
   handle->context = NULL;
 
   handle->voice_discourse = NULL;
+  handle->video_discourse = NULL;
+
   handle->muted = TRUE;
+  handle->stream_camera = FALSE;
 
   handle->parent = GTK_WINDOW(app->ui.messenger.main_window);
 
@@ -300,6 +316,13 @@ ui_discourse_window_init(MESSENGER_Application *app,
 
   handle->speakers_button = GTK_VOLUME_BUTTON(
     gtk_builder_get_object(handle->builder, "speakers_button")
+  );
+
+  g_signal_connect(
+    handle->camera_button,
+    "clicked",
+    G_CALLBACK(handle_camera_button_click),
+    handle
   );
 
   g_signal_connect(
@@ -510,7 +533,7 @@ iterate_ui_discourse_update_discourse_video(void *cls,
       GTK_CONTAINER(panel->video_box)
     );
 
-    if (linked)
+    if ((linked) && (!discourse_is_mute(discourse)))
       gtk_stack_set_visible_child(panel->panel_stack, panel->video_box);
     else
       gtk_stack_set_visible_child(panel->panel_stack, panel->avatar_box);

@@ -572,7 +572,7 @@ _setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
     if (-1 != fd)
       g_object_set(info->video_record_sink, "fd", fd, NULL);
 
-    gst_element_set_state(info->video_record_pipeline, GST_STATE_PLAYING);
+    gst_element_set_state(info->video_record_pipeline, GST_STATE_NULL);
   }
 }
 
@@ -861,30 +861,43 @@ discourse_set_mute(struct GNUNET_CHAT_Discourse *discourse,
 {
   MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
 
-  if ((!info) || (!(info->audio_record_pipeline)))
+  if (!info)
     return;
 
-  gst_element_set_state(
-    info->audio_record_pipeline,
-    mute? GST_STATE_NULL : GST_STATE_PLAYING
-  );
+  const GstState state = mute? GST_STATE_NULL : GST_STATE_PLAYING;
+
+  if (info->audio_record_pipeline)
+    gst_element_set_state(info->audio_record_pipeline, state);
+
+  if (info->video_record_pipeline)
+    gst_element_set_state(info->video_record_pipeline, state);
 }
 
 bool
-discourse_is_mute(struct GNUNET_CHAT_Discourse *discourse)
+discourse_is_mute(const struct GNUNET_CHAT_Discourse *discourse)
 {
   MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
 
-  if ((!info) || (!(info->audio_record_pipeline)))
+  if (!info)
     return TRUE;
 
-  GstState state;
-  gst_element_get_state(
-    info->audio_record_pipeline,
-    &state,
-    NULL,
-    GST_CLOCK_TIME_NONE
-  );
+  GstState state = GST_STATE_NULL;
+
+  if (info->audio_record_pipeline)
+    gst_element_get_state(
+      info->audio_record_pipeline,
+      &state,
+      NULL,
+      GST_CLOCK_TIME_NONE
+    );
+  
+  if (info->video_record_pipeline)
+    gst_element_get_state(
+      info->video_record_pipeline,
+      &state,
+      NULL,
+      GST_CLOCK_TIME_NONE
+    );
 
   return (GST_STATE_PLAYING != state);
 }
