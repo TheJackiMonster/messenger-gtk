@@ -146,7 +146,7 @@ _setup_video_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *
   g_assert(info);
 
   info->video_stream_pipeline = gst_parse_launch(
-    "appsrc name=source ! rtpjitterbuffer ! rtph264depay ! avdec_h264 ! videoconvert ! gtksink name=sink",
+    "appsrc name=source ! rtpjitterbuffer ! rtph264depay ! avdec_h264 ! videoconvert ! gtksink name=sink sync=false",
     NULL
   );
 
@@ -538,7 +538,7 @@ _setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
   g_assert(info);
 
   info->video_record_pipeline = gst_parse_launch(
-    "v4l2src ! videoscale ! video/x-raw,width=1280,height=720 ! videoconvert ! video/x-raw,format=I420,rate=30,width=1280,height=720 ! x264enc bitrate=1500 key-int-max=30 tune=zerolatency byte-stream=true ! video/x-h264,width=1280,height=720,profile=baseline ! rtph264pay aggregate-mode=zero-latency mtu=45000 ! capsfilter name=filter ! fdsink name=sink",
+    "autovideosrc ! video/x-raw,framerate={ [ 0/1, 30/1 ] } ! videoscale ! video/x-raw,width=1280,height=720 ! videoconvert ! video/x-raw,format=I420 ! x264enc bitrate=1000 speed-preset=fast bframes=0 key-int-max=30 tune=zerolatency byte-stream=true ! video/x-h264,profile=baseline ! rtph264pay aggregate-mode=zero-latency mtu=45000 ! capsfilter name=filter ! fdsink name=sink",
     NULL
   );
 

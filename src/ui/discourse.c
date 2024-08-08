@@ -105,6 +105,9 @@ handle_microphone_button_click(UNUSED GtkButton *button,
 }
 
 static void
+_discourse_update_members(UI_DISCOURSE_Handle *handle);
+
+static void
 handle_camera_button_click(UNUSED GtkButton *button,
                            gpointer user_data)
 {
@@ -115,6 +118,8 @@ handle_camera_button_click(UNUSED GtkButton *button,
   handle->stream_camera = !(handle->stream_camera);
   if (handle->video_discourse)
     discourse_set_mute(handle->video_discourse, !(handle->stream_camera));
+
+  _discourse_update_members(handle);
 }
 
 static void
