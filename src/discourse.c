@@ -353,7 +353,9 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
   {
     const uint32_t rtp_timestamp = gst_rtp_buffer_get_timestamp(&rtp);
 
-    gst_rtp_buffer_ext_timestamp(&timestamp, rtp_timestamp);
+    timestamp = gst_rtp_buffer_ext_timestamp(&timestamp, rtp_timestamp);
+    if (!timestamp)
+      timestamp = rtp_timestamp;
 
     gst_rtp_buffer_unmap(&rtp);
   }
@@ -361,7 +363,8 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
   info->buffers = g_list_append(info->buffers, buffer);
   buffer = NULL;
 
-  if (info->last_timestamp == timestamp)
+  if ((info->last_timestamp == timestamp) ||
+      ((!(info->last_timestamp)) && (!(info->position))))
     goto skip_buffer;
 
   buffer = gst_buffer_new();
@@ -398,9 +401,10 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
   g_signal_emit_by_name(appsrc, "push-buffer", buffer, &ret);
 
   info->position += duration;
-  info->last_timestamp = timestamp;
 
 skip_buffer:
+  info->last_timestamp = timestamp;
+
   if (buffer)
     gst_buffer_unref(buffer);
 
