@@ -217,6 +217,10 @@ discourse_subscription_create_info(MESSENGER_DiscourseInfo *discourse,
   info->position = 0;
   info->last_timestamp = 0;
 
+  pthread_mutex_init(&(info->mutex), NULL);
+
+  info->end_datetime = NULL;
+
   const struct GNUNET_ShortHashCode *id = GNUNET_CHAT_discourse_get_id(
     info->discourse->discourse
   );
@@ -288,6 +292,17 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
 
     gst_element_set_state(info->discourse->audio_mix_pipeline, GST_STATE_PLAYING);
   }
+
+  pthread_mutex_lock(&(info->mutex));
+
+  if (info->end_datetime)
+  {
+    g_date_time_unref(info->end_datetime);
+    info->end_datetime = NULL;
+  }
+
+  pthread_mutex_unlock(&(info->mutex));
+  pthread_mutex_destroy(&(info->mutex));
 
   g_free(info);
 }
@@ -404,6 +419,23 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
     gst_element_set_state(appsrc, GST_STATE_PLAYING);
 
   info->position += duration;
+
+  GDateTime *dt = g_date_time_new_now_local();
+  pthread_mutex_lock(&(info->mutex));
+
+  if (info->end_datetime)
+  {
+    g_date_time_unref(info->end_datetime);
+    info->end_datetime = NULL;
+  }
+
+  if (dt)
+  {
+    info->end_datetime = g_date_time_add_seconds(dt, (gdouble) duration / clockrate);
+    g_date_time_unref(dt);
+  }
+
+  pthread_mutex_unlock(&(info->mutex));
 
 skip_buffer:
   info->last_timestamp = timestamp;
@@ -599,10 +631,8 @@ discourse_create_info(struct GNUNET_CHAT_Discourse *discourse)
   info->audio_mix_element = NULL;
   info->audio_volume_element = NULL;
 
-  info->sending_task = 0;
   pthread_mutex_init(&(info->mutex), NULL);
 
-  info->samples = NULL;
   info->subscriptions = NULL;
 
   const struct GNUNET_ShortHashCode *id = GNUNET_CHAT_discourse_get_id(
@@ -628,6 +658,8 @@ discourse_destroy_info(struct GNUNET_CHAT_Discourse *discourse)
   if (!info)
     return;
 
+  pthread_mutex_lock(&(info->mutex));
+
   if (info->subscriptions)
   {
     MESSENGER_DiscourseSubscriptionInfo *sub_info;
@@ -641,6 +673,8 @@ discourse_destroy_info(struct GNUNET_CHAT_Discourse *discourse)
 
     g_list_free(info->subscriptions);
   }
+
+  pthread_mutex_unlock(&(info->mutex));
 
   if (info->video_record_pipeline)
   {
@@ -660,26 +694,6 @@ discourse_destroy_info(struct GNUNET_CHAT_Discourse *discourse)
     gst_object_unref(GST_OBJECT(info->audio_record_pipeline));
   }
 
-  pthread_mutex_lock(&(info->mutex));
-
-  if (info->samples)
-  {
-    GArray *array;
-    GList *list = info->samples;
-    while (list)
-    {
-      array = (GArray*) (list->data);
-      g_array_free(array, TRUE);
-      list = g_list_next(list);
-    }
-
-    g_list_free(info->samples);
-  }
-
-  if (info->sending_task)
-    util_source_remove(info->sending_task);
-  
-  pthread_mutex_unlock(&(info->mutex));
   pthread_mutex_destroy(&(info->mutex));
 
   g_free(info);
@@ -715,6 +729,8 @@ discourse_update_subscriptions(struct GNUNET_CHAT_Discourse *discourse)
     _append_contact_to_subscription_list,
     &list
   );
+
+  pthread_mutex_lock(&(info->mutex));
 
   GList *sub = info->subscriptions;
   MESSENGER_DiscourseSubscriptionInfo *sub_info;
@@ -772,6 +788,8 @@ discourse_update_subscriptions(struct GNUNET_CHAT_Discourse *discourse)
     sub = g_list_next(sub);
   }
 
+  pthread_mutex_unlock(&(info->mutex));
+
   if (list)
     g_list_free(list);
 }
@@ -787,6 +805,8 @@ discourse_stream_message(struct GNUNET_CHAT_Discourse *discourse,
   if (!info)
     return;
 
+  pthread_mutex_lock(&(info->mutex));
+
   GList *sub = info->subscriptions;
   MESSENGER_DiscourseSubscriptionInfo *sub_info = NULL;
 
@@ -799,10 +819,10 @@ discourse_stream_message(struct GNUNET_CHAT_Discourse *discourse,
     sub = g_list_next(sub);
   }
 
-  if (!sub_info)
-    return;
+  if (sub_info)
+    discourse_subscription_stream_message(sub_info, message);
 
-  discourse_subscription_stream_message(sub_info, message);
+  pthread_mutex_unlock(&(info->mutex));
 }
 
 bool
@@ -912,6 +932,8 @@ discourse_link_widget(const struct GNUNET_CHAT_Discourse *discourse,
   if (!info)
     return FALSE;
 
+  pthread_mutex_lock(&(info->mutex));
+
   GList *sub = info->subscriptions;
   MESSENGER_DiscourseSubscriptionInfo *sub_info = NULL;
 
@@ -925,8 +947,59 @@ discourse_link_widget(const struct GNUNET_CHAT_Discourse *discourse,
     sub = g_list_next(sub);
   }
 
-  if (!sub_info)
+  gboolean linked = FALSE;
+  if (sub_info)
+    linked = discourse_subscription_link_widget(sub_info, container);
+
+  pthread_mutex_unlock(&(info->mutex));
+  return linked;
+}
+
+gboolean
+discourse_is_active(const struct GNUNET_CHAT_Discourse *discourse,
+                    const struct GNUNET_CHAT_Contact *contact)
+{
+  MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
+
+  if (!info)
     return FALSE;
 
-  return discourse_subscription_link_widget(sub_info, container);
+  pthread_mutex_lock(&(info->mutex));
+
+  GList *sub = info->subscriptions;
+  MESSENGER_DiscourseSubscriptionInfo *sub_info = NULL;
+
+  while (sub)
+  {
+    sub_info = (MESSENGER_DiscourseSubscriptionInfo*) (sub->data);
+    if ((sub_info) && (contact == sub_info->contact))
+      break;
+
+    sub_info = NULL;
+    sub = g_list_next(sub);
+  }
+
+  gboolean active = FALSE;
+  if (!sub_info)
+    goto unlock_info_mutex;
+
+  pthread_mutex_lock(&(sub_info->mutex));
+
+  if (!(sub_info->end_datetime))
+    goto unlock_sub_info_mutex;
+
+  GDateTime *dt = g_date_time_new_now_local();
+  if (dt)
+  {
+    GTimeSpan ts = g_date_time_difference(sub_info->end_datetime, dt);
+    g_date_time_unref(dt);
+    active = (ts >= 0);
+  }
+
+unlock_sub_info_mutex:
+  pthread_mutex_unlock(&(sub_info->mutex));
+
+unlock_info_mutex:
+  pthread_mutex_unlock(&(info->mutex));
+  return active;
 }

@@ -71,10 +71,8 @@ typedef struct MESSENGER_DiscourseInfo
   GstElement *audio_mix_element;
   GstElement *audio_volume_element;
 
-  guint sending_task;
   pthread_mutex_t mutex;
 
-  GList *samples;
   GList *subscriptions;
 } MESSENGER_DiscourseInfo;
 
@@ -96,6 +94,10 @@ typedef struct MESSENGER_DiscourseSubscriptionInfo
 
   uint64_t position;
   uint64_t last_timestamp;
+
+  pthread_mutex_t mutex;
+
+  GDateTime *end_datetime;
 } MESSENGER_DiscourseSubscriptionInfo;
 
 /**
@@ -202,5 +204,9 @@ gboolean
 discourse_link_widget(const struct GNUNET_CHAT_Discourse *discourse,
                       const struct GNUNET_CHAT_Contact *contact,
                       GtkContainer *container);
+
+gboolean
+discourse_is_active(const struct GNUNET_CHAT_Discourse *discourse,
+                    const struct GNUNET_CHAT_Contact *contact);
 
 #endif /* DISCOURSE_H_ */

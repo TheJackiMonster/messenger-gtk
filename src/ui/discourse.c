@@ -541,7 +541,7 @@ iterate_ui_discourse_update_discourse_video(void *cls,
       GTK_CONTAINER(panel->video_box)
     );
 
-    if ((linked) && (!discourse_is_mute(discourse)))
+    if ((linked) && (discourse_is_active(discourse, contact)))
       gtk_stack_set_visible_child(panel->panel_stack, panel->video_box);
     else
       gtk_stack_set_visible_child(panel->panel_stack, panel->avatar_box);
