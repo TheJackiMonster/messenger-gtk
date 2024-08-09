@@ -535,10 +535,14 @@ iterate_ui_discourse_update_discourse_video(void *cls,
     if (contact != panel->contact)
       goto skip_child;
 
+    GtkContainer *parent = NULL;
+    if (closure->handle->context)
+      parent = GTK_CONTAINER(panel->video_box);
+
     const gboolean linked = discourse_link_widget(
       discourse,
       contact,
-      GTK_CONTAINER(panel->video_box)
+      parent
     );
 
     if ((linked) && (discourse_is_active(discourse, contact)))

@@ -83,6 +83,7 @@ _setup_audio_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *
   g_assert(info);
 
   info->audio_stream_source = gst_element_factory_make("appsrc", NULL);
+  info->audio_jitter_buffer = gst_element_factory_make("rtpjitterbuffer", NULL);
   info->audio_depay = gst_element_factory_make("rtpL16depay", NULL);
   info->audio_converter = gst_element_factory_make("audioconvert", NULL);
 
@@ -91,6 +92,7 @@ _setup_audio_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *
   gst_bin_add_many(
     GST_BIN(info->discourse->audio_mix_pipeline),
     info->audio_stream_source,
+    info->audio_jitter_buffer,
     info->audio_depay,
     info->audio_converter,
     NULL
@@ -98,6 +100,7 @@ _setup_audio_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *
 
   gst_element_link_many(
     info->audio_stream_source,
+    info->audio_jitter_buffer,
     info->audio_depay,
     info->audio_converter,
     NULL
@@ -204,6 +207,7 @@ discourse_subscription_create_info(MESSENGER_DiscourseInfo *discourse,
   info->contact = contact;
 
   info->audio_stream_source = NULL;
+  info->audio_jitter_buffer = NULL;
   info->audio_depay = NULL;
   info->audio_converter = NULL;
 
@@ -252,7 +256,8 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
   if (info->buffers)
     g_list_free(info->buffers);
 
-  if ((info->audio_stream_source) || (info->audio_depay) || (info->audio_converter))
+  if ((info->audio_stream_source) || (info->audio_jitter_buffer) || 
+      (info->audio_depay) || (info->audio_converter))
     gst_element_set_state(info->discourse->audio_mix_pipeline, GST_STATE_NULL);
 
   if (info->video_stream_pipeline)
@@ -273,10 +278,12 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
     gst_object_unref(GST_OBJECT(info->audio_mix_pad));
   }
 
-  if ((info->audio_stream_source) || (info->audio_depay) || (info->audio_converter))
+  if ((info->audio_stream_source) || (info->audio_jitter_buffer) || 
+      (info->audio_depay) || (info->audio_converter))
   {
     gst_element_unlink_many(
       info->audio_stream_source,
+      info->audio_jitter_buffer,
       info->audio_depay,
       info->audio_converter,
       NULL
@@ -285,6 +292,7 @@ discourse_subscription_destroy_info(MESSENGER_DiscourseSubscriptionInfo *info)
     gst_bin_remove_many(
       GST_BIN(info->discourse->audio_mix_pipeline),
       info->audio_stream_source,
+      info->audio_jitter_buffer,
       info->audio_depay,
       info->audio_converter,
       NULL
@@ -451,7 +459,7 @@ static gboolean
 discourse_subscription_link_widget(MESSENGER_DiscourseSubscriptionInfo *info,
                                    GtkContainer *container)
 {
-  g_assert((info) && (container));
+  g_assert(info);
 
   GtkWidget *widget;
   if (info->video_stream_sink)
@@ -468,7 +476,10 @@ discourse_subscription_link_widget(MESSENGER_DiscourseSubscriptionInfo *info,
     GtkContainer *current = GTK_CONTAINER(parent);
 
     if (current == container)
+    {
+      g_object_unref(widget);
       return TRUE;
+    }
 
     gst_element_set_state(info->video_stream_pipeline, GST_STATE_NULL);
 
@@ -481,20 +492,27 @@ discourse_subscription_link_widget(MESSENGER_DiscourseSubscriptionInfo *info,
     );
   }
 
-  gtk_box_pack_start(
-    GTK_BOX(container),
-    widget,
-    true,
-    true,
-    0
-  );
+  if (container)
+  {
+    gtk_box_pack_start(
+      GTK_BOX(container),
+      widget,
+      true,
+      true,
+      0
+    );
+  }
 
   g_object_unref(widget);
-  gtk_widget_realize(widget);
+  
+  if (container)
+  {
+    gtk_widget_realize(widget);
+    gtk_widget_show_all(GTK_WIDGET(container));
 
-  gtk_widget_show_all(GTK_WIDGET(container));
+    gst_element_set_state(info->video_stream_pipeline, GST_STATE_PLAYING);
+  }
 
-  gst_element_set_state(info->video_stream_pipeline, GST_STATE_PLAYING);
   return TRUE;
 }
 
@@ -981,6 +999,27 @@ discourse_is_active(const struct GNUNET_CHAT_Discourse *discourse,
 
   gboolean active = FALSE;
   if (!sub_info)
+    goto unlock_info_mutex;
+
+  GstState state = GST_STATE_NULL;
+
+  if (sub_info->audio_stream_source)
+    gst_element_get_state(
+      sub_info->audio_stream_source,
+      &state,
+      NULL,
+      GST_CLOCK_TIME_NONE
+    );
+  
+  if (sub_info->video_stream_source)
+    gst_element_get_state(
+      sub_info->video_stream_source,
+      &state,
+      NULL,
+      GST_CLOCK_TIME_NONE
+    );
+
+  if (GST_STATE_PLAYING != state)
     goto unlock_info_mutex;
 
   pthread_mutex_lock(&(sub_info->mutex));

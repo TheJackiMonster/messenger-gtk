@@ -82,6 +82,7 @@ typedef struct MESSENGER_DiscourseSubscriptionInfo
   struct GNUNET_CHAT_Contact *contact;
 
   GstElement *audio_stream_source;
+  GstElement *audio_jitter_buffer;
   GstElement *audio_depay;
   GstElement *audio_converter;
 
@@ -192,13 +193,14 @@ bool
 discourse_is_mute(const struct GNUNET_CHAT_Discourse *discourse);
 
 /**
- * Links a widget from the video pipeline of a discourse
+ * Links/Unlinks a widget from the video pipeline of a discourse
  * for a given chat contact to a selected container as
  * child.
  *
  * @param discourse Chat discourse
  * @param contact Chat contact
  * @param container Container
+ * @param linked Linking flag
  */
 gboolean
 discourse_link_widget(const struct GNUNET_CHAT_Discourse *discourse,
