@@ -199,6 +199,9 @@ handle_call_stop_button_click(UNUSED GtkButton *button,
     handle->video_discourse = NULL;
   }
 
+  handle->muted = TRUE;
+  handle->stream_camera = FALSE;
+
   _update_call_button(handle);
   application_chat_unlock(handle->app);
 }
