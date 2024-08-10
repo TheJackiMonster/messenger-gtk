@@ -201,12 +201,21 @@ discourse_is_mute(const struct GNUNET_CHAT_Discourse *discourse);
  * @param contact Chat contact
  * @param container Container
  * @param linked Linking flag
+ * @return #TRUE if successful, #FALSE otherwise
  */
 gboolean
 discourse_link_widget(const struct GNUNET_CHAT_Discourse *discourse,
                       const struct GNUNET_CHAT_Contact *contact,
                       GtkContainer *container);
 
+/**
+ * Returns whether the data stream of a selected chat contact in 
+ * a given discourse is active or not.
+ *
+ * @param discourse Chat discourse
+ * @param contact Chat contact
+ * @return #TRUE if active, #FALSE otherwise
+ */
 gboolean
 discourse_is_active(const struct GNUNET_CHAT_Discourse *discourse,
                     const struct GNUNET_CHAT_Contact *contact);
