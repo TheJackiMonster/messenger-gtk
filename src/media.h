@@ -57,25 +57,72 @@ typedef void
                                 const char *description,
                                 const char *role);
 
+/**
+ * Initialize a media info structure to list
+ * pipewire nodes related to a selected
+ * file descriptor or all available.
+ *
+ * @param media Media info
+ * @param app Messenger application
+ * @param fd File descriptor
+ */
 void
 media_pw_init(MESSENGER_MediaInfo *media,
               MESSENGER_Application *app,
               int fd);
 
+/**
+ * Initialize a media info structure to list
+ * pipewire nodes for each available camera
+ * device. 
+ *
+ * @param media Media info
+ * @param app Messenger application
+ */
 void
 media_init_camera_capturing(MESSENGER_MediaInfo *media,
                             MESSENGER_Application *app);
 
+/**
+ * Initialize a media info structure to list
+ * pipewire nodes for each available screencast
+ * option. 
+ *
+ * @param media Media info
+ * @param app Messenger application
+ */
 void
 media_init_screen_sharing(MESSENGER_MediaInfo *media,
                           MESSENGER_Application *app);
 
+/**
+ * Cleanup a media info structure with all
+ * its internal pipewire related resources.
+ *
+ * @param media Media info
+ */
 void
 media_pw_cleanup(MESSENGER_MediaInfo *media);
 
+/**
+ * Run the main loop from pipewire to get
+ * a current list of all nodes of a given
+ * media info.
+ *
+ * @param media Media info
+ */
 void
 media_pw_main_loop_run(MESSENGER_MediaInfo *media);
 
+/**
+ * Iterate all pipewire nodes of a given
+ * media info with its name, description
+ * and role.
+ *
+ * @param media Media info
+ * @param it Node iterator
+ * @param cls Closure
+ */
 void
 media_pw_iterate_nodes(MESSENGER_MediaInfo *media,
                        MESSENGER_MediaNodeIterator it,

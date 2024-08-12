@@ -291,9 +291,21 @@ application_call_message_event(MESSENGER_Application *app,
                                struct GNUNET_CHAT_Context *context,
                                const struct GNUNET_CHAT_Message *message);
 
+/**
+ * Lock the thread of the GNUnet scheduler
+ * until it gets unlocked again.
+ *
+ * @param app Messenger application
+ */
 void
 application_chat_lock(MESSENGER_Application *app);
 
+/**
+ * Unlock the thread of the GNUnet scheduler
+ * after being locked.
+ *
+ * @param app Messenger application
+ */
 void
 application_chat_unlock(MESSENGER_Application *app);
 
