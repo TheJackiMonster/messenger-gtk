@@ -103,7 +103,8 @@ _request_background_callback(GObject *source_object,
   request_drop(request);
 
   gboolean error_value = false;
-  if (error) {
+  if (error)
+  {
     g_printerr("ERROR: %s\n", error->message);
     g_error_free(error);
 
@@ -176,7 +177,8 @@ _request_camera_callback(GObject *source_object,
   request_drop(request);
 
   gboolean error_value = false;
-  if (error) {
+  if (error)
+  {
     g_printerr("ERROR: %s\n", error->message);
     g_error_free(error);
 

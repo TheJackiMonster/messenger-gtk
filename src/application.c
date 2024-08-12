@@ -185,92 +185,6 @@ _application_open(GApplication* application,
   g_application_release(application);
 }
 
-static void
-on_core_done(void *data,
-             UNUSED uint32_t id,
-             int seq)
-{
-  g_assert(data);
-
-	MESSENGER_Application *app = (MESSENGER_Application*) data;
-
-	if ((seq == app->pw.pending) && (app->pw.main_loop))
-		pw_main_loop_quit(app->pw.main_loop);
-}
-
-static void
-on_core_error(void *data,
-              UNUSED uint32_t id,
-              UNUSED int seq,
-              int res,
-              const char *message)
-{
-  g_assert((data) && (message));
-
-	MESSENGER_Application *app = (MESSENGER_Application*) data;
-
-  g_printerr("ERROR: %s\n", message);
-
-	if ((id == PW_ID_CORE) && (res == -EPIPE) && (app->pw.main_loop))
-		pw_main_loop_quit(app->pw.main_loop);
-}
-
-static const struct pw_core_events remote_core_events = {
-	PW_VERSION_CORE_EVENTS,
-	.done = on_core_done,
-	.error = on_core_error,
-};
-
-static void
-registry_event_global(void *data,
-                      uint32_t id,
-                      uint32_t permissions,
-                      const char *type,
-                      uint32_t version,
-                      const struct spa_dict *props)
-{
-  g_assert(data);
-
-  MESSENGER_Application *app = (MESSENGER_Application*) data;
-
-	if (!props)
-    return;
-
-  struct pw_properties *properties = pw_properties_new_dict(props);
-  if (!properties)
-    return;
-
-  size_t size = pw_map_get_size(&(app->pw.globals));
-	while (id > size)
-		pw_map_insert_at(&(app->pw.globals), size++, NULL);
-
-	pw_map_insert_at(&(app->pw.globals), id, properties);
-
-  app->pw.pending = app->pw.core? pw_core_sync(app->pw.core, 0, 0) : 0;
-}
-
-static void
-registry_event_global_remove(void *data,
-                             uint32_t id)
-{
-  g_assert(data);
-
-  MESSENGER_Application *app = (MESSENGER_Application*) data;
-
-  struct pw_properties *properties = pw_map_lookup(&(app->pw.globals), id);
-  if (!properties)
-    return;
-
-  pw_map_insert_at(&(app->pw.globals), id, NULL);
-	pw_properties_free(properties);
-}
-
-static const struct pw_registry_events registry_events = {
-	PW_VERSION_REGISTRY_EVENTS,
-	.global = registry_event_global,
-	.global_remove = registry_event_global_remove,
-};
-
 void
 application_init(MESSENGER_Application *app,
                  int argc,
@@ -488,95 +402,14 @@ application_run(MESSENGER_Application *app)
 }
 
 void
-application_pw_core_init(MESSENGER_Application *app)
-{
-  g_assert(app);
-
-  application_pw_core_cleanup(app);
-
-  if (app->pw.context)
-  {
-#ifndef MESSENGER_APPLICATION_NO_PORTAL
-    if (app->portal)
-      app->pw.core = pw_context_connect_fd(
-        app->pw.context,
-        xdp_portal_open_pipewire_remote_for_camera(app->portal),
-        NULL,
-        0
-      );
-    else
-#endif
-    app->pw.core = pw_context_connect(app->pw.context, NULL, 0);
-  }
-  else
-    app->pw.core = NULL;
-
-  app->pw.registry = app->pw.core? 
-    pw_core_get_registry(app->pw.core, PW_VERSION_REGISTRY, 0) : NULL;
-
-  pw_map_init(&(app->pw.globals), 64, 16);
-
-  if (app->pw.core)
-    pw_core_add_listener(
-      app->pw.core,
-      &(app->pw.core_listener),
-      &remote_core_events,
-      app
-    );
-
-  if (app->pw.registry)
-    pw_registry_add_listener(
-      app->pw.registry,
-      &(app->pw.registry_listener),
-      &registry_events,
-      app
-    );
-}
-
-static int
-destroy_global(void *obj,
-               UNUSED void *data)
-{
-  struct pw_properties *properties = (struct pw_properties*) obj;
-
-  if (!properties)
-    return 0;
-
-	pw_properties_free(properties);
-	return 0;
-}
-
-void
-application_pw_core_cleanup(MESSENGER_Application *app)
-{
-  g_assert(app);
-
-  if (app->pw.registry)
-    pw_proxy_destroy((struct pw_proxy*) app->pw.registry);
-
-  app->pw.registry = NULL;
-
-  pw_map_for_each(&(app->pw.globals), destroy_global, NULL);
-  pw_map_clear(&(app->pw.globals));
-
-  if (app->pw.core)
-    pw_core_disconnect(app->pw.core);
-
-  app->pw.core = NULL;
-}
-
-void
 application_pw_main_loop_run(MESSENGER_Application *app)
 {
   g_assert(app);
 
-  if ((! app->pw.core) || (! app->pw.main_loop))
+  if (!(app->pw.main_loop))
     return;
 
-  app->pw.pending = app->pw.core? pw_core_sync(app->pw.core, 0, 0) : 0;
-
-  if ((app->pw.main_loop) && (app->pw.core))
-    pw_main_loop_run(app->pw.main_loop);
+  pw_main_loop_run(app->pw.main_loop);
 }
 
 static void
@@ -805,7 +638,8 @@ application_exit(MESSENGER_Application *app,
 
   util_scheduler_cleanup();
 
-  application_pw_core_cleanup(app);
+  media_pw_cleanup(&(app->media.camera));
+  media_pw_cleanup(&(app->media.screen));
 
   if (app->pw.context)
     pw_context_destroy(app->pw.context);

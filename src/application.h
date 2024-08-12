@@ -55,6 +55,7 @@
 #include "ui/send_file.h"
 #include "ui/settings.h"
 
+#include "media.h"
 #include "schedule.h"
 #include "util.h"
 
@@ -105,13 +106,12 @@ typedef struct MESSENGER_Application
     struct pw_main_loop *main_loop;
     struct pw_loop *loop;
     struct pw_context *context;
-    struct pw_core *core;
-    struct pw_registry *registry;
-    struct spa_hook core_listener;
-	  struct spa_hook registry_listener;
-    struct pw_map globals;
-    int pending;
   } pw;
+
+  struct {
+    MESSENGER_MediaInfo camera;
+    MESSENGER_MediaInfo screen;
+  } media;
 
   struct {
     int status;

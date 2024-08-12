@@ -324,47 +324,18 @@ _ui_new_contact_video_thread(void *args)
   return NULL;
 }
 
-static int
-iterate_global(void *obj,
-               void *data)
+static void
+iterate_cameras(void *cls,
+                const char *name,
+                const char *description,
+                const char *role)
 {
-  g_assert(data);
+  g_assert(cls);
 
-  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) data;
-  struct pw_properties *properties = (struct pw_properties*) obj;
+  UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) cls;
 
-  if (!properties)
-    return 0;
-
-  struct spa_dict *props = &(properties->dict);
-
-  if ((!props) || (!props->n_items))
-    return 0;
-
-  gboolean is_camera = FALSE;
-  const char *name = NULL;
-  const char *description = NULL;
-
-  const struct spa_dict_item *item;
-  spa_dict_for_each(item, props)
-  {
-    if (0 == g_strcmp0(item->key, "node.name"))
-      name = item->value;
-
-    if (0 == g_strcmp0(item->key, "node.description"))
-      description = item->value;
-
-    if (0 != g_strcmp0(item->key, "media.role"))
-      continue;
-
-    if (0 != g_strcmp0(item->value, "Camera"))
-      continue;
-
-    is_camera = TRUE;
-	}
-
-  if ((!is_camera) || (!name) || (!description))
-    return 0;
+  if (0 != g_strcmp0(role, "Camera"))
+    return;
 
   GtkTreeIter iter;
   gtk_list_store_append(handle->camera_list_store, &iter);
@@ -377,7 +348,6 @@ iterate_global(void *obj,
   );
 
   handle->camera_count++;
-	return 0;
 }
 
 static void
@@ -395,10 +365,10 @@ _init_camera_pipeline(MESSENGER_Application *app,
   if (access)
 #endif
   {
-    application_pw_core_init(app);
-    application_pw_main_loop_run(app);
+    media_init_camera_capturing(&(app->media.camera), app);
+    media_pw_main_loop_run(&(app->media.camera));
 
-    pw_map_for_each(&(app->pw.globals), iterate_global, handle);
+    media_pw_iterate_nodes(&(app->media.camera), iterate_cameras, handle);
 
     if (handle->camera_count)
       gtk_combo_box_set_active(handle->camera_combo_box, 0);

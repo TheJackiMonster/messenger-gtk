@@ -28,6 +28,7 @@ messenger_gtk_sources = files([
     'discourse.c', 'discourse.h',
     'event.c', 'event.h',
     'file.c', 'file.h',
+    'media.c', 'media.h',
     'request.c', 'request.h',
     'resources.c', 'resources.h',
     'schedule.c', 'schedule.h',
