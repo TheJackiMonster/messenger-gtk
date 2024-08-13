@@ -314,7 +314,7 @@ _request_screencast_callback(GObject *source_object,
     app,
     callback,
     cancellable,
-    user_data
+    data
   );
 
   xdp_session_start(
