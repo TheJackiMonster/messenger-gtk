@@ -143,7 +143,10 @@ iterate_cameras(void *cls,
     return;
 
   if (handle->video_discourse)
+  {
     discourse_set_target(handle->video_discourse, name);
+    handle->streaming = true;
+  }
 }
 
 static void
@@ -162,9 +165,10 @@ _request_camera_callback(MESSENGER_Application *app,
   media_init_camera_capturing(&(app->media.camera), app);
   media_pw_main_loop_run(&(app->media.camera));
 
+  handle->streaming = false;
   media_pw_iterate_nodes(&(app->media.camera), iterate_cameras, handle);
 
-  _update_streaming_state(handle, true);
+  _update_streaming_state(handle, handle->streaming);
 }
 
 static void
@@ -197,14 +201,17 @@ iterate_streams(void *cls,
 
   UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) cls;
 
-  if ((!name) || (!description) || (!media_class) || (!media_role))
+  if ((!name) || (!media_class))
     return;
 
   if (0 != g_strcmp0(media_class, "Stream/Output/Video"))
     return;
 
   if (handle->video_discourse)
+  {
     discourse_set_target(handle->video_discourse, name);
+    handle->streaming = true;
+  }
 }
 
 static void
@@ -223,9 +230,10 @@ _request_screen_callback(MESSENGER_Application *app,
   media_init_screen_sharing(&(app->media.screen), app);
   media_pw_main_loop_run(&(app->media.screen));
 
+  handle->streaming = false;
   media_pw_iterate_nodes(&(app->media.screen), iterate_streams, handle);
 
-  _update_streaming_state(handle, true);
+  _update_streaming_state(handle, handle->streaming);
 }
 
 static void
@@ -871,7 +879,11 @@ _update_discourse_via_context(UI_DISCOURSE_Handle *handle)
 
   gtk_widget_set_sensitive(GTK_WIDGET(handle->camera_button), discourse_has_controls(
     discourses[1], MESSENGER_DISCOURSE_CTRL_WEBCAM
-  ));
+  )
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+  && ((handle->app->portal) && (xdp_portal_is_camera_present(handle->app->portal)))
+#endif
+  );
 
   gtk_widget_set_sensitive(GTK_WIDGET(handle->screen_button), discourse_has_controls(
     discourses[1], MESSENGER_DISCOURSE_CTRL_SCREEN_CAPTURE
