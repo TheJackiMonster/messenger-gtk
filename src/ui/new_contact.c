@@ -328,13 +328,19 @@ static void
 iterate_cameras(void *cls,
                 const char *name,
                 const char *description,
-                const char *role)
+                const char *media_class,
+                const char *media_role)
 {
   g_assert(cls);
 
   UI_NEW_CONTACT_Handle *handle = (UI_NEW_CONTACT_Handle*) cls;
 
-  if (0 != g_strcmp0(role, "Camera"))
+  if ((!name) || (!description) || (!media_class) || (!media_role))
+    return;
+
+  if (0 != g_strcmp0(media_class, "Video/Source"))
+    return;
+  if (0 != g_strcmp0(media_role, "Camera"))
     return;
 
   GtkTreeIter iter;

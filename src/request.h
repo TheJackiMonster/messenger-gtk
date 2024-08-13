@@ -39,6 +39,30 @@ typedef enum XdpBackgroundFlags {
 typedef enum XdpCameraFlags {
   XDP_CAMERA_FLAG_NONE = 0,
 } XdpCameraFlags;
+
+typedef enum XdpOutputType {
+  XDP_OUTPUT_NONE = 0,
+  XDP_OUTPUT_MONITOR = 1,
+  XDP_OUTPUT_WINDOW = 2,
+  XDP_OUTPUT_VIRTUAL = 4,
+} XdpOutputType;
+
+typedef enum XdpScreencastFlags {
+  XDP_SCREENCAST_FLAG_NONE = 0,
+  XDP_SCREENCAST_FLAG_MULTIPLE = 1,
+} XdpScreencastFlags;
+
+typedef enum XdpCursorMode {
+  XDP_CURSOR_MODE_HIDDEN = 1,
+  XDP_CURSOR_MODE_EMBEDDED = 2,
+  XDP_CURSOR_MODE_METADATA = 4,
+} XdpCursorMode;
+
+typedef enum XdpPersistMode {
+  XDP_PERSIST_MODE_NONE = 0,
+  XDP_PERSIST_MODE_TRANSIENT = 1,
+  XDP_PERSIST_MODE_PERSISTENT = 2,
+} XdpPersistMode;
 #endif
 
 #include "application.h"
@@ -110,6 +134,28 @@ request_new_camera(MESSENGER_Application *application,
                    XdpCameraFlags flags,
                    MESSENGER_RequestCallback callback,
                    gpointer user_data);
+
+/**
+ * Creates a new request for the messsenger
+ * application for a screencast permission.
+ *
+ * @param application Messenger application
+ * @param outputs Output types
+ * @param flags Screencast flags
+ * @param cursor_mode Cursor mode
+ * @param persist_mode Persist mode
+ * @param callback Callback
+ * @param user_data User data
+ * @return New camera request object
+ */
+MESSENGER_Request*
+request_new_screencast(MESSENGER_Application *application,
+                       XdpOutputType outputs,
+                       XdpScreencastFlags flags,
+                       XdpCursorMode cursor_mode,
+                       XdpPersistMode persist_mode,
+                       MESSENGER_RequestCallback callback,
+                       gpointer user_data);
 
 /**
  * Cancel a request object if possible.

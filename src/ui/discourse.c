@@ -34,6 +34,7 @@
 
 #include "../application.h"
 #include "../discourse.h"
+#include "../request.h"
 #include "../ui.h"
 #include "../util.h"
 
@@ -120,6 +121,72 @@ handle_camera_button_click(UNUSED GtkButton *button,
     discourse_set_mute(handle->video_discourse, !(handle->stream_camera));
 
   _discourse_update_members(handle);
+}
+
+static void
+iterate_streams(void *cls,
+                const char *name,
+                const char *description,
+                const char *media_class,
+                const char *media_role)
+{
+  g_assert(cls);
+
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) cls;
+
+  if ((!name) || (!description) || (!media_class) || (!media_role))
+    return;
+
+  if (0 != g_strcmp0(media_class, "Stream/Output/Video"))
+    return;
+
+  // TODO
+}
+
+static void
+_request_screen_callback(MESSENGER_Application *app,
+                         gboolean success,
+                         gboolean error,
+                         gpointer user_data)
+{
+  g_assert((app) && (user_data));
+
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
+
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+  if ((app->portal) && (success))
+#else
+  if (success)
+#endif
+  {
+    media_init_screen_sharing(&(app->media.screen), app);
+    media_pw_main_loop_run(&(app->media.screen));
+
+    media_pw_iterate_nodes(&(app->media.screen), iterate_streams, handle);
+
+    // TODO
+  }
+}
+
+static void
+handle_screen_button_click(UNUSED GtkButton *button,
+                           gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
+
+  // TODO
+
+  request_new_screencast(
+    handle->app,
+    XDP_OUTPUT_MONITOR | XDP_OUTPUT_WINDOW,
+    XDP_SCREENCAST_FLAG_NONE,
+    XDP_CURSOR_MODE_EMBEDDED,
+    XDP_PERSIST_MODE_TRANSIENT,
+    _request_screen_callback,
+    handle
+  );
 }
 
 static void
@@ -330,6 +397,13 @@ ui_discourse_window_init(MESSENGER_Application *app,
     handle->camera_button,
     "clicked",
     G_CALLBACK(handle_camera_button_click),
+    handle
+  );
+
+  g_signal_connect(
+    handle->screen_button,
+    "clicked",
+    G_CALLBACK(handle_screen_button_click),
     handle
   );
 

@@ -25,10 +25,6 @@
 #ifndef MEDIA_H_
 #define MEDIA_H_
 
-#ifndef MESSENGER_APPLICATION_NO_PORTAL
-#include <libportal/portal.h>
-#endif
-
 #include <pipewire/pipewire.h>
 
 typedef struct MESSENGER_Application MESSENGER_Application;
@@ -36,10 +32,6 @@ typedef struct MESSENGER_Application MESSENGER_Application;
 typedef struct MESSENGER_MediaInfo
 {
   MESSENGER_Application *app;
-
-#ifndef MESSENGER_APPLICATION_NO_PORTAL
-  XdpSession *session;
-#endif
   
   struct {
     struct pw_core *core;
@@ -55,7 +47,8 @@ typedef void
 (*MESSENGER_MediaNodeIterator) (void *cls,
                                 const char *name,
                                 const char *description,
-                                const char *role);
+                                const char *media_class,
+                                const char *media_role);
 
 /**
  * Initialize a media info structure to list

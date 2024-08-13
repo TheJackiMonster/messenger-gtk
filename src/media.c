@@ -179,64 +179,18 @@ media_init_camera_capturing(MESSENGER_MediaInfo *media,
   media_pw_init(media, app, fd);
 }
 
-#ifndef MESSENGER_APPLICATION_NO_PORTAL
-static void
-_request_screencast_callback(GObject *source_object,
-                             GAsyncResult *result,
-                             gpointer user_data)
-{
-  g_assert((source_object) && (result) && (user_data));
-
-  XdpPortal *portal = (XdpPortal*) source_object;
-  MESSENGER_MediaInfo *media = (MESSENGER_MediaInfo*) user_data;
-
-  GError *error = NULL;
-  XdpSession *session = xdp_portal_create_screencast_session_finish(
-    portal,
-    result,
-    &error
-  );
-
-  media->session = session;
-
-  if (error)
-  {
-    g_printerr("ERROR: %s\n", error->message);
-    g_error_free(error);
-  }
-  else
-  {
-    const int fd = xdp_session_open_pipewire_remote(media->session);
-
-    media_pw_init(media, media->app, fd);
-  }
-}
-#endif
-
 void
 media_init_screen_sharing(MESSENGER_MediaInfo *media,
                           MESSENGER_Application *app)
 {
   g_assert((media) && (app));
-
-  media->app = app;
+  int fd = -1;
 
 #ifndef MESSENGER_APPLICATION_NO_PORTAL
-  if (app->portal)
-    xdp_portal_create_screencast_session(
-      app->portal,
-      XDP_OUTPUT_MONITOR | XDP_OUTPUT_WINDOW,
-      XDP_SCREENCAST_FLAG_NONE,
-      XDP_CURSOR_MODE_EMBEDDED,
-      XDP_PERSIST_MODE_NONE,
-      NULL,
-      NULL,
-      _request_screencast_callback,
-      media
-    );
-  else
+  fd = application_get_active_session_remote(app);
 #endif
-  media_pw_init(media, app, -1);
+
+  media_pw_init(media, app, fd);
 }
 
 static int
@@ -269,14 +223,6 @@ media_pw_cleanup(MESSENGER_MediaInfo *media)
     pw_core_disconnect(media->pw.core);
 
   media->pw.core = NULL;
-
-#ifndef MESSENGER_APPLICATION_NO_PORTAL
-  if (media->session)
-    xdp_session_close(media->session);
-
-  media->session = NULL;
-#endif
-
   media->app = NULL;
 }
 
@@ -318,7 +264,8 @@ iterate_global(void *obj,
 
   const char *name = NULL;
   const char *description = NULL;
-  const char *role = NULL;
+  const char *media_role = NULL;
+  const char *media_class = NULL;
 
   const struct spa_dict_item *item;
   spa_dict_for_each(item, props)
@@ -329,14 +276,24 @@ iterate_global(void *obj,
     if (0 == g_strcmp0(item->key, "node.description"))
       description = item->value;
 
+    if (0 == g_strcmp0(item->key, "media.class"))
+      media_class = item->value;
+
     if (0 == g_strcmp0(item->key, "media.role"))
-      role = item->value;
+      media_role = item->value;
 	}
 
-  if ((!name) || (!description) || (!role))
+  if ((!name) || (!media_class))
     return 0;
 
-  closure->iterator(closure->cls, name, description, role);
+  closure->iterator(
+    closure->cls,
+    name,
+    description,
+    media_class,
+    media_role
+  );
+  
 	return 0;
 }
 

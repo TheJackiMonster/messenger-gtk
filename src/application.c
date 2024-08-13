@@ -218,6 +218,7 @@ application_init(MESSENGER_Application *app,
 #ifndef MESSENGER_APPLICATION_NO_PORTAL
   GError *error = NULL;
   app->portal = xdp_portal_initable_new(&error);
+  app->session = NULL;
 
   if (error)
   {
@@ -411,6 +412,50 @@ application_pw_main_loop_run(MESSENGER_Application *app)
 
   pw_main_loop_run(app->pw.main_loop);
 }
+
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+void
+application_set_active_session(MESSENGER_Application *app,
+                               XdpSession *session)
+{
+  g_assert(app);
+
+  if (app->session == session)
+    return;
+
+  if (app->session)
+  {
+    const XdpSessionState state = xdp_session_get_session_state(
+      app->session
+    );
+
+    if (XDP_SESSION_ACTIVE == state)
+      xdp_session_close(app->session);
+
+    g_object_unref(app->session);
+  }
+
+  app->session = session;
+}
+
+int
+application_get_active_session_remote(MESSENGER_Application *app)
+{
+  g_assert(app);
+
+  if (!(app->session))
+    return -1;
+
+  const XdpSessionState state = xdp_session_get_session_state(
+    app->session
+  );
+
+  if (XDP_SESSION_ACTIVE != state)
+    return -1;
+  
+  return xdp_session_open_pipewire_remote(app->session);
+}
+#endif
 
 static void
 _request_background_callback(MESSENGER_Application *app,
@@ -651,6 +696,8 @@ application_exit(MESSENGER_Application *app,
   }
 
 #ifndef MESSENGER_APPLICATION_NO_PORTAL
+  application_set_active_session(app, NULL);
+
   if (app->portal)
     g_object_unref(app->portal);
 

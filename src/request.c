@@ -24,6 +24,10 @@
 
 #include "request.h"
 
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+#include <libportal/portal.h>
+#endif
+
 #ifdef MESSENGER_APPLICATION_NO_PORTAL
 
 static gboolean
@@ -217,6 +221,151 @@ request_new_camera(MESSENGER_Application *application,
     flags,
     cancellable,
     _request_camera_callback,
+    request
+  );
+#endif
+
+  return request;
+}
+
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+static void
+_request_session_start_callback(GObject *source_object,
+                                GAsyncResult *result,
+                                gpointer user_data)
+{
+  g_assert((source_object) && (result) && (user_data));
+
+  XdpSession *session = (XdpSession*) source_object;
+  MESSENGER_Request *request = (MESSENGER_Request*) user_data;
+
+  request_cleanup(request);
+
+  MESSENGER_Application *app = request->application;
+  MESSENGER_RequestCallback callback = request->callback;
+  gpointer data = request->user_data;
+
+  GError *error = NULL;
+  gboolean success = xdp_session_start_finish(
+    session,
+    result,
+    &error
+  );
+
+  application_set_active_session(app, success? session : NULL);
+  request_drop(request);
+
+  gboolean error_value = false;
+  if (error)
+  {
+    g_printerr("ERROR: %s\n", error->message);
+    g_error_free(error);
+
+    error_value = true;
+  }
+
+  if (callback)
+    callback(app, success, error_value, data);
+}
+
+static void
+_request_screencast_callback(GObject *source_object,
+                             GAsyncResult *result,
+                             gpointer user_data)
+{
+  g_assert((source_object) && (result) && (user_data));
+
+  XdpPortal *portal = (XdpPortal*) source_object;
+  MESSENGER_Request *request = (MESSENGER_Request*) user_data;
+
+  request_cleanup(request);
+
+  MESSENGER_Application *app = request->application;
+  MESSENGER_RequestCallback callback = request->callback;
+  gpointer data = request->user_data;
+
+  GError *error = NULL;
+  XdpSession *session = xdp_portal_create_screencast_session_finish(
+    portal, result, &error
+  );
+
+  if (session)
+    application_set_active_session(app, session);
+  request_drop(request);
+
+  gboolean error_value = false;
+  if (error)
+  {
+    g_printerr("ERROR: %s\n", error->message);
+    g_error_free(error);
+
+    error_value = true;
+  }
+
+  if (!session)
+    goto skip_session_start;
+
+  GCancellable* cancellable = g_cancellable_new();
+
+  if (!cancellable)
+    goto skip_session_start;
+
+  request = request_new(
+    app,
+    callback,
+    cancellable,
+    user_data
+  );
+
+  xdp_session_start(
+    session,
+    app->parent,
+    cancellable,
+    _request_session_start_callback,
+    request
+  );
+
+  return;
+  
+skip_session_start:
+  if (callback)
+    callback(app, false, error_value, data);
+}
+#endif
+
+MESSENGER_Request*
+request_new_screencast(MESSENGER_Application *application,
+                       XdpOutputType outputs,
+                       XdpScreencastFlags flags,
+                       XdpCursorMode cursor_mode,
+                       XdpPersistMode persist_mode,
+                       MESSENGER_RequestCallback callback,
+                       gpointer user_data)
+{
+  g_assert((application) && (callback));
+
+  GCancellable* cancellable = g_cancellable_new();
+
+  if (!cancellable)
+    return NULL;
+
+  MESSENGER_Request* request = request_new(
+    application,
+    callback,
+    cancellable,
+    user_data
+  );
+
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+  xdp_portal_create_screencast_session(
+    application->portal,
+    outputs,
+    flags,
+    cursor_mode,
+    persist_mode,
+    NULL,
+    cancellable,
+    _request_screencast_callback,
     request
   );
 #endif

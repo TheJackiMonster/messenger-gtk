@@ -94,6 +94,7 @@ typedef struct MESSENGER_Application
 #ifndef MESSENGER_APPLICATION_NO_PORTAL
   XdpPortal *portal;
   XdpParent *parent;
+  XdpSession *session;
 #endif
 
   struct {
@@ -234,6 +235,32 @@ application_pw_core_cleanup(MESSENGER_Application *app);
  */
 void
 application_pw_main_loop_run(MESSENGER_Application *app);
+
+#ifndef MESSENGER_APPLICATION_NO_PORTAL
+/**
+ * Sets the active session for the messenger 
+ * application and frees the previous one
+ * if any is still active.
+ *
+ * @param app Messenger application
+ * @param session Screencast session
+ */
+void
+application_set_active_session(MESSENGER_Application *app,
+                               XdpSession *session);
+
+/**
+ * Returns the file descriptor to the pipewire 
+ * remote where the screencast streams of the
+ * active session from the messenger application
+ * are available.
+ *
+ * @param app Messenger application
+ * @return File descriptor
+ */
+int
+application_get_active_session_remote(MESSENGER_Application *app);
+#endif
 
 /**
  * Shows the messenger application main window.

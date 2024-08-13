@@ -861,7 +861,7 @@ discourse_has_controls(struct GNUNET_CHAT_Discourse *discourse,
     case MESSENGER_DISCOURSE_CTRL_WEBCAM:
       return (info->video_record_pipeline? TRUE : FALSE);
     case MESSENGER_DISCOURSE_CTRL_SCREEN_CAPTURE:
-      return FALSE;
+      return (info->video_record_pipeline? TRUE : FALSE);
     default:
       return FALSE;
   }
