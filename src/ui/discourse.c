@@ -109,6 +109,65 @@ static void
 _discourse_update_members(UI_DISCOURSE_Handle *handle);
 
 static void
+_update_streaming_state(UI_DISCOURSE_Handle *handle,
+                        gboolean streaming)
+{
+  handle->streaming = streaming;
+
+  if (handle->video_discourse)
+    discourse_set_mute(handle->video_discourse, !(handle->streaming));
+
+  if ((handle->app) && (!(handle->streaming)))
+    application_set_active_session(handle->app, NULL);
+
+  _discourse_update_members(handle);
+}
+
+static void
+iterate_cameras(void *cls,
+                const char *name,
+                const char *description,
+                const char *media_class,
+                const char *media_role)
+{
+  g_assert(cls);
+
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) cls;
+
+  if ((!name) || (!description) || (!media_class) || (!media_role))
+    return;
+
+  if (0 != g_strcmp0(media_class, "Video/Source"))
+    return;
+  if (0 != g_strcmp0(media_role, "Camera"))
+    return;
+
+  if (handle->video_discourse)
+    discourse_set_target(handle->video_discourse, name);
+}
+
+static void
+_request_camera_callback(MESSENGER_Application *app,
+                         gboolean success,
+                         gboolean error,
+                         gpointer user_data)
+{
+  g_assert((app) && (user_data));
+
+  UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
+
+  if ((!success) || (error))
+    return;
+
+  media_init_camera_capturing(&(app->media.camera), app);
+  media_pw_main_loop_run(&(app->media.camera));
+
+  media_pw_iterate_nodes(&(app->media.camera), iterate_cameras, handle);
+
+  _update_streaming_state(handle, true);
+}
+
+static void
 handle_camera_button_click(UNUSED GtkButton *button,
                            gpointer user_data)
 {
@@ -116,11 +175,15 @@ handle_camera_button_click(UNUSED GtkButton *button,
 
   UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
 
-  handle->stream_camera = !(handle->stream_camera);
-  if (handle->video_discourse)
-    discourse_set_mute(handle->video_discourse, !(handle->stream_camera));
-
-  _discourse_update_members(handle);
+  if (handle->streaming)
+    _update_streaming_state(handle, false);
+  else
+    request_new_camera(
+      handle->app,
+      XDP_CAMERA_FLAG_NONE,
+      _request_camera_callback,
+      handle
+    );
 }
 
 static void
@@ -140,7 +203,8 @@ iterate_streams(void *cls,
   if (0 != g_strcmp0(media_class, "Stream/Output/Video"))
     return;
 
-  // TODO
+  if (handle->video_discourse)
+    discourse_set_target(handle->video_discourse, name);
 }
 
 static void
@@ -153,19 +217,15 @@ _request_screen_callback(MESSENGER_Application *app,
 
   UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
 
-#ifndef MESSENGER_APPLICATION_NO_PORTAL
-  if ((app->portal) && (success))
-#else
-  if (success)
-#endif
-  {
-    media_init_screen_sharing(&(app->media.screen), app);
-    media_pw_main_loop_run(&(app->media.screen));
+  if ((!success) || (error))
+    return;
 
-    media_pw_iterate_nodes(&(app->media.screen), iterate_streams, handle);
+  media_init_screen_sharing(&(app->media.screen), app);
+  media_pw_main_loop_run(&(app->media.screen));
 
-    // TODO
-  }
+  media_pw_iterate_nodes(&(app->media.screen), iterate_streams, handle);
+
+  _update_streaming_state(handle, true);
 }
 
 static void
@@ -176,17 +236,18 @@ handle_screen_button_click(UNUSED GtkButton *button,
 
   UI_DISCOURSE_Handle *handle = (UI_DISCOURSE_Handle*) user_data;
 
-  // TODO
-
-  request_new_screencast(
-    handle->app,
-    XDP_OUTPUT_MONITOR | XDP_OUTPUT_WINDOW,
-    XDP_SCREENCAST_FLAG_NONE,
-    XDP_CURSOR_MODE_EMBEDDED,
-    XDP_PERSIST_MODE_TRANSIENT,
-    _request_screen_callback,
-    handle
-  );
+  if (handle->streaming)
+    _update_streaming_state(handle, false);
+  else
+    request_new_screencast(
+      handle->app,
+      XDP_OUTPUT_MONITOR | XDP_OUTPUT_WINDOW,
+      XDP_SCREENCAST_FLAG_NONE,
+      XDP_CURSOR_MODE_EMBEDDED,
+      XDP_PERSIST_MODE_TRANSIENT,
+      _request_screen_callback,
+      handle
+    );
 }
 
 static void
@@ -267,7 +328,7 @@ handle_call_stop_button_click(UNUSED GtkButton *button,
   }
 
   handle->muted = TRUE;
-  handle->stream_camera = FALSE;
+  handle->streaming = FALSE;
 
   _update_call_button(handle);
   application_chat_unlock(handle->app);
@@ -295,7 +356,7 @@ ui_discourse_window_init(MESSENGER_Application *app,
   handle->video_discourse = NULL;
 
   handle->muted = TRUE;
-  handle->stream_camera = FALSE;
+  handle->streaming = FALSE;
 
   handle->parent = GTK_WINDOW(app->ui.messenger.main_window);
 

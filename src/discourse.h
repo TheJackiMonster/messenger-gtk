@@ -65,6 +65,7 @@ typedef struct MESSENGER_DiscourseInfo
   GstElement *audio_record_sink;
 
   GstElement *video_record_pipeline;
+  GstElement *video_record_source;
   GstElement *video_record_sink;
 
   GstElement *audio_mix_pipeline;
@@ -191,6 +192,16 @@ discourse_set_mute(struct GNUNET_CHAT_Discourse *discourse,
  */
 bool
 discourse_is_mute(const struct GNUNET_CHAT_Discourse *discourse);
+
+/**
+ * Sets the capture target of a given discourse by name.
+ *
+ * @param discourse Chat discourse
+ * @param name Target name
+ */
+void
+discourse_set_target(struct GNUNET_CHAT_Discourse *discourse,
+                     const char *name);
 
 /**
  * Links/Unlinks a widget from the video pipeline of a discourse

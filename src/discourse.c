@@ -588,8 +588,12 @@ _setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
   g_assert(info);
 
   info->video_record_pipeline = gst_parse_launch(
-    "autovideosrc ! video/x-raw,framerate={ [ 0/1, 30/1 ] } ! videoscale ! video/x-raw,width=1280,height=720 ! videoconvert ! video/x-raw,format=I420 ! x264enc bitrate=1000 speed-preset=fast bframes=0 key-int-max=30 tune=zerolatency byte-stream=true ! video/x-h264,profile=baseline ! rtph264pay aggregate-mode=zero-latency mtu=45000 ! capsfilter name=filter ! fdsink name=sink",
+    "pipewiresrc name=source ! video/x-raw,framerate={ [ 0/1, 30/1 ] } ! videoscale ! video/x-raw,width=1280,height=720 ! videoconvert ! video/x-raw,format=I420 ! x264enc bitrate=1000 speed-preset=fast bframes=0 key-int-max=30 tune=zerolatency byte-stream=true ! video/x-h264,profile=baseline ! rtph264pay aggregate-mode=zero-latency mtu=45000 ! capsfilter name=filter ! fdsink name=sink",
     NULL
+  );
+
+  info->video_record_source = gst_bin_get_by_name(
+    GST_BIN(info->video_record_pipeline), "source"
   );
 
   info->video_record_sink = gst_bin_get_by_name(
@@ -643,6 +647,7 @@ discourse_create_info(struct GNUNET_CHAT_Discourse *discourse)
   info->audio_record_sink = NULL;
 
   info->video_record_pipeline = NULL;
+  info->video_record_source = NULL;
   info->video_record_sink = NULL;
 
   info->audio_mix_pipeline = NULL;
@@ -938,6 +943,24 @@ discourse_is_mute(const struct GNUNET_CHAT_Discourse *discourse)
     );
 
   return (GST_STATE_PLAYING != state);
+}
+
+void
+discourse_set_target(struct GNUNET_CHAT_Discourse *discourse,
+                     const char *name)
+{
+  MESSENGER_DiscourseInfo* info = GNUNET_CHAT_discourse_get_user_pointer(discourse);
+
+  if (!info)
+    return;
+
+  if (info->video_record_source)
+    g_object_set(
+      G_OBJECT(info->video_record_source),
+      "target-object",
+      name,
+      NULL
+    );
 }
 
 gboolean
