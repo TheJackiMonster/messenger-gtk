@@ -143,10 +143,7 @@ iterate_cameras(void *cls,
     return;
 
   if (handle->video_discourse)
-  {
     discourse_set_target(handle->video_discourse, name);
-    handle->streaming = true;
-  }
 }
 
 static void
@@ -165,8 +162,8 @@ _request_camera_callback(MESSENGER_Application *app,
   media_init_camera_capturing(&(app->media.camera), app);
   media_pw_main_loop_run(&(app->media.camera));
 
-  handle->streaming = false;
   media_pw_iterate_nodes(&(app->media.camera), iterate_cameras, handle);
+  handle->streaming = true;
 
   _update_streaming_state(handle, handle->streaming);
 }

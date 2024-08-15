@@ -365,11 +365,7 @@ _init_camera_pipeline(MESSENGER_Application *app,
 
   handle->camera_count = 0;
 
-#ifndef MESSENGER_APPLICATION_NO_PORTAL
-  if ((app->portal) && ((access) || xdp_portal_is_camera_present(app->portal)))
-#else
   if (access)
-#endif
   {
     media_init_camera_capturing(&(app->media.camera), app);
     media_pw_main_loop_run(&(app->media.camera));

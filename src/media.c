@@ -172,7 +172,7 @@ media_init_camera_capturing(MESSENGER_MediaInfo *media,
   int fd = -1;
 
 #ifndef MESSENGER_APPLICATION_NO_PORTAL
-  if (app->portal)
+  if ((app->portal) && (xdp_portal_is_camera_present(app->portal)))
     fd = xdp_portal_open_pipewire_remote_for_camera(app->portal);
 #endif
   
