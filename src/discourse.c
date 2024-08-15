@@ -149,7 +149,8 @@ _setup_video_gst_pipelines_of_subscription(MESSENGER_DiscourseSubscriptionInfo *
   g_assert(info);
 
   info->video_stream_pipeline = gst_parse_launch(
-    "appsrc name=source ! rtpjitterbuffer ! rtph264depay ! avdec_h264 ! videoconvert ! gtksink name=sink sync=false",
+    "appsrc name=source ! rtpjitterbuffer ! rtph264depay ! avdec_h264 ! videoconvert ! "
+    "gtksink name=sink sync=false",
     NULL
   );
 
@@ -530,7 +531,8 @@ _setup_audio_gst_pipelines(MESSENGER_DiscourseInfo *info)
   g_assert(info);
 
   info->audio_record_pipeline = gst_parse_launch(
-    "autoaudiosrc ! audioconvert ! audio/x-raw,format=S16BE,layout=interleaved,rate=44100,channels=1 ! rtpL16pay ! capsfilter name=filter ! fdsink name=sink",
+    "autoaudiosrc ! audioconvert ! audio/x-raw,format=S16BE,layout=interleaved,rate=44100,channels=1 ! "
+    "rtpL16pay ! capsfilter name=filter ! fdsink name=sink",
     NULL
   );
 
