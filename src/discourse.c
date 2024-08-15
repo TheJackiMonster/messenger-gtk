@@ -370,11 +370,13 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
     goto skip_buffer;
 
   uint64_t timestamp = info->last_timestamp;
+  uint32_t payload_len = 0;
 
   GstRTPBuffer rtp = GST_RTP_BUFFER_INIT;
   if (gst_rtp_buffer_map(buffer, GST_MAP_READ, &rtp))
   {
     const uint32_t rtp_timestamp = gst_rtp_buffer_get_timestamp(&rtp);
+    payload_len = gst_rtp_buffer_get_payload_len(&rtp);
 
     timestamp = gst_rtp_buffer_ext_timestamp(&timestamp, rtp_timestamp);
     if (!timestamp)
@@ -383,14 +385,17 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
     gst_rtp_buffer_unmap(&rtp);
   }
 
-  info->buffers = g_list_append(info->buffers, buffer);
+  if (payload_len)
+    info->buffers = g_list_append(info->buffers, buffer);
+  
   buffer = NULL;
 
   if ((info->last_timestamp == timestamp) ||
       ((!(info->last_timestamp)) && (!(info->position))))
     goto skip_buffer;
 
-  buffer = gst_buffer_new();
+  if (info->buffers)
+    buffer = gst_buffer_new();
   
   GList *buf = info->buffers;
   while (buf)
@@ -418,10 +423,13 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
 
   const uint64_t duration = timestamp - info->last_timestamp;
 
-  GST_BUFFER_TIMESTAMP(buffer) = gst_util_uint64_scale(info->position, GST_SECOND, clockrate);
-  GST_BUFFER_DURATION(buffer) = gst_util_uint64_scale(duration, GST_SECOND, clockrate);
+  if (buffer)
+  {
+    GST_BUFFER_TIMESTAMP(buffer) = gst_util_uint64_scale(info->position, GST_SECOND, clockrate);
+    GST_BUFFER_DURATION(buffer) = gst_util_uint64_scale(duration, GST_SECOND, clockrate);
 
-  g_signal_emit_by_name(appsrc, "push-buffer", buffer, &ret);
+    g_signal_emit_by_name(appsrc, "push-buffer", buffer, &ret);
+  }
 
   if ((appsrc) && (!(info->position)))
     gst_element_set_state(appsrc, GST_STATE_PLAYING);
@@ -588,7 +596,13 @@ _setup_video_gst_pipelines(MESSENGER_DiscourseInfo *info)
   g_assert(info);
 
   info->video_record_pipeline = gst_parse_launch(
-    "pipewiresrc name=source ! video/x-raw,framerate={ [ 0/1, 30/1 ] } ! videoscale ! video/x-raw,width=1280,height=720 ! videoconvert ! video/x-raw,format=I420 ! x264enc bitrate=1000 speed-preset=fast bframes=0 key-int-max=30 tune=zerolatency byte-stream=true ! video/x-h264,profile=baseline ! rtph264pay aggregate-mode=zero-latency mtu=45000 ! capsfilter name=filter ! fdsink name=sink",
+    "pipewiresrc name=source ! video/x-raw,framerate={ [ 0/1, 30/1 ] } ! videoscale ! "
+    "video/x-raw,width=1280,height=720 ! videoconvert ! video/x-raw,format=I420 ! "
+    "x264enc bitrate=1000 speed-preset=fast bframes=0 key-int-max=30 tune=zerolatency byte-stream=true ! "
+    "video/x-h264,profile=baseline ! rtph264pay aggregate-mode=zero-latency mtu=45000 ! "
+    "tee ! queue ! capsfilter name=filter ! fdsink name=sink "
+    "fakesrc num-buffers=-1 sizetype=empty filltype=zero ! "
+    "video/x-h264,stream-format=avc,alignment=au ! rtph264pay ! mux.",
     NULL
   );
 
