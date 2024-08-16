@@ -67,13 +67,15 @@ typedef struct MESSENGER_DiscourseInfo
   GstElement *video_record_pipeline;
   GstElement *video_record_source;
   GstElement *video_record_sink;
+  GstElement *video_heartbeat_source;
 
   GstElement *audio_mix_pipeline;
   GstElement *audio_mix_element;
   GstElement *audio_volume_element;
 
   pthread_mutex_t mutex;
-
+  guint heartbeat;
+  
   GList *subscriptions;
 } MESSENGER_DiscourseInfo;
 
