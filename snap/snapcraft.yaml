@@ -113,8 +113,10 @@ parts:
       - gstreamer1.0-plugins-base
       - gstreamer1.0-plugins-bad
       - gstreamer1.0-plugins-good
+      - gstreamer1.0-plugins-ugly
       - gstreamer1.0-gtk3
       - gstreamer1.0-pipewire
+      - gstreamer1.0-libav
       - libpipewire-0.3-0t64
       - libportal1
       - libportal-gtk3-1
