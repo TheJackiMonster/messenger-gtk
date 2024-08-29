@@ -66,6 +66,15 @@
 
 	<launchable type="desktop-id">org.gnunet.Messenger.desktop</launchable>
 	<releases>
+	  <release version="0.10.1" date="2024-08-29">
+			<description>
+				<ul>
+				  <li>Discourses have been added for live voice and video chats with other contacts.</li>
+					<li>Capturing a specific application or a whole monitor can be selected as video source in a live chat.</li>
+				</ul>
+			</description>
+			<url>https://www.gnunet.org/en/news/2024-06-0.21.2.html</url>
+		</release>
 	  <release version="0.10.0" date="2024-06-09">
 			<description>
 				<ul>

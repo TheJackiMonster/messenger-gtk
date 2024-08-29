@@ -1,5 +1,5 @@
 name: messenger-gtk
-version: 0.10.0
+version: 0.10.1
 title: GNUnet Messenger
 summary: A GTK based GUI for the Messenger service of GNUnet.
 description: |
@@ -118,7 +118,7 @@ parts:
       - libpipewire-0.3-0t64
       - libportal1
       - libportal-gtk3-1
-    source: http://ftpmirror.gnu.org/gnunet/messenger-gtk-0.10.0.tar.gz
+    source: http://ftpmirror.gnu.org/gnunet/messenger-gtk-0.10.1.tar.gz
     plugin: meson
     meson-parameters:
       - --prefix=/usr

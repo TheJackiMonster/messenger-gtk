@@ -1,3 +1,10 @@
+## Version 0.10.1
+* Utilize new function from libgnunetchat 0.5.1
+* Implement discourse panel to allow live chat streaming voice and video
+* Fix thread synchronization issues to reduce occasional crashes
+* Reduce background CPU usage
+* Fix minor UI issues
+
 ## Version 0.10.0
 * Implement tagging and filtering messages
 * Adjust media previews and optimize memory footprint
