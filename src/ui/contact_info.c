@@ -254,6 +254,17 @@ handle_share_attributes_button_click(UNUSED GtkButton *button,
 }
 
 static void
+handle_list_tags_button_click(UNUSED GtkButton *button,
+                              gpointer user_data)
+{
+  g_assert(user_data);
+
+  struct UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+
+  _contact_info_switch_stack_to(handle, handle->tags_box);
+}
+
+static void
 handle_block_button_click(UNUSED GtkButton *button,
                           gpointer user_data)
 {
@@ -768,8 +779,8 @@ handle_add_attribute_button_click(UNUSED GtkButton *button,
 }
 
 static void
-handle_attribute_value_entry_activate(UNUSED GtkEntry *entry,
-				                              gpointer user_data)
+handle_attribute_entry_activate(UNUSED GtkEntry *entry,
+				                        gpointer user_data)
 {
   g_assert(user_data);
 
@@ -825,6 +836,81 @@ handle_share_renderer_toggle(GtkCellRendererToggle *renderer,
 
   g_value_unset(&value_name);
   g_value_unset(&value_shared);
+}
+
+static void
+handle_tag_entry_changed(GtkEditable *editable,
+                         gpointer user_data)
+{
+  g_assert((editable) && (user_data));
+
+  GtkEntry *entry = GTK_ENTRY(editable);
+  GtkWidget *target = GTK_WIDGET(user_data);
+
+  const gchar *text = gtk_entry_get_text(entry);
+
+  gtk_widget_set_sensitive(target, (text) && (strlen(text)));
+}
+
+static void
+handle_add_tag_button_click(UNUSED GtkButton *button,
+                            gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+
+  struct GNUNET_CHAT_Handle *chat = handle->app->chat.messenger.handle;
+
+  if (!chat)
+    return;
+
+  const gchar *name = gtk_entry_get_text(handle->tag_name_entry);
+
+  if (name)
+  {
+    application_chat_lock(handle->app);
+    GNUNET_CHAT_contact_tag(handle->contact, name);
+    application_chat_unlock(handle->app);
+
+    gtk_list_store_insert_with_values(
+      handle->tags_list,
+      NULL,
+      -1,
+      0,
+      name,
+      -1
+    );
+  }
+
+  gtk_entry_set_text(handle->tag_name_entry, "");
+}
+
+static void
+handle_remove_tag_button_click(UNUSED GtkButton *button,
+                               gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+
+  struct GNUNET_CHAT_Handle *chat = handle->app->chat.messenger.handle;
+
+  if (!chat)
+    return;
+
+  // TODO: remove tag from contact
+}
+
+static void
+handle_tag_entry_activate(UNUSED GtkEntry *entry,
+				                  gpointer user_data)
+{
+  g_assert(user_data);
+
+  UI_CONTACT_INFO_Handle *handle = (UI_CONTACT_INFO_Handle*) user_data;
+
+  handle_add_tag_button_click(handle->add_tag_button, handle);
 }
 
 void
@@ -937,6 +1023,17 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
     handle->share_attributes_button,
     "clicked",
     G_CALLBACK(handle_share_attributes_button_click),
+    handle
+  );
+
+  handle->list_tags_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "list_tags_button")
+  );
+
+  g_signal_connect(
+    handle->list_tags_button,
+    "clicked",
+    G_CALLBACK(handle_list_tags_button_click),
     handle
   );
 
@@ -1056,7 +1153,7 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
   g_signal_connect(
     handle->attribute_value_entry,
     "activate",
-    G_CALLBACK(handle_attribute_value_entry_activate),
+    G_CALLBACK(handle_attribute_entry_activate),
     handle
   );
 
@@ -1087,6 +1184,62 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
     handle->share_renderer,
     "toggled",
     G_CALLBACK(handle_share_renderer_toggle),
+    handle
+  );
+
+  handle->tags_box = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "tags_box")
+  );
+
+  handle->tags_tree = GTK_TREE_VIEW(
+    gtk_builder_get_object(handle->builder, "tags_tree")
+  );
+
+  handle->tags_list = GTK_LIST_STORE(
+    gtk_builder_get_object(handle->builder, "tags_list")
+  );
+
+  handle->new_tag_box = GTK_WIDGET(
+    gtk_builder_get_object(handle->builder, "new_tag_box")
+  );
+
+  handle->tag_name_entry = GTK_ENTRY(
+    gtk_builder_get_object(handle->builder, "tag_name_entry")
+  );
+
+  handle->add_tag_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "add_tag_button")
+  );
+
+  handle->remove_tag_button = GTK_BUTTON(
+    gtk_builder_get_object(handle->builder, "remove_tag_button")
+  );
+
+  g_signal_connect(
+    handle->tag_name_entry,
+    "changed",
+    G_CALLBACK(handle_tag_entry_changed),
+    handle->add_tag_button
+  );
+
+  g_signal_connect(
+    handle->tag_name_entry,
+    "activate",
+    G_CALLBACK(handle_tag_entry_activate),
+    handle
+  );
+
+  g_signal_connect(
+    handle->add_tag_button,
+    "clicked",
+    G_CALLBACK(handle_add_tag_button_click),
+    handle
+  );
+
+  g_signal_connect(
+    handle->remove_tag_button,
+    "clicked",
+    G_CALLBACK(handle_remove_tag_button_click),
     handle
   );
 
@@ -1240,6 +1393,16 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
   );
 
   gtk_widget_set_sensitive(
+    GTK_WIDGET(handle->list_tags_button),
+    !editable
+  );
+
+  gtk_widget_set_sensitive(
+    GTK_WIDGET(handle->tag_name_entry),
+    !editable
+  );
+
+  gtk_widget_set_sensitive(
     GTK_WIDGET(handle->block_button),
     !editable
   );
@@ -1259,6 +1422,16 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
     !editable
   );
 
+  gtk_widget_set_visible(
+    GTK_WIDGET(handle->list_tags_button),
+    !editable
+  );
+
+  gtk_widget_set_visible(
+    GTK_WIDGET(handle->new_tag_box),
+    !editable
+  );
+
   gtk_stack_set_visible_child(
     handle->block_stack,
     GNUNET_YES == GNUNET_CHAT_contact_is_blocked(contact)?
@@ -1273,6 +1446,7 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
 
   gtk_list_store_clear(handle->attributes_list);
   gtk_list_store_clear(handle->sharing_list);
+  gtk_list_store_clear(handle->tags_list);
 
   if (editable)
     GNUNET_CHAT_get_attributes(
@@ -1300,6 +1474,8 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
       cb_contact_info_shared_attributes,
       handle
     );
+
+    // TODO: iterate contact tags
   }
 
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(

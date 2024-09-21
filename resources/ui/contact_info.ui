@@ -46,6 +46,12 @@ Author: Tobias Frisch
       <column type="gboolean"/>
     </columns>
   </object>
+  <object class="GtkListStore" id="tags_list">
+    <columns>
+      <!-- column-name name -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkDialog" id="contact_info_dialog">
     <property name="can-focus">False</property>
     <property name="title" translatable="yes">Contact Information</property>
@@ -338,6 +344,50 @@ Author: Tobias Frisch
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkButton" id="list_tags_button">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="spacing">4</property>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="icon-name">user-bookmarks-symbolic</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-end">16</property>
+                                    <property name="label" translatable="yes">List Tags</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">7</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkStack" id="block_stack">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
@@ -434,7 +484,7 @@ Author: Tobias Frisch
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">7</property>
+                            <property name="position">8</property>
                           </packing>
                         </child>
                         <child>
@@ -479,7 +529,7 @@ Author: Tobias Frisch
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">8</property>
+                            <property name="position">9</property>
                           </packing>
                         </child>
                       </object>
@@ -805,6 +855,167 @@ Author: Tobias Frisch
                       <packing>
                         <property name="name">sharing_page</property>
                         <property name="position">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="tags_box">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">4</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Tags:</property>
+                            <property name="xalign">0</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkTreeView" id="tags_tree">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="model">tags_list</property>
+                            <property name="headers-visible">False</property>
+                            <property name="reorderable">True</property>
+                            <property name="search-column">0</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection"/>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn">
+                                <property name="resizable">True</property>
+                                <property name="spacing">4</property>
+                                <property name="min-width">120</property>
+                                <property name="title" translatable="yes">Name:</property>
+                                <property name="clickable">True</property>
+                                <property name="sort-indicator">True</property>
+                                <property name="sort-column-id">0</property>
+                                <child>
+                                  <object class="GtkCellRendererText">
+                                    <property name="ellipsize">end</property>
+                                  </object>
+                                  <attributes>
+                                    <attribute name="text">0</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox" id="new_tag_box">
+                            <property name="width-request">250</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="halign">center</property>
+                            <property name="margin-top">8</property>
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">4</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label" translatable="yes">New Tag:</property>
+                                <property name="xalign">0</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="spacing">4</property>
+                                <child>
+                                  <object class="GtkEntry" id="tag_name_entry">
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="placeholder-text" translatable="yes">Tag</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="remove_tag_button">
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                    <child>
+                                      <object class="GtkImage">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="icon-name">list-remove-symbolic</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="pack-type">end</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="add_tag_button">
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                    <child>
+                                      <object class="GtkImage">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="icon-name">list-add-symbolic</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="pack-type">end</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="pack-type">end</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="pack-type">end</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="name">page0</property>
+                        <property name="title" translatable="yes">page0</property>
+                        <property name="position">4</property>
                       </packing>
                     </child>
                   </object>

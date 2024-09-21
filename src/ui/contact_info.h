@@ -55,6 +55,7 @@ typedef struct UI_CONTACT_INFO_Handle
   GtkButton *reveal_identity_button;
   GtkButton *list_attributes_button;
   GtkButton *share_attributes_button;
+  GtkButton *list_tags_button;
   GtkStack *block_stack;
   GtkButton *block_button;
   GtkButton *unblock_button;
@@ -80,6 +81,14 @@ typedef struct UI_CONTACT_INFO_Handle
   GtkTreeView *sharing_tree;
   GtkListStore *sharing_list;
   GtkCellRendererToggle *share_renderer;
+
+  GtkWidget *tags_box;
+  GtkTreeView *tags_tree;
+  GtkListStore *tags_list;
+  GtkWidget *new_tag_box;
+  GtkEntry *tag_name_entry;
+  GtkButton *add_tag_button;
+  GtkButton *remove_tag_button;
 
   GtkButton *back_button;
   GtkButton *close_button;
