@@ -677,7 +677,7 @@ cb_contact_info_shared_attributes(void *cls,
 
 static enum GNUNET_GenericReturnValue
 cb_contact_info_contact_tags(void *cls,
-                             struct GNUNET_CHAT_Contact *contact,
+                             const struct GNUNET_CHAT_Contact *contact,
                              const char *tag)
 {
   g_assert((cls) && (contact) && (tag));

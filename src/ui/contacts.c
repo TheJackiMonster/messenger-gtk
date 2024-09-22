@@ -101,6 +101,32 @@ close_dialog:
   gtk_window_close(GTK_WINDOW(app->ui.contacts.dialog));
 }
 
+struct FilterTags
+{
+  const gchar *filter;
+  gboolean matching;
+};
+
+static enum GNUNET_GenericReturnValue
+_iterate_contact_tags(void *cls,
+                      const struct GNUNET_CHAT_Contact *contact,
+                      const char *tag)
+{
+  g_assert((cls) && (contact) && (tag));
+
+  struct FilterTags *filterTags = (struct FilterTags*) cls;
+
+  gchar *_tag = g_locale_to_utf8(tag, -1, NULL, NULL, NULL);
+  if (!_tag)
+    return GNUNET_YES;
+
+  if (g_strstr_len(_tag, -1, filterTags->filter))
+    filterTags->matching = TRUE;
+
+  g_free(_tag);
+  return filterTags->matching? GNUNET_NO : GNUNET_YES;
+}
+
 static gboolean
 handle_contacts_listbox_filter_func(GtkListBoxRow *row,
                                     gpointer user_data)
@@ -128,10 +154,31 @@ handle_contacts_listbox_filter_func(GtkListBoxRow *row,
 
   const gchar *name = gtk_label_get_text(entry->title_label);
 
-  if (!name)
-    return FALSE;
+  gboolean result = FALSE;
 
-  return g_str_match_string(filter, name, TRUE);
+  if (name)
+    result |= g_str_match_string(filter, name, TRUE);
+
+  if (('#' == *filter) && (entry->contact))
+  {
+    struct FilterTags filterTags;
+    filterTags.filter = &(filter[1]);
+    filterTags.matching = FALSE;
+
+    application_chat_lock(app);
+
+    GNUNET_CHAT_contact_get_tags(
+      entry->contact,
+      _iterate_contact_tags,
+      &filterTags
+    );
+
+    application_chat_unlock(app);
+
+    result |= filterTags.matching;
+  }
+
+  return result;
 }
 
 static void
