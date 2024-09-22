@@ -885,7 +885,7 @@ Author: Tobias Frisch
                             <property name="reorderable">True</property>
                             <property name="search-column">0</property>
                             <child internal-child="selection">
-                              <object class="GtkTreeSelection"/>
+                              <object class="GtkTreeSelection" id="tags_tree_selection"/>
                             </child>
                             <child>
                               <object class="GtkTreeViewColumn">

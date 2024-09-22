@@ -84,6 +84,7 @@ typedef struct UI_CONTACT_INFO_Handle
 
   GtkWidget *tags_box;
   GtkTreeView *tags_tree;
+  GtkTreeSelection *tags_tree_selection;
   GtkListStore *tags_list;
   GtkWidget *new_tag_box;
   GtkEntry *tag_name_entry;
