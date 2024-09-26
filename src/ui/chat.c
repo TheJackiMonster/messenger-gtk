@@ -25,9 +25,7 @@
 #include "chat.h"
 
 #include <gdk/gdkkeysyms.h>
-#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_chat_lib.h>
-#include <gnunet/gnunet_time_lib.h>
 #include <stdlib.h>
 
 #include "chat_entry.h"
@@ -347,12 +345,14 @@ handle_chat_messages_sort(GtkListBoxRow* row0,
   if ((!message0) || (!message1))
     return 0;
 
-  struct GNUNET_TIME_Absolute timestamp0 = message0->timestamp;
-  struct GNUNET_TIME_Absolute timestamp1 = message1->timestamp;
+  time_t timestamp0 = message0->timestamp;
+  time_t timestamp1 = message1->timestamp;
 
-  if (GNUNET_TIME_absolute_cmp(timestamp0, <, timestamp1))
+  const double diff = difftime(timestamp0, timestamp1);
+
+  if (diff < -0.0)
     return -1;
-  else if (GNUNET_TIME_absolute_cmp(timestamp0, >, timestamp1))
+  else if (diff > +0.0)
     return +1;
   else
     return 0;

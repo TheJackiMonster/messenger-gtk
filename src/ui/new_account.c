@@ -289,8 +289,7 @@ _cb_file_upload(void *cls,
     GNUNET_CHAT_set_attribute(
       app->chat.messenger.handle,
       GNUNET_CHAT_ATTRIBUTE_AVATAR,
-      uri_string,
-      GNUNET_TIME_relative_get_forever_()
+      uri_string
     );
 
     GNUNET_free(uri_string);

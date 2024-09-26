@@ -33,8 +33,6 @@
 #include "../ui.h"
 
 #include <gnunet/gnunet_chat_lib.h>
-#include <gnunet/gnunet_common.h>
-#include <gnunet/gnunet_time_lib.h>
 #include <string.h>
 
 static void
@@ -168,8 +166,7 @@ _cb_file_upload(void *cls,
     GNUNET_CHAT_set_attribute(
       app->chat.messenger.handle,
       GNUNET_CHAT_ATTRIBUTE_AVATAR,
-      uri_string,
-      GNUNET_TIME_relative_get_forever_()
+      uri_string
     );
 
     GNUNET_free(uri_string);
@@ -753,7 +750,7 @@ handle_value_renderer_edit(GtkCellRendererText *renderer,
   if ((new_text) && (strlen(new_text)))
   {
     application_chat_lock(handle->app);
-    GNUNET_CHAT_set_attribute(chat, name, new_text, GNUNET_TIME_relative_get_forever_());
+    GNUNET_CHAT_set_attribute(chat, name, new_text);
     application_chat_unlock(handle->app);
 
     gtk_list_store_set(handle->attributes_list, &iter, 1, new_text, -1);
@@ -803,7 +800,7 @@ handle_add_attribute_button_click(UNUSED GtkButton *button,
   if ((name) && (value))
   {
     application_chat_lock(handle->app);
-    GNUNET_CHAT_set_attribute(chat, name, value, GNUNET_TIME_relative_get_forever_());
+    GNUNET_CHAT_set_attribute(chat, name, value);
     application_chat_unlock(handle->app);
 
     gtk_list_store_insert_with_values(

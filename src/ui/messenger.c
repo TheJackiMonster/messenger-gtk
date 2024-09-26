@@ -365,12 +365,14 @@ handle_chats_listbox_sort_func(GtkListBoxRow* row0,
   if ((!entry0) || (!entry1))
     return 0;
 
-  struct GNUNET_TIME_Absolute timestamp0 = entry0->timestamp;
-  struct GNUNET_TIME_Absolute timestamp1 = entry1->timestamp;
+  time_t timestamp0 = entry0->timestamp;
+  time_t timestamp1 = entry1->timestamp;
 
-  if (GNUNET_TIME_absolute_cmp(timestamp0, >, timestamp1))
+  const double diff = difftime(timestamp0, timestamp1);
+
+  if (diff > +0.0)
     return -1;
-  else if (GNUNET_TIME_absolute_cmp(timestamp0, <, timestamp1))
+  else if (diff < -0.0)
     return +1;
   else
     return 0;

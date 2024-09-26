@@ -201,10 +201,7 @@ _delete_messages_callback(MESSENGER_Application *app,
 
     GNUNET_CHAT_message_delete(
     	message->msg,
-    	GNUNET_TIME_relative_multiply(
-    	  GNUNET_TIME_relative_get_second_(),
-	      delay
-	    )
+    	delay
     );
 
     application_chat_unlock(app);

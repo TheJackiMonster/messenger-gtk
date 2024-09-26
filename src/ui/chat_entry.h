@@ -33,7 +33,7 @@ typedef struct UI_CHAT_ENTRY_Handle
 {
   guint update;
 
-  struct GNUNET_TIME_Absolute timestamp;
+  time_t timestamp;
   struct GNUNET_CHAT_Context *context;
 
   UI_CHAT_Handle *chat;

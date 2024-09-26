@@ -34,8 +34,6 @@
 
 #include <glib-2.0/glib.h>
 #include <gnunet/gnunet_chat_lib.h>
-#include <gnunet/gnunet_common.h>
-#include <gnunet/gnunet_time_lib.h>
 
 UI_CHAT_ENTRY_Handle*
 ui_chat_entry_new(MESSENGER_Application *app,
@@ -47,7 +45,7 @@ ui_chat_entry_new(MESSENGER_Application *app,
 
   memset(handle, 0, sizeof(*handle));
 
-  handle->timestamp = GNUNET_TIME_absolute_get_zero_();
+  handle->timestamp = ((time_t) -1);
   handle->context = context;
 
   handle->chat = ui_chat_new(app, handle->context);
@@ -183,13 +181,9 @@ ui_chat_entry_update(UI_CHAT_ENTRY_Handle *handle,
 
   handle->timestamp = last_message->timestamp;
 
-  const struct GNUNET_TIME_Timestamp timestamp = GNUNET_TIME_absolute_to_timestamp(
-    handle->timestamp
-  );
-
   GDateTime *dt_now = g_date_time_new_now_local();
   GDateTime *dt_message = g_date_time_new_from_unix_local(
-    (gint64) (timestamp.abs_time.abs_value_us / 1000000)
+    (gint64) handle->timestamp
   );
 
   GTimeSpan span = g_date_time_difference(dt_now, dt_message);

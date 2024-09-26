@@ -591,11 +591,12 @@ event_presence_contact(MESSENGER_Application *app,
       "presence.online"
     );
 
-  struct GNUNET_TIME_Absolute timestamp = GNUNET_CHAT_message_get_timestamp(
+  char time [20];
+  time_t timestamp = GNUNET_CHAT_message_get_timestamp(
     msg
   );
 
-  const char *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
+  strftime(time, 20, "%Y-%m-%d %H:%M:%S", localtime(&timestamp));
 
   ui_label_set_text(message->text_label, text);
   ui_label_set_text(message->timestamp_label, time);
@@ -686,10 +687,10 @@ event_invitation(MESSENGER_Application *app,
     return;
 
   if (app->settings.delete_invitations_delay > 0)
-    GNUNET_CHAT_message_delete(msg, GNUNET_TIME_relative_multiply(
-      GNUNET_TIME_relative_get_second_(),
+    GNUNET_CHAT_message_delete(
+      msg,
       app->settings.delete_invitations_delay
-    ));
+    );
 
   const int sent = GNUNET_CHAT_message_is_sent(msg);
 
@@ -766,10 +767,10 @@ event_receive_message(MESSENGER_Application *app,
   const int sent = GNUNET_CHAT_message_is_sent(msg);
 
   if ((sent) && (app->settings.auto_delete_delay > 0))
-    GNUNET_CHAT_message_delete(msg, GNUNET_TIME_relative_multiply(
-      GNUNET_TIME_relative_get_second_(),
+    GNUNET_CHAT_message_delete(
+      msg,
       app->settings.auto_delete_delay
-    ));
+    );
 
   const gchar *text = GNUNET_CHAT_message_get_text(msg);
 
@@ -793,10 +794,10 @@ event_receive_message(MESSENGER_Application *app,
     file_add_ui_message_to_info(file, message);
 
     if (app->settings.delete_files_delay > 0)
-      GNUNET_CHAT_message_delete(msg, GNUNET_TIME_relative_multiply(
-        GNUNET_TIME_relative_get_second_(),
+      GNUNET_CHAT_message_delete(
+        msg,
         app->settings.delete_files_delay
-      ));
+      );
   }
 
   ui_message_update(message, app, msg);
@@ -807,11 +808,12 @@ event_receive_message(MESSENGER_Application *app,
 
   ui_message_set_contact(message, contact);
 
-  struct GNUNET_TIME_Absolute timestamp = GNUNET_CHAT_message_get_timestamp(
+  char time [20];
+  time_t timestamp = GNUNET_CHAT_message_get_timestamp(
     msg
   );
 
-  const char *time = GNUNET_STRINGS_absolute_time_to_string(timestamp);
+  strftime(time, 20, "%Y-%m-%d %H:%M:%S", localtime(&timestamp));
 
   if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
       (GNUNET_YES == GNUNET_CHAT_message_is_recent(msg)) &&

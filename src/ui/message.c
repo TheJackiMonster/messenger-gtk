@@ -262,7 +262,7 @@ ui_message_new(MESSENGER_Application *app,
 
   handle->type = type;
 
-  handle->timestamp = GNUNET_TIME_absolute_get_zero_();
+  handle->timestamp = ((time_t) -1);
   handle->msg = NULL;
   handle->contact = NULL;
 

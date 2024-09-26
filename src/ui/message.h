@@ -45,7 +45,7 @@ typedef struct UI_MESSAGE_Handle
 {
   UI_MESSAGE_Type type;
 
-  struct GNUNET_TIME_Absolute timestamp;
+  time_t timestamp;
   struct GNUNET_CHAT_Message *msg;
   struct GNUNET_CHAT_Contact *contact;
 

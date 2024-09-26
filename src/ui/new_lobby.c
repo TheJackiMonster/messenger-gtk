@@ -132,11 +132,6 @@ handle_generate_button_click(UNUSED GtkButton *button,
   if (gtk_combo_box_get_active_iter(app->ui.new_lobby.expiration_combo_box, &iter))
     gtk_tree_model_get(model, &iter, 1, &delay, -1);
 
-  struct GNUNET_TIME_Relative expiration = GNUNET_TIME_relative_multiply(
-    GNUNET_TIME_relative_get_second_(),
-    delay
-  );
-
   gtk_stack_set_visible_child(
     app->ui.new_lobby.preview_stack,
     GTK_WIDGET(app->ui.new_lobby.loading_spinner)
@@ -154,7 +149,7 @@ handle_generate_button_click(UNUSED GtkButton *button,
 
   GNUNET_CHAT_lobby_open(
     app->chat.messenger.handle,
-    expiration,
+    delay,
     handle_lobby_opened_and_uri_generated,
     app
   );

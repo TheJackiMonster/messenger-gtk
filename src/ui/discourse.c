@@ -25,9 +25,7 @@
 #include "discourse.h"
 
 #include <glib-2.0/glib.h>
-#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_chat_lib.h>
-#include <gnunet/gnunet_time_lib.h>
 
 #include "account_entry.h"
 #include "discourse_panel.h"
