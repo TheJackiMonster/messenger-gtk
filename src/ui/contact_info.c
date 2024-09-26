@@ -39,7 +39,7 @@
 
 static void
 handle_contact_edit_button_click(UNUSED GtkButton *button,
-				                         gpointer user_data)
+                                 gpointer user_data)
 {
   g_assert(user_data);
 
@@ -94,7 +94,7 @@ skip_change_name:
 
 static void
 handle_contact_name_entry_activate(UNUSED GtkEntry *entry,
-				                           gpointer user_data)
+                                   gpointer user_data)
 {
   g_assert(user_data);
 
@@ -308,7 +308,7 @@ handle_unblock_button_click(UNUSED GtkButton *button,
 
 static void
 handle_open_chat_button_click(UNUSED GtkButton *button,
-			                        gpointer user_data)
+                              gpointer user_data)
 {
   g_assert(user_data);
 
@@ -353,7 +353,7 @@ close_dialog:
 
 static void
 handle_back_button_click(UNUSED GtkButton *button,
-			                   gpointer user_data)
+                         gpointer user_data)
 {
   g_assert(user_data);
 
@@ -677,7 +677,7 @@ cb_contact_info_shared_attributes(void *cls,
 
 static enum GNUNET_GenericReturnValue
 cb_contact_info_contact_tags(void *cls,
-                             const struct GNUNET_CHAT_Contact *contact,
+                             struct GNUNET_CHAT_Contact *contact,
                              const char *tag)
 {
   g_assert((cls) && (contact) && (tag));
@@ -824,7 +824,7 @@ handle_add_attribute_button_click(UNUSED GtkButton *button,
 
 static void
 handle_attribute_entry_activate(UNUSED GtkEntry *entry,
-				                        gpointer user_data)
+                                gpointer user_data)
 {
   g_assert(user_data);
 
@@ -981,7 +981,7 @@ handle_remove_tag_button_click(UNUSED GtkButton *button,
 
 static void
 handle_tag_entry_activate(UNUSED GtkEntry *entry,
-				                  gpointer user_data)
+                          gpointer user_data)
 {
   g_assert(user_data);
 
@@ -1377,7 +1377,7 @@ _contact_info_update(UI_CONTACT_INFO_Handle *handle,
 
 static void
 _account_info_update(UI_CONTACT_INFO_Handle *handle,
-                     const struct GNUNET_CHAT_Account *account)
+                     struct GNUNET_CHAT_Account *account)
 {
   g_assert(handle);
 
@@ -1408,7 +1408,7 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
     _contact_info_update(handle, contact);
   else
   {
-    const struct GNUNET_CHAT_Account *account = GNUNET_CHAT_get_connected(
+    struct GNUNET_CHAT_Account *account = GNUNET_CHAT_get_connected(
       handle->app->chat.messenger.handle
     );
 

@@ -36,7 +36,7 @@ typedef struct UI_CONTACT_INFO_Handle
 {
   MESSENGER_Application *app;
 
-  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Account *account;
   struct GNUNET_CHAT_Contact *contact;
 
   GtkBuilder *builder;

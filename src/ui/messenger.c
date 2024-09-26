@@ -86,7 +86,7 @@ handle_user_details_folded(GObject* object,
 
 static void
 handle_profile_button_click(UNUSED GtkButton* button,
-				                             gpointer user_data)
+                            gpointer user_data)
 {
   g_assert(user_data);
 
@@ -122,7 +122,7 @@ _flap_user_details_reveal_switch(gpointer user_data)
 
 static void
 handle_user_details_via_button_click(UNUSED GtkButton* button,
-				                             gpointer user_data)
+                                     gpointer user_data)
 {
   g_assert(user_data);
 
@@ -138,7 +138,7 @@ handle_user_details_via_button_click(UNUSED GtkButton* button,
 
 static void
 handle_lobby_button_click(UNUSED GtkButton* button,
-			                    gpointer user_data)
+                          gpointer user_data)
 {
   g_assert(user_data);
 
@@ -153,7 +153,7 @@ handle_lobby_button_click(UNUSED GtkButton* button,
 
 static void
 _switch_details_revealer_visibility(UI_MESSENGER_Handle *handle,
-				                            gboolean state)
+                                    gboolean state)
 {
   g_assert(handle);
 
@@ -172,7 +172,7 @@ _switch_details_revealer_visibility(UI_MESSENGER_Handle *handle,
 
 static void
 handle_account_details_button_click(UNUSED GtkButton* button,
-				                            gpointer user_data)
+                                    gpointer user_data)
 {
   g_assert(user_data);
 
@@ -233,7 +233,7 @@ handle_accounts_listbox_row_activated(UNUSED GtkListBox* listbox,
 
 static void
 handle_new_contact_button_click(UNUSED GtkButton* button,
-				                        gpointer user_data)
+                                gpointer user_data)
 {
   g_assert(user_data);
 
@@ -246,7 +246,7 @@ handle_new_contact_button_click(UNUSED GtkButton* button,
 
 static void
 handle_new_group_button_click(UNUSED GtkButton* button,
-			                        gpointer user_data)
+                              gpointer user_data)
 {
   g_assert(user_data);
 
@@ -259,7 +259,7 @@ handle_new_group_button_click(UNUSED GtkButton* button,
 
 static void
 handle_new_platform_button_click(UNUSED GtkButton* button,
-				                         gpointer user_data)
+                                 gpointer user_data)
 {
   g_assert(user_data);
 
@@ -272,7 +272,7 @@ handle_new_platform_button_click(UNUSED GtkButton* button,
 
 static void
 handle_contacts_button_click(UNUSED GtkButton* button,
-			                       gpointer user_data)
+                             gpointer user_data)
 {
   g_assert(user_data);
 
@@ -285,7 +285,7 @@ handle_contacts_button_click(UNUSED GtkButton* button,
 
 static void
 handle_settings_button_click(UNUSED GtkButton* button,
-			                       gpointer user_data)
+                             gpointer user_data)
 {
   g_assert(user_data);
 
@@ -298,7 +298,7 @@ handle_settings_button_click(UNUSED GtkButton* button,
 
 static void
 handle_about_button_click(UNUSED GtkButton* button,
-			                    gpointer user_data)
+                          gpointer user_data)
 {
   g_assert(user_data);
 
@@ -378,7 +378,7 @@ handle_chats_listbox_sort_func(GtkListBoxRow* row0,
 
 static gboolean
 handle_chats_listbox_filter_func(GtkListBoxRow *row,
-				                         gpointer user_data)
+                                 gpointer user_data)
 {
   g_assert((row) && (user_data));
 
@@ -412,7 +412,7 @@ handle_chats_listbox_filter_func(GtkListBoxRow *row,
 
 static void
 handle_search_button_click(UNUSED GtkButton *button,
-			                     gpointer user_data)
+                           gpointer user_data)
 {
   g_assert(user_data);
 
@@ -429,7 +429,7 @@ handle_search_button_click(UNUSED GtkButton *button,
 
 static void
 handle_chats_search_changed(UNUSED GtkSearchEntry *search,
-			                      gpointer user_data)
+                            gpointer user_data)
 {
   g_assert(user_data);
 
@@ -440,7 +440,7 @@ handle_chats_search_changed(UNUSED GtkSearchEntry *search,
 
 static void
 handle_main_window_destroy(UNUSED GtkWidget *window,
-			                     gpointer user_data)
+                           gpointer user_data)
 {
   g_assert(user_data);
 
@@ -462,7 +462,7 @@ handle_main_window_destroy(UNUSED GtkWidget *window,
 
 void
 ui_messenger_init(MESSENGER_Application *app,
-		              UI_MESSENGER_Handle *handle)
+                  UI_MESSENGER_Handle *handle)
 {
   g_assert((app) && (handle));
 
@@ -823,7 +823,7 @@ ui_messenger_init(MESSENGER_Application *app,
 
 static int
 _messenger_iterate_accounts(void *cls,
-                            const struct GNUNET_CHAT_Handle *handle,
+                            struct GNUNET_CHAT_Handle *handle,
                             struct GNUNET_CHAT_Account *account)
 {
   g_assert((cls) && (handle) && (account));
@@ -850,7 +850,7 @@ _messenger_iterate_accounts(void *cls,
 
 static void
 _clear_accounts_listbox(GtkWidget *widget,
-			                  gpointer data)
+                        gpointer data)
 {
   g_assert((widget) && (data));
 
@@ -879,7 +879,7 @@ _close_messenger_missing_account(gpointer data)
 
 void
 ui_messenger_refresh(MESSENGER_Application *app,
-		                 UI_MESSENGER_Handle *handle)
+                     UI_MESSENGER_Handle *handle)
 {
   g_assert((app) && (handle));
 
@@ -915,7 +915,7 @@ ui_messenger_refresh(MESSENGER_Application *app,
 
 gboolean
 ui_messenger_is_context_active(UI_MESSENGER_Handle *handle,
-			                         struct GNUNET_CHAT_Context *context)
+                               struct GNUNET_CHAT_Context *context)
 {
   g_assert((handle) && (context));
 

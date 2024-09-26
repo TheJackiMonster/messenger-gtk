@@ -841,7 +841,7 @@ discourse_destroy_info(struct GNUNET_CHAT_Discourse *discourse)
 
 static enum GNUNET_GenericReturnValue
 _append_contact_to_subscription_list(void *cls,
-                                     const struct GNUNET_CHAT_Discourse *discourse,
+                                     struct GNUNET_CHAT_Discourse *discourse,
                                      struct GNUNET_CHAT_Contact *contact)
 {
   g_assert((cls) && (discourse) && (contact));

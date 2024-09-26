@@ -108,7 +108,7 @@ account_cleanup_infos()
 
 void
 account_add_name_avatar_to_info(const struct GNUNET_CHAT_Account *account,
-			                          HdyAvatar *avatar)
+                                HdyAvatar *avatar)
 {
   g_assert(avatar);
 
@@ -127,7 +127,7 @@ account_add_name_avatar_to_info(const struct GNUNET_CHAT_Account *account,
 
 void
 account_switch_name_avatar_to_info(const struct GNUNET_CHAT_Account *account,
-			                             HdyAvatar *avatar)
+                                   HdyAvatar *avatar)
 {
   g_assert(avatar);
 
@@ -158,7 +158,7 @@ account_switch_name_avatar_to_info(const struct GNUNET_CHAT_Account *account,
 
 void
 account_remove_name_avatar_from_info(const struct GNUNET_CHAT_Account *account,
-			                               HdyAvatar *avatar)
+                                     HdyAvatar *avatar)
 {
   g_assert(avatar);
 
@@ -237,7 +237,7 @@ skip_comparison:
 
 static enum GNUNET_GenericReturnValue
 _account_iterate_attribute(void *cls,
-                           const struct GNUNET_CHAT_Account *account,
+                           struct GNUNET_CHAT_Account *account,
                            const char *name,
                            const char *value)
 {
@@ -290,12 +290,12 @@ account_update_attributes(const struct GNUNET_CHAT_Account *account,
 
   MESSENGER_AccountInfo *info = GNUNET_CHAT_account_get_user_pointer(account);
 
-  if (!info)
+  if ((!info) || (!(info->account)))
     return;
 
   GNUNET_CHAT_account_get_attributes(
     app->chat.messenger.handle,
-    account,
+    info->account,
     _account_iterate_attribute,
     app->chat.messenger.handle
   );

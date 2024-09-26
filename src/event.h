@@ -40,7 +40,7 @@
 void
 event_handle_warning(MESSENGER_Application *app,
                      struct GNUNET_CHAT_Context *context,
-                     const struct GNUNET_CHAT_Message *msg);
+                     struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever the accounts
@@ -79,8 +79,8 @@ event_cleanup_profile(MESSENGER_Application *app);
  */
 void
 event_select_profile(MESSENGER_Application *app,
-		                 struct GNUNET_CHAT_Context *context,
-		                 const struct GNUNET_CHAT_Message *msg);
+                     struct GNUNET_CHAT_Context *context,
+                     struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a the user
@@ -93,7 +93,7 @@ event_select_profile(MESSENGER_Application *app,
 void
 event_update_chats(MESSENGER_Application *app,
                    struct GNUNET_CHAT_Context *context,
-                   const struct GNUNET_CHAT_Message *msg);
+                   struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a contact
@@ -106,7 +106,7 @@ event_update_chats(MESSENGER_Application *app,
 void
 event_presence_contact(MESSENGER_Application *app,
                        struct GNUNET_CHAT_Context *context,
-                       const struct GNUNET_CHAT_Message *msg);
+                       struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a contact
@@ -120,7 +120,7 @@ event_presence_contact(MESSENGER_Application *app,
 void
 event_update_contacts(MESSENGER_Application *app,
                       struct GNUNET_CHAT_Context *context,
-                      const struct GNUNET_CHAT_Message *msg);
+                      struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever an invitation
@@ -133,7 +133,7 @@ event_update_contacts(MESSENGER_Application *app,
 void
 event_invitation(MESSENGER_Application *app,
                  struct GNUNET_CHAT_Context *context,
-                 const struct GNUNET_CHAT_Message *msg);
+                 struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a content
@@ -147,7 +147,7 @@ event_invitation(MESSENGER_Application *app,
 void
 event_receive_message(MESSENGER_Application *app,
                       struct GNUNET_CHAT_Context *context,
-                      const struct GNUNET_CHAT_Message *msg);
+                      struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a message
@@ -160,7 +160,7 @@ event_receive_message(MESSENGER_Application *app,
 void
 event_delete_message(MESSENGER_Application *app,
                      struct GNUNET_CHAT_Context *context,
-                     const struct GNUNET_CHAT_Message *msg);
+                     struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a message
@@ -173,7 +173,7 @@ event_delete_message(MESSENGER_Application *app,
 void
 event_tag_message(MESSENGER_Application *app,
                   struct GNUNET_CHAT_Context *context,
-                  const struct GNUNET_CHAT_Message *msg);
+                  struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever an attribute
@@ -195,7 +195,7 @@ event_update_attributes(MESSENGER_Application *app);
 void
 event_discourse(MESSENGER_Application *app,
                 struct GNUNET_CHAT_Context *context,
-                const struct GNUNET_CHAT_Message *msg);
+                struct GNUNET_CHAT_Message *msg);
 
 /**
  * Event for the UI to be called whenever a data
@@ -208,6 +208,6 @@ event_discourse(MESSENGER_Application *app,
 void
 event_discourse_data(MESSENGER_Application *app,
                      struct GNUNET_CHAT_Context *context,
-                     const struct GNUNET_CHAT_Message *msg);
+                     struct GNUNET_CHAT_Message *msg);
 
 #endif /* EVENT_H_ */

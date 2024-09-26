@@ -78,7 +78,7 @@ _application_accounts(gpointer user_data)
 
 static enum GNUNET_GenericReturnValue
 _application_select_account(void *cls,
-                            const struct GNUNET_CHAT_Handle *handle,
+                            struct GNUNET_CHAT_Handle *handle,
                             struct GNUNET_CHAT_Account *account)
 {
   g_assert((cls) && (account));
@@ -126,7 +126,7 @@ _application_init(MESSENGER_Application *app)
 
 static void
 _application_activate(GApplication* application,
-		                  gpointer user_data)
+                      gpointer user_data)
 {
   g_assert((application) && (user_data));
 
@@ -292,7 +292,7 @@ application_init(MESSENGER_Application *app,
 
 const gchar*
 application_get_resource_path(MESSENGER_Application *app,
-			                        const char *path)
+                              const char *path)
 {
   g_assert((app) && (path));
 
@@ -517,7 +517,7 @@ _application_event_call(gpointer user_data)
 
 void
 application_call_event(MESSENGER_Application *app,
-		                   MESSENGER_ApplicationEvent event)
+                       MESSENGER_ApplicationEvent event)
 {
   g_assert((app) && (event));
 
@@ -554,7 +554,7 @@ _application_sync_event_call(gpointer user_data)
 
 void
 application_call_sync_event(MESSENGER_Application *app,
-		                        MESSENGER_ApplicationEvent event)
+                            MESSENGER_ApplicationEvent event)
 {
   g_assert((app) && (event));
 
@@ -580,7 +580,7 @@ typedef struct MESSENGER_ApplicationMessageEventCall
   MESSENGER_ApplicationMessageEvent event;
 
   struct GNUNET_CHAT_Context *context;
-  const struct GNUNET_CHAT_Message *message;
+  struct GNUNET_CHAT_Message *message;
 } MESSENGER_ApplicationMessageEventCall;
 
 static gboolean
@@ -602,7 +602,7 @@ void
 application_call_message_event(MESSENGER_Application *app,
                                MESSENGER_ApplicationMessageEvent event,
                                struct GNUNET_CHAT_Context *context,
-                               const struct GNUNET_CHAT_Message *message)
+                               struct GNUNET_CHAT_Message *message)
 {
   g_assert((app) && (event) && (message));
 
@@ -668,7 +668,7 @@ _application_stop_chat(gpointer user_data)
 
 void
 application_exit(MESSENGER_Application *app,
-		             MESSENGER_ApplicationSignal signal)
+                 MESSENGER_ApplicationSignal signal)
 {
   g_assert(app);
 

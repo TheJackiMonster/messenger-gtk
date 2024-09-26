@@ -52,7 +52,7 @@ handle_downloading_file(void *cls,
 
 static void
 handle_file_button_click(GtkButton *button,
-			                   gpointer user_data)
+                         gpointer user_data)
 {
   g_assert((button) && (user_data));
 
@@ -139,7 +139,7 @@ handle_file_button_click(GtkButton *button,
 
 static void
 handle_media_button_click(GtkButton *button,
-			                    gpointer user_data)
+                          gpointer user_data)
 {
   g_assert((button) && (user_data));
 
@@ -254,7 +254,7 @@ handle_preview_drawing_area_draw(GtkWidget* drawing_area,
 
 UI_MESSAGE_Handle*
 ui_message_new(MESSENGER_Application *app,
-	             UI_MESSAGE_Type type)
+               UI_MESSAGE_Type type)
 {
   g_assert(app);
 
@@ -445,8 +445,8 @@ ui_message_new(MESSENGER_Application *app,
 
 static int
 _iterate_read_receipts(void *cls,
-                       UNUSED const struct GNUNET_CHAT_Message *message,
-                       const struct GNUNET_CHAT_Contact *contact,
+                       UNUSED struct GNUNET_CHAT_Message *message,
+                       struct GNUNET_CHAT_Contact *contact,
                        int read_receipt)
 {
   g_assert((cls) && (message) && (contact));
@@ -503,7 +503,7 @@ _message_media_supports_file_extension(const gchar *filename)
 
 static void
 _update_invitation_message(UI_MESSAGE_Handle *handle,
-		                       MESSENGER_Application *app,
+                           MESSENGER_Application *app,
                            struct GNUNET_CHAT_Invitation *invitation)
 {
   g_assert((handle) && (app) && (invitation));
@@ -567,8 +567,8 @@ _update_message_with_file(UI_MESSAGE_Handle *handle,
 
 static void
 _update_file_message(UI_MESSAGE_Handle *handle,
-		                 MESSENGER_Application *app,
-		                 struct GNUNET_CHAT_File *file)
+                     MESSENGER_Application *app,
+                     struct GNUNET_CHAT_File *file)
 {
   g_assert((handle) && (app) && (file));
 
@@ -682,8 +682,8 @@ file_content:
 
 void
 ui_message_update(UI_MESSAGE_Handle *handle,
-		              MESSENGER_Application *app,
-		              const struct GNUNET_CHAT_Message *msg)
+                  MESSENGER_Application *app,
+                  struct GNUNET_CHAT_Message *msg)
 {
   g_assert((handle) && (app));
 
@@ -730,7 +730,7 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 
 void
 ui_message_set_contact(UI_MESSAGE_Handle *handle,
-		                   const struct GNUNET_CHAT_Contact *contact)
+                       struct GNUNET_CHAT_Contact *contact)
 {
   g_assert(handle);
 
@@ -754,7 +754,7 @@ ui_message_set_contact(UI_MESSAGE_Handle *handle,
 void
 ui_message_add_tag(UI_MESSAGE_Handle *handle,
                    MESSENGER_Application *app,
-                   const struct GNUNET_CHAT_Message *tag_message)
+                   struct GNUNET_CHAT_Message *tag_message)
 {
   g_assert((handle) && (app) && (tag_message));
 
@@ -805,7 +805,7 @@ _remove_tag_from_message(UI_MESSAGE_Handle *handle,
 void
 ui_message_remove_tag(UI_MESSAGE_Handle *handle,
                       MESSENGER_Application *app,
-                      const struct GNUNET_CHAT_Message *tag_message)
+                      struct GNUNET_CHAT_Message *tag_message)
 {
   g_assert((handle) && (app) && (tag_message));
 

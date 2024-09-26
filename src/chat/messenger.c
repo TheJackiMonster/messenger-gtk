@@ -30,7 +30,7 @@
 static int
 _chat_messenger_message(void *cls,
                         struct GNUNET_CHAT_Context *context,
-                        const struct GNUNET_CHAT_Message *message)
+                        struct GNUNET_CHAT_Message *message)
 {
   g_assert((cls) && (message));
 
@@ -143,7 +143,7 @@ _chat_messenger_message(void *cls,
     }
     case GNUNET_CHAT_KIND_DELETION:
     {
-      const struct GNUNET_CHAT_Message *target;
+      struct GNUNET_CHAT_Message *target;
       target = GNUNET_CHAT_message_get_target(message);
 
       if (target) 

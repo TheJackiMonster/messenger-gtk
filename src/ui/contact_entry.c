@@ -62,7 +62,7 @@ ui_contact_entry_new(MESSENGER_Application *app)
 
 void
 ui_contact_entry_set_contact(UI_CONTACT_ENTRY_Handle* handle,
-                             const struct GNUNET_CHAT_Contact *contact)
+                             struct GNUNET_CHAT_Contact *contact)
 {
   g_assert(handle);
 

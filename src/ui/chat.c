@@ -112,7 +112,7 @@ _flap_chat_details_reveal_switch(gpointer user_data)
 
 static void
 handle_chat_details_via_button_click(UNUSED GtkButton* button,
-				                             gpointer user_data)
+                                     gpointer user_data)
 {
   g_assert(user_data);
 
@@ -177,8 +177,8 @@ handle_chat_contacts_listbox_row_activated(GtkListBox *listbox,
 
 static void
 handle_chat_messages_listbox_size_allocate(UNUSED GtkWidget *widget,
-					                                 UNUSED GdkRectangle *allocation,
-				                                   gpointer user_data)
+                                           UNUSED GdkRectangle *allocation,
+                                           gpointer user_data)
 {
   g_assert(user_data);
 
@@ -202,7 +202,7 @@ handle_chat_messages_listbox_size_allocate(UNUSED GtkWidget *widget,
 
 static void
 handle_reveal_identity_button_click(GtkButton *button,
-				                            gpointer user_data)
+                                    gpointer user_data)
 {
   g_assert((button) && (user_data));
 
@@ -230,7 +230,7 @@ handle_reveal_identity_button_click(GtkButton *button,
 
 static void
 handle_discourse_button_click(GtkButton *button,
-				                      gpointer user_data)
+                              gpointer user_data)
 {
   g_assert((button) && (user_data));
 
@@ -291,7 +291,7 @@ handle_unblock_button_click(UNUSED GtkButton *button,
 
 static void
 handle_leave_chat_button_click(UNUSED GtkButton *button,
-			                         gpointer user_data)
+                               gpointer user_data)
 {
   g_assert(user_data);
 
@@ -366,7 +366,7 @@ struct FilterTags
 
 static enum GNUNET_GenericReturnValue
 _iterate_message_tags(void *cls,
-                      const struct GNUNET_CHAT_Message *message)
+                      struct GNUNET_CHAT_Message *message)
 {
   g_assert((cls) && (message));
 
@@ -456,7 +456,7 @@ handle_chat_messages_filter(GtkListBoxRow *row,
 
 static void
 handle_chat_messages_selected_rows_changed(GtkListBox *listbox,
-					                                 gpointer user_data)
+                                           gpointer user_data)
 {
   g_assert((listbox) && (user_data));
 
@@ -490,7 +490,7 @@ handle_chat_messages_selected_rows_changed(GtkListBox *listbox,
 
 static void
 handle_attach_file_button_click(GtkButton *button,
-				                        gpointer user_data)
+                                gpointer user_data)
 {
   g_assert((button) && (user_data));
 
@@ -567,7 +567,7 @@ _update_send_record_symbol(GtkTextBuffer *buffer,
 
 static void
 handle_send_text_buffer_changed(GtkTextBuffer *buffer,
-				                        gpointer user_data)
+                                gpointer user_data)
 {
   g_assert((buffer) && (user_data));
 
@@ -582,8 +582,8 @@ handle_send_text_buffer_changed(GtkTextBuffer *buffer,
 
 static gboolean
 _send_text_from_view(MESSENGER_Application *app,
-		                 UI_CHAT_Handle *handle,
-		                 GtkTextView *text_view,
+                     UI_CHAT_Handle *handle,
+                     GtkTextView *text_view,
                      gint64 action_time)
 {
   g_assert((app) && (handle) && (text_view));
@@ -669,7 +669,7 @@ handle_sending_recording_upload_file(UNUSED void *cls,
 
 static void
 handle_send_record_button_click(GtkButton *button,
-				                        gpointer user_data)
+                                gpointer user_data)
 {
   g_assert((button) && (user_data));
 
@@ -724,7 +724,7 @@ handle_send_record_button_click(GtkButton *button,
 
 static void
 handle_send_later_button_click(GtkButton *button,
-				                       gpointer user_data)
+                               gpointer user_data)
 {
   g_assert((button) && (user_data));
 
@@ -747,7 +747,7 @@ handle_send_later_button_click(GtkButton *button,
 
 static void
 handle_send_now_button_click(GtkButton *button,
-				                     gpointer user_data)
+                             gpointer user_data)
 {
   g_assert((button) && (user_data));
 
@@ -927,7 +927,7 @@ handle_send_record_button_released(GtkWidget *widget,
 static gboolean
 handle_send_text_key_press (GtkWidget *widget,
                             GdkEventKey *event,
-			                      gpointer user_data)
+                            gpointer user_data)
 {
   g_assert((widget) && (event) && (user_data));
 
@@ -947,7 +947,7 @@ handle_send_text_key_press (GtkWidget *widget,
 
 static void
 handle_recording_close_button_click(UNUSED GtkButton *button,
-				                            gpointer user_data)
+                                    gpointer user_data)
 {
   g_assert(user_data);
 
@@ -958,7 +958,7 @@ handle_recording_close_button_click(UNUSED GtkButton *button,
 
 static void
 _stop_playing_recording(UI_CHAT_Handle *handle,
-			                  gboolean reset_bar)
+                        gboolean reset_bar)
 {
   g_assert(handle);
 
@@ -985,7 +985,7 @@ _stop_playing_recording(UI_CHAT_Handle *handle,
 
 static void
 handle_recording_play_button_click(UNUSED GtkButton *button,
-				                           gpointer user_data)
+                                   gpointer user_data)
 {
   g_assert(user_data);
 
@@ -1034,7 +1034,7 @@ handle_search_entry_search_changed(UNUSED GtkSearchEntry* search_entry,
 
 static void
 handle_picker_button_click(UNUSED GtkButton *button,
-			                     gpointer user_data)
+                           gpointer user_data)
 {
   g_assert(user_data);
 
@@ -1660,7 +1660,7 @@ struct IterateChatClosure {
 
 static enum GNUNET_GenericReturnValue
 iterate_ui_chat_update_group_contacts(void *cls,
-                                      UNUSED const struct GNUNET_CHAT_Group *group,
+                                      UNUSED struct GNUNET_CHAT_Group *group,
                                       struct GNUNET_CHAT_Contact *contact)
 {
   struct IterateChatClosure *closure = (

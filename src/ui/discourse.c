@@ -42,7 +42,7 @@
 
 static void
 handle_back_button_click(UNUSED GtkButton *button,
-			                   gpointer user_data)
+                         gpointer user_data)
 {
   g_assert(user_data);
 
@@ -52,7 +52,7 @@ handle_back_button_click(UNUSED GtkButton *button,
 
 static void
 handle_details_button_click(UNUSED GtkButton *button,
-			                      gpointer user_data)
+                            gpointer user_data)
 {
   g_assert(user_data);
 
@@ -92,7 +92,7 @@ _update_microphone_icon(UI_DISCOURSE_Handle *handle)
 
 static void
 handle_microphone_button_click(UNUSED GtkButton *button,
-			                         gpointer user_data)
+                               gpointer user_data)
 {
   g_assert(user_data);
 
@@ -284,7 +284,7 @@ _update_call_button(UI_DISCOURSE_Handle *handle)
 
 static void
 handle_call_start_button_click(UNUSED GtkButton *button,
-			                         gpointer user_data)
+                               gpointer user_data)
 {
   g_assert(user_data);
 
@@ -309,7 +309,7 @@ handle_call_start_button_click(UNUSED GtkButton *button,
 
 static void
 handle_call_stop_button_click(UNUSED GtkButton *button,
-			                        gpointer user_data)
+                              gpointer user_data)
 {
   g_assert(user_data);
 
@@ -341,7 +341,7 @@ handle_call_stop_button_click(UNUSED GtkButton *button,
 
 static void
 handle_window_destroy(UNUSED GtkWidget *window,
-		                  gpointer user_data)
+                      gpointer user_data)
 {
   g_assert(user_data);
 
@@ -545,7 +545,7 @@ ui_discourse_window_init(MESSENGER_Application *app,
 
 static enum GNUNET_GenericReturnValue
 append_discourse_members_to_list(void *cls,
-                                 UNUSED const struct GNUNET_CHAT_Discourse *discourse,
+                                 UNUSED struct GNUNET_CHAT_Discourse *discourse,
                                  struct GNUNET_CHAT_Contact *contact)
 {
   g_assert((cls) && (contact));
@@ -573,7 +573,7 @@ append_discourses_members(void *cls,
 
 static enum GNUNET_GenericReturnValue
 append_group_contacts(void *cls,
-                      UNUSED const struct GNUNET_CHAT_Group *group,
+                      UNUSED struct GNUNET_CHAT_Group *group,
                       struct GNUNET_CHAT_Contact *contact)
 {
   g_assert((cls) && (contact));
@@ -591,7 +591,7 @@ struct IterateDiscourseClosure {
 
 static enum GNUNET_GenericReturnValue
 iterate_ui_discourse_update_discourse_members(void *cls,
-                                              const struct GNUNET_CHAT_Discourse *discourse,
+                                              struct GNUNET_CHAT_Discourse *discourse,
                                               struct GNUNET_CHAT_Contact *contact)
 {
   struct IterateDiscourseClosure *closure = (
@@ -651,7 +651,7 @@ struct IterateDiscourseVideoClosure {
 
 static enum GNUNET_GenericReturnValue
 iterate_ui_discourse_update_discourse_video(void *cls,
-                                            const struct GNUNET_CHAT_Discourse *discourse,
+                                            struct GNUNET_CHAT_Discourse *discourse,
                                             struct GNUNET_CHAT_Contact *contact)
 {
   g_assert((cls) && (discourse) && (contact));
@@ -757,7 +757,7 @@ _discourse_update_members(UI_DISCOURSE_Handle *handle)
 
 static enum GNUNET_GenericReturnValue
 iterate_ui_discourse_update_group_contacts(void *cls,
-                                           UNUSED const struct GNUNET_CHAT_Group *group,
+                                           UNUSED struct GNUNET_CHAT_Group *group,
                                            struct GNUNET_CHAT_Contact *contact)
 {
   struct IterateDiscourseClosure *closure = (

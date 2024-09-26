@@ -69,7 +69,7 @@ handle_contacts_listbox_row_activated(GtkListBox* listbox,
   if (!context)
     goto close_dialog;
 
-  const struct GNUNET_CHAT_Group *group = GNUNET_CHAT_context_get_group(
+  struct GNUNET_CHAT_Group *group = GNUNET_CHAT_context_get_group(
     context
   );
 

@@ -32,7 +32,7 @@
 
 static void
 handle_close_button_click(UNUSED GtkButton *button,
-			                    gpointer user_data)
+                          gpointer user_data)
 {
   g_assert(user_data);
   
@@ -94,7 +94,7 @@ close_dialog:
 
 static void
 handle_dialog_destroy(UNUSED GtkWidget *window,
-		                  gpointer user_data)
+                      gpointer user_data)
 {
   g_assert(user_data);
 
@@ -111,7 +111,7 @@ handle_dialog_destroy(UNUSED GtkWidget *window,
 
 static int
 _iterate_accounts(void *cls,
-                  UNUSED const struct GNUNET_CHAT_Handle *handle,
+                  UNUSED struct GNUNET_CHAT_Handle *handle,
                   struct GNUNET_CHAT_Account *account)
 {
   g_assert((cls) && (account));
@@ -141,7 +141,7 @@ _iterate_accounts(void *cls,
 
 void
 ui_accounts_dialog_init(MESSENGER_Application *app,
-			                  UI_ACCOUNTS_Handle *handle)
+                        UI_ACCOUNTS_Handle *handle)
 {
   g_assert((app) && (handle));
 
@@ -230,7 +230,7 @@ _ui_accounts_cleanup_listbox(UI_ACCOUNTS_Handle *handle,
 
 void
 ui_accounts_dialog_refresh(MESSENGER_Application *app,
-			                     UI_ACCOUNTS_Handle *handle)
+                           UI_ACCOUNTS_Handle *handle)
 {
   g_assert((app) && (handle));
 

@@ -109,7 +109,7 @@ struct FilterTags
 
 static enum GNUNET_GenericReturnValue
 _iterate_contact_tags(void *cls,
-                      const struct GNUNET_CHAT_Contact *contact,
+                      struct GNUNET_CHAT_Contact *contact,
                       const char *tag)
 {
   g_assert((cls) && (contact) && (tag));

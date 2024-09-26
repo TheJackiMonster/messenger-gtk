@@ -46,8 +46,8 @@ typedef struct UI_MESSAGE_Handle
   UI_MESSAGE_Type type;
 
   struct GNUNET_TIME_Absolute timestamp;
-  const struct GNUNET_CHAT_Message *msg;
-  const struct GNUNET_CHAT_Contact *contact;
+  struct GNUNET_CHAT_Message *msg;
+  struct GNUNET_CHAT_Contact *contact;
 
   GtkBuilder *builder [2];
   GtkWidget *message_box;
@@ -121,7 +121,7 @@ ui_message_refresh(UI_MESSAGE_Handle *handle);
 void
 ui_message_update(UI_MESSAGE_Handle *handle,
                   MESSENGER_Application *app,
-                  const struct GNUNET_CHAT_Message *message);
+                  struct GNUNET_CHAT_Message *message);
 
 /**
  * Sets the contact of a given message handle
@@ -132,7 +132,7 @@ ui_message_update(UI_MESSAGE_Handle *handle,
  */
 void
 ui_message_set_contact(UI_MESSAGE_Handle *handle,
-		                   const struct GNUNET_CHAT_Contact *contact);
+                       struct GNUNET_CHAT_Contact *contact);
 
 /**
  * Adds a widget to represent a given tag message
@@ -145,7 +145,7 @@ ui_message_set_contact(UI_MESSAGE_Handle *handle,
 void
 ui_message_add_tag(UI_MESSAGE_Handle *handle,
                    MESSENGER_Application *app,
-                   const struct GNUNET_CHAT_Message *tag_message);
+                   struct GNUNET_CHAT_Message *tag_message);
 
 /**
  * Remove a widget representing a given tag message
@@ -158,7 +158,7 @@ ui_message_add_tag(UI_MESSAGE_Handle *handle,
 void
 ui_message_remove_tag(UI_MESSAGE_Handle *handle,
                       MESSENGER_Application *app,
-                      const struct GNUNET_CHAT_Message *tag_message);
+                      struct GNUNET_CHAT_Message *tag_message);
 
 /**
  * Frees its resources and destroys a given

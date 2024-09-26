@@ -277,7 +277,7 @@ typedef void (*MESSENGER_ApplicationEvent) (
 typedef void (*MESSENGER_ApplicationMessageEvent) (
   MESSENGER_Application *app,
   struct GNUNET_CHAT_Context *context,
-  const struct GNUNET_CHAT_Message *msg
+  struct GNUNET_CHAT_Message *msg
 );
 
 /**
@@ -300,7 +300,7 @@ application_call_event(MESSENGER_Application *app,
  */
 void
 application_call_sync_event(MESSENGER_Application *app,
-		                        MESSENGER_ApplicationEvent event);
+                            MESSENGER_ApplicationEvent event);
 
 /**
  * Calls a given message event with the messenger
@@ -316,7 +316,7 @@ void
 application_call_message_event(MESSENGER_Application *app,
                                MESSENGER_ApplicationMessageEvent event,
                                struct GNUNET_CHAT_Context *context,
-                               const struct GNUNET_CHAT_Message *message);
+                               struct GNUNET_CHAT_Message *message);
 
 /**
  * Lock the thread of the GNUnet scheduler
