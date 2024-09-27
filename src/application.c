@@ -60,6 +60,20 @@ _load_ui_stylesheets(MESSENGER_Application *app)
 }
 
 static gboolean
+_application_main_window(gpointer user_data)
+{
+  g_assert(user_data);
+
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  app->init = 0;
+  app->ui.state = MESSENGER_STATE_MAIN_WINDOW;
+
+  application_show_window(app);
+  return FALSE;
+}
+
+static gboolean
 _application_accounts(gpointer user_data)
 {
   g_assert(user_data);
@@ -76,24 +90,6 @@ _application_accounts(gpointer user_data)
   return FALSE;
 }
 
-static enum GNUNET_GenericReturnValue
-_application_select_account(void *cls,
-                            struct GNUNET_CHAT_Handle *handle,
-                            struct GNUNET_CHAT_Account *account)
-{
-  g_assert((cls) && (account));
-
-  MESSENGER_Application *app = (MESSENGER_Application*) cls;
-
-  const char *name = GNUNET_CHAT_account_get_name(account);
-
-  if ((!name) || (0 != g_strcmp0(app->chat.identity, name)))
-    return GNUNET_YES;
-
-  GNUNET_CHAT_connect(app->chat.messenger.handle, account);
-  return GNUNET_NO;
-}
-
 static void
 _application_init(MESSENGER_Application *app)
 {
@@ -108,20 +104,28 @@ _application_init(MESSENGER_Application *app)
     app->parent = xdp_parent_new_gtk(GTK_WINDOW(app->ui.messenger.main_window));
 #endif
 
+  GSourceFunc function = G_SOURCE_FUNC(_application_accounts);
+
   if (app->chat.identity)
   {
-    app->ui.state = MESSENGER_STATE_MAIN_WINDOW;
+    struct GNUNET_CHAT_Account *account;
 
-    GNUNET_CHAT_iterate_accounts(
+    application_chat_lock(app);
+    account = GNUNET_CHAT_find_account(
       app->chat.messenger.handle,
-      _application_select_account,
-      app
+      app->chat.identity
     );
 
-    application_show_window(app);
+    if (account)
+    {
+      GNUNET_CHAT_connect(app->chat.messenger.handle, account);
+      function = G_SOURCE_FUNC(_application_main_window);
+    }
+
+    application_chat_unlock(app);
   }
-  else
-    app->init = util_idle_add(G_SOURCE_FUNC(_application_accounts), app);
+
+  app->init = util_idle_add(function, app);
 }
 
 static void
