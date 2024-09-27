@@ -243,9 +243,8 @@ Author: Tobias Frisch
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSwitch">
+                      <object class="GtkSwitch" id="notification_sounds_switch">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                       </object>
                       <packing>

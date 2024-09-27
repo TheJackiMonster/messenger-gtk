@@ -160,6 +160,7 @@ typedef struct MESSENGER_Application
     gboolean background_task;
 
     gboolean disable_notifications;
+    gboolean play_notification_sounds;
 
     gboolean send_read_receipts;
 

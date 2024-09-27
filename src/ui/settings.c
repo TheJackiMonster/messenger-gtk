@@ -368,9 +368,18 @@ ui_settings_dialog_init(MESSENGER_Application *app,
     gtk_builder_get_object(handle->builder, "enable_notifications_switch")
   );
 
+  handle->notification_sounds_switch = GTK_SWITCH(
+    gtk_builder_get_object(handle->builder, "notification_sounds_switch")
+  );
+
   gtk_switch_set_active(
     handle->enable_notifications_switch,
     !(app->settings.disable_notifications)
+  );
+
+  gtk_switch_set_active(
+    handle->notification_sounds_switch,
+    app->settings.play_notification_sounds
   );
 
   g_signal_connect(
@@ -378,6 +387,13 @@ ui_settings_dialog_init(MESSENGER_Application *app,
     "state-set",
     G_CALLBACK(handle_inverted_switch_state),
     &(app->settings.disable_notifications)
+  );
+
+  g_signal_connect(
+    handle->notification_sounds_switch,
+    "state-set",
+    G_CALLBACK(handle_general_switch_state),
+    &(app->settings.play_notification_sounds)
   );
 
   handle->blocked_label = GTK_LABEL(

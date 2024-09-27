@@ -36,6 +36,7 @@ typedef struct UI_SETTINGS_Handle
   GtkSwitch *run_in_background_switch;
 
   GtkSwitch *enable_notifications_switch;
+  GtkSwitch *notification_sounds_switch;
 
   GtkLabel *blocked_label;
   GtkWidget *blocked_scrolled_window;

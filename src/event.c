@@ -37,6 +37,7 @@
 
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
+#include <stdio.h>
 
 static void
 _close_notification(NotifyNotification* notification,
@@ -93,6 +94,12 @@ _show_notification(MESSENGER_Application *app,
   );
 
   notify_notification_show(notification, NULL);
+
+  if (app->settings.play_notification_sounds)
+  {
+    fprintf(stdout, "\a");
+    fflush(stdout);
+  }
 }
 
 void
