@@ -37,7 +37,7 @@
  *
  * @return Voice chat discourse id
  */
-const struct GNUNET_ShortHashCode*
+const struct GNUNET_CHAT_DiscourseId*
 get_voice_discourse_id();
 
 /**
@@ -45,7 +45,7 @@ get_voice_discourse_id();
  *
  * @return Video chat discourse id
  */
-const struct GNUNET_ShortHashCode*
+const struct GNUNET_CHAT_DiscourseId*
 get_video_discourse_id();
 
 typedef enum MESSENGER_DiscourseControl {

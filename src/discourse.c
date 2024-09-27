@@ -32,11 +32,11 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-const struct GNUNET_ShortHashCode*
+const struct GNUNET_CHAT_DiscourseId*
 get_voice_discourse_id()
 {
   static enum GNUNET_GenericReturnValue init = GNUNET_NO;
-  static struct GNUNET_ShortHashCode id;
+  static struct GNUNET_CHAT_DiscourseId id;
 
   if (GNUNET_YES != init)
   {
@@ -47,11 +47,11 @@ get_voice_discourse_id()
   return &id;
 }
 
-const struct GNUNET_ShortHashCode*
+const struct GNUNET_CHAT_DiscourseId*
 get_video_discourse_id()
 {
   static enum GNUNET_GenericReturnValue init = GNUNET_NO;
-  static struct GNUNET_ShortHashCode id;
+  static struct GNUNET_CHAT_DiscourseId id;
 
   if (GNUNET_YES != init)
   {
@@ -226,7 +226,7 @@ discourse_subscription_create_info(MESSENGER_DiscourseInfo *discourse,
 
   info->end_datetime = NULL;
 
-  const struct GNUNET_ShortHashCode *id = GNUNET_CHAT_discourse_get_id(
+  const struct GNUNET_CHAT_DiscourseId *id = GNUNET_CHAT_discourse_get_id(
     info->discourse->discourse
   );
 
@@ -327,7 +327,7 @@ discourse_subscription_stream_message(MESSENGER_DiscourseSubscriptionInfo *info,
   if (!available)
     return;
 
-  const struct GNUNET_ShortHashCode *id = GNUNET_CHAT_discourse_get_id(
+  const struct GNUNET_CHAT_DiscourseId *id = GNUNET_CHAT_discourse_get_id(
     info->discourse->discourse
   );
 
@@ -752,7 +752,7 @@ discourse_create_info(struct GNUNET_CHAT_Discourse *discourse)
   info->heartbeat = 0;
   info->subscriptions = NULL;
 
-  const struct GNUNET_ShortHashCode *id = GNUNET_CHAT_discourse_get_id(
+  const struct GNUNET_CHAT_DiscourseId *id = GNUNET_CHAT_discourse_get_id(
     info->discourse
   );
 

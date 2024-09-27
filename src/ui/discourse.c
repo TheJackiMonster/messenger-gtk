@@ -838,7 +838,7 @@ iterate_ui_discourse_search_context_discourses(void *cls,
 
   struct GNUNET_CHAT_Discourse **discourses = (struct GNUNET_CHAT_Discourse**) cls;
 
-  const struct GNUNET_ShortHashCode *id = GNUNET_CHAT_discourse_get_id(discourse);
+  const struct GNUNET_CHAT_DiscourseId *id = GNUNET_CHAT_discourse_get_id(discourse);
 
   if (0 == GNUNET_memcmp(id, get_voice_discourse_id()))
     discourses[0] = discourse;
