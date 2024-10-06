@@ -147,12 +147,14 @@ handle_generate_button_click(UNUSED GtkButton *button,
   gtk_widget_set_visible(GTK_WIDGET(app->ui.new_lobby.generate_button), FALSE);
   gtk_widget_set_visible(GTK_WIDGET(app->ui.new_lobby.copy_button), TRUE);
 
+  application_chat_lock(app);
   GNUNET_CHAT_lobby_open(
     app->chat.messenger.handle,
     delay,
     handle_lobby_opened_and_uri_generated,
     app
   );
+  application_chat_unlock(app);
 }
 
 static void
