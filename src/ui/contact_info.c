@@ -1560,7 +1560,7 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
       handle
     );
 
-    GNUNET_CHAT_contact_get_tags(
+    GNUNET_CHAT_contact_iterate_tags(
       contact,
       cb_contact_info_contact_tags,
       handle

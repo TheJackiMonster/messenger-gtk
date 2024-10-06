@@ -167,7 +167,7 @@ handle_contacts_listbox_filter_func(GtkListBoxRow *row,
 
     application_chat_lock(app);
 
-    GNUNET_CHAT_contact_get_tags(
+    GNUNET_CHAT_contact_iterate_tags(
       entry->contact,
       _iterate_contact_tags,
       &filterTags
