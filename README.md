@@ -23,6 +23,8 @@ The application provides the following features:
  - Exchanging contact details physically
  - Verifying contact identities
  - Switching between different accounts
+ - Chatting live via video or voice streaming
+ - Sharing your screen with a selected group
 
 Chats will generally created as opt-in. So you can decide who may contact you directly and who does not, accepting to a direct chat. Leaving a chat is also always possible.
 
