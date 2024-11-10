@@ -65,7 +65,7 @@
 	<url type="contact">https://www.gnunet.org/en/contact.html</url>
 	
 	<url type="vcs-browser">https://git.gnunet.org/messenger-gtk.git</url>
-	<url type="contribute">https://git.gnunet.org/messenger-gtk.git/tree/README.md</url>
+	<url type="contribute">https://git.gnunet.org/messenger-gtk.git/about</url>
 	
 	<update_contact>thejackimonster_at_gmail.com</update_contact>
 
@@ -75,7 +75,7 @@
 			<description>
 				<ul>
 				  <li>Discourses have been added for live voice and video chats with other contacts.</li>
-					<li>Capturing a specific application or a whole monitor can be selected as video source in a live chat.</li>
+				  <li>Capturing a specific application or a whole monitor can be selected as video source in a live chat.</li>
 				</ul>
 			</description>
 			<url>https://www.gnunet.org/en/news/2024-06-0.21.2.html</url>
@@ -84,8 +84,8 @@
 			<description>
 				<ul>
 				  <li>Messages can be tagged, filtered and searched.</li>
-					<li>Profile pictures can be added and shared with other contacts.</li>
-					<li>Supports localization for English, German and Spanish.</li>
+				  <li>Profile pictures can be added and shared with other contacts.</li>
+				  <li>Supports localization for English, German and Spanish.</li>
 				</ul>
 			</description>
 			<url>https://www.gnunet.org/en/news/2024-06-0.21.2.html</url>
