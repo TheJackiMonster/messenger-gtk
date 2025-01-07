@@ -29,6 +29,7 @@
 #include <glib-2.0/glib.h>
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_configuration_lib.h>
 #include <gstreamer-1.0/gst/gst.h>
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
@@ -317,6 +318,9 @@ _application_chat_thread(void *args)
 
   MESSENGER_Application *app = (MESSENGER_Application*) args;
 
+  const struct GNUNET_OS_ProjectData *data =
+    GNUNET_OS_project_data_gnunet();
+
   struct GNUNET_GETOPT_CommandLineOption options[] = {
     GNUNET_GETOPT_option_string (
       'e',
@@ -329,6 +333,7 @@ _application_chat_thread(void *args)
   };
 
   app->chat.status = (GNUNET_PROGRAM_run(
+    data,
     app->argc,
     app->argv,
     MESSENGER_APPLICATION_BINARY,
