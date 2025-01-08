@@ -71,6 +71,15 @@
 
 	<launchable type="desktop-id">org.gnunet.Messenger.desktop</launchable>
 	<releases>
+	  <release version="0.10.2" date="2024-01-08">
+			<description>
+				<ul>
+				  <li>Notifications play sounds if enabled.</li>
+				  <li>Contacts can be filtered by tags.</li>
+				</ul>
+			</description>
+			<url>https://www.gnunet.org/en/news/2024-06-0.21.2.html</url>
+		</release>
 	  <release version="0.10.1" date="2024-08-29">
 			<description>
 				<ul>

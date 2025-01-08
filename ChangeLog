@@ -1,3 +1,10 @@
+## Version 0.10.2
+* Fixes compatibility with libgnunetchat 0.5.2
+* Update appdata to current state
+* Implement notification sounds
+* List tags of contacts
+* Implement filtering by tags
+
 ## Version 0.10.1
 * Utilize new function from libgnunetchat 0.5.1
 * Implement discourse panel to allow live chat streaming voice and video
