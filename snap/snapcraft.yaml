@@ -84,14 +84,14 @@ parts:
       - libgnutls-dane0
       - libunbound8
       - libltdl7
-    source: http://ftp.gnu.org/gnu/gnunet/gnunet-0.23.1.tar.gz
-    plugin: autotools
-    autotools-configure-parameters:
+    source: http://ftp.gnu.org/gnu/gnunet/gnunet-0.24.0.tar.gz
+    plugin: meson
+    meson-parameters:
       - --prefix=/usr
-      - --disable-documentation
+      - --buildtype=release
   libgnunetchat:
     after: [ gnunet ]
-    source: http://ftp.gnu.org/gnu/gnunet/libgnunetchat-0.5.2.tar.gz
+    source: http://ftp.gnu.org/gnu/gnunet/libgnunetchat-0.5.3.tar.gz
     plugin: meson
     meson-parameters:
       - --prefix=/usr
