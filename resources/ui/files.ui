@@ -119,7 +119,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="pixel-size">64</property>
-                    <property name="icon-name">emblem-documents-symbolic</property>
+                    <property name="icon-name">folder-documents-symbolic</property>
                     <property name="icon_size">3</property>
                   </object>
                   <packing>
