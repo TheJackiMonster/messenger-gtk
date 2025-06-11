@@ -79,6 +79,9 @@ Author: Tobias Frisch
                     </child>
                   </object>
                 </child>
+                <style>
+                  <class name="chat-view"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">True</property>

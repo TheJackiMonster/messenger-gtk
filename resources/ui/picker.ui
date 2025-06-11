@@ -57,6 +57,9 @@ Author: Tobias Frisch
                     </child>
                   </object>
                 </child>
+                <style>
+                  <class name="picker-switcher-bar"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -71,7 +74,6 @@ Author: Tobias Frisch
                 <child>
                   <object class="GtkScrolledWindow" id="recent_emoji_page">
                     <property name="can-focus">True</property>
-                    <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkViewport">
                         <property name="visible">True</property>
@@ -102,7 +104,6 @@ Author: Tobias Frisch
                   <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkViewport">
                         <property name="visible">True</property>
@@ -134,7 +135,6 @@ Author: Tobias Frisch
                   <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkViewport">
                         <property name="visible">True</property>
@@ -166,7 +166,6 @@ Author: Tobias Frisch
                   <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkViewport">
                         <property name="visible">True</property>
@@ -198,7 +197,6 @@ Author: Tobias Frisch
                   <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkViewport">
                         <property name="visible">True</property>
@@ -230,7 +228,6 @@ Author: Tobias Frisch
                   <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkViewport">
                         <property name="visible">True</property>
@@ -262,7 +259,6 @@ Author: Tobias Frisch
                   <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkViewport">
                         <property name="visible">True</property>
@@ -294,7 +290,6 @@ Author: Tobias Frisch
                   <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkViewport">
                         <property name="visible">True</property>
@@ -326,7 +321,6 @@ Author: Tobias Frisch
                   <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkViewport">
                         <property name="visible">True</property>

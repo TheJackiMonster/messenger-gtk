@@ -70,6 +70,10 @@
 	background-color: @error_color;
 }
 
+.chat-view {
+	border-bottom: 1px solid mix(black, @theme_bg_color, 0.6);
+}
+
 .message-avatar {
 	margin: 4px;
 }
@@ -112,6 +116,10 @@
 
 .timestamp-label {
 	font-size: 12px;
+}
+
+.picker-switcher-bar {
+	border-bottom: 1px solid mix(black, @theme_bg_color, 0.6);
 }
 
 .picker-switcher-box {
