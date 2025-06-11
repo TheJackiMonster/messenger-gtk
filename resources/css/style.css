@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -85,11 +85,17 @@
 	background-color: mix(@theme_bg_color, @theme_fg_color, 0.1);
 	color: @theme_fg_color;
 	margin-right: 20px;
+	box-shadow: 3px 3px 2px alpha(black, 0.25);
 }
 
 .message-box.sent {
 	background-color: mix(@theme_bg_color, @theme_selected_bg_color, 0.8);
 	color: @theme_selected_fg_color;
+	box-shadow: -3px 3px 2px alpha(black, 0.25);
+}
+
+.message-box.status {
+	box-shadow: 0px 3px 2px alpha(black, 0.25);
 }
 
 .message-box.sent, .message-box.status {
