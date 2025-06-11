@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2024 GNUnet e.V.
+   Copyright (C) 2022--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -27,6 +27,7 @@
 #include "../application.h"
 #include "../ui.h"
 #include "../util.h"
+#include <glib-2.0/glib.h>
 
 gboolean
 ui_play_media_window_supports_file_extension(const gchar *filename)
@@ -170,23 +171,41 @@ _set_media_position(UI_PLAY_MEDIA_Handle *handle,
 }
 
 static gboolean
+_adjust_playing_media_position(UI_PLAY_MEDIA_Handle *handle);
+
+static void
+_set_next_timeout_callback_of_timeline(UI_PLAY_MEDIA_Handle *handle)
+{
+  g_assert(handle);
+
+  handle->timeline = util_timeout_add(
+    200,
+    G_SOURCE_FUNC(_adjust_playing_media_position),
+    handle
+  );
+}
+
+static gboolean
 _adjust_playing_media_position(UI_PLAY_MEDIA_Handle *handle)
 {
   g_assert(handle);
 
   gint64 pos, len;
 
+  handle->timeline = 0;
+
   if (!(handle->pipeline))
-    return FALSE;
+    return G_SOURCE_REMOVE;
 
   if (!gst_element_query_position(handle->pipeline, GST_FORMAT_TIME, &pos))
-    return FALSE;
+    return G_SOURCE_REMOVE;
 
   if (!gst_element_query_duration(handle->pipeline, GST_FORMAT_TIME, &len))
-    return FALSE;
+    return G_SOURCE_REMOVE;
 
   _set_media_position(handle, pos, len, TRUE);
-  return TRUE;
+  _set_next_timeout_callback_of_timeline(handle);
+  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -199,11 +218,7 @@ _set_timeout_callback_of_timeline(UI_PLAY_MEDIA_Handle *handle,
     util_source_remove(handle->timeline);
 
   if (connected)
-    handle->timeline = util_timeout_add_seconds(
-      1,
-      G_SOURCE_FUNC(_adjust_playing_media_position),
-      handle
-    );
+    _set_next_timeout_callback_of_timeline(handle);
   else
     handle->timeline = 0;
 }
@@ -413,14 +428,17 @@ handle_fullscreen_button_click(GtkButton *button,
 static gboolean
 handle_media_motion_lost(gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) user_data;
 
+  handle->motion_lost = 0;
+
   if (!(hdy_flap_get_reveal_flap(handle->controls_flap)))
-    return FALSE;
+    return G_SOURCE_REMOVE;
 
   hdy_flap_set_reveal_flap(handle->controls_flap, FALSE);
-  handle->motion_lost = 0;
-  return FALSE;
+  return G_SOURCE_REMOVE;
 }
 
 static gboolean
@@ -428,10 +446,12 @@ handle_media_motion_notify(GtkWidget *widget,
 			   GdkEvent *event,
 			   gpointer user_data)
 {
+  g_assert(user_data);
+
   UI_PLAY_MEDIA_Handle *handle = (UI_PLAY_MEDIA_Handle*) user_data;
 
   if (hdy_flap_get_reveal_flap(handle->controls_flap))
-    return FALSE;
+    return G_SOURCE_REMOVE;
 
   if (handle->motion_lost)
     util_source_remove(handle->motion_lost);
@@ -439,7 +459,7 @@ handle_media_motion_notify(GtkWidget *widget,
   hdy_flap_set_reveal_flap(handle->controls_flap, TRUE);
 
   if (!(handle->fullscreen))
-    return FALSE;
+    return G_SOURCE_REMOVE;
 
   handle->motion_lost = util_timeout_add_seconds(
       3,
@@ -447,7 +467,7 @@ handle_media_motion_notify(GtkWidget *widget,
       handle
   );
 
-  return FALSE;
+  return G_SOURCE_REMOVE;
 }
 
 static void
