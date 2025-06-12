@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2024 GNUnet e.V.
+   Copyright (C) 2022--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -1328,6 +1328,10 @@ ui_contact_info_dialog_init(MESSENGER_Application *app,
     handle
   );
 
+  handle->open_chat_stack = GTK_STACK(
+    gtk_builder_get_object(handle->builder, "open_chat_stack")
+  );
+
   handle->back_button = GTK_BUTTON(
     gtk_builder_get_object(handle->builder, "back_button")
   );
@@ -1392,6 +1396,9 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
                               gboolean reveal)
 {
   g_assert(handle);
+
+  if (!contact)
+    contact = GNUNET_CHAT_get_own_contact(handle->app->chat.messenger.handle);
 
   const char *name = NULL;
   const char *key = NULL;
@@ -1567,6 +1574,11 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
     );
   }
 
+  gtk_stack_set_visible_child_name(
+    handle->open_chat_stack,
+    editable? "open_notes_page" : "open_private_chat_page"
+  );
+
   struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
     contact
   );
@@ -1578,7 +1590,7 @@ ui_contact_info_dialog_update(UI_CONTACT_INFO_Handle *handle,
 
   gtk_widget_set_visible(
     GTK_WIDGET(handle->open_chat_button),
-    !editable
+    context? TRUE : FALSE
   );
 
   if (reveal)

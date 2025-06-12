@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2024 GNUnet e.V.
+   Copyright (C) 2022--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -90,6 +90,8 @@ typedef struct UI_CONTACT_INFO_Handle
   GtkEntry *tag_name_entry;
   GtkButton *add_tag_button;
   GtkButton *remove_tag_button;
+
+  GtkStack *open_chat_stack;
 
   GtkButton *back_button;
   GtkButton *close_button;
