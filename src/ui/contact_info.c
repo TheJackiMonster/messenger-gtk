@@ -33,6 +33,7 @@
 #include "../ui.h"
 
 #include <gnunet/gnunet_chat_lib.h>
+#include <gnunet/gnunet_common.h>
 #include <string.h>
 
 static void
@@ -303,6 +304,38 @@ handle_unblock_button_click(UNUSED GtkButton *button,
   );
 }
 
+static void*
+_open_direct_chat(MESSENGER_Application *app,
+                  struct GNUNET_CHAT_Contact *contact)
+{
+  g_assert((app) && (contact));
+
+  application_chat_lock(app);
+
+  struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
+    contact
+  );
+
+  if (!context)
+    return GNUNET_NO;
+
+  void *user_pointer = NULL;;
+  enum GNUNET_GenericReturnValue status = GNUNET_CHAT_context_get_status(
+    context
+  );
+
+  if (GNUNET_SYSERR != status)
+    user_pointer = GNUNET_CHAT_context_get_user_pointer(
+      context
+    );
+  else
+    GNUNET_CHAT_context_request(context);
+
+  application_chat_unlock(app);
+
+  return user_pointer;
+}
+
 static void
 handle_open_chat_button_click(UNUSED GtkButton *button,
                               gpointer user_data)
@@ -314,30 +347,19 @@ handle_open_chat_button_click(UNUSED GtkButton *button,
   if (!(handle->contact))
     return;
 
-  struct GNUNET_CHAT_Context *context = GNUNET_CHAT_contact_get_context(
-    handle->contact
+  UI_CHAT_ENTRY_Handle *entry = _open_direct_chat(
+    handle->app, handle->contact
   );
 
-  if (!context)
-    return;
-
-  if (GNUNET_SYSERR == GNUNET_CHAT_context_get_status(context))
-  {
-    GNUNET_CHAT_context_request(context);
-    goto close_dialog;
-  }
-
-  UI_CHAT_ENTRY_Handle *entry = GNUNET_CHAT_context_get_user_pointer(context);
-
   if ((!entry) || (!(entry->entry_box)))
-    return;
+    goto close_dialog;
 
   GtkListBoxRow *row = GTK_LIST_BOX_ROW(
     gtk_widget_get_parent(entry->entry_box)
   );
 
   if (!row)
-    return;
+    goto close_dialog;
 
   gtk_list_box_select_row(handle->app->ui.messenger.chats_listbox, row);
   gtk_list_box_invalidate_filter(handle->app->ui.messenger.chats_listbox);
