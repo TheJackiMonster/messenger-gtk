@@ -138,6 +138,42 @@ handle_file_button_click(GtkButton *button,
 }
 
 static void
+handle_accept_button_click(GtkButton *button,
+                           gpointer user_data)
+{
+  g_assert((button) && (user_data));
+
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  UI_MESSAGE_Handle* handle = (UI_MESSAGE_Handle*) (
+      g_object_get_qdata(G_OBJECT(button), app->quarks.ui)
+  );
+
+  if ((!handle) || (!(handle->status_cb)))
+    return;
+
+  handle->status_cb(app, true, handle->status_cls);
+}
+
+static void
+handle_deny_button_click(GtkButton *button,
+                         gpointer user_data)
+{
+  g_assert((button) && (user_data));
+
+  MESSENGER_Application *app = (MESSENGER_Application*) user_data;
+
+  UI_MESSAGE_Handle* handle = (UI_MESSAGE_Handle*) (
+      g_object_get_qdata(G_OBJECT(button), app->quarks.ui)
+  );
+
+  if ((!handle) || (!(handle->status_cb)))
+    return;
+
+  handle->status_cb(app, false, handle->status_cls);
+}
+
+static void
 handle_media_button_click(GtkButton *button,
                           gpointer user_data)
 {
@@ -266,6 +302,9 @@ ui_message_new(MESSENGER_Application *app,
   handle->msg = NULL;
   handle->contact = NULL;
 
+  handle->status_cb = NULL;
+  handle->status_cls = NULL;
+
   const char *ui_builder_file;
 
   switch (handle->type)
@@ -317,6 +356,23 @@ ui_message_new(MESSENGER_Application *app,
 
     handle->accept_button = GTK_BUTTON(
 	    gtk_builder_get_object(handle->builder[0], "accept_button")
+    );
+
+    g_object_set_qdata(G_OBJECT(handle->accept_button), app->quarks.ui, handle);
+    g_object_set_qdata(G_OBJECT(handle->deny_button), app->quarks.ui, handle);
+
+    g_signal_connect(
+      handle->accept_button,
+      "clicked",
+      G_CALLBACK(handle_accept_button_click),
+      app
+    );
+
+    g_signal_connect(
+      handle->deny_button,
+      "clicked",
+      G_CALLBACK(handle_deny_button_click),
+      app
     );
   }
   else
@@ -418,14 +474,14 @@ ui_message_new(MESSENGER_Application *app,
 
   handle->app = app;
 
+  g_object_set_qdata(G_OBJECT(handle->media_button), app->quarks.ui, handle);
+
   g_signal_connect(
     handle->media_button,
     "clicked",
     G_CALLBACK(handle_media_button_click),
     app
   );
-
-  g_object_set_qdata(G_OBJECT(handle->media_button), app->quarks.ui, handle);
 
   switch (handle->type)
   {
@@ -749,6 +805,17 @@ ui_message_set_contact(UI_MESSAGE_Handle *handle,
   }
 
   handle->contact = contact;
+}
+
+void
+ui_message_set_status_callback(UI_MESSAGE_Handle *handle,
+                               UI_MESSAGE_StatusCallback cb,
+                               gpointer cls)
+{
+  g_assert(handle);
+
+  handle->status_cb = cb;
+  handle->status_cls = cls;
 }
 
 void

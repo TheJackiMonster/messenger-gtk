@@ -35,6 +35,7 @@
 #include "ui/chat_title.h"
 #include "ui/message.h"
 
+#include <glib-2.0/glib.h>
 #include <gnunet/gnunet_chat_lib.h>
 #include <gnunet/gnunet_common.h>
 #include <stdio.h>
@@ -650,29 +651,24 @@ event_update_contacts(UNUSED MESSENGER_Application *app,
 }
 
 static void
-_event_invitation_accept_click(UNUSED GtkButton *button,
-                               gpointer user_data)
+_event_invitation_action(MESSENGER_Application *app,
+                         gboolean status,
+                         gpointer user_data)
 {
-  g_assert(user_data);
+  g_assert((app) && (user_data));
 
   struct GNUNET_CHAT_Invitation *invitation = (
     (struct GNUNET_CHAT_Invitation*) user_data
   );
 
-  GNUNET_CHAT_invitation_accept(invitation);
-}
+  application_chat_lock(app);
 
-static void
-_event_invitation_deny_click(UNUSED GtkButton *button,
-                             gpointer user_data)
-{
-  g_assert(user_data);
+  if (status)
+    GNUNET_CHAT_invitation_accept(invitation);
+  else
+    GNUNET_CHAT_invitation_reject(invitation);
 
-  struct GNUNET_CHAT_Invitation *invitation = (
-    (struct GNUNET_CHAT_Invitation*) user_data
-  );
-
-  GNUNET_CHAT_invitation_reject(invitation);
+  application_chat_unlock(app);
 }
 
 void
@@ -740,18 +736,8 @@ event_invitation(MESSENGER_Application *app,
   ui_label_set_text(message->text_label, message_string->str);
   g_string_free(message_string, TRUE);
 
-  g_signal_connect(
-    message->accept_button,
-    "clicked",
-    G_CALLBACK(_event_invitation_accept_click),
-    invitation
-  );
-
-  g_signal_connect(
-    message->deny_button,
-    "clicked",
-    G_CALLBACK(_event_invitation_deny_click),
-    invitation
+  ui_message_set_status_callback(
+    message, _event_invitation_action, invitation
   );
 
   ui_chat_add_message(handle->chat, app, message);

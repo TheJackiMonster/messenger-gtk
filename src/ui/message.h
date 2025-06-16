@@ -27,6 +27,7 @@
 
 #include <stdbool.h>
 
+#include <glib-2.0/glib.h>
 #include <gtk-3.0/gtk/gtk.h>
 #include <libhandy-1/handy.h>
 
@@ -41,6 +42,10 @@ typedef enum UI_MESSAGE_Type
   UI_MESSAGE_STATUS 	= 2
 } UI_MESSAGE_Type;
 
+typedef void (*UI_MESSAGE_StatusCallback)(MESSENGER_Application *app,
+                                          gboolean status,
+                                          gpointer user_data);
+
 typedef struct UI_MESSAGE_Handle
 {
   UI_MESSAGE_Type type;
@@ -48,6 +53,9 @@ typedef struct UI_MESSAGE_Handle
   time_t timestamp;
   struct GNUNET_CHAT_Message *msg;
   struct GNUNET_CHAT_Contact *contact;
+
+  UI_MESSAGE_StatusCallback status_cb;
+  gpointer status_cls;
 
   GtkBuilder *builder [2];
   GtkWidget *message_box;
@@ -133,6 +141,19 @@ ui_message_update(UI_MESSAGE_Handle *handle,
 void
 ui_message_set_contact(UI_MESSAGE_Handle *handle,
                        struct GNUNET_CHAT_Contact *contact);
+
+/**
+ * Sets the callback and closure of a given message
+ * handle for actions of a status message.
+ *
+ * @param handle Message handle
+ * @param cb Status callback
+ * @param cls Status closure
+ */
+void
+ui_message_set_status_callback(UI_MESSAGE_Handle *handle,
+                               UI_MESSAGE_StatusCallback cb,
+                               gpointer cls);
 
 /**
  * Adds a widget to represent a given tag message
