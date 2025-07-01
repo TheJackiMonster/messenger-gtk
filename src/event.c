@@ -713,7 +713,10 @@ event_invitation(MESSENGER_Application *app,
 
   ui_message_set_contact(message, sender);
 
-  const char *invite_message = _("invited %s to a chat");
+  const char *invite_message = (
+    GNUNET_YES != GNUNET_CHAT_invitation_is_direct(invitation)
+  )? _("invited %s to a chat") : _("requested %s to chat");
+
   const char *recipient_name = (
     (recipient) && 
     (GNUNET_YES != GNUNET_CHAT_contact_is_owned(recipient))
