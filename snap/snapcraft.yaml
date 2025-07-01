@@ -81,7 +81,7 @@ parts:
       - libgnutls-dane0
       - libunbound8
       - libltdl7
-    source: http://ftp.gnu.org/gnu/gnunet/gnunet-0.24.0.tar.gz
+    source: http://ftp.gnu.org/gnu/gnunet/gnunet-0.24.3.tar.gz
     plugin: meson
     meson-parameters:
       - --prefix=/usr
