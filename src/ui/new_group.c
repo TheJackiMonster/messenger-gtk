@@ -47,8 +47,6 @@ _open_new_group(GtkEntry *entry,
   if ((name) && (strlen(name) > 0))
     GNUNET_CHAT_group_set_name(group, name);
 
-  application_chat_unlock(app);
-
   GList *selected = gtk_list_box_get_selected_rows(listbox);
 
   GList *item = selected;
@@ -62,13 +60,13 @@ _open_new_group(GtkEntry *entry,
 	      g_object_get_qdata(G_OBJECT(row), app->quarks.data)
       );
 
-      application_chat_lock(app);
       GNUNET_CHAT_group_invite_contact(group, contact);
-      application_chat_unlock(app);
     }
 
     item = item->next;
   }
+
+  application_chat_unlock(app);
 
   if (selected)
     g_list_free(selected);

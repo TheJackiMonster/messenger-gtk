@@ -689,61 +689,79 @@ event_invitation(MESSENGER_Application *app,
   if (!invitation)
     return;
 
-  if (app->settings.delete_invitations_delay > 0)
-    GNUNET_CHAT_message_delete(
-      msg,
-      app->settings.delete_invitations_delay
-    );
+  UI_MESSAGE_Handle *message = GNUNET_CHAT_message_get_user_pointer(msg);
+  enum GNUNET_GenericReturnValue new_message = GNUNET_NO;
 
-  const int sent = GNUNET_CHAT_message_is_sent(msg);
+  if (!message)
+  {
+    if (app->settings.delete_invitations_delay > 0)
+      GNUNET_CHAT_message_delete(
+        msg,
+        app->settings.delete_invitations_delay
+      );
 
-  if ((GNUNET_YES != sent) && (app->settings.send_read_receipts))
-    GNUNET_CHAT_context_send_read_receipt(context, msg);
+    const enum GNUNET_GenericReturnValue sent =
+      GNUNET_CHAT_message_is_sent(msg);
 
-  UI_MESSAGE_Handle *message = ui_message_new(app, UI_MESSAGE_STATUS);
+    if ((GNUNET_YES != sent) && (app->settings.send_read_receipts))
+      GNUNET_CHAT_context_send_read_receipt(context, msg);
+
+    message = ui_message_new(app, UI_MESSAGE_STATUS);
+
+    GNUNET_CHAT_message_set_user_pointer(msg, message);
+
+    new_message = GNUNET_YES;
+  }
+
+  if (!message)
+    return;
+
   ui_message_update(message, app, msg);
 
-  struct GNUNET_CHAT_Contact *sender = GNUNET_CHAT_message_get_sender(
-    msg
-  );
-
-  struct GNUNET_CHAT_Contact *recipient = GNUNET_CHAT_message_get_recipient(
-    msg
-  );
-
-  ui_message_set_contact(message, sender);
-
-  const char *invite_message = (
-    GNUNET_YES != GNUNET_CHAT_invitation_is_direct(invitation)
-  )? _("invited %s to a chat") : _("requested %s to chat");
-
-  const char *recipient_name = (
-    (recipient) && 
-    (GNUNET_YES != GNUNET_CHAT_contact_is_owned(recipient))
-  )? GNUNET_CHAT_contact_get_name(recipient) : _("you");
-
-  GString *message_string = g_string_new(NULL);
-  g_string_printf(message_string, invite_message, recipient_name);
-
-  if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
-      (GNUNET_YES == GNUNET_CHAT_message_is_recent(msg)))
-    _show_notification(
-	    app,
-      context,
-      sender,
-      message_string->str,
-      "mail-message-new-symbolic",
-      "im.received"
+  if (GNUNET_YES == new_message)
+  {
+    struct GNUNET_CHAT_Contact *sender = GNUNET_CHAT_message_get_sender(
+      msg
     );
 
-  ui_label_set_text(message->text_label, message_string->str);
-  g_string_free(message_string, TRUE);
+    struct GNUNET_CHAT_Contact *recipient = GNUNET_CHAT_message_get_recipient(
+      msg
+    );
 
-  ui_message_set_status_callback(
-    message, _event_invitation_action, invitation
-  );
+    ui_message_set_contact(message, sender);
 
-  ui_chat_add_message(handle->chat, app, message);
+    const char *invite_message = (
+      GNUNET_YES != GNUNET_CHAT_invitation_is_direct(invitation)
+    )? _("invited %s to a chat") : _("requested %s to chat");
+
+    const char *recipient_name = (
+      (recipient) && 
+      (GNUNET_YES != GNUNET_CHAT_contact_is_owned(recipient))
+    )? GNUNET_CHAT_contact_get_name(recipient) : _("you");
+
+    GString *message_string = g_string_new(NULL);
+    g_string_printf(message_string, invite_message, recipient_name);
+
+    if ((!ui_messenger_is_context_active(&(app->ui.messenger), context)) &&
+        (GNUNET_YES == GNUNET_CHAT_message_is_recent(msg)))
+      _show_notification(
+        app,
+        context,
+        sender,
+        message_string->str,
+        "mail-message-new-symbolic",
+        "im.received"
+      );
+
+    ui_label_set_text(message->text_label, message_string->str);
+    g_string_free(message_string, TRUE);
+
+    ui_message_set_status_callback(
+      message, _event_invitation_action, invitation
+    );
+
+    ui_chat_add_message(handle->chat, app, message);
+  }
 
   enqueue_chat_entry_update(handle);
 }
