@@ -8,7 +8,7 @@ A GTK based GUI for the Messenger service of GNUnet.
 
 ## Features
 
-Messenger-GTK is a convergent GTK messaging application using the GNUnet Messenger service. The goal is to provide private and secure communication between any group of devices.
+Messenger-GTK is a convergent graphical messaging application using the GNUnet Messenger service. The goal is to provide private and secure communication between any group of devices.
 
 The application provides the following features:
 
