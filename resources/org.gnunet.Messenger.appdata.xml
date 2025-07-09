@@ -16,7 +16,7 @@
 	<name>GNUnet Messenger</name>
 	<summary>Private and secure communication</summary>
 	<description>
-		<p>Messenger-GTK is a convergent GTK messaging application using the GNUnet Messenger service. The goal is to provide private and secure communication between any group of devices.</p>
+		<p>Messenger-GTK is a convergent graphical messaging application using the GNUnet Messenger service. The goal is to provide private and secure communication between any group of devices.</p>
 		<p>The application provides the following features:</p>
 		<ul>
 			<li>Creating direct chats and group chats</li>
@@ -67,7 +67,7 @@
 	<url type="vcs-browser">https://git.gnunet.org/messenger-gtk.git</url>
 	<url type="contribute">https://git.gnunet.org/messenger-gtk.git/about</url>
 	
-	<update_contact>jacki_at_thejackimonster.de</update_contact>
+	<update_contact>gnunet_at_thejackimonster.de</update_contact>
 
 	<launchable type="desktop-id">org.gnunet.Messenger.desktop</launchable>
 	<releases>
