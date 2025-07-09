@@ -707,9 +707,6 @@ event_invitation(MESSENGER_Application *app,
       GNUNET_CHAT_context_send_read_receipt(context, msg);
 
     message = ui_message_new(app, UI_MESSAGE_STATUS);
-
-    GNUNET_CHAT_message_set_user_pointer(msg, message);
-
     new_message = GNUNET_YES;
   }
 
@@ -850,6 +847,45 @@ skip_message:
   enqueue_chat_entry_update(handle);
 }
 
+static UI_MESSAGE_Handle*
+_find_ui_message_handle(MESSENGER_Application *app,
+                        struct GNUNET_CHAT_Context *context,
+                        struct GNUNET_CHAT_Message *msg)
+{
+  g_assert((app) && (context) && (msg));
+
+  UI_CHAT_ENTRY_Handle *handle = GNUNET_CHAT_context_get_user_pointer(context);
+
+  if ((!handle) || (!(handle->chat)))
+    return NULL;
+
+  UI_MESSAGE_Handle *message = GNUNET_CHAT_message_get_user_pointer(msg);
+
+  if (!message)
+  {
+    GList *rows = gtk_container_get_children(
+      GTK_CONTAINER(handle->chat->messages_listbox)
+    );
+
+    for (GList *row = rows; row; row = row->next)
+    {
+      message = (UI_MESSAGE_Handle*) g_object_get_qdata(
+        G_OBJECT(row->data), app->quarks.ui
+      );
+
+      if ((message) && (message->msg == msg))
+        break;
+
+      message = NULL;
+    }
+
+    if (rows)
+      g_list_free(rows);
+  }
+
+  return message;
+}
+
 static void
 _event_update_tag_message_state(MESSENGER_Application *app,
                                 struct GNUNET_CHAT_Context *context,
@@ -874,29 +910,15 @@ _event_update_tag_message_state(MESSENGER_Application *app,
   if ((!handle) || (!(handle->chat)))
     return;
 
-  GList *rows = gtk_container_get_children(
-    GTK_CONTAINER(handle->chat->messages_listbox)
-  );
+  UI_MESSAGE_Handle *message = _find_ui_message_handle(app, context, target);
 
-  for (GList *row = rows; row; row = row->next)
-  {
-    UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) g_object_get_qdata(
-      G_OBJECT(row->data), app->quarks.ui
-    );
+  if (!message)
+    return;
 
-    if ((message) && (message->msg == target))
-    {
-      if (GNUNET_YES == GNUNET_CHAT_message_is_deleted(msg))
-        ui_message_remove_tag(message, app, msg);
-      else
-        ui_message_add_tag(message, app, msg);
-
-      break;
-    }
-  }
-
-  if (rows)
-    g_list_free(rows);
+  if (GNUNET_YES == GNUNET_CHAT_message_is_deleted(msg))
+    ui_message_remove_tag(message, app, msg);
+  else
+    ui_message_add_tag(message, app, msg);
 }
 
 void
@@ -911,25 +933,10 @@ event_delete_message(MESSENGER_Application *app,
   if ((!handle) || (!(handle->chat)))
     return;
 
-  GList *rows = gtk_container_get_children(
-    GTK_CONTAINER(handle->chat->messages_listbox)
-  );
+  UI_MESSAGE_Handle *message = _find_ui_message_handle(app, context, msg);
 
-  for (GList *row = rows; row; row = row->next)
-  {
-    UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) g_object_get_qdata(
-      G_OBJECT(row->data), app->quarks.ui
-    );
-
-    if ((message) && (message->msg == msg))
-    {
-      ui_chat_remove_message(handle->chat, app, message);
-      break;
-    }
-  }
-
-  if (rows)
-    g_list_free(rows);
+  if (message)
+    ui_chat_remove_message(handle->chat, app, message);
 
   if (GNUNET_CHAT_KIND_TAG == GNUNET_CHAT_message_get_kind(msg))
     _event_update_tag_message_state(app, context, msg);
@@ -953,25 +960,10 @@ event_tag_message(MESSENGER_Application *app,
   if ((!handle) || (!(handle->chat)))
     return;
 
-  GList *rows = gtk_container_get_children(
-    GTK_CONTAINER(handle->chat->messages_listbox)
-  );
+  UI_MESSAGE_Handle *message = _find_ui_message_handle(app, context, target);
 
-  for (GList *row = rows; row; row = row->next)
-  {
-    UI_MESSAGE_Handle *message = (UI_MESSAGE_Handle*) g_object_get_qdata(
-      G_OBJECT(row->data), app->quarks.ui
-    );
-
-    if ((message) && (message->msg == target))
-    {
-      ui_message_update(message, app, message->msg);
-      break;
-    }
-  }
-
-  if (rows)
-    g_list_free(rows);
+  if (message)
+    ui_message_update(message, app, message->msg);
 
   enqueue_chat_entry_update(handle);
 }

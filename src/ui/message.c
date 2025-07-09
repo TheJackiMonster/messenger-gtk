@@ -746,7 +746,13 @@ ui_message_update(UI_MESSAGE_Handle *handle,
   struct GNUNET_CHAT_File *file = NULL;
   struct GNUNET_CHAT_Invitation *invitation = NULL;
 
+  if (handle->msg)
+    GNUNET_CHAT_message_set_user_pointer(handle->msg, NULL);
+
   handle->msg = msg;
+
+  if (msg)
+    GNUNET_CHAT_message_set_user_pointer(msg, handle);
 
   ui_message_refresh(handle);
 
