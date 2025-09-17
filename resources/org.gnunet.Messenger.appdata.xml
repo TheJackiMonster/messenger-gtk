@@ -32,6 +32,7 @@
 			<li>Switching between different accounts</li>
 			<li>Chatting live via video or voice streaming</li>
 			<li>Sharing your screen with a selected group</li>
+			<li>Writing notes to yourself</li>
 		</ul>
 		<p>Chats will generally created as opt-in. So you can decide who may contact you directly and who does not, accepting to a direct chat. Leaving a chat is also always possible.</p>
 	</description>
@@ -71,6 +72,14 @@
 
 	<launchable type="desktop-id">org.gnunet.Messenger.desktop</launchable>
 	<releases>
+	  <release version="0.11.0" date="2025-09-17">
+			<description>
+				<ul>
+				  <li>Private chats for writing notes to yourself can be opened</li>
+				</ul>
+			</description>
+			<url>https://www.gnunet.org/en/news/2025-09-libgnunetchat-0.6.0.html</url>
+	  </release>
 	  <release version="0.10.2" date="2025-01-08">
 			<description>
 				<ul>

@@ -1,5 +1,5 @@
 name: messenger-gtk
-version: 0.10.2
+version: 0.11.0
 title: GNUnet Messenger
 summary: A GTK based GUI for the Messenger service of GNUnet.
 description: |
@@ -19,6 +19,7 @@ description: |
   * Switching between different accounts
   * Chatting live via video or voice streaming
   * Sharing your screen with a selected group
+  * Writing notes to yourself
   
   Chats will generally created as opt-in. So you can decide who may contact you directly and who does not, accepting to a direct chat. Leaving a chat is also always possible.
 adopt-info: messenger-gtk
@@ -81,14 +82,14 @@ parts:
       - libgnutls-dane0
       - libunbound8
       - libltdl7
-    source: http://ftp.gnu.org/gnu/gnunet/gnunet-0.24.3.tar.gz
+    source: http://ftp.gnu.org/gnu/gnunet/gnunet-0.25.0.tar.gz
     plugin: meson
     meson-parameters:
       - --prefix=/usr
       - --buildtype=release
   libgnunetchat:
     after: [ gnunet ]
-    source: http://ftp.gnu.org/gnu/gnunet/libgnunetchat-0.5.3.tar.gz
+    source: http://ftp.gnu.org/gnu/gnunet/libgnunetchat-0.6.0.tar.gz
     plugin: meson
     meson-parameters:
       - --prefix=/usr
@@ -119,7 +120,7 @@ parts:
       - libpipewire-0.3-0t64
       - libportal1
       - libportal-gtk3-1
-    source: http://ftp.gnu.org/gnu/gnunet/messenger-gtk-0.10.2.tar.gz
+    source: http://ftp.gnu.org/gnu/gnunet/messenger-gtk-0.11.0.tar.gz
     plugin: meson
     meson-parameters:
       - --prefix=/usr
