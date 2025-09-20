@@ -22,6 +22,18 @@ description: |
   * Writing notes to yourself
   
   Chats will generally created as opt-in. So you can decide who may contact you directly and who does not, accepting to a direct chat. Leaving a chat is also always possible.
+website:
+  - https://git.gnunet.org/messenger-gtk.git/about/
+contact:
+  - gnunet@thejackimonster.de
+donation:
+  - https://www.gnunet.org/en/ev.html
+  - https://liberapay.com/GNUnet-Messenger/
+source-code:
+  - https://git.gnunet.org/messenger-gtk.git/
+issues:
+  - https://bugs.gnunet.org
+license: GPL-3.0-or-later
 adopt-info: messenger-gtk
 icon: resources/icon/full_color.svg
 base: core24
