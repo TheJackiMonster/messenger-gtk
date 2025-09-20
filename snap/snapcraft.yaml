@@ -82,14 +82,14 @@ parts:
       - libgnutls-dane0
       - libunbound8
       - libltdl7
-    source: http://ftp.gnu.org/gnu/gnunet/gnunet-0.25.0.tar.gz
+    source: https://ftp.gnu.org/gnu/gnunet/gnunet-0.25.0.tar.gz
     plugin: meson
     meson-parameters:
       - --prefix=/usr
       - --buildtype=release
   libgnunetchat:
     after: [ gnunet ]
-    source: http://ftp.gnu.org/gnu/gnunet/libgnunetchat-0.6.0.tar.gz
+    source: https://ftp.gnu.org/gnu/gnunet/libgnunetchat-0.6.0.tar.gz
     plugin: meson
     meson-parameters:
       - --prefix=/usr
@@ -120,7 +120,7 @@ parts:
       - libpipewire-0.3-0t64
       - libportal1
       - libportal-gtk3-1
-    source: http://ftp.gnu.org/gnu/gnunet/messenger-gtk-0.11.0.tar.gz
+    source: https://ftp.gnu.org/gnu/gnunet/messenger-gtk-0.11.0.tar.gz
     plugin: meson
     meson-parameters:
       - --prefix=/usr
