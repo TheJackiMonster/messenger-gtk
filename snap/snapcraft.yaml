@@ -94,14 +94,16 @@ parts:
       - libgnutls-dane0
       - libunbound8
       - libltdl7
-    source: https://ftp.gnu.org/gnu/gnunet/gnunet-0.25.0.tar.gz
+    source: https://ftpmirror.gnu.org/gnunet/gnunet-0.25.0.tar.gz
+    source-checksum: sha512/5ff3c4ecb79a96721e7cd23042dc93eca314ab95f7d24b096f63398f1b57f134c8d7b2c646eb4b95cc76c63ac0147c369d3119ca2d12e9a01cd74250dc0c3a37
     plugin: meson
     meson-parameters:
       - --prefix=/usr
       - --buildtype=release
   libgnunetchat:
     after: [ gnunet ]
-    source: https://ftp.gnu.org/gnu/gnunet/libgnunetchat-0.6.0.tar.gz
+    source: https://ftpmirror.gnu.org/gnunet/libgnunetchat-0.6.0.tar.gz
+    source-checksum: sha512/46402752bf6f8a5b9e66fb7863f7b4430bc2679e42df4aeade48d6f60bd6d4d77d2079ea2ef26e72faa399eda9dd2aa485c8897f2e9af55f2258794f47424851
     plugin: meson
     meson-parameters:
       - --prefix=/usr
@@ -132,7 +134,8 @@ parts:
       - libpipewire-0.3-0t64
       - libportal1
       - libportal-gtk3-1
-    source: https://ftp.gnu.org/gnu/gnunet/messenger-gtk-0.11.0.tar.gz
+    source: https://ftpmirror.gnu.org/gnunet/messenger-gtk-0.11.0.tar.gz
+    source-checksum: sha512/9f0fb3d72a785d4b6a077e684ba7ae0ce4353f728414a73f08fad6a2773de0d92a7514d0d701d7b1af93e096501fa1b7852760fdede7ce688504444f7f69b582
     plugin: meson
     meson-parameters:
       - --prefix=/usr
