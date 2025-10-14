@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.40.0 
+<!-- Generated with glade 3.40.0
 
-Copyright (C) 2022 GNUnet e.V.
+Copyright (C) 2022‑‑2025 GNUnet e.V.
 
 GNUnet is free software: you can redistribute it and/or modify it
 under the terms of the GNU Affero General Public License as published
@@ -37,14 +37,12 @@ Author: Tobias Frisch
     <property name="type-hint">dialog</property>
     <child>
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
+        <property name="visible">1</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkRevealer" id="header_revealer">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="reveal-child">True</property>
+            <property name="visible">1</property>
+            <property name="reveal-child">1</property>
             <child>
               <object class="HdyWindowHandle">
                 <property name="visible">True</property>
@@ -57,14 +55,13 @@ Author: Tobias Frisch
                     <property name="show-close-button">True</property>
                     <child>
                       <object class="GtkButton" id="back_button">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
+                        <property name="visible">1</property>
+                        <property name="can-focus">1</property>
+                        <property name="receives-default">1</property>
                         <property name="relief">none</property>
                         <child>
                           <object class="GtkImage">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="icon-name">go-previous-symbolic</property>
                           </object>
                         </child>
@@ -75,11 +72,6 @@ Author: Tobias Frisch
               </object>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="HdyFlap" id="controls_flap">
@@ -90,16 +82,11 @@ Author: Tobias Frisch
             <property name="modal">False</property>
             <child type="content">
               <object class="GtkStack" id="preview_stack">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="visible">1</property>
                 <child>
                   <object class="GtkBox" id="video_box">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="visible">1</property>
                     <property name="orientation">vertical</property>
-                    <child>
-                      <placeholder/>
-                    </child>
                   </object>
                   <packing>
                     <property name="name">page_video</property>
@@ -107,35 +94,25 @@ Author: Tobias Frisch
                 </child>
                 <child>
                   <object class="GtkBox" id="fail_box">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="visible">1</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">8</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <property name="pixel-size">64</property>
                         <property name="icon-name">action-unavailable-symbolic</property>
-                        <property name="icon_size">3</property>
+                        <property name="icon-size">3</property>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <property name="label" translatable="yes">Video source invalid!</property>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -149,37 +126,32 @@ Author: Tobias Frisch
             </child>
             <child type="separator">
               <object class="GtkSeparator">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="visible">1</property>
               </object>
             </child>
             <child type="flap">
               <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="visible">1</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="visible">1</property>
                     <property name="border-width">4</property>
                     <property name="spacing">8</property>
                     <child>
                       <object class="GtkButton" id="play_pause_button">
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
+                        <property name="visible">1</property>
+                        <property name="sensitive">0</property>
+                        <property name="can-focus">1</property>
+                        <property name="receives-default">1</property>
                         <property name="relief">none</property>
                         <child>
                           <object class="GtkStack" id="play_symbol_stack">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <child>
                               <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="sensitive">False</property>
-                                <property name="can-focus">False</property>
+                                <property name="visible">1</property>
+                                <property name="sensitive">0</property>
                                 <property name="icon-name">media-playback-start-symbolic</property>
                               </object>
                               <packing>
@@ -188,8 +160,7 @@ Author: Tobias Frisch
                             </child>
                             <child>
                               <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
+                                <property name="visible">1</property>
                                 <property name="icon-name">media-playback-pause-symbolic</property>
                               </object>
                               <packing>
@@ -200,19 +171,14 @@ Author: Tobias Frisch
                           </object>
                         </child>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkVolumeButton" id="volume_button">
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="can-focus">True</property>
-                        <property name="focus-on-click">False</property>
-                        <property name="receives-default">True</property>
+                        <property name="visible">1</property>
+                        <property name="sensitive">0</property>
+                        <property name="can-focus">1</property>
+                        <property name="focus-on-click">0</property>
+                        <property name="receives-default">1</property>
                         <property name="relief">none</property>
                         <property name="orientation">vertical</property>
                         <property name="icons">audio-volume-muted-symbolic
@@ -221,20 +187,14 @@ audio-volume-low-symbolic
 audio-volume-medium-symbolic</property>
                         <child internal-child="plus_button">
                           <object class="GtkButton">
-                            <property name="can-focus">False</property>
-                            <property name="receives-default">False</property>
                           </object>
                         </child>
                         <child internal-child="minus_button">
                           <object class="GtkButton">
-                            <property name="can-focus">False</property>
-                            <property name="receives-default">False</property>
                           </object>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -247,8 +207,7 @@ audio-volume-medium-symbolic</property>
                         <child>
                           <object class="GtkLabel" id="timeline_label">
                             <property name="width-request">80</property>
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="margin-end">4</property>
                             <property name="label">0:00 / 0:00</property>
                           </object>
@@ -256,36 +215,33 @@ audio-volume-medium-symbolic</property>
                         <child>
                           <object class="GtkScale" id="timeline_scale">
                             <property name="width-request">100</property>
-                            <property name="visible">True</property>
-                            <property name="sensitive">False</property>
-                            <property name="can-focus">True</property>
+                            <property name="visible">1</property>
+                            <property name="sensitive">0</property>
+                            <property name="can-focus">1</property>
                             <property name="margin-start">4</property>
-                            <property name="hexpand">True</property>
+                            <property name="hexpand">1</property>
                             <property name="adjustment">timeline_adjustment</property>
-                            <property name="draw-value">False</property>
+                            <property name="draw-value">0</property>
                           </object>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
+                        <property name="expand">1</property>
                         <property name="position">3</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="fullscreen_button">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
+                        <property name="visible">1</property>
+                        <property name="can-focus">1</property>
+                        <property name="receives-default">1</property>
                         <property name="relief">none</property>
                         <child>
                           <object class="GtkStack" id="fullscreen_symbol_stack">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <child>
                               <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
+                                <property name="visible">1</property>
                                 <property name="icon-name">view-fullscreen-symbolic</property>
                               </object>
                               <packing>
@@ -294,8 +250,7 @@ audio-volume-medium-symbolic</property>
                             </child>
                             <child>
                               <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
+                                <property name="visible">1</property>
                                 <property name="icon-name">view-restore-symbolic</property>
                               </object>
                               <packing>
@@ -307,52 +262,42 @@ audio-volume-medium-symbolic</property>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
                         <property name="pack-type">end</property>
                         <property name="position">3</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="settings_button">
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
+                        <property name="visible">1</property>
+                        <property name="sensitive">0</property>
+                        <property name="can-focus">1</property>
+                        <property name="receives-default">1</property>
                         <property name="relief">none</property>
                         <child>
                           <object class="GtkImage">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="icon-name">preferences-other-symbolic</property>
                           </object>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
                         <property name="pack-type">end</property>
                         <property name="position">4</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
                     <property name="pack-type">end</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkProgressBar" id="timeline_progress_bar">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="visible">1</property>
                     <property name="margin-start">4</property>
                     <property name="margin-end">4</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
                     <property name="position">2</property>
                   </packing>
                 </child>
@@ -360,8 +305,7 @@ audio-volume-medium-symbolic</property>
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
+            <property name="expand">1</property>
             <property name="pack-type">end</property>
             <property name="position">2</property>
           </packing>

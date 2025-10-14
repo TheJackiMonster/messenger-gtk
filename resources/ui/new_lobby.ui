@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
+<!-- Generated with glade 3.40.0
 
-Copyright (C) 2022 GNUnet e.V.
+Copyright (C) 2022‑‑2025 GNUnet e.V.
 
 GNUnet is free software: you can redistribute it and/or modify it
 under the terms of the GNU Affero General Public License as published
@@ -66,146 +66,108 @@ Author: Tobias Frisch
     </data>
   </object>
   <object class="GtkDialog" id="new_lobby_dialog">
-    <property name="can-focus">False</property>
     <property name="title" translatable="yes">New Lobby</property>
-    <property name="modal">True</property>
-    <property name="window-position">center-on-parent</property>
+    <property name="modal">1</property>
     <property name="default-height">450</property>
     <property name="type-hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkBox">
-        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox">
-            <property name="can-focus">False</property>
             <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="cancel_button">
                 <property name="label" translatable="yes">Cancel</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
+                <property name="visible">1</property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
+                <property name="expand">1</property>
               </packing>
             </child>
             <child>
               <object class="GtkButton" id="generate_button">
                 <property name="label" translatable="yes">Generate</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
+                <property name="visible">1</property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="expand">1</property>
                 <property name="position">1</property>
               </packing>
             </child>
             <child>
               <object class="GtkButton" id="copy_button">
                 <property name="label" translatable="yes">Copy</property>
-                <property name="sensitive">False</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
+                <property name="sensitive">0</property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="expand">1</property>
                 <property name="position">2</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
+            <property name="fill">0</property>
           </packing>
         </child>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="visible">1</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkInfoBar" id="warning_info_bar">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="visible">1</property>
                 <property name="message-type">warning</property>
-                <property name="show-close-button">True</property>
+                <property name="show-close-button">1</property>
                 <child internal-child="action_area">
                   <object class="GtkButtonBox">
-                    <property name="can-focus">False</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="layout-style">expand</property>
-                    <child>
-                      <placeholder/>
-                    </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
+                    <property name="fill">0</property>
                   </packing>
                 </child>
                 <child internal-child="content_area">
                   <object class="GtkBox">
-                    <property name="can-focus">False</property>
                     <property name="border-width">8</property>
                     <property name="spacing">16</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Please notice that everyone with access to the lobby's code can enter its chat!</property>
-                        <property name="wrap">True</property>
+                        <property name="visible">1</property>
+                        <property name="label" translatable="yes">Please notice that everyone with access to the lobby&apos;s code can enter its chat!</property>
+                        <property name="wrap">1</property>
                         <property name="wrap-mode">word-char</property>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
                 </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkScrolledWindow">
                 <property name="height-request">200</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="visible">1</property>
+                <property name="can-focus">1</property>
                 <property name="hscrollbar-policy">never</property>
                 <property name="shadow-type">in</property>
                 <child>
                   <object class="GtkViewport">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="visible">1</property>
                     <child>
                       <object class="GtkStack" id="new_lobby_stack">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <child>
                           <object class="GtkBox" id="generate_box">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="halign">center</property>
                             <property name="valign">center</property>
                             <property name="border-width">8</property>
@@ -221,30 +183,21 @@ Author: Tobias Frisch
                                 <property name="icon-name">dialog-password-symbolic</property>
                                 <property name="size">128</property>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
+                                <property name="visible">1</property>
                                 <property name="label" translatable="yes">Delay until new lobby expires:</property>
                                 <property name="xalign">0</property>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkComboBox" id="expiration_combo_box">
                                 <property name="width-request">250</property>
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
+                                <property name="visible">1</property>
                                 <property name="model">delay_store</property>
                                 <property name="active">0</property>
                                 <child>
@@ -255,8 +208,6 @@ Author: Tobias Frisch
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
@@ -267,45 +218,33 @@ Author: Tobias Frisch
                         </child>
                         <child>
                           <object class="GtkBox" id="copy_box">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="halign">center</property>
                             <property name="valign">center</property>
                             <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkStack" id="preview_stack">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
+                                <property name="visible">1</property>
                                 <child>
                                   <object class="GtkBox" id="fail_box">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
+                                    <property name="visible">1</property>
                                     <property name="valign">center</property>
                                     <property name="orientation">vertical</property>
                                     <property name="spacing">8</property>
                                     <child>
                                       <object class="GtkImage">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
+                                        <property name="visible">1</property>
                                         <property name="pixel-size">64</property>
                                         <property name="icon-name">action-unavailable-symbolic</property>
-                                        <property name="icon_size">3</property>
+                                        <property name="icon-size">3</property>
                                       </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
                                     </child>
                                     <child>
                                       <object class="GtkLabel">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
+                                        <property name="visible">1</property>
                                         <property name="label" translatable="yes">Generation of new lobby failed!</property>
                                       </object>
                                       <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
                                         <property name="position">1</property>
                                       </packing>
                                     </child>
@@ -316,9 +255,8 @@ Author: Tobias Frisch
                                 </child>
                                 <child>
                                   <object class="GtkSpinner" id="loading_spinner">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="active">True</property>
+                                    <property name="visible">1</property>
+                                    <property name="active">1</property>
                                   </object>
                                   <packing>
                                     <property name="name">page_loading</property>
@@ -328,8 +266,7 @@ Author: Tobias Frisch
                                 <child>
                                   <object class="GtkDrawingArea" id="id_drawing_area">
                                     <property name="height-request">250</property>
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
+                                    <property name="visible">1</property>
                                     <property name="margin-start">8</property>
                                     <property name="margin-end">8</property>
                                     <property name="margin-top">8</property>
@@ -341,35 +278,25 @@ Author: Tobias Frisch
                                   </packing>
                                 </child>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
+                                <property name="visible">1</property>
                                 <property name="label" translatable="yes">ID:</property>
                                 <property name="xalign">0</property>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkEntry" id="id_entry">
                                 <property name="width-request">250</property>
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="editable">False</property>
+                                <property name="visible">1</property>
+                                <property name="can-focus">1</property>
+                                <property name="editable">0</property>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
@@ -385,15 +312,13 @@ Author: Tobias Frisch
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="expand">1</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
+            <property name="expand">1</property>
             <property name="position">1</property>
           </packing>
         </child>

@@ -1,91 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.40.0 -->
+<!-- Generated with glade 3.40.0
+
+Copyright (C) 2021‑‑2025 GNUnet e.V.
+
+GNUnet is free software: you can redistribute it and/or modify it
+under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License,
+or (at your option) any later version.
+
+GNUnet is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+SPDX-License-Identifier: AGPL3.0-or-later
+Author: Tobias Frisch
+
+-->
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkDialog" id="files_dialog">
-    <property name="can-focus">False</property>
     <property name="title" translatable="yes">Files</property>
-    <property name="modal">True</property>
-    <property name="window-position">center-on-parent</property>
+    <property name="modal">1</property>
     <property name="type-hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkBox">
-        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox">
-            <property name="can-focus">False</property>
             <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="back_button">
                 <property name="label" translatable="yes">Back</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
+                <property name="expand">1</property>
               </packing>
             </child>
             <child>
               <object class="GtkButton" id="close_button">
                 <property name="label" translatable="yes">Close</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
+                <property name="visible">1</property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="expand">1</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
+            <property name="fill">0</property>
           </packing>
         </child>
         <child>
           <object class="GtkStack" id="dialog_stack">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="visible">1</property>
             <child>
               <object class="GtkBox" id="list_box">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="visible">1</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkSearchEntry" id="file_search_entry">
                     <property name="width-request">250</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <property name="primary-icon-name">edit-find-symbolic</property>
-                    <property name="primary-icon-activatable">False</property>
-                    <property name="primary-icon-sensitive">False</property>
+                    <property name="primary-icon-activatable">0</property>
+                    <property name="primary-icon-sensitive">0</property>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkViewport">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <child>
                           <object class="GtkListBox" id="files_listbox">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="selection-mode">none</property>
                           </object>
                         </child>
@@ -93,8 +95,7 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
+                    <property name="expand">1</property>
                     <property name="pack-type">end</property>
                     <property name="position">1</property>
                   </packing>
@@ -107,8 +108,7 @@
             <child>
               <object class="GtkBox" id="info_box">
                 <property name="width-request">240</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="visible">1</property>
                 <property name="halign">center</property>
                 <property name="valign">center</property>
                 <property name="border-width">12</property>
@@ -116,81 +116,60 @@
                 <property name="spacing">8</property>
                 <child>
                   <object class="GtkImage">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="visible">1</property>
                     <property name="pixel-size">64</property>
                     <property name="icon-name">folder-documents-symbolic</property>
-                    <property name="icon_size">3</property>
+                    <property name="icon-size">3</property>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkLabel" id="name_label">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="visible">1</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkProgressBar" id="storage_progress_bar">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="show-text">True</property>
+                    <property name="visible">1</property>
+                    <property name="show-text">1</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
                     <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="visible">1</property>
                     <property name="halign">center</property>
                     <property name="spacing">2</property>
                     <child>
                       <object class="GtkButton" id="delete_file_button">
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
+                        <property name="visible">1</property>
+                        <property name="sensitive">0</property>
+                        <property name="can-focus">1</property>
+                        <property name="receives-default">1</property>
                         <child>
                           <object class="GtkImage">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="icon-name">user-trash-symbolic</property>
                           </object>
                         </child>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="play_pause_button">
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
+                        <property name="visible">1</property>
+                        <property name="sensitive">0</property>
+                        <property name="can-focus">1</property>
+                        <property name="receives-default">1</property>
                         <child>
                           <object class="GtkStack" id="play_icon_stack">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <child>
                               <object class="GtkImage" id="play_icon_image">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
+                                <property name="visible">1</property>
                                 <property name="icon-name">media-playback-start-symbolic</property>
                               </object>
                               <packing>
@@ -199,8 +178,7 @@
                             </child>
                             <child>
                               <object class="GtkImage" id="pause_icon_image">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
+                                <property name="visible">1</property>
                                 <property name="icon-name">media-playback-pause-symbolic</property>
                               </object>
                               <packing>
@@ -212,15 +190,11 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
                     <property name="position">3</property>
                   </packing>
                 </child>
@@ -232,8 +206,7 @@
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
+            <property name="expand">1</property>
             <property name="position">2</property>
           </packing>
         </child>

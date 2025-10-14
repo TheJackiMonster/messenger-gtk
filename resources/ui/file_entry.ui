@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.40.0 
+<!-- Generated with glade 3.40.0
 
-Copyright (C) 2024 GNUnet e.V.
+Copyright (C) 2024‑‑2025 GNUnet e.V.
 
 GNUnet is free software: you can redistribute it and/or modify it
 under the terms of the GNU Affero General Public License as published
@@ -23,57 +23,42 @@ Author: Tobias Frisch
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkBox" id="entry_box">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
+    <property name="visible">1</property>
     <property name="border-width">4</property>
     <child>
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
+        <property name="visible">1</property>
         <property name="border-width">8</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkImage" id="file_image">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="visible">1</property>
             <property name="icon-name">folder-documents-symbolic</property>
-            <property name="icon_size">3</property>
+            <property name="icon-size">3</property>
           </object>
           <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
+            <property name="expand">1</property>
           </packing>
         </child>
       </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
-        <property name="position">0</property>
-      </packing>
     </child>
     <child>
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
+        <property name="visible">1</property>
         <child>
           <object class="GtkLabel" id="name_label">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="visible">1</property>
             <property name="ellipsize">end</property>
-            <property name="single-line-mode">True</property>
+            <property name="single-line-mode">1</property>
             <property name="xalign">0</property>
           </object>
           <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
+            <property name="expand">1</property>
           </packing>
         </child>
         <child>
           <object class="GtkLabel" id="size_label">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="visible">1</property>
             <property name="margin-end">4</property>
             <property name="xalign">0</property>
             <property name="yalign">1</property>
@@ -82,16 +67,13 @@ Author: Tobias Frisch
             </attributes>
           </object>
           <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
             <property name="pack-type">end</property>
             <property name="position">1</property>
           </packing>
         </child>
       </object>
       <packing>
-        <property name="expand">True</property>
-        <property name="fill">True</property>
+        <property name="expand">1</property>
         <property name="position">1</property>
       </packing>
     </child>

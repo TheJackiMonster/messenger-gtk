@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.40.0 
+<!-- Generated with glade 3.40.0
 
-Copyright (C) 2021 GNUnet e.V.
+Copyright (C) 2021‑‑2025 GNUnet e.V.
 
 GNUnet is free software: you can redistribute it and/or modify it
 under the terms of the GNU Affero General Public License as published
@@ -25,27 +25,23 @@ Author: Tobias Frisch
   <requires lib="libhandy" version="1.2"/>
   <object class="GtkBox" id="picker_box">
     <property name="height-request">250</property>
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
+    <property name="visible">1</property>
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkStack" id="picker_stack">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
+        <property name="visible">1</property>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="visible">1</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkScrolledWindow">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="visible">1</property>
+                <property name="can-focus">1</property>
                 <property name="vscrollbar-policy">never</property>
                 <child>
                   <object class="GtkViewport">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="visible">1</property>
                     <property name="shadow-type">none</property>
                     <child>
                       <object class="HdyViewSwitcherBar" id="emoji_switcher_bar">
@@ -61,30 +57,22 @@ Author: Tobias Frisch
                   <class name="picker-switcher-bar"/>
                 </style>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkStack" id="emoji_stack">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="visible">1</property>
                 <child>
                   <object class="GtkScrolledWindow" id="recent_emoji_page">
-                    <property name="can-focus">True</property>
+                    <property name="can-focus">1</property>
                     <child>
                       <object class="GtkViewport">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <child>
                           <object class="GtkFlowBox" id="recent_flow_box">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="valign">start</property>
                             <property name="border-width">8</property>
-                            <property name="homogeneous">True</property>
+                            <property name="homogeneous">1</property>
                             <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
@@ -102,19 +90,17 @@ Author: Tobias Frisch
                 </child>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <child>
                       <object class="GtkViewport">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <child>
                           <object class="GtkFlowBox" id="people_flow_box">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="valign">start</property>
                             <property name="border-width">8</property>
-                            <property name="homogeneous">True</property>
+                            <property name="homogeneous">1</property>
                             <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
@@ -133,19 +119,17 @@ Author: Tobias Frisch
                 </child>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <child>
                       <object class="GtkViewport">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <child>
                           <object class="GtkFlowBox" id="nature_flow_box">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="valign">start</property>
                             <property name="border-width">8</property>
-                            <property name="homogeneous">True</property>
+                            <property name="homogeneous">1</property>
                             <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
@@ -164,19 +148,17 @@ Author: Tobias Frisch
                 </child>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <child>
                       <object class="GtkViewport">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <child>
                           <object class="GtkFlowBox" id="food_flow_box">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="valign">start</property>
                             <property name="border-width">8</property>
-                            <property name="homogeneous">True</property>
+                            <property name="homogeneous">1</property>
                             <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
@@ -195,19 +177,17 @@ Author: Tobias Frisch
                 </child>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <child>
                       <object class="GtkViewport">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <child>
                           <object class="GtkFlowBox" id="activities_flow_box">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="valign">start</property>
                             <property name="border-width">8</property>
-                            <property name="homogeneous">True</property>
+                            <property name="homogeneous">1</property>
                             <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
@@ -226,19 +206,17 @@ Author: Tobias Frisch
                 </child>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <child>
                       <object class="GtkViewport">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <child>
                           <object class="GtkFlowBox" id="travel_flow_box">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="valign">start</property>
                             <property name="border-width">8</property>
-                            <property name="homogeneous">True</property>
+                            <property name="homogeneous">1</property>
                             <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
@@ -257,19 +235,17 @@ Author: Tobias Frisch
                 </child>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <child>
                       <object class="GtkViewport">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <child>
                           <object class="GtkFlowBox" id="objects_flow_box">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="valign">start</property>
                             <property name="border-width">8</property>
-                            <property name="homogeneous">True</property>
+                            <property name="homogeneous">1</property>
                             <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
@@ -288,19 +264,17 @@ Author: Tobias Frisch
                 </child>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <child>
                       <object class="GtkViewport">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <child>
                           <object class="GtkFlowBox" id="symbols_flow_box">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="valign">start</property>
                             <property name="border-width">8</property>
-                            <property name="homogeneous">True</property>
+                            <property name="homogeneous">1</property>
                             <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
@@ -319,19 +293,17 @@ Author: Tobias Frisch
                 </child>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <child>
                       <object class="GtkViewport">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="visible">1</property>
                         <child>
                           <object class="GtkFlowBox" id="flags_flow_box">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
+                            <property name="visible">1</property>
                             <property name="valign">start</property>
                             <property name="border-width">8</property>
-                            <property name="homogeneous">True</property>
+                            <property name="homogeneous">1</property>
                             <property name="max-children-per-line">32</property>
                             <property name="selection-mode">none</property>
                             <style>
@@ -350,8 +322,7 @@ Author: Tobias Frisch
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="expand">1</property>
                 <property name="pack-type">end</property>
                 <property name="position">1</property>
               </packing>
@@ -363,17 +334,15 @@ Author: Tobias Frisch
                 <property name="show-close-button">True</property>
                 <child>
                   <object class="GtkSearchEntry" id="emoji_search_entry">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <property name="primary-icon-name">edit-find-symbolic</property>
-                    <property name="primary-icon-activatable">False</property>
-                    <property name="primary-icon-sensitive">False</property>
+                    <property name="primary-icon-activatable">0</property>
+                    <property name="primary-icon-sensitive">0</property>
                   </object>
                 </child>
               </object>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
                 <property name="position">2</property>
               </packing>
             </child>
@@ -386,17 +355,7 @@ Author: Tobias Frisch
         </child>
         <child>
           <object class="GtkBox">
-            <property name="can-focus">False</property>
             <property name="orientation">vertical</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
           </object>
           <packing>
             <property name="name">gif</property>
@@ -407,17 +366,7 @@ Author: Tobias Frisch
         </child>
         <child>
           <object class="GtkBox">
-            <property name="can-focus">False</property>
             <property name="orientation">vertical</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
           </object>
           <packing>
             <property name="name">stickers</property>
@@ -428,35 +377,27 @@ Author: Tobias Frisch
         </child>
       </object>
       <packing>
-        <property name="expand">True</property>
-        <property name="fill">True</property>
+        <property name="expand">1</property>
         <property name="position">1</property>
       </packing>
     </child>
     <child>
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
+        <property name="visible">1</property>
         <child>
           <object class="GtkButton" id="search_button">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
+            <property name="visible">1</property>
+            <property name="can-focus">1</property>
+            <property name="receives-default">1</property>
             <property name="valign">center</property>
             <property name="relief">none</property>
             <child>
               <object class="GtkImage">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="visible">1</property>
                 <property name="icon-name">system-search-symbolic</property>
               </object>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="HdyViewSwitcherBar" id="picker_switcher_bar">
@@ -467,30 +408,26 @@ Author: Tobias Frisch
             <property name="reveal">True</property>
           </object>
           <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
+            <property name="expand">1</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
           <object class="GtkButton" id="settings_button">
-            <property name="visible">True</property>
-            <property name="sensitive">False</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
+            <property name="visible">1</property>
+            <property name="sensitive">0</property>
+            <property name="can-focus">1</property>
+            <property name="receives-default">1</property>
             <property name="valign">center</property>
             <property name="relief">none</property>
             <child>
               <object class="GtkImage">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="visible">1</property>
                 <property name="icon-name">preferences-other-symbolic</property>
               </object>
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
             <property name="pack-type">end</property>
             <property name="position">2</property>
           </packing>
@@ -500,8 +437,6 @@ Author: Tobias Frisch
         </style>
       </object>
       <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
         <property name="position">3</property>
       </packing>
     </child>

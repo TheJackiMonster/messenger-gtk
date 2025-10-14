@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.40.0 
+<!-- Generated with glade 3.40.0
 
-Copyright (C) 2021 GNUnet e.V.
+Copyright (C) 2021‑‑2025 GNUnet e.V.
 
 GNUnet is free software: you can redistribute it and/or modify it
 under the terms of the GNU Affero General Public License as published
@@ -24,8 +24,7 @@ Author: Tobias Frisch
   <requires lib="gtk+" version="3.24"/>
   <requires lib="libhandy" version="1.2"/>
   <object class="GtkBox" id="entry_box">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
+    <property name="visible">1</property>
     <property name="spacing">8</property>
     <child>
       <object class="HdyAvatar" id="entry_avatar">
@@ -33,105 +32,75 @@ Author: Tobias Frisch
         <property name="can-focus">False</property>
         <property name="size">48</property>
       </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
-        <property name="position">0</property>
-      </packing>
     </child>
     <child>
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
+        <property name="visible">1</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="visible">1</property>
             <property name="spacing">8</property>
             <child>
               <object class="GtkLabel" id="title_label">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="wrap">True</property>
+                <property name="visible">1</property>
+                <property name="wrap">1</property>
                 <property name="wrap-mode">word-char</property>
                 <property name="ellipsize">end</property>
                 <property name="xalign">0</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkLabel" id="timestamp_label">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="visible">1</property>
                 <property name="justify">right</property>
                 <style>
                   <class name="timestamp-label"/>
                 </style>
               </object>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
                 <property name="pack-type">end</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="visible">1</property>
             <property name="spacing">4</property>
             <child>
               <object class="GtkLabel" id="text_label">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="wrap">True</property>
+                <property name="visible">1</property>
+                <property name="wrap">1</property>
                 <property name="wrap-mode">word-char</property>
                 <property name="ellipsize">end</property>
                 <property name="max-width-chars">48</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
+                <property name="expand">1</property>
               </packing>
             </child>
             <child>
               <object class="GtkImage" id="read_receipt_image">
-                <property name="can-focus">False</property>
                 <property name="icon-name">mail-mark-notjunk-symbolic</property>
               </object>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
                 <property name="pack-type">end</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
+            <property name="expand">1</property>
             <property name="position">1</property>
           </packing>
         </child>
       </object>
       <packing>
-        <property name="expand">True</property>
-        <property name="fill">True</property>
+        <property name="expand">1</property>
         <property name="pack-type">end</property>
         <property name="position">1</property>
       </packing>
